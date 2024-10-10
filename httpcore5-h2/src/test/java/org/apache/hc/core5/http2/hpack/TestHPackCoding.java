@@ -210,8 +210,8 @@ class TestHPackCoding {
     @Test
     void testBasicStringCoding() throws Exception {
 
-        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
-        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
+        final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         encoder.encodeString(buffer, "this and that", false);
@@ -230,8 +230,8 @@ class TestHPackCoding {
     @Test
     void testEnsureCapacity() throws Exception {
 
-        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
-        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);
+        final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, StandardCharsets.UTF_8);
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         encoder.encodeString(buffer, "this and that", false);
@@ -274,8 +274,8 @@ class TestHPackCoding {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
             final StringBuilder strBuf = new StringBuilder();
 
-            final HPackEncoder encoder = new HPackEncoder(charset);
-            final HPackDecoder decoder = new HPackDecoder(charset);
+            final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, charset);
+            final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, charset);
 
             for (int n = 0; n < 10; n++) {
 
@@ -302,8 +302,8 @@ class TestHPackCoding {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
             final StringBuilder strBuf = new StringBuilder();
 
-            final HPackEncoder encoder = new HPackEncoder(charset);
-            final HPackDecoder decoder = new HPackDecoder(charset);
+            final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, charset);
+            final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, charset);
 
             for (int n = 0; n < 10; n++) {
 
@@ -1061,8 +1061,8 @@ class TestHPackCoding {
     @Test
     void testHeaderSizeLimit() throws Exception {
 
-        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
-        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
+        final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(128);
 
@@ -1086,8 +1086,8 @@ class TestHPackCoding {
     @Test
     void testHeaderEmptyASCII() throws Exception {
 
-        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
-        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
+        final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(128);
 
@@ -1100,8 +1100,8 @@ class TestHPackCoding {
     @Test
     void testHeaderEmptyUTF8() throws Exception {
 
-        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.UTF_8);
-        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);
+        final HPackEncoder encoder = new HPackEncoder(Integer.MAX_VALUE, StandardCharsets.UTF_8);
+        final HPackDecoder decoder = new HPackDecoder(Integer.MAX_VALUE, StandardCharsets.UTF_8);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(128);
 
@@ -1109,6 +1109,75 @@ class TestHPackCoding {
         encoder.encodeHeader(buf, header);
 
         assertHeaderEquals(header, decoder.decodeHeader(wrap(buf)));
+    }
+
+    @Test
+    void encoderDynamicHeaderTableMaxSizeNotIncreasedBySettingsFrame() throws Exception {
+        final OutboundDynamicTable dynamicTable = new OutboundDynamicTable(4096);
+        final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.UTF_8);
+        //emulate receiving a settings frame from the receiver
+        encoder.setMaxTableSize(Integer.MAX_VALUE);
+        //actual table size should not change until we are able to send an update to the receiver
+        Assertions.assertEquals(4096, dynamicTable.getMaxSize());
+    }
+
+    @Test
+    void encoderDynamicHeaderTableMaxSizeChangeCausesUpdateHeader() throws Exception {
+        final OutboundDynamicTable dynamicTable = new OutboundDynamicTable(4096);
+        final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.UTF_8);
+        //emulate receiving a settings frame from the receiver
+        encoder.setMaxTableSize(8192);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+
+        final Header header = new BasicHeader("empty-header", "");
+        encoder.encodeHeader(buf, header);
+
+        final int firstByte = buf.byteAt(0);
+        final int masked = firstByte & 0xe0;
+
+        //first header field is table size update
+        Assertions.assertEquals(0x20, masked);
+
+        //update has new table size as value
+        Assertions.assertEquals(8192, HPackDecoder.decodeInt(wrap(buf), 5));
+    }
+
+    @Test
+    void decoderDynamicHeaderTableMaxSizeNotIncreasedBySettingsFrame() throws Exception {
+        final InboundDynamicTable dynamicTable = new InboundDynamicTable(4096);
+        final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.UTF_8);
+        //emulate something on our side changing the max dynamic table size
+        //this would cause us to send a new settings frame to the sender
+        decoder.setMaxTableSize(Integer.MAX_VALUE);
+        //actual table size should not change until sender sends us a table update
+        Assertions.assertEquals(4096, dynamicTable.getMaxSize());
+    }
+
+    @Test
+    void decoderDynamicHeaderTableMaxSizeUpdatesAfter() throws Exception {
+        final InboundDynamicTable dynamicTable = new InboundDynamicTable(4096);
+        final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.UTF_8);
+        decoder.setMaxTableSize(Integer.MAX_VALUE);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+        HPackEncoder.encodeInt(buf, 5, 8192, 0x20);
+
+        decoder.decodeHeaders(wrap(buf));
+
+        Assertions.assertEquals(8192, dynamicTable.getMaxSize());
+    }
+
+    @Test
+    void decoderDynamicHeaderTableMaxSizeLimitedByConfig() throws Exception {
+        final InboundDynamicTable dynamicTable = new InboundDynamicTable(4096);
+        final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.UTF_8);
+        //do not increase max size, this should limit requests from the receiver to increase max size
+
+        //emulate receiving header that illegally increases the table size above our max
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+        HPackEncoder.encodeInt(buf, 5, 8192, 0x20);
+        Assertions.assertThrows(HPackException.class, () -> decoder.decodeHeaders(wrap(buf)));
     }
 
 }

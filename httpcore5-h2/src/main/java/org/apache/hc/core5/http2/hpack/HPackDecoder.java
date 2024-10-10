@@ -36,6 +36,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
@@ -62,10 +63,10 @@ public final class HPackDecoder {
     private int maxListSize;
 
     HPackDecoder(final InboundDynamicTable dynamicTable, final CharsetDecoder charsetDecoder) {
-        this.dynamicTable = dynamicTable != null ? dynamicTable : new InboundDynamicTable();
+        this.dynamicTable = Objects.requireNonNull(dynamicTable);
         this.contentBuf = new ByteArrayBuffer(256);
         this.charsetDecoder = charsetDecoder;
-        this.maxTableSize = dynamicTable != null ? dynamicTable.getMaxSize() : Integer.MAX_VALUE;
+        this.maxTableSize = this.dynamicTable.getMaxSize();
         this.maxListSize = Integer.MAX_VALUE;
     }
 
@@ -73,12 +74,12 @@ public final class HPackDecoder {
         this(dynamicTable, charset != null && !StandardCharsets.US_ASCII.equals(charset) ? charset.newDecoder() : null);
     }
 
-    public HPackDecoder(final Charset charset) {
-        this(new InboundDynamicTable(), charset);
+    public HPackDecoder(final int maxTableSize, final Charset charset) {
+        this(new InboundDynamicTable(maxTableSize), charset);
     }
 
-    public HPackDecoder(final CharsetDecoder charsetDecoder) {
-        this(new InboundDynamicTable(), charsetDecoder);
+    public HPackDecoder(final int maxTableSize, final CharsetDecoder charsetDecoder) {
+        this(new InboundDynamicTable(maxTableSize), charsetDecoder);
     }
 
     static int readByte(final ByteBuffer src) throws HPackException {
@@ -284,7 +285,10 @@ public final class HPackDecoder {
                     return decodeLiteralHeader(src, HPackRepresentation.NEVER_INDEXED);
                 } else if ((b & 0xe0) == 0x20) {
                     final int maxSize = decodeInt(src, 5);
-                    this.dynamicTable.setMaxSize(Math.min(this.maxTableSize, maxSize));
+                    if (maxSize > this.maxTableSize) {
+                        throw new HPackException("Requested dynamic header table size exceeds maximum size: " + maxSize);
+                    }
+                    this.dynamicTable.setMaxSize(maxSize);
                 } else {
                     throw new HPackException("Unexpected header first byte: 0x" + Integer.toHexString(b));
                 }
@@ -323,7 +327,7 @@ public final class HPackDecoder {
     public void setMaxTableSize(final int maxTableSize) {
         Args.notNegative(maxTableSize, "Max table size");
         this.maxTableSize = maxTableSize;
-        this.dynamicTable.setMaxSize(maxTableSize);
+        this.dynamicTable.setMaxSize(Math.min(this.dynamicTable.getMaxSize(), maxTableSize));
     }
 
     public int getMaxListSize() {
