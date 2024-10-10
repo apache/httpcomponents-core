@@ -81,20 +81,6 @@ class TestDefaultH2RequestConverter {
     }
 
     @Test
-    void testConvertFromFieldsConnectionHeader() {
-        final List<Header> headers = Arrays.asList(
-                new BasicHeader(":method", "GET"),
-                new BasicHeader(":scheme", "http"),
-                new BasicHeader(":authority", "www.example.com"),
-                new BasicHeader(":path", "/"),
-                new BasicHeader("connection", "keep-alive"));
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header 'connection: keep-alive' is illegal for HTTP/2 messages");
-    }
-
-    @Test
     void testConvertFromFieldsPseudoHeaderSequence() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -344,76 +330,6 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
                 "CONNECT request path must be null");
-    }
-
-    @Test
-    void testConvertFromMessageConnectionHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Connection", "Keep-Alive");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsKeepAliveHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Keep-Alive", "timeout=5, max=1000");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Keep-Alive: timeout=5, max=1000' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsProxyConnectionHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Proxy-Connection", "keep-alive");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Proxy-Connection: Keep-Alive' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsTransferEncodingHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Transfer-Encoding", "gzip");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Transfer-Encoding: gzip' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsHostHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Host", "host");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Host: host' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsUpgradeHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("Upgrade", "example/1, foo/2");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'Upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsTEHeader() {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
-        request.addHeader("TE", "gzip");
-
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header 'TE: gzip' is illegal for HTTP/2 messages");
     }
 
     @Test

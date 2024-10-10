@@ -75,9 +75,11 @@ abstract class AbstractHttp2CompatIT {
 
     HttpAsyncRequester client;
 
+    abstract void configure(H2RequesterBootstrap bootstrap);
+
     @BeforeEach
     void start() throws Exception {
-        client = H2RequesterBootstrap.bootstrap()
+        final H2RequesterBootstrap bootstrap = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -90,8 +92,9 @@ abstract class AbstractHttp2CompatIT {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
-                .create();
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
+        configure(bootstrap);
+        client = bootstrap.create();
         client.start();
     }
 
