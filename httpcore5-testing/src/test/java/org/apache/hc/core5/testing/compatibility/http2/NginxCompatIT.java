@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.compatibility.http2;
 
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.GenericContainer;
@@ -39,6 +40,10 @@ class NginxCompatIT extends AbstractHttp2CompatIT {
 
     @Container
     static final GenericContainer<?> CONTAINER = ContainerImages.ngnix();
+
+    @Override
+    void configure(final H2RequesterBootstrap bootstrap) {
+    }
 
     HttpHost targetHost() {
         return new HttpHost("http",
