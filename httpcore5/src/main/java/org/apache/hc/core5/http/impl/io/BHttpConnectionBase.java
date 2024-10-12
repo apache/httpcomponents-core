@@ -248,11 +248,17 @@ class BHttpConnectionBase implements BHttpConnection {
                 try {
                     if (sslSocket != null) {
                         try {
-                            if (!sslSocket.isOutputShutdown()) {
-                                sslSocket.shutdownOutput();
-                            }
-                            if (!sslSocket.isInputShutdown()) {
-                                sslSocket.shutdownInput();
+                            try {
+                                if (!sslSocket.isOutputShutdown()) {
+                                    sslSocket.shutdownOutput();
+                                }
+                                if (!sslSocket.isInputShutdown()) {
+                                    sslSocket.shutdownInput();
+                                }
+                            } catch (final UnsupportedOperationException ignore) {
+                                // Some JREs such as Oracle JDK 1.8 do not support
+                                // Socket#shutdownOutput() and Socket#shutdownInput() methods
+                                // "because of the TLS half-close policy"
                             }
                             sslSocket.close();
                         } catch (final IOException ignore) {
