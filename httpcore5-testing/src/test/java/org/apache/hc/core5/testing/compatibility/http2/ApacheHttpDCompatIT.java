@@ -27,11 +27,8 @@
 
 package org.apache.hc.core5.testing.compatibility.http2;
 
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.protocol.H2RequestConformance;
 import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.junit.jupiter.api.AfterAll;
 import org.testcontainers.containers.GenericContainer;
@@ -46,17 +43,6 @@ class ApacheHttpDCompatIT extends AbstractHttp2CompatIT {
 
     @Override
     void configure(final H2RequesterBootstrap bootstrap) {
-        bootstrap.setHttpProcessor(H2Processors.customClient(null)
-                .addFirst(new H2RequestConformance(
-                        HttpHeaders.CONNECTION,
-                        HttpHeaders.KEEP_ALIVE,
-                        HttpHeaders.PROXY_CONNECTION,
-                        HttpHeaders.TRANSFER_ENCODING,
-// For some reason Apache HTTPD includes Host header in HTTP/2 promise messages
-// though it should not
-//                        HttpHeaders.HOST,
-                        HttpHeaders.UPGRADE))
-                .build());
     }
 
     HttpHost targetHost() {
