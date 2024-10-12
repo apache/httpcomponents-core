@@ -67,7 +67,6 @@ public class H2RequestConformance implements HttpRequestInterceptor {
                 HttpHeaders.KEEP_ALIVE,
                 HttpHeaders.PROXY_CONNECTION,
                 HttpHeaders.TRANSFER_ENCODING,
-                HttpHeaders.HOST,
                 HttpHeaders.UPGRADE,
                 HttpHeaders.TE);
     }
