@@ -194,8 +194,8 @@ class TestH2Interceptors {
         request.addHeader("Host", "host");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Host: host' is illegal for HTTP/2 messages");
+        Assertions.assertDoesNotThrow(() -> interceptor.process(request, null, context),
+                "Header 'Host: host' is permissible for HTTP/2 messages");
     }
 
     @Test
