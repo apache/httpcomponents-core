@@ -55,8 +55,11 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -69,47 +72,55 @@ abstract class AsyncServerBootstrapFilterTest {
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @RegisterExtension
-    private final HttpAsyncServerResource serverResource = new HttpAsyncServerResource(bootstrap -> bootstrap
-            .setIOReactorConfig(
-                    IOReactorConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-            .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+    private final HttpAsyncServerResource serverResource;
+    @RegisterExtension
+    private final HttpAsyncRequesterResource clientResource;
+
+    public AsyncServerBootstrapFilterTest() {
+        this.serverResource = new HttpAsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
+                .setIOReactorConfig(
+                        IOReactorConfig.custom()
+                                .setSoTimeout(TIMEOUT)
+                                .build())
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
-            .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->
-                    chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
+                .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->
+                        chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
 
-                        @Override
-                        public void sendInformation(
-                                final HttpResponse response) throws HttpException, IOException {
-                            responseTrigger.sendInformation(response);
-                        }
+                            @Override
+                            public void sendInformation(
+                                    final HttpResponse response) throws HttpException, IOException {
+                                responseTrigger.sendInformation(response);
+                            }
 
-                        @Override
-                        public void submitResponse(
-                                final HttpResponse response,
-                                final AsyncEntityProducer entityProducer) throws HttpException, IOException {
-                            response.setHeader("X-Test-Filter", "active");
-                            responseTrigger.submitResponse(response, entityProducer);
-                        }
+                            @Override
+                            public void submitResponse(
+                                    final HttpResponse response,
+                                    final AsyncEntityProducer entityProducer) throws HttpException, IOException {
+                                response.setHeader("X-Test-Filter", "active");
+                                responseTrigger.submitResponse(response, entityProducer);
+                            }
 
-                        @Override
-                        public void pushPromise(
-                                final HttpRequest promise,
-                                final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                            responseTrigger.pushPromise(promise, responseProducer);
-                        }
+                            @Override
+                            public void pushPromise(
+                                    final HttpRequest promise,
+                                    final AsyncPushProducer responseProducer) throws HttpException, IOException {
+                                responseTrigger.pushPromise(promise, responseProducer);
+                            }
 
-                    })));
+                        })));
 
-    @RegisterExtension
-    private final HttpAsyncRequesterResource clientResource = new HttpAsyncRequesterResource(bootstrap -> bootstrap
-            .setIOReactorConfig(IOReactorConfig.custom()
-                    .setSoTimeout(TIMEOUT)
-                    .build()));
-
+        this.clientResource = new HttpAsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build()));
+    }
 
     @Test
     void testFilters() throws Exception {

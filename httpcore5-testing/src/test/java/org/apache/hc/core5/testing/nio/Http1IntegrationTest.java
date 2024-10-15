@@ -142,9 +142,7 @@ abstract class Http1IntegrationTest {
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
     private final URIScheme scheme;
-
     private final ReentrantLock lock = new ReentrantLock();
-
     @RegisterExtension
     private final Http1TestResources resources;
 

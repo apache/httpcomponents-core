@@ -32,39 +32,30 @@ import java.util.function.Consumer;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpRequesterResource implements BeforeEachCallback, AfterEachCallback {
+public class HttpRequesterResource implements AfterEachCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequesterResource.class);
 
-    private final Consumer<RequesterBootstrap> bootstrapCustomizer;
-
+    private final RequesterBootstrap bootstrap;
     private HttpRequester requester;
 
-    public HttpRequesterResource(final Consumer<RequesterBootstrap> bootstrapCustomizer) {
-        this.bootstrapCustomizer = bootstrapCustomizer;
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Starting up test client");
-        final RequesterBootstrap bootstrap = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
+    public HttpRequesterResource() {
+        this.bootstrap = RequesterBootstrap.bootstrap()
                 .setMaxTotal(2)
                 .setDefaultMaxPerRoute(2)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE);
-        bootstrapCustomizer.accept(bootstrap);
-        requester = bootstrap.create();
+    }
+
+    public void configure(final Consumer<RequesterBootstrap> customizer) {
+        customizer.accept(bootstrap);
     }
 
     @Override
@@ -79,7 +70,10 @@ public class HttpRequesterResource implements BeforeEachCallback, AfterEachCallb
     }
 
     public HttpRequester start() {
-        Assertions.assertNotNull(requester);
+        if (requester == null) {
+            LOG.debug("Starting up test client");
+            requester = bootstrap.create();
+        }
         return requester;
     }
 

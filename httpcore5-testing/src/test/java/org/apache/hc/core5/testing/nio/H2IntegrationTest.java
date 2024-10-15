@@ -129,7 +129,6 @@ abstract class H2IntegrationTest {
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
     private final URIScheme scheme;
-
     @RegisterExtension
     private final H2TestResources resources;
 

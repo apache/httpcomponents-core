@@ -36,7 +36,10 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.SocksProxyResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
@@ -59,8 +62,10 @@ abstract class H2SocksProxyCoreTransportTest extends HttpCoreTransportTest {
     public H2SocksProxyCoreTransportTest(final URIScheme scheme) {
         super(scheme);
         this.proxyResource = new SocksProxyResource();
-        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new H2AsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -70,8 +75,10 @@ abstract class H2SocksProxyCoreTransportTest extends HttpCoreTransportTest {
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
         );
-        this.clientResource = new H2AsyncRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new H2AsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSocksProxyAddress(proxyResource.proxy().getProxyAddress())
                         .setSoTimeout(TIMEOUT)

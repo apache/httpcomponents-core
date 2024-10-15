@@ -44,7 +44,10 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.SocksProxyResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
@@ -67,7 +70,9 @@ abstract class Http1SocksProxyCoreTransportTest extends HttpCoreTransportTest {
     public Http1SocksProxyCoreTransportTest(final URIScheme scheme) {
         super(scheme);
         this.proxyResource = new SocksProxyResource();
-        this.serverResource = new HttpAsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new HttpAsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -104,7 +109,9 @@ abstract class Http1SocksProxyCoreTransportTest extends HttpCoreTransportTest {
 
                         }))
         );
-        this.clientResource = new HttpAsyncRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new HttpAsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSocksProxyAddress(proxyResource.proxy().getProxyAddress())
                         .setSoTimeout(TIMEOUT)

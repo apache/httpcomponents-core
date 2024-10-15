@@ -43,10 +43,13 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.extension.nio.H2MultiplexingRequesterResource;
 import org.apache.hc.core5.util.Timeout;
@@ -66,8 +69,10 @@ class H2ConnPoolTest {
     private final H2MultiplexingRequesterResource clientResource;
 
     public H2ConnPoolTest() throws Exception {
-        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new H2AsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -79,7 +84,9 @@ class H2ConnPoolTest {
         );
 
         this.clientConnCount = new AtomicLong();
-        this.clientResource = new H2MultiplexingRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new H2MultiplexingRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

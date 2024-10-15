@@ -29,11 +29,9 @@ package org.apache.hc.core5.testing.extension.nio;
 
 import java.util.function.Consumer;
 
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2AsyncRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
@@ -41,30 +39,20 @@ import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2AsyncRequesterResource implements BeforeEachCallback, AfterEachCallback {
+public class H2AsyncRequesterResource implements AfterEachCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(H2AsyncRequesterResource.class);
 
-    private final Consumer<H2RequesterBootstrap> bootstrapCustomizer;
+    private final H2RequesterBootstrap bootstrap;
+    private H2AsyncRequester requester;
 
-    private HttpAsyncRequester requester;
-
-    public H2AsyncRequesterResource(final Consumer<H2RequesterBootstrap> bootstrapCustomizer) {
-        this.bootstrapCustomizer = bootstrapCustomizer;
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Starting up test client");
-        final H2RequesterBootstrap bootstrap = H2RequesterBootstrap.bootstrap()
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+    public H2AsyncRequesterResource() {
+        this.bootstrap = H2RequesterBootstrap.bootstrap()
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                 .setStreamListener(LoggingH2StreamListener.INSTANCE)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
@@ -72,8 +60,10 @@ public class H2AsyncRequesterResource implements BeforeEachCallback, AfterEachCa
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
-        bootstrapCustomizer.accept(bootstrap);
-        requester = bootstrap.create();
+    }
+
+    public void configure(final Consumer<H2RequesterBootstrap> customizer) {
+        customizer.accept(bootstrap);
     }
 
     @Override
@@ -87,9 +77,12 @@ public class H2AsyncRequesterResource implements BeforeEachCallback, AfterEachCa
         }
     }
 
-    public HttpAsyncRequester start() {
-        Assertions.assertNotNull(requester);
-        requester.start();
+    public H2AsyncRequester start() {
+        if (requester == null) {
+            LOG.debug("Starting up test client");
+            requester = bootstrap.create();
+            requester.start();
+        }
         return requester;
     }
 

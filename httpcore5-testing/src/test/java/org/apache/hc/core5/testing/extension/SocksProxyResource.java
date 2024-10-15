@@ -27,26 +27,29 @@
 
 package org.apache.hc.core5.testing.extension;
 
+import java.io.IOException;
+
 import org.apache.hc.core5.testing.SocksProxy;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocksProxyResource implements BeforeEachCallback, AfterEachCallback {
+public class SocksProxyResource implements AfterEachCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(SocksProxyResource.class);
 
-    private SocksProxy proxy;
+    private final SocksProxy proxy;
 
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
+    public SocksProxyResource() {
         LOG.debug("Starting up SOCKS proxy");
-        proxy = new SocksProxy();
-        proxy.start();
+        this.proxy = new SocksProxy();
+        try {
+            this.proxy.start();
+        } catch (final IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -61,7 +64,6 @@ public class SocksProxyResource implements BeforeEachCallback, AfterEachCallback
     }
 
     public SocksProxy proxy() {
-        Assertions.assertNotNull(proxy);
         return proxy;
     }
 

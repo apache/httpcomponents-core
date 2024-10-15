@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -57,7 +58,9 @@ abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTes
 
     public ClassicHttp1CoreTransportTest(final URIScheme scheme) {
         super(scheme);
-        this.serverResource = new HttpServerResource(scheme, bootstrap -> bootstrap
+        this.serverResource = new HttpServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null)
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -84,7 +87,9 @@ abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTes
                             }
 
                         }, context)));
-        this.clientResource = new HttpRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new HttpRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build()));

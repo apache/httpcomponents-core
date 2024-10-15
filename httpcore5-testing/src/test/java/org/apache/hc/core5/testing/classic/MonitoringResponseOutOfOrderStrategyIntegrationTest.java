@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -72,8 +73,9 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
     public MonitoringResponseOutOfOrderStrategyIntegrationTest(final URIScheme scheme) {
         this.scheme = scheme;
-
-        this.serverResource = new HttpServerResource(scheme, bootstrap -> bootstrap
+        this.serverResource = new HttpServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null)
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .setSndBufSize(BUFFER_SIZE)
@@ -88,7 +90,9 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build()));
 
-        this.clientResource = new HttpRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new HttpRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .setRcvBufSize(BUFFER_SIZE)

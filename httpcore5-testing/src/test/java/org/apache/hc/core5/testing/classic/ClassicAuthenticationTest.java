@@ -43,7 +43,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
-import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
@@ -58,6 +57,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -75,7 +75,8 @@ abstract class ClassicAuthenticationTest {
     private HttpRequesterResource clientResource;
 
     public ClassicAuthenticationTest(final Boolean respondImmediately) {
-        this.serverResource = new HttpServerResource(URIScheme.HTTP, bootstrap -> bootstrap
+        this.serverResource = new HttpServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setSocketConfig(
                         SocketConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -116,7 +117,9 @@ abstract class ClassicAuthenticationTest {
                     }
                 })
         );
-        this.clientResource = new HttpRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new HttpRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

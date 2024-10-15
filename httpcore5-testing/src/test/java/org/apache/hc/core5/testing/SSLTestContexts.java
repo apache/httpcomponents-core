@@ -27,7 +27,13 @@
 
 package org.apache.hc.core5.testing;
 
+import java.io.IOException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
 
@@ -35,23 +41,33 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 
 public final class SSLTestContexts {
 
-    public static SSLContext createServerSSLContext() throws Exception {
+    public static SSLContext createServerSSLContext() {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .setKeyStoreType("pkcs12")
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                .build();
+        try {
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .build();
+        } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
+                       UnrecoverableKeyException | IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
-    public static SSLContext createClientSSLContext() throws Exception {
+    public static SSLContext createClientSSLContext() {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .setKeyStoreType("pkcs12")
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .build();
+        try {
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
+                       IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
 }

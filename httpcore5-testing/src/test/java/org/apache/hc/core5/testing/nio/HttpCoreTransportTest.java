@@ -62,7 +62,7 @@ abstract class HttpCoreTransportTest {
 
     final URIScheme scheme;
 
-    HttpCoreTransportTest(final URIScheme scheme) {
+    public HttpCoreTransportTest(final URIScheme scheme) {
         this.scheme = scheme;
     }
 

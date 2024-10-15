@@ -27,50 +27,41 @@
 
 package org.apache.hc.core5.testing.extension.nio;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
-import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
-import org.junit.jupiter.api.Assertions;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCallback {
+public class HttpAsyncServerResource implements AfterEachCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncServerResource.class);
 
-    private final Consumer<AsyncServerBootstrap> bootstrapCustomizer;
+    private final AsyncServerBootstrap bootstrap;
 
     private HttpAsyncServer server;
 
-    public HttpAsyncServerResource(final Consumer<AsyncServerBootstrap> bootstrapCustomizer) {
-        this.bootstrapCustomizer = bootstrapCustomizer;
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Starting up test server");
-
-        final AsyncServerBootstrap bootstrap = AsyncServerBootstrap.bootstrap()
-                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
+    public HttpAsyncServerResource() {
+        this.bootstrap = AsyncServerBootstrap.bootstrap()
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
-        bootstrapCustomizer.accept(bootstrap);
-        server = bootstrap.create();
+    }
+
+    public void configure(final Consumer<AsyncServerBootstrap> customizer) {
+        customizer.accept(bootstrap);
     }
 
     @Override
@@ -84,9 +75,12 @@ public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCal
         }
     }
 
-    public HttpAsyncServer start() {
-        Assertions.assertNotNull(server);
-        server.start();
+    public HttpAsyncServer start() throws IOException {
+        if (server == null) {
+            LOG.debug("Starting up test server");
+            server = bootstrap.create();
+            server.start();
+        }
         return server;
     }
 

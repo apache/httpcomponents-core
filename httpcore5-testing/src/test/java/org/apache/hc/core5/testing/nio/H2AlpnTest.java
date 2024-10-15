@@ -73,7 +73,6 @@ abstract class H2AlpnTest {
 
     private final boolean strictALPN;
     private final boolean h2Allowed;
-
     @RegisterExtension
     private final H2AsyncServerResource serverResource;
     @RegisterExtension
@@ -87,7 +86,8 @@ abstract class H2AlpnTest {
                 new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) :
                 new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext());
 
-        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new H2AsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -101,7 +101,8 @@ abstract class H2AlpnTest {
 
         final TlsStrategy clientTlsStrategy = new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext());
 
-        this.clientResource = new H2MultiplexingRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new H2MultiplexingRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

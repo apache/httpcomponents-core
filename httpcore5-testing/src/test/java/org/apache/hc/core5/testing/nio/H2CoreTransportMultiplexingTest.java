@@ -56,8 +56,11 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.extension.nio.H2MultiplexingRequesterResource;
 import org.apache.hc.core5.util.TimeValue;
@@ -78,8 +81,10 @@ abstract class H2CoreTransportMultiplexingTest {
 
     public H2CoreTransportMultiplexingTest(final URIScheme scheme) {
         this.scheme = scheme;
-        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new H2AsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -89,7 +94,9 @@ abstract class H2CoreTransportMultiplexingTest {
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
         );
-        this.clientResource = new H2MultiplexingRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new H2MultiplexingRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

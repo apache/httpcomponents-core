@@ -52,10 +52,13 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.TlsUpgradeCapable;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -74,7 +77,9 @@ class TLSUpgradeTest {
     private final HttpAsyncRequesterResource clientResource;
 
     public TLSUpgradeTest() {
-        this.serverResource = new HttpAsyncServerResource(bootstrap -> bootstrap
+        this.serverResource = new HttpAsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -84,7 +89,9 @@ class TLSUpgradeTest {
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
         );
-        this.clientResource = new HttpAsyncRequesterResource(bootstrap -> bootstrap
+        this.clientResource = new HttpAsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

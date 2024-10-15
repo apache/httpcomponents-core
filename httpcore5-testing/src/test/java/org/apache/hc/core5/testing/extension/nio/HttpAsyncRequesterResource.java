@@ -31,38 +31,27 @@ import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpAsyncRequesterResource implements BeforeEachCallback, AfterEachCallback {
+public class HttpAsyncRequesterResource implements AfterEachCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncRequesterResource.class);
 
-    private final Consumer<AsyncRequesterBootstrap> bootstrapCustomizer;
+    private final AsyncRequesterBootstrap bootstrap;
 
     private HttpAsyncRequester requester;
 
-    public HttpAsyncRequesterResource(final Consumer<AsyncRequesterBootstrap> bootstrapCustomizer) {
-        this.bootstrapCustomizer = bootstrapCustomizer;
-    }
-
-    @Override
-    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Starting up test client");
-        final AsyncRequesterBootstrap bootstrap = AsyncRequesterBootstrap.bootstrap()
-                .setTlsStrategy(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+    public HttpAsyncRequesterResource() {
+        this.bootstrap = AsyncRequesterBootstrap.bootstrap()
                 .setMaxTotal(2)
                 .setDefaultMaxPerRoute(2)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
@@ -70,8 +59,10 @@ public class HttpAsyncRequesterResource implements BeforeEachCallback, AfterEach
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
-        bootstrapCustomizer.accept(bootstrap);
-        requester = bootstrap.create();
+    }
+
+    public void configure(final Consumer<AsyncRequesterBootstrap> customizer) {
+        customizer.accept(bootstrap);
     }
 
     @Override
@@ -86,8 +77,11 @@ public class HttpAsyncRequesterResource implements BeforeEachCallback, AfterEach
     }
 
     public HttpAsyncRequester start() {
-        Assertions.assertNotNull(requester);
-        requester.start();
+        if (requester == null) {
+            LOG.debug("Starting up test client");
+            requester = bootstrap.create();
+            requester.start();
+        }
         return requester;
     }
 
