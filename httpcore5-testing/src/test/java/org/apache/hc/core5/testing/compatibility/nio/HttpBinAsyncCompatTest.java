@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.compatibility.http1;
+package org.apache.hc.core5.testing.compatibility.nio;
 
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
@@ -54,76 +54,41 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2AsyncRequester;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.apache.hc.core5.testing.compatibility.Result;
-import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
-import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
-import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
-import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
-import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
-import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
+import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Testcontainers(disabledWithoutDocker = true)
-class HttpBinCompatIT {
+public abstract class HttpBinAsyncCompatTest {
 
     static final Timeout TIMEOUT = Timeout.ofSeconds(5);
 
-    @Container
-    static final GenericContainer<?> CONTAINER = ContainerImages.httpBin();
+    private final HttpHost target;
+    @RegisterExtension
+    private final H2AsyncRequesterResource clientResource;
 
-    static HttpHost targetHost() {
-        return new HttpHost("http",
-                CONTAINER.getHost(),
-                CONTAINER.getMappedPort(ContainerImages.HTTP_PORT));
-    }
-
-    HttpAsyncRequester client;
-
-    @BeforeEach
-    void start() throws Exception {
-        client = H2RequesterBootstrap.bootstrap()
+    public HttpBinAsyncCompatTest(final HttpHost target) {
+        this.target = target;
+        this.clientResource = new H2AsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
-                .create();
-        client.start();
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1));
     }
 
-    @AfterEach
-    void shutdown() throws Exception {
-        if (client != null) {
-            client.close(CloseMode.GRACEFUL);
-        }
-    }
-
-    @AfterAll
-    static void cleanup() {
-        CONTAINER.close();
+    H2AsyncRequester client() {
+        return clientResource.start();
     }
 
     @Test
     void test_sequential_request_execution() throws Exception {
-        final HttpHost target = targetHost();
+        final HttpAsyncRequester client = client();
         final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
                 new Message<>(new BasicHttpRequest(Method.GET, target, "/headers")),
                 new Message<>(
@@ -162,7 +127,7 @@ class HttpBinCompatIT {
 
     @Test
     void test_pipelined_request_execution() throws Exception {
-        final HttpHost target = targetHost();
+        final HttpAsyncRequester client = client();
         final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final AsyncClientEndpoint streamEndpoint = connectFuture.get();
         try {

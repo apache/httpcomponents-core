@@ -9,3 +9,6 @@ maven-eclipse.xml
 *.iml
 **/log4j2-debug.xml
 **/.checkstyle
+/test-CA/newcerts/
+/test-CA/serial.txt*
+/test-CA/index.txt*

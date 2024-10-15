@@ -25,35 +25,32 @@
  *
  */
 
-package org.apache.hc.core5.testing.compatibility.http2;
+package org.apache.hc.core5.testing.compatibility;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.testing.compatibility.ContainerImages;
-import org.junit.jupiter.api.AfterAll;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
-@Testcontainers(disabledWithoutDocker = true)
-class ApacheHttpDCompatIT extends AbstractHttp2CompatIT {
+import javax.net.ssl.SSLContext;
 
-    @Container
-    static final GenericContainer<?> CONTAINER = ContainerImages.apacheHttpD();
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 
-    @Override
-    void configure(final H2RequesterBootstrap bootstrap) {
-    }
+public final class TLSTestContexts {
 
-    HttpHost targetHost() {
-        return new HttpHost("http",
-                CONTAINER.getHost(),
-                CONTAINER.getMappedPort(ContainerImages.HTTP_PORT));
-    }
-
-    @AfterAll
-    static void cleanup() {
-        CONTAINER.close();
+    public static SSLContext createClientSSLContext() {
+        final URL keyStoreURL = TLSTestContexts.class.getResource("/test-ca.jks");
+        final String storePassword = "nopassword";
+        try {
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
+                       IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
 }
