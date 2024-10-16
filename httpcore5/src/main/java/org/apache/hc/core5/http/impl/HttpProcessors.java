@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.protocol.RequestConformance;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestTE;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
@@ -113,6 +114,44 @@ public final class HttpProcessors {
     }
 
     /**
+     * Creates an {@link HttpProcessorBuilder} initialized with strict protocol interceptors
+     * for client-side HTTP/1.1 processing.
+     * <p>
+     * This configuration enforces stricter validation and processing of client requests,
+     * ensuring compliance with the HTTP protocol. It includes interceptors for handling
+     * target hosts, content, connection controls, and TE header validation, among others.
+     * The user agent can be customized using the provided {@code agentInfo} parameter.
+     *
+     * @param agentInfo the user agent info to be included in the {@code User-Agent} header.
+     *                  If {@code null} or blank, a default value will be used.
+     * @return the {@link HttpProcessorBuilder} configured with strict client-side interceptors.
+     * @since 5.4
+     */
+    public static HttpProcessorBuilder strictClient(final String agentInfo) {
+        return HttpProcessorBuilder.create()
+                .addAll(
+                        RequestTargetHost.INSTANCE,
+                        RequestContent.INSTANCE,
+                        RequestConnControl.INSTANCE,
+                        RequestTE.INSTANCE,
+                        new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
+                                VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
+                        RequestExpectContinue.INSTANCE);
+    }
+
+    /**
+     * Creates {@link HttpProcessorBuilder} initialized with default protocol interceptors
+     * for client side HTTP/1.1 processing.
+     *
+     * @param agentInfo the agent info text or {@code null} for default.
+     * @return the processor builder.
+     * @since 5.4
+     */
+    public static HttpProcessorBuilder customClient(final String agentInfo, final boolean strict) {
+        return strict ? strictClient(agentInfo) : customClient(agentInfo);
+    }
+
+    /**
      * Creates {@link HttpProcessor} initialized with default protocol interceptors
      * for client side HTTP/1.1 processing.
      *
@@ -120,7 +159,7 @@ public final class HttpProcessors {
      * @return the processor.
      */
     public static HttpProcessor client(final String agentInfo) {
-        return customClient(agentInfo).build();
+        return client(agentInfo, false);
     }
 
     /**
@@ -130,7 +169,47 @@ public final class HttpProcessors {
      * @return the processor.
      */
     public static HttpProcessor client() {
-        return customClient(null).build();
+        return client(null);
+    }
+
+    /**
+     * Creates an {@link HttpProcessor} for client-side HTTP/2 processing.
+     * This method allows the option to include strict protocol interceptors.
+     *
+     * @param agentInfo the agent info text or {@code null} for default.
+     * @param strict    if {@code true}, strict protocol interceptors will be added, including the {@code TE} header validation.
+     * @return the configured HTTP processor.
+     * @since 5.4
+     */
+    public static HttpProcessor client(final String agentInfo, final boolean strict) {
+        return customClient(agentInfo, strict).build();
+    }
+
+    /**
+     * Creates an {@link HttpProcessor} for client-side HTTP/2 processing
+     * with strict protocol validation interceptors by default.
+     * <p>
+     * Strict validation includes additional checks such as validating the {@code TE} header.
+     *
+     * @return the configured strict HTTP processor.
+     * @since 5.4
+     */
+    public static HttpProcessor clientStrict() {
+        return customClient(null, true).build();
+    }
+
+    /**
+     * Creates an {@link HttpProcessor} for client-side HTTP/2 processing
+     * with strict protocol validation interceptors, using the specified agent information.
+     * <p>
+     * Strict validation includes additional checks such as validating the {@code TE} header.
+     *
+     * @param agentInfo the agent info text or {@code null} for default.
+     * @return the configured strict HTTP processor.
+     * @since 5.4
+     */
+    public static HttpProcessor clientStrict(final String agentInfo) {
+        return customClient(agentInfo, true).build();
     }
 
 }
