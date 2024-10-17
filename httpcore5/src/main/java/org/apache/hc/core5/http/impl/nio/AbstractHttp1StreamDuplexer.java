@@ -559,7 +559,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public boolean isOpen() {
-        return connState == ConnectionState.ACTIVE;
+        return connState.compareTo(ConnectionState.ACTIVE) <= 0;
     }
 
     @Override
