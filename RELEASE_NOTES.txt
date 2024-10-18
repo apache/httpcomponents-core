@@ -1,3 +1,38 @@
+Release 5.3.1
+------------------
+
+This is a maintenance release that corrects several defects found since 5.3 release
+including an HTTP/2 protocol handler failure to notify the opposite endpoint when using
+non-default dynamic table sizes.
+
+
+Change Log
+-------------------
+
+* Bug fix: Allow `Host` headers in HTTP/2 request messages.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed the HTTP/1.1 async protocol handler incorrectly reporting its state
+  as CLOSED immediately after its instantiation until the #onConnect event has been
+  triggered.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-771: Ignore java.lang.UnsupportedOperationException when gracefully shutting
+  down classic SSL sockets for compatibility with Oracle JDK 1.8.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: HTTP/2 protocol handler fails to notify the opposite endpoint when correctly
+  using non-default dynamic table sizes.
+  Contributed by Brendan Thomas <brendan.thomas at adaptiva.com>
+
+* Bug fix: Moved HTTP/2 illegal message header check from message converters to protocol
+  interceptors.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected error handling in AbstractAsyncPushHandler
+
+
+
 Release 5.3
 ------------------
 
