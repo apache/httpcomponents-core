@@ -9,16 +9,16 @@ non-default dynamic table sizes.
 Change Log
 -------------------
 
-* Bug fix: fixed the problem with the HTTP/1.1 async protocol handler incorrectly
-  reporting its state as CLOSED immediately after its instantiation until #onConnect
-  event has been triggered.
+* Bug fix: Fixed the HTTP/1.1 async protocol handler incorrectly reporting its state 
+  as CLOSED immediately after its instantiation until the #onConnect event has been 
+  triggered.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-771: Ignore java.lang.UnsupportedOperationException when gracefully shutting
-  classic SSL sockets for compatibility with Oracle JDK 1.8.
+  down classic SSL sockets for compatibility with Oracle JDK 1.8.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: HTTP/2 protocol handler fails to correctly notify the opposite endpoint when
+* Bug fix: HTTP/2 protocol handler fails to notify the opposite endpoint when correctly
   using non-default dynamic table sizes.
   Contributed by Brendan Thomas <brendan.thomas at adaptiva.com>
 
