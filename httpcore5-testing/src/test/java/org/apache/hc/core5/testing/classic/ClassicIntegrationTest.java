@@ -65,6 +65,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestTE;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.testing.extension.classic.ClassicTestResources;
@@ -638,7 +639,8 @@ abstract class ClassicIntegrationTest {
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
-                RequestExpectContinue.INSTANCE));
+                RequestExpectContinue.INSTANCE,
+                RequestTE.INSTANCE));
         client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
