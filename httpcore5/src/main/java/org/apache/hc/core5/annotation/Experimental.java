@@ -39,5 +39,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Experimental {
-    String reason() default "";
+    String value() default ""; // Useful for documenting the reason for the experimental status
 }
