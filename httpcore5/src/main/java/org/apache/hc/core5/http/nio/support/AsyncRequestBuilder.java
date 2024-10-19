@@ -121,6 +121,10 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     }
 
     /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static AsyncRequestBuilder query() {
@@ -128,6 +132,11 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     }
 
     /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static AsyncRequestBuilder query(final URI uri) {
@@ -135,6 +144,11 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     }
 
     /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static AsyncRequestBuilder query(final String uri) {

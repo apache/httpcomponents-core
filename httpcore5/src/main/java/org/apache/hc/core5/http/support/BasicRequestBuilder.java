@@ -105,6 +105,10 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     }
 
     /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static BasicRequestBuilder query() {
@@ -112,6 +116,11 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     }
 
     /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static BasicRequestBuilder query(final URI uri) {
@@ -119,6 +128,11 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     }
 
     /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static BasicRequestBuilder query(final String uri) {

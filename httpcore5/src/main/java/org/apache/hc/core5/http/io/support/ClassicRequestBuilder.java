@@ -121,6 +121,10 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     }
 
     /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static ClassicRequestBuilder query() {
@@ -128,6 +132,11 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     }
 
     /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static ClassicRequestBuilder query(final URI uri) {
@@ -135,6 +144,11 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     }
 
     /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
      * @since 5.4
      */
     public static ClassicRequestBuilder query(final String uri) {
