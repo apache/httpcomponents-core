@@ -120,14 +120,23 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         return new AsyncRequestBuilder(Method.HEAD, uri);
     }
 
+    /**
+     * @since 5.4
+     */
     public static AsyncRequestBuilder query() {
         return new AsyncRequestBuilder(Method.QUERY);
     }
 
+    /**
+     * @since 5.4
+     */
     public static AsyncRequestBuilder query(final URI uri) {
         return new AsyncRequestBuilder(Method.QUERY, uri);
     }
 
+    /**
+     * @since 5.4
+     */
     public static AsyncRequestBuilder query(final String uri) {
         return new AsyncRequestBuilder(Method.QUERY, uri);
     }

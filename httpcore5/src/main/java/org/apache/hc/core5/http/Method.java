@@ -95,6 +95,8 @@ public enum Method {
 
     /**
      * The HTTP {@code QUERY} method is safe and idempotent.
+     *
+     * @since 5.4
      */
     QUERY(true, true);
 
