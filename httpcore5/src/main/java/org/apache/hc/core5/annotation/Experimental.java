@@ -36,7 +36,8 @@ import java.lang.annotation.Target;
  * The field or method to which this annotation is applied is marked as experimental.
  */
 @Documented
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Experimental {
+    String reason() default "";
 }

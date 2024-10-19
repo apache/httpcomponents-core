@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -111,6 +112,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
      *
      * @since 5.4
      */
+    @Experimental
     public static BasicRequestBuilder query() {
         return new BasicRequestBuilder(Method.QUERY);
     }
@@ -123,6 +125,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
      *
      * @since 5.4
      */
+    @Experimental
     public static BasicRequestBuilder query(final URI uri) {
         return new BasicRequestBuilder(Method.QUERY, uri);
     }
@@ -135,6 +138,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
      *
      * @since 5.4
      */
+    @Experimental
     public static BasicRequestBuilder query(final String uri) {
         return new BasicRequestBuilder(Method.QUERY, uri);
     }

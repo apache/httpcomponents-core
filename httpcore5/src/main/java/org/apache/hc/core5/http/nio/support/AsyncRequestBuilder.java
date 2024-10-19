@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
@@ -127,6 +128,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
      *
      * @since 5.4
      */
+    @Experimental
     public static AsyncRequestBuilder query() {
         return new AsyncRequestBuilder(Method.QUERY);
     }
@@ -139,6 +141,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
      *
      * @since 5.4
      */
+    @Experimental
     public static AsyncRequestBuilder query(final URI uri) {
         return new AsyncRequestBuilder(Method.QUERY, uri);
     }
@@ -151,6 +154,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
      *
      * @since 5.4
      */
+    @Experimental
     public static AsyncRequestBuilder query(final String uri) {
         return new AsyncRequestBuilder(Method.QUERY, uri);
     }
