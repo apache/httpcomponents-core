@@ -104,6 +104,18 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
         return new BasicRequestBuilder(Method.HEAD, uri);
     }
 
+    public static BasicRequestBuilder query() {
+        return new BasicRequestBuilder(Method.QUERY);
+    }
+
+    public static BasicRequestBuilder query(final URI uri) {
+        return new BasicRequestBuilder(Method.QUERY, uri);
+    }
+
+    public static BasicRequestBuilder query(final String uri) {
+        return new BasicRequestBuilder(Method.QUERY, uri);
+    }
+
     public static BasicRequestBuilder patch() {
         return new BasicRequestBuilder(Method.PATCH);
     }

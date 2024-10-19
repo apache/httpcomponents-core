@@ -120,6 +120,18 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         return new ClassicRequestBuilder(Method.HEAD, uri);
     }
 
+    public static ClassicRequestBuilder query() {
+        return new ClassicRequestBuilder(Method.QUERY);
+    }
+
+    public static ClassicRequestBuilder query(final URI uri) {
+        return new ClassicRequestBuilder(Method.QUERY, uri);
+    }
+
+    public static ClassicRequestBuilder query(final String uri) {
+        return new ClassicRequestBuilder(Method.QUERY, uri);
+    }
+
     public static ClassicRequestBuilder patch() {
         return new ClassicRequestBuilder(Method.PATCH);
     }

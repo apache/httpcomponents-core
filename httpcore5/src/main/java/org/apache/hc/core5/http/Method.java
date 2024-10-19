@@ -91,7 +91,12 @@ public enum Method {
     /**
      * The HTTP {@code PATCH} method is unsafe and non-idempotent.
      */
-    PATCH(false, false);
+    PATCH(false, false),
+
+    /**
+     * The HTTP {@code QUERY} method is safe and idempotent.
+     */
+    QUERY(true, true);
 
     private final boolean safe;
     private final boolean idempotent;
