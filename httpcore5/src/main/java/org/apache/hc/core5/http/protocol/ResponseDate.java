@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,27 +45,49 @@ import org.apache.hc.core5.util.Args;
  * This interceptor is recommended for the HTTP protocol conformance and
  * the correct operation of the server-side message processing pipeline.
  * </p>
+ * <p>
+ * If the {@code Date} header is missing or considered invalid, and the
+ * {@code alwaysReplace} flag is set to {@code true}, the interceptor will replace it
+ * with the current system date and time.
+ * </p>
  *
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 public class ResponseDate implements HttpResponseInterceptor {
 
+    /**
+     * Indicates whether to always replace an invalid or missing {@code Date} header.
+     *
+     * @since 5.4
+     */
+    private final boolean alwaysReplace;
+
     public static final ResponseDate INSTANCE = new ResponseDate();
 
     public ResponseDate() {
+        this(false);
+    }
+
+    /**
+     * Constructs a ResponseDate interceptor.
+     *
+     * @param alwaysReplace Whether to replace an invalid {@code Date} header.
+     *                           If {@code true}, the interceptor will replace any
+     *                           detected invalid {@code Date} header with a valid value.
+     * @since 5.4
+     */
+    public ResponseDate(final boolean alwaysReplace) {
         super();
+        this.alwaysReplace = alwaysReplace;
     }
 
     @Override
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        final int status = response.getCode();
-        if (status >= HttpStatus.SC_OK &&
-            !response.containsHeader(HttpHeaders.DATE)) {
+        if (alwaysReplace || response.getFirstHeader(HttpHeaders.DATE) == null) {
             response.setHeader(HttpHeaders.DATE, HttpDateGenerator.INSTANCE.getCurrentDate());
         }
     }
-
 }
