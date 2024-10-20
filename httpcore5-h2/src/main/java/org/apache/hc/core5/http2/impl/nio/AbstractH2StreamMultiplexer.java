@@ -201,15 +201,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
             final int current = window.get();
-            long newValue = (long) current + delta;
-
-            //TODO: work-around for what looks like a bug in Ngnix (1.11)
-            // Tolerate if the update window exceeded by one
-            if (newValue == 0x80000000L) {
-                newValue = Integer.MAX_VALUE;
-            }
-            //TODO: needs to be removed
-
+            final long newValue = (long) current + delta;
             if (Math.abs(newValue) > 0x7fffffffL) {
                 throw new ArithmeticException("Update causes flow control window to exceed " + Integer.MAX_VALUE);
             }
