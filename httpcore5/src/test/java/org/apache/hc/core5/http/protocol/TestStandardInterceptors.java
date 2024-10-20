@@ -443,6 +443,25 @@ class TestStandardInterceptors {
     }
 
     @Test
+    void testTEHeaderWithConnectionTE() throws Exception {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        context.setProtocolVersion(HttpVersion.HTTP_1_1);
+
+        // Set both TE and Connection headers as per the requirement
+        request.setHeader(HttpHeaders.TE, "trailers");
+        request.setHeader(HttpHeaders.CONNECTION, "TE");
+
+        final RequestTE interceptor = new RequestTE();
+        interceptor.process(request, request.getEntity(), context);
+
+        final Header connectionHeader = request.getFirstHeader(HttpHeaders.CONNECTION);
+        Assertions.assertNotNull(connectionHeader);
+        Assertions.assertEquals("TE", connectionHeader.getValue());
+    }
+
+
+    @Test
     void testRequestUserAgentGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
