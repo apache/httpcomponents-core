@@ -112,7 +112,7 @@ public final class ContainerImages {
                 .withFileFromString("bbb", BBB)
                 .withFileFromString("ccc", CCC)
                 .withDockerfileFromBuilder(builder -> builder
-                        .from("nginx:1.22")
+                        .from("nginx:1.23")
                         .env("var_dir", "/var/nginx")
                         .env("www_dir", "${var_dir}/www")
                         .run("mkdir -p ${var_dir}")
