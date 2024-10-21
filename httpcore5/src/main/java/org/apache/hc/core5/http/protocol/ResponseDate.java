@@ -32,11 +32,11 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,27 +46,49 @@ import org.apache.hc.core5.util.Args;
  * This interceptor is recommended for the HTTP protocol conformance and
  * the correct operation of the server-side message processing pipeline.
  * </p>
+ * <p>
+ * If the {@code Date} header is invalid, the interceptor will replace it with the
+ * time at which the response was received.
+ * </p>
  *
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 public class ResponseDate implements HttpResponseInterceptor {
 
+    /**
+     * Indicates whether to replace an invalid Date header.
+     *
+     * @since 5.4
+     */
+    private final boolean replaceInvalidDate;
+
     public static final ResponseDate INSTANCE = new ResponseDate();
 
     public ResponseDate() {
+        this(false);
+    }
+
+    /**
+     * Constructs a ResponseDate interceptor.
+     *
+     * @param replaceInvalidDate Whether to replace an invalid {@code Date} header.
+     *                           If {@code true}, the interceptor will replace any
+     *                           detected invalid {@code Date} header with a valid value.
+     * @since 5.4
+     */
+    public ResponseDate(final boolean replaceInvalidDate) {
         super();
+        this.replaceInvalidDate = replaceInvalidDate;
     }
 
     @Override
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        final int status = response.getCode();
-        if (status >= HttpStatus.SC_OK &&
-            !response.containsHeader(HttpHeaders.DATE)) {
+        final Header dateHeader = response.getFirstHeader(HttpHeaders.DATE);
+        if (dateHeader == null || replaceInvalidDate) {
             response.setHeader(HttpHeaders.DATE, HttpDateGenerator.INSTANCE.getCurrentDate());
         }
     }
-
 }

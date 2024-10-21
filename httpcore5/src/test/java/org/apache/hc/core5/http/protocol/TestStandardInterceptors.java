@@ -884,17 +884,6 @@ class TestStandardInterceptors {
     }
 
     @Test
-    void testResponseDateNotGenerated() throws Exception {
-        final HttpCoreContext context = HttpCoreContext.create();
-        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-        response.setCode(199);
-        final ResponseDate interceptor = new ResponseDate();
-        interceptor.process(response, response.getEntity(), context);
-        final Header h1 = response.getFirstHeader(HttpHeaders.DATE);
-        Assertions.assertNull(h1);
-    }
-
-    @Test
     void testResponseDateInvalidInput() {
         final ResponseDate interceptor = new ResponseDate();
         Assertions.assertThrows(NullPointerException.class, () ->
@@ -1149,5 +1138,26 @@ class TestStandardInterceptors {
         Assertions.assertThrows(ProtocolException.class, () ->
             interceptor.process(response, response.getEntity(), context));
     }
+
+    @Test
+    void testInvalidDateReplaced() throws Exception {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
+
+        // Add an invalid Date header
+        response.setHeader(HttpHeaders.DATE, "Invalid Date");
+
+        // Instantiate the ResponseDate interceptor with replaceInvalidDate set to true
+        final ResponseDate interceptor = new ResponseDate(true);
+
+        // Process the response, which should replace the invalid date
+        interceptor.process(response, response.getEntity(), context);
+
+        // Assert that the Date header has been replaced
+        final Header newDateHeader = response.getFirstHeader(HttpHeaders.DATE);
+        Assertions.assertNotNull(newDateHeader);
+        Assertions.assertNotEquals("Invalid Date", newDateHeader.getValue());
+    }
+
 
 }

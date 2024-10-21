@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -95,6 +96,21 @@ public class HttpDateGenerator {
             return dateAsText;
         } finally {
             lock.unlock();
+        }
+    }
+
+    /**
+     * Validates and parses the provided date string.
+     *
+     * @param dateHeader The date string to validate and parse.
+     * @return An Instant representing the parsed date, or null if the date is invalid.
+     * @since 5.4
+     */
+    public Instant parseHttpDate(final String dateHeader) {
+        try {
+            return Instant.from(dateTimeFormatter.withZone(GMT_ID).parse(dateHeader));
+        } catch (final DateTimeException ignore) {
+            return null;
         }
     }
 
