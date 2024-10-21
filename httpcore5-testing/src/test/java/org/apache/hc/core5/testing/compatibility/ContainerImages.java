@@ -46,10 +46,12 @@ public final class ContainerImages {
     public static final String APACHE_HTTPD = "test-apache";
     public static final String NGINX = "test-nginx";
     public static final String HTTPBIN = "test-httpbin";
+    public static final String DANTE = "test-dante";
 
     public static int HTTP_PORT = 80;
     public static int H2C_PORT = 81;
     public static int HTTPS_PORT = 443;
+    public static int SOCKS_PORT = 1080;
 
     public static GenericContainer<?> httpBin(final Network network) {
         return new GenericContainer<>(DockerImageName.parse("kennethreitz/httpbin:latest"))
@@ -130,6 +132,19 @@ public final class ContainerImages {
                 .withNetworkAliases(NGINX)
                 .withLogConsumer(new Slf4jLogConsumer(LOG))
                 .withExposedPorts(HTTP_PORT, H2C_PORT, HTTPS_PORT);
+    }
+
+    public static GenericContainer<?> dante(final Network network) {
+        return new GenericContainer<>(new ImageFromDockerfile()
+                .withDockerfileFromBuilder(builder -> builder
+                        .from("vimagick/dante:latest")
+                        .run("useradd socks")
+                        .run("echo socks:nopassword | chpasswd")
+                        .build()))
+                .withNetwork(network)
+                .withNetworkAliases(DANTE)
+                .withLogConsumer(new Slf4jLogConsumer(LOG))
+                .withExposedPorts(SOCKS_PORT);
     }
 
 }

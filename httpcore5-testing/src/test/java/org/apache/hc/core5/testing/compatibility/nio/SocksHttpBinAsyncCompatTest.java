@@ -25,46 +25,25 @@
  *
  */
 
-package org.apache.hc.core5.testing.extension;
+package org.apache.hc.core5.testing.compatibility.nio;
 
-import java.io.IOException;
+import java.net.SocketAddress;
 
-import org.apache.hc.core5.testing.SocksProxy;
-import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 
-public class SocksProxyResource implements AfterEachCallback {
+public abstract class SocksHttpBinAsyncCompatTest extends HttpBinAsyncCompatTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SocksProxyResource.class);
-
-    private final SocksProxy proxy;
-
-    public SocksProxyResource() {
-        LOG.debug("Starting up SOCKS proxy");
-        this.proxy = new SocksProxy();
-        try {
-            this.proxy.start();
-        } catch (final IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void afterEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Shutting down SOCKS proxy");
-        if (proxy != null) {
-            try {
-                proxy.shutdown(TimeValue.ofSeconds(5));
-            } catch (final Exception ignore) {
-            }
-        }
-    }
-
-    public SocksProxy proxy() {
-        return proxy;
+    public SocksHttpBinAsyncCompatTest(final HttpHost target, final SocketAddress socksProxy, final String socksUser, final String socksPassword) {
+        super(target);
+        configure(bootstrap -> bootstrap
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .setSocksProxyAddress(socksProxy)
+                        .setSocksProxyUsername(socksUser)
+                        .setSocksProxyPassword(socksPassword)
+                        .build())
+        );
     }
 
 }

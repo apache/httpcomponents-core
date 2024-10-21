@@ -103,24 +103,4 @@ class ClassicIntegrationTests {
 
     }
 
-    @Nested
-    @DisplayName("Core transport (SOCKS)")
-    class CoreTransportSocksProxy extends ClassicHttp1SocksProxyCoreTransportTest {
-
-        public CoreTransportSocksProxy() {
-            super(URIScheme.HTTP);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Core transport (TLS, SOCKS)")
-    class CoreTransportSocksProxyTls extends ClassicHttp1SocksProxyCoreTransportTest {
-
-        public CoreTransportSocksProxyTls() {
-            super(URIScheme.HTTPS);
-        }
-
-    }
-
 }

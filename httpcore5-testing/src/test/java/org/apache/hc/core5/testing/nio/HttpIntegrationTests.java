@@ -133,43 +133,4 @@ class HttpIntegrationTests {
 
     }
 
-    @Nested
-    @DisplayName("Core transport (HTTP/1.1, SOCKS)")
-    class CoreTransportSocksProxy extends Http1SocksProxyCoreTransportTest {
-
-        public CoreTransportSocksProxy() {
-            super(URIScheme.HTTP);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Core transport (HTTP/1.1, TLS, SOCKS)")
-    class CoreTransportSocksProxyTls extends Http1SocksProxyCoreTransportTest {
-
-        public CoreTransportSocksProxyTls() {
-            super(URIScheme.HTTPS);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Core transport (H2, SOCKS)")
-    class CoreTransportH2SocksProxy extends H2SocksProxyCoreTransportTest {
-
-        public CoreTransportH2SocksProxy() {
-            super(URIScheme.HTTP);
-        }
-
-    }
-
-    @Nested
-    @DisplayName("Core transport (H2, TLS, SOCKS)")
-    class CoreTransportH2SocksProxyTls extends H2SocksProxyCoreTransportTest {
-
-        public CoreTransportH2SocksProxyTls() {
-            super(URIScheme.HTTPS);
-        }
-
-    }
 }

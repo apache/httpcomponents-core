@@ -35,6 +35,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
@@ -56,6 +57,7 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2AsyncRequester;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.compatibility.Result;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
@@ -80,6 +82,10 @@ public abstract class HttpBinAsyncCompatTest {
                         .setSoTimeout(TIMEOUT)
                         .build())
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1));
+    }
+
+    void configure(final Consumer<H2RequesterBootstrap> customizer) {
+        clientResource.configure(customizer);
     }
 
     H2AsyncRequester client() {

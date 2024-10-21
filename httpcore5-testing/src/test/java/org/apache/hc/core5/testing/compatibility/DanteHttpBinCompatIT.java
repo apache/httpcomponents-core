@@ -27,10 +27,13 @@
 
 package org.apache.hc.core5.testing.compatibility;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.testing.compatibility.classic.HttpBinClassicCompatTest;
-import org.apache.hc.core5.testing.compatibility.nio.HttpBinAsyncCompatTest;
+import org.apache.hc.core5.testing.compatibility.classic.SocksHttpBinClassicCompatTest;
+import org.apache.hc.core5.testing.compatibility.nio.SocksHttpBinAsyncCompatTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,37 +43,47 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
-class HttpBinCompatIT {
+class DanteHttpBinCompatIT {
 
     private static Network NETWORK = Network.newNetwork();
+    @Container
+    static final GenericContainer<?> DANTE_CONTAINER = ContainerImages.dante(NETWORK);
     @Container
     static final GenericContainer<?> HTTP_BIN_CONTAINER = ContainerImages.httpBin(NETWORK);
 
     @AfterAll
     static void cleanup() {
+        DANTE_CONTAINER.close();
         HTTP_BIN_CONTAINER.close();
     }
 
-    static HttpHost targetContainerHost() {
-        return new HttpHost(URIScheme.HTTP.id, HTTP_BIN_CONTAINER.getHost(), HTTP_BIN_CONTAINER.getMappedPort(ContainerImages.HTTP_PORT));
+    static SocketAddress socketContainerAddress() {
+        return new InetSocketAddress(DANTE_CONTAINER.getHost(), DANTE_CONTAINER.getMappedPort(ContainerImages.SOCKS_PORT));
     }
 
+    static HttpHost targetInternalHost() {
+        return new HttpHost(URIScheme.HTTP.id, ContainerImages.HTTPBIN, ContainerImages.HTTP_PORT);
+    }
+
+    static String SOCKS_USER = "socks";
+    static String SOCKS_PW = "nopassword";
+
     @Nested
-    @DisplayName("Classic")
-    class Classic extends HttpBinClassicCompatTest {
+    @DisplayName("Classic, SOCKS proxy")
+    class Classic extends SocksHttpBinClassicCompatTest {
 
         public Classic() throws Exception {
-            super(targetContainerHost());
+            super(targetInternalHost(), socketContainerAddress(), SOCKS_USER, SOCKS_PW);
         }
 
     }
 
     @Nested
-    @DisplayName("Async")
-    class Async extends HttpBinAsyncCompatTest {
+    @DisplayName("Async, SOCKS proxy")
+    class Async extends SocksHttpBinAsyncCompatTest {
 
         public Async() throws Exception {
-            super(targetContainerHost());
+            super(targetInternalHost(), socketContainerAddress(), SOCKS_USER, SOCKS_PW);
         }
 
     }
