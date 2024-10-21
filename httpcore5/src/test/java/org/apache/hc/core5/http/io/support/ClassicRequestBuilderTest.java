@@ -110,6 +110,19 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
+    void query() throws UnknownHostException, URISyntaxException {
+        final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.query();
+        assertEquals(Method.QUERY.name(), classicRequestBuilder.getMethod());
+
+        final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.query(URIBuilder.localhost().build());
+        assertEquals(Method.QUERY.name(), classicRequestBuilder1.getMethod());
+
+        final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.query("/localhost");
+        assertEquals(Method.QUERY.name(), classicRequestBuilder3.getMethod());
+        assertEquals("/localhost", classicRequestBuilder3.getPath());
+    }
+
+    @Test
     void patch() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.patch();
         assertEquals(Method.PATCH.name(), classicRequestBuilder.getMethod());
