@@ -97,5 +97,4 @@ public class HttpDateGenerator {
             lock.unlock();
         }
     }
-
 }
