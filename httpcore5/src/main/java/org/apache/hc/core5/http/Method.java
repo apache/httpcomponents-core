@@ -104,7 +104,8 @@ public enum Method {
      *
      * @since 5.4
      */
-    @Experimental("QUERY method is still in DRAFT status")
+    @Experimental
+    //("QUERY method is still in DRAFT status")
     QUERY(true, true);
 
     private final boolean safe;
