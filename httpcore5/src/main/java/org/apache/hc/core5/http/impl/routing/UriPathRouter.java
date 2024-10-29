@@ -60,15 +60,15 @@ final class UriPathRouter<P, T> implements Function<String, T> {
     }
 
     static <T> UriPathRouter<?, T> bestMatch(final List<PathRoute<String, T>> routes) {
-        return new UriPathRouter<>(Function.identity(), new BestMatcher<>(), routes);
+        return new UriPathRouter<>(Function.identity(), BestMatcher.getInstance(), routes);
     }
 
     static <T> UriPathRouter<?, T> ordered(final List<PathRoute<String, T>> routes) {
-        return new UriPathRouter<>(Function.identity(), new OrderedMatcher<>(), routes);
+        return new UriPathRouter<>(Function.identity(), OrderedMatcher.getInstance(), routes);
     }
 
     static <T> UriPathRouter<?, T> regEx(final List<PathRoute<String, T>> routes) {
-        return new UriPathRouter<>(Pattern::compile, new RegexMatcher<>(), routes);
+        return new UriPathRouter<>(Pattern::compile, RegexMatcher.getInstance(), routes);
     }
 
     private static final PathPatternMatcher PATH_PATTERN_MATCHER = PathPatternMatcher.INSTANCE;
@@ -83,8 +83,23 @@ final class UriPathRouter<P, T> implements Function<String, T> {
      * <li>{@code *<uri-path>}</li>
      * <li>{@code <uri-path>*}</li>
      * </ul>
+     * <p>
+     * This class has no instance state.
+     * </p>
      */
     final static class BestMatcher<T> implements BiFunction<String, List<PathRoute<String, T>>, T> {
+
+        @SuppressWarnings("rawtypes") // raw by design
+        private static final BestMatcher INSTANCE = new BestMatcher();
+
+        @SuppressWarnings({ "cast", "unchecked" }) // cast to call site
+        static <T> BestMatcher<T> getInstance() {
+            return (BestMatcher<T>) INSTANCE;
+        }
+
+        private BestMatcher() {
+            // singleton instance only
+        }
 
         @Override
         public T apply(final String path, final List<PathRoute<String, T>> routes) {
@@ -115,8 +130,23 @@ final class UriPathRouter<P, T> implements Function<String, T> {
      * <li>{@code *<uri-path>}</li>
      * <li>{@code <uri-path>*}</li>
      * </ul>
+     * <p>
+     * This class has no instance state.
+     * </p>
      */
     final static class OrderedMatcher<T> implements BiFunction<String, List<PathRoute<String, T>>, T> {
+
+        @SuppressWarnings("rawtypes") // raw by design
+        private static final OrderedMatcher INSTANCE = new OrderedMatcher();
+
+        @SuppressWarnings({ "cast", "unchecked" }) // cast to call site
+        static <T> OrderedMatcher<T> getInstance() {
+            return (OrderedMatcher<T>) INSTANCE;
+        }
+
+        private OrderedMatcher() {
+            // singleton instance only
+        }
 
         @Override
         public T apply(final String path, final List<PathRoute<String, T>> routes) {
@@ -135,8 +165,23 @@ final class UriPathRouter<P, T> implements Function<String, T> {
 
     /**
      * Finds a match for the given path from a collection of regular expressions.
+     * <p>
+     * This class has no instance state.
+     * </p>
      */
     final static class RegexMatcher<T> implements BiFunction<String, List<PathRoute<Pattern, T>>, T> {
+
+        @SuppressWarnings("rawtypes") // raw by design
+        private static final RegexMatcher INSTANCE = new RegexMatcher();
+
+        @SuppressWarnings({ "cast", "unchecked" }) // cast to call site
+        static <T> RegexMatcher<T> getInstance() {
+            return (RegexMatcher<T>) INSTANCE;
+        }
+
+        private RegexMatcher() {
+            // singleton instance only
+        }
 
         @Override
         public T apply(final String path, final List<PathRoute<Pattern, T>> routes) {

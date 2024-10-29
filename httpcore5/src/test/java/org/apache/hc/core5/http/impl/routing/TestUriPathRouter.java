@@ -38,7 +38,7 @@ class TestUriPathRouter {
 
     @Test
     void testBestMatchWildCardMatching() {
-        final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
+        final UriPathRouter.BestMatcher<Long> matcher = UriPathRouter.BestMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
                 new PathRoute<>("/one/*", 1L),
@@ -58,7 +58,7 @@ class TestUriPathRouter {
 
     @Test
     void testBestMatchWildCardMatchingSuffixPrefixPrecedence() {
-        final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
+        final UriPathRouter.BestMatcher<Long> matcher = UriPathRouter.BestMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
                 new PathRoute<>("*tch", 2L));
@@ -67,7 +67,7 @@ class TestUriPathRouter {
 
     @Test
     void testBestMatchWildCardMatchingExactMatch() {
-        final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
+        final UriPathRouter.BestMatcher<Long> matcher = UriPathRouter.BestMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
                 new PathRoute<>("*", 0L));
@@ -76,7 +76,7 @@ class TestUriPathRouter {
 
     @Test
     void testBestMatchWildCardMatchingNoMatch() {
-        final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
+        final UriPathRouter.BestMatcher<Long> matcher = UriPathRouter.BestMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/this/*", 1L),
                 new PathRoute<>("/that/*", 2L));
@@ -85,7 +85,7 @@ class TestUriPathRouter {
 
     @Test
     void testOrderedWildCardMatching1() {
-        final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
+        final UriPathRouter.OrderedMatcher<Long> matcher = UriPathRouter.OrderedMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
                 new PathRoute<>("/one/*", 1L),
@@ -121,7 +121,7 @@ class TestUriPathRouter {
 
     @Test
     void testOrderedWildCardMatchingSuffixPrefixPrecedence() {
-        final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
+        final UriPathRouter.OrderedMatcher<Long> matcher = UriPathRouter.OrderedMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
                 new PathRoute<>("*tch", 2L));
@@ -130,7 +130,7 @@ class TestUriPathRouter {
 
     @Test
     void testOrderedStarAndExact() {
-        final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
+        final UriPathRouter.OrderedMatcher<Long> matcher = UriPathRouter.OrderedMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
                 new PathRoute<>("exact", 1L));
@@ -139,7 +139,7 @@ class TestUriPathRouter {
 
     @Test
     void testOrderedExactAndStar() {
-        final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
+        final UriPathRouter.OrderedMatcher<Long> matcher = UriPathRouter.OrderedMatcher.getInstance();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
                 new PathRoute<>("*", 0L));
@@ -148,7 +148,7 @@ class TestUriPathRouter {
 
     @Test
     void testRegExMatching() {
-        final UriPathRouter.RegexMatcher<Long> matcher = new UriPathRouter.RegexMatcher<>();
+        final UriPathRouter.RegexMatcher<Long> matcher = UriPathRouter.RegexMatcher.getInstance();
         final List<PathRoute<Pattern, Long>> routes = Arrays.asList(
                 new PathRoute<>(Pattern.compile("/one/two/three/.*"), 3L),
                 new PathRoute<>(Pattern.compile("/one/two/.*"), 2L),
@@ -167,7 +167,7 @@ class TestUriPathRouter {
 
     @Test
     void testRegExWildCardMatchingSuffixPrefixPrecedence() {
-        final UriPathRouter.RegexMatcher<Long> matcher = new UriPathRouter.RegexMatcher<>();
+        final UriPathRouter.RegexMatcher<Long> matcher = UriPathRouter.RegexMatcher.getInstance();
         final List<PathRoute<Pattern, Long>> routes = Arrays.asList(
                 new PathRoute<>(Pattern.compile("/ma.*"), 1L),
                 new PathRoute<>(Pattern.compile(".*tch"), 2L));
