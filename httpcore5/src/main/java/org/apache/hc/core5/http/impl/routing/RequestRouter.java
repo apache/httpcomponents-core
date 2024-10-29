@@ -103,13 +103,8 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
 
     }
 
-    static class NoAuthorityResolver<T> implements Function<URIAuthority, T> {
-
-        @Override
-        public T apply(final URIAuthority authority) {
-            return null;
-        }
-
+    static final <T> Function<URIAuthority, T> noAuthorityResolver() {
+       return u -> null;
     }
 
     @Internal
@@ -136,7 +131,7 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
                                 }))));
         final Function<URIAuthority, Function<String, T>> authorityFunction;
         if (authorityMap.isEmpty()) {
-            authorityFunction = new NoAuthorityResolver<>();
+            authorityFunction = noAuthorityResolver();
         } else if (authorityMap.size() == 1) {
             final Map.Entry<URIAuthority, Function<String, T>> entry = authorityMap.entrySet().iterator().next();
             authorityFunction = new SingleAuthorityResolver<>(entry.getKey(), entry.getValue());
