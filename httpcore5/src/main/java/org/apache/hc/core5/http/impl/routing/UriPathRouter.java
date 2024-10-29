@@ -60,11 +60,11 @@ final class UriPathRouter<P, T> implements Function<String, T> {
     }
 
     static <T> UriPathRouter<?, T> bestMatch(final List<PathRoute<String, T>> routes) {
-        return new UriPathRouter<>(e -> e, new BestMatcher<>(), routes);
+        return new UriPathRouter<>(Function.identity(), new BestMatcher<>(), routes);
     }
 
     static <T> UriPathRouter<?, T> ordered(final List<PathRoute<String, T>> routes) {
-        return new UriPathRouter<>(e -> e, new OrderedMatcher<>(), routes);
+        return new UriPathRouter<>(Function.identity(), new OrderedMatcher<>(), routes);
     }
 
     static <T> UriPathRouter<?, T> regEx(final List<PathRoute<String, T>> routes) {
