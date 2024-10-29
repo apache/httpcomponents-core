@@ -91,31 +91,51 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     /**
      * Constructs a new instance.
      *
-     * @throws IllegalArgumentException
-     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
-     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     * @param userInfo The user info, may be null.
+     * @param hostName The host name, not null.
+     * @param port The port value, between 0 and 65535, inclusive. {@code -1} indicates the scheme default port.
+     * @throws NullPointerException     If the {@code name} is {@code null}.
+     * @throws IllegalArgumentException If the port is outside the specified range of valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
      */
-    public URIAuthority(final String userInfo, final String hostname, final int port) {
+    public URIAuthority(final String userInfo, final String hostName, final int port) {
         super();
         this.userInfo = userInfo;
-        this.host = new Host(hostname, port);
-    }
-
-    public URIAuthority(final String hostname, final int port) {
-        this(null, hostname, port);
+        this.host = new Host(hostName, port);
     }
 
     /**
+     * Constructs a new instance.
+     *
+     * @param hostName The host name, not null.
+     * @param port The port value, between 0 and 65535, inclusive. {@code -1} indicates the scheme default port.
+     * @throws NullPointerException     If the {@code name} is {@code null}.
+     * @throws IllegalArgumentException If the port is outside the specified range of valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
+     */
+    public URIAuthority(final String hostName, final int port) {
+        this(null, hostName, port);
+    }
+
+    /**
+     * Constructs a new instance.
+     *
+     * @param userInfo The user info, may be null.
+     * @param host     The host, never null.
+     * @throws NullPointerException if the {@code host} is {@code null}.
      * @since 5.2
      */
     public URIAuthority(final String userInfo, final Host host) {
         super();
-        Args.notNull(host, "Host");
+        this.host = Args.notNull(host, "Host");
         this.userInfo = userInfo;
-        this.host = host;
     }
 
     /**
+     * Constructs a new instance.
+     *
+     * @param host     The host, never null.
+     * @throws NullPointerException if the {@code host} is {@code null}.
      * @since 5.2
      */
     public URIAuthority(final Host host) {
@@ -123,6 +143,14 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     }
 
     /**
+     * Constructs a new instance.
+     *
+     * @param userInfo The user info, may be null.
+     * @param endpoint The named end-point, never null.
+     * @throws NullPointerException     If the end-point is {@code null}.
+     * @throws NullPointerException     If the end-point {@code name} is {@code null}.
+     * @throws IllegalArgumentException If the end-point port is outside the specified range of valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
      * @since 5.2
      */
     public URIAuthority(final String userInfo, final NamedEndpoint endpoint) {
@@ -132,6 +160,15 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         this.host = new Host(endpoint.getHostName(), endpoint.getPort());
     }
 
+    /**
+     * Constructs a new instance.
+     *
+     * @param namedEndpoint The named end-point, never null.
+     * @throws NullPointerException     If the end-point is {@code null}.
+     * @throws NullPointerException     If the end-point {@code name} is {@code null}.
+     * @throws IllegalArgumentException If the end-point port is outside the specified range of valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
+     */
     public URIAuthority(final NamedEndpoint namedEndpoint) {
         this(null, namedEndpoint);
     }
@@ -155,10 +192,21 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         return uriAuthority;
     }
 
-    public URIAuthority(final String hostname) {
-        this(null, hostname, -1);
+    /**
+     * Constructs a new instance.
+     *
+     * @param hostName The host name, not null.
+     * @throws NullPointerException     If the {@code name} is {@code null}.
+     */
+    public URIAuthority(final String hostName) {
+        this(null, hostName, -1);
     }
 
+    /**
+     * Gets the user info String.
+     *
+     * @return the user info String.
+     */
     public String getUserInfo() {
         return userInfo;
     }

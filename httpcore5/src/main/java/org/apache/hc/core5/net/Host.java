@@ -61,6 +61,15 @@ public final class Host implements NamedEndpoint, Serializable {
                 s.charAt(3) == '-';
     }
 
+    /**
+     * Constructs a new instance.
+     *
+     * @param name The host name, not null.
+     * @param port The port value, between 0 and 65535, inclusive. {@code -1} indicates the scheme default port.
+     * @throws NullPointerException     if the {@code name} is {@code null}.
+     * @throws IllegalArgumentException If the port parameter is outside the specified range of valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
+     */
     public Host(final String name, final int port) {
         super();
         Args.notNull(name, "Host name");
