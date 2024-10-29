@@ -81,13 +81,13 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
 
     }
 
-    static class SingleAuthorityResolver<T> implements Function<URIAuthority, T> {
+    static final class SingleAuthorityResolver<T> implements Function<URIAuthority, T> {
 
         private final URIAuthority singleAuthority;
         private final T router;
 
         SingleAuthorityResolver(final URIAuthority singleAuthority, final T router) {
-            this.singleAuthority = singleAuthority;
+            this.singleAuthority = Args.notNull(singleAuthority, "singleAuthority");
             this.router = router;
         }
 
