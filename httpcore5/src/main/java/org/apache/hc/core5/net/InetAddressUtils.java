@@ -308,8 +308,7 @@ public class InetAddressUtils {
      */
     public static String getCanonicalLocalHostName() {
         try {
-            final InetAddress localHost = InetAddress.getLocalHost();
-            return localHost.getCanonicalHostName();
+            return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (final UnknownHostException ex) {
             return "localhost";
         }
