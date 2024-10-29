@@ -332,7 +332,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                 }
             }
             if (request.getAuthority() == null) {
-                request.setAuthority(new URIAuthority(targetHost.getHostName(), targetHost.getPort()));
+                request.setAuthority(new URIAuthority(targetHost));
             }
             final ClassicHttpResponse response = execute(connection, request, informationCallback, context);
             final HttpEntity entity = response.getEntity();

@@ -177,7 +177,7 @@ public class H2MultiplexingRequester extends AsyncRequester {
             exchangeHandler.produceRequest((request, entityDetails, httpContext) -> {
                 final HttpHost host = target != null ? target : defaultTarget(request);
                 if (request.getAuthority() == null) {
-                    request.setAuthority(new URIAuthority(host.getHostName(), host.getPort()));
+                    request.setAuthority(new URIAuthority(host));
                 }
                 connPool.getSession(host, timeout, new FutureCallback<IOSession>() {
 

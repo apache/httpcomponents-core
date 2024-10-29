@@ -292,7 +292,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             exchangeHandler.produceRequest((request, entityDetails, requestContext) -> {
                 final HttpHost host = target != null ? target : defaultTarget(request);
                 if (request.getAuthority() == null) {
-                    request.setAuthority(new URIAuthority(host.getHostName(), host.getPort()));
+                    request.setAuthority(new URIAuthority(host));
                 }
                 connect(host, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
