@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
@@ -118,6 +119,44 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
 
     public static ClassicRequestBuilder head(final String uri) {
         return new ClassicRequestBuilder(Method.HEAD, uri);
+    }
+
+    /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static ClassicRequestBuilder query() {
+        return new ClassicRequestBuilder(Method.QUERY);
+    }
+
+    /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static ClassicRequestBuilder query(final URI uri) {
+        return new ClassicRequestBuilder(Method.QUERY, uri);
+    }
+
+    /**
+     * Initializes a new {@link ClassicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static ClassicRequestBuilder query(final String uri) {
+        return new ClassicRequestBuilder(Method.QUERY, uri);
     }
 
     public static ClassicRequestBuilder patch() {

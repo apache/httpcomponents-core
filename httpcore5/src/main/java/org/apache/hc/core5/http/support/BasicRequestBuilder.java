@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -102,6 +103,44 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
 
     public static BasicRequestBuilder head(final String uri) {
         return new BasicRequestBuilder(Method.HEAD, uri);
+    }
+
+    /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static BasicRequestBuilder query() {
+        return new BasicRequestBuilder(Method.QUERY);
+    }
+
+    /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static BasicRequestBuilder query(final URI uri) {
+        return new BasicRequestBuilder(Method.QUERY, uri);
+    }
+
+    /**
+     * Initializes a new {@link BasicRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static BasicRequestBuilder query(final String uri) {
+        return new BasicRequestBuilder(Method.QUERY, uri);
     }
 
     public static BasicRequestBuilder patch() {

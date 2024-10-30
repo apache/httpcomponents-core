@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
@@ -118,6 +119,44 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
 
     public static AsyncRequestBuilder head(final String uri) {
         return new AsyncRequestBuilder(Method.HEAD, uri);
+    }
+
+    /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static AsyncRequestBuilder query() {
+        return new AsyncRequestBuilder(Method.QUERY);
+    }
+
+    /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static AsyncRequestBuilder query(final URI uri) {
+        return new AsyncRequestBuilder(Method.QUERY, uri);
+    }
+
+    /**
+     * Initializes a new {@link AsyncRequestBuilder} instance for the {@code QUERY} method.
+     *
+     * @param uri the request URI.
+     * @see Method#QUERY for more information regarding the properties of the {@code QUERY} method.
+     *
+     * @since 5.4
+     */
+    @Experimental
+    public static AsyncRequestBuilder query(final String uri) {
+        return new AsyncRequestBuilder(Method.QUERY, uri);
     }
 
     public static AsyncRequestBuilder patch() {

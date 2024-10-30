@@ -29,6 +29,7 @@ package org.apache.hc.core5.http;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -91,7 +92,21 @@ public enum Method {
     /**
      * The HTTP {@code PATCH} method is unsafe and non-idempotent.
      */
-    PATCH(false, false);
+    PATCH(false, false),
+
+    /**
+     * The HTTP {@code QUERY} method is safe and idempotent.
+     * <p>
+     * {@code QUERY} is a method defined to represent a safe, idempotent request that carries a body.
+     * This allows clients to send a body while enjoying the {@code GET}-like properties (such as easy caching,
+     * safe CORS handling [if supported] and bookmarking), as well as the {@code POST}-like properties (such as
+     * being able to send a query in a richer format, and not being limited by URI length and escaping restrictions).
+     *
+     * @since 5.4
+     */
+    @Experimental
+    //("QUERY method is still in DRAFT status")
+    QUERY(true, true);
 
     private final boolean safe;
     private final boolean idempotent;

@@ -138,7 +138,7 @@ public class RequestContent implements HttpRequestInterceptor {
     }
 
     private boolean isContentEnclosingMethod(final String method) {
-        return Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.PATCH.isSame(method);
+        return Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.PATCH.isSame(method) || Method.QUERY.isSame(method);
     }
 
     /**
