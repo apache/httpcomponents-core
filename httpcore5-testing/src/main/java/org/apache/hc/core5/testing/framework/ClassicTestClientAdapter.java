@@ -61,10 +61,10 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
         if (request == null) {
             throw new HttpException("request cannot be null");
         }
-        if (! request.containsKey(PATH)) {
+        if (!request.containsKey(PATH)) {
             throw new HttpException("Request path should be set.");
         }
-        if (! request.containsKey(METHOD)) {
+        if (!request.containsKey(METHOD)) {
             throw new HttpException("Request method should be set.");
         }
 
@@ -80,7 +80,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
         // Append the path to the defaultURI.
         String tempDefaultURI = defaultURI;
-        if (! defaultURI.endsWith("/")) {
+        if (!defaultURI.endsWith("/")) {
             tempDefaultURI += "/";
         }
         final URI startingURI = new URI(tempDefaultURI + request.get(PATH));

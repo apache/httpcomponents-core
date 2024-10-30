@@ -157,12 +157,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private PerRoutePool<T, C> getPool(final T route) {
-        PerRoutePool<T, C> pool = this.routeToPool.get(route);
-        if (pool == null) {
-            pool = new PerRoutePool<>(route, this.disposalCallback);
-            this.routeToPool.put(route, pool);
-        }
-        return pool;
+        return this.routeToPool.computeIfAbsent(route, r -> new PerRoutePool<>(route, this.disposalCallback));
     }
 
     @Override

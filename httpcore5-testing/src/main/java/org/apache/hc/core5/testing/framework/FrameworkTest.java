@@ -96,7 +96,7 @@ public class FrameworkTest {
         ret.put(PROTOCOL_VERSION, TestingFramework.DEFAULT_REQUEST_PROTOCOL_VERSION);
 
         // GET is the default method.
-        if (! request.containsKey(METHOD)) {
+        if (!request.containsKey(METHOD)) {
             request.put(METHOD, "GET");
         }
         ret.putAll(request);
@@ -119,7 +119,7 @@ public class FrameworkTest {
                 for (final NameValuePair param : params) {
                     queryMap.put(param.getName(), param.getValue());
                 }
-                if (! params.isEmpty()) {
+                if (!params.isEmpty()) {
                     request.put(PATH, uri.getPath());
                 }
             }
@@ -135,7 +135,7 @@ public class FrameworkTest {
      */
     public Map<String, Object> initResponseExpectations() {
         // 200 is the default status.
-        if (! response.containsKey(STATUS)) {
+        if (!response.containsKey(STATUS)) {
             response.put(STATUS, 200);
         }
 

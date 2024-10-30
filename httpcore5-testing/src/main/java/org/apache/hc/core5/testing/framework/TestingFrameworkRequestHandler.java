@@ -117,7 +117,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
              */
             final String actualMethod = request.getMethod();
             final String expectedMethod = (String) requestExpectations.get(METHOD);
-            if (! actualMethod.equals(expectedMethod)) {
+            if (!actualMethod.equals(expectedMethod)) {
                 throw new TestingFrameworkException("Method not expected. " +
                     " expected=" + expectedMethod + "; actual=" + actualMethod);
             }
@@ -145,12 +145,12 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
                 }
                 for (final Map.Entry<String, String> expectedParam : expectedQuery.entrySet()) {
                     final String key = expectedParam.getKey();
-                    if (! actualParamsMap.containsKey(key)) {
+                    if (!actualParamsMap.containsKey(key)) {
                         throw new TestingFrameworkException("Expected parameter not found: " + key);
                     }
                     final String actualParamValue = actualParamsMap.get(key);
                     final String expectedParamValue = expectedParam.getValue();
-                    if (! actualParamValue.equals(expectedParamValue)) {
+                    if (!actualParamValue.equals(expectedParamValue)) {
                         throw new TestingFrameworkException("Expected parameter value not found. " +
                             " Parameter=" + key + "; expected=" + expectedParamValue + "; actual=" + actualParamValue);
                     }
@@ -170,12 +170,12 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
                 }
                 for (final Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
                     final String key = expectedHeader.getKey();
-                    if (! actualHeadersMap.containsKey(key)) {
+                    if (!actualHeadersMap.containsKey(key)) {
                         throw new TestingFrameworkException("Expected header not found: " + key);
                     }
                     final String actualHeaderValue = actualHeadersMap.get(key);
                     final String expectedHeaderValue = expectedHeader.getValue();
-                    if (! actualHeaderValue.equals(expectedHeaderValue)) {
+                    if (!actualHeaderValue.equals(expectedHeaderValue)) {
                         throw new TestingFrameworkException("Expected header value not found. " +
                                 " Name=" + key + "; expected=" + expectedHeaderValue + "; actual=" + actualHeaderValue);
                     }
@@ -189,7 +189,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             if (expectedBody != null) {
                 final HttpEntity entity = request.getEntity();
                 final String data = EntityUtils.toString(entity);
-                if (! data.equals(expectedBody)) {
+                if (!data.equals(expectedBody)) {
                     throw new TestingFrameworkException("Expected body not found. " +
                             " Body=" + data + "; expected=" + expectedBody);
                 }
@@ -203,7 +203,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
                 final HttpEntity entity = request.getEntity();
                 final String contentType = entity.getContentType();
                 final String expectedContentType = (String) requestExpectations.get(CONTENT_TYPE);
-                if (! contentType.equals(expectedContentType)) {
+                if (!contentType.equals(expectedContentType)) {
                     throw new TestingFrameworkException("Expected request content type not found. " +
                             " Content Type=" + contentType + "; expected=" + expectedContentType);
                 }
@@ -215,7 +215,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             if (requestExpectations.containsKey(PROTOCOL_VERSION)) {
                 final ProtocolVersion protocolVersion = request.getVersion();
                 final ProtocolVersion expectedProtocolVersion = (ProtocolVersion) requestExpectations.get(PROTOCOL_VERSION);
-                if (! protocolVersion.equals(expectedProtocolVersion)) {
+                if (!protocolVersion.equals(expectedProtocolVersion)) {
                     throw new TestingFrameworkException("Expected request protocol version not found. " +
                             " Protocol Version=" + protocolVersion + "; expected=" + expectedProtocolVersion);
                 }

@@ -112,12 +112,10 @@ final class StaticTable {
 
         for (int i = 0; i < headers.length; i++) {
             final HPackHeader header = headers[i];
-
             final String key = header.getName();
-            CopyOnWriteArrayList<HPackEntry> entries = this.mapByName.get(key);
+            final CopyOnWriteArrayList<HPackEntry> entries = this.mapByName.get(key);
             if (entries == null) {
-                entries = new CopyOnWriteArrayList<>(new HPackEntry[] { new InternalEntry(header, i) });
-                this.mapByName.put(key, entries);
+                this.mapByName.put(key, new CopyOnWriteArrayList<>(new HPackEntry[] { new InternalEntry(header, i) }));
             } else {
                 entries.add(new InternalEntry(header, i));
             }

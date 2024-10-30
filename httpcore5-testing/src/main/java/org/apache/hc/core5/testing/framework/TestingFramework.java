@@ -263,7 +263,7 @@ public class TestingFramework {
         /*
          * If the adapter does not support the particular request, skip the test.
          */
-        if (! adapter.isRequestSupported(request)) {
+        if (!adapter.isRequestSupported(request)) {
             return;
         }
 
@@ -323,7 +323,7 @@ public class TestingFramework {
         if (actualResponse.get(STATUS) != TestingFramework.ALREADY_CHECKED) {
             assertStatusMatchesExpectation(actualResponse.get(STATUS), expectedResponse.get(STATUS));
         }
-        if (! method.equals("HEAD")) {
+        if (!method.equals("HEAD")) {
             if (actualResponse.get(BODY) != TestingFramework.ALREADY_CHECKED) {
                 assertBodyMatchesExpectation(actualResponse.get(BODY), expectedResponse.get(BODY));
             }
@@ -365,7 +365,7 @@ public class TestingFramework {
             if (actualContentType == null) {
                 throw new TestingFrameworkException("Returned contentType is null.");
             }
-            if (! actualContentType.equals(expectedContentType)) {
+            if (!actualContentType.equals(expectedContentType)) {
                 throw new TestingFrameworkException("Expected content type not found.  expected="
                                     + expectedContentType + "; actual=" + actualContentType);
             }
@@ -380,10 +380,10 @@ public class TestingFramework {
         }
         for (final Map.Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
             final String expectedHeaderName = expectedHeader.getKey();
-            if (! actualHeaders.containsKey(expectedHeaderName)) {
+            if (!actualHeaders.containsKey(expectedHeaderName)) {
                 throw new TestingFrameworkException("Expected header not found: name=" + expectedHeaderName);
             }
-            if (! actualHeaders.get(expectedHeaderName).equals(expectedHeaders.get(expectedHeaderName))) {
+            if (!actualHeaders.get(expectedHeaderName).equals(expectedHeaders.get(expectedHeaderName))) {
                 throw new TestingFrameworkException("Header value not expected: name=" + expectedHeaderName
                         + "; expected=" + expectedHeaders.get(expectedHeaderName)
                         + "; actual=" + actualHeaders.get(expectedHeaderName));
