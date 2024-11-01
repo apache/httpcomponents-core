@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * A strategy that never reuses a connection.
+ * @since 5.4
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
