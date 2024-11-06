@@ -38,9 +38,9 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  * the HTTP protocol. Usually protocol interceptors are expected to act upon
  * one specific header or a group of related headers of the incoming message
  * or populate the outgoing message with one specific header or a group of
- * related headers. Protocol
+ * related headers.
  * <p>
- * Interceptors can also manipulate content entities enclosed with messages.
+ * Protocol interceptors can also manipulate content entities enclosed with messages.
  * Usually this is accomplished by using the 'Decorator' pattern where a wrapper
  * entity class is used to decorate the original entity.
  * <p>
