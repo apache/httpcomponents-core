@@ -1342,8 +1342,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (payload == null) {
                 return;
             }
-            headerBuffer.ensureCapacity(payload.remaining());
-            payload.get(headerBuffer.array(), headerBuffer.length(), payload.remaining());
+            int originalLength = headerBuffer.length();
+            int toCopy = payload.remaining();
+            headerBuffer.ensureCapacity(toCopy);
+            payload.get(headerBuffer.array(), originalLength, toCopy);
+            headerBuffer.setLength(originalLength + toCopy);
         }
 
         ByteBuffer getContent() {
