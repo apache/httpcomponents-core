@@ -213,11 +213,7 @@ public class HttpRequestExecutor {
             return response;
 
         } catch (final HttpException | IOException | RuntimeException ex) {
-            if (http1Config.getUseRstOnTimeout()) {
-                Closer.close(conn, CloseMode.IMMEDIATE);
-            } else {
-                Closer.closeQuietly(conn);
-            }
+            Closer.close(conn, CloseMode.IMMEDIATE);
             throw ex;
         }
     }

@@ -56,11 +56,10 @@ public class Http1Config {
     private final int maxHeaderCount;
     private final int maxEmptyLineCount;
     private final int initialWindowSize;
-    private final boolean useRstOnTimeout;
 
     Http1Config(final HttpVersion version, final int bufferSize, final int chunkSizeHint,
                 final Timeout waitForContinueTimeout, final int maxLineLength, final int maxHeaderCount,
-                final int maxEmptyLineCount, final int initialWindowSize, final boolean useRstOnTimeout) {
+                final int maxEmptyLineCount, final int initialWindowSize) {
         super();
         this.version = version;
         this.bufferSize = bufferSize;
@@ -70,7 +69,6 @@ public class Http1Config {
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
         this.initialWindowSize = initialWindowSize;
-        this.useRstOnTimeout = useRstOnTimeout;
     }
 
     /**
@@ -111,13 +109,6 @@ public class Http1Config {
         return initialWindowSize;
     }
 
-    /**
-     * @since 5.4
-     */
-    public boolean getUseRstOnTimeout() {
-        return useRstOnTimeout;
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -129,7 +120,6 @@ public class Http1Config {
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append(", maxEmptyLineCount=").append(maxEmptyLineCount)
                 .append(", initialWindowSize=").append(initialWindowSize)
-                .append(", useRstOnTimeout=").append(useRstOnTimeout)
                 .append("]");
         return builder.toString();
     }
@@ -157,7 +147,6 @@ public class Http1Config {
     private static final int INIT_MAX_HEADER_COUNT = -1;
     private static final int INIT_MAX_LINE_LENGTH = -1;
     private static final int INIT_MAX_EMPTY_LINE_COUNT = 10;
-    private static final boolean USE_RST_ON_TIMEOUT = false;
 
     public static class Builder {
 
@@ -169,7 +158,6 @@ public class Http1Config {
         private int maxHeaderCount;
         private int maxEmptyLineCount;
         private int initialWindowSize;
-        private boolean userRstOnTimeout;
 
         Builder() {
             this.version = HttpVersion.HTTP_1_1;
@@ -180,7 +168,6 @@ public class Http1Config {
             this.maxHeaderCount = INIT_MAX_HEADER_COUNT;
             this.maxEmptyLineCount = INIT_MAX_EMPTY_LINE_COUNT;
             this.initialWindowSize = INIT_WINDOW_SIZE;
-            this.userRstOnTimeout = USE_RST_ON_TIMEOUT;
         }
 
         /**
@@ -235,14 +222,6 @@ public class Http1Config {
             return this;
         }
 
-        /**
-         * @since 5.4
-         */
-        public Builder setUserRstOnTimeout(final boolean userRstOnTimeout) {
-            this.userRstOnTimeout = userRstOnTimeout;
-            return this;
-        }
-
         public Http1Config build() {
             return new Http1Config(
                     version,
@@ -252,8 +231,7 @@ public class Http1Config {
                     maxLineLength,
                     maxHeaderCount,
                     maxEmptyLineCount,
-                    initialWindowSize,
-                    userRstOnTimeout);
+                    initialWindowSize);
         }
 
     }

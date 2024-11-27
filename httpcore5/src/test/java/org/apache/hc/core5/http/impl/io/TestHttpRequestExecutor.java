@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -37,12 +38,14 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -402,7 +405,7 @@ class TestHttpRequestExecutor {
 
         Mockito.doThrow(new IOException("Oopsie")).when(conn).sendRequestHeader(request);
         Assertions.assertThrows(IOException.class, () -> executor.execute(request, conn, context));
-        Mockito.verify(conn).close();
+        Mockito.verify(conn).close(CloseMode.IMMEDIATE);
     }
 
     @Test
@@ -415,7 +418,7 @@ class TestHttpRequestExecutor {
 
         Mockito.doThrow(new RuntimeException("Oopsie")).when(conn).receiveResponseHeader();
         Assertions.assertThrows(RuntimeException.class, () -> executor.execute(request, conn, context));
-        Mockito.verify(conn).close();
+        Mockito.verify(conn).close(CloseMode.IMMEDIATE);
     }
 
 }
