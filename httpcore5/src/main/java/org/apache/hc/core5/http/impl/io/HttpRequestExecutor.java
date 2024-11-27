@@ -54,6 +54,7 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
@@ -212,7 +213,11 @@ public class HttpRequestExecutor {
             return response;
 
         } catch (final HttpException | IOException | RuntimeException ex) {
-            Closer.closeQuietly(conn);
+            if (http1Config.getUseRstOnTimeout()) {
+                Closer.close(conn, CloseMode.IMMEDIATE);
+            } else {
+                Closer.closeQuietly(conn);
+            }
             throw ex;
         }
     }
