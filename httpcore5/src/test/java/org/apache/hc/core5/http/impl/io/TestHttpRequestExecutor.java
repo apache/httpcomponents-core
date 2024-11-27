@@ -27,12 +27,7 @@
 
 package org.apache.hc.core5.http.impl.io;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.List;
-
 import org.apache.hc.core5.http.*;
-import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -46,6 +41,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.List;
 
 class TestHttpRequestExecutor {
 
