@@ -111,6 +111,9 @@ public class Http1Config {
         return initialWindowSize;
     }
 
+    /**
+     * @since 5.4
+     */
     public boolean getUseRstOnTimeout() {
         return useRstOnTimeout;
     }
@@ -232,6 +235,9 @@ public class Http1Config {
             return this;
         }
 
+        /**
+         * @since 5.4
+         */
         public Builder setUserRstOnTimeout(final boolean userRstOnTimeout) {
             this.userRstOnTimeout = userRstOnTimeout;
             return this;
