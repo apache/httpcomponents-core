@@ -214,11 +214,11 @@ public class HttpRequestExecutor {
             }
             return response;
 
+        } catch (final HttpException | SSLException ex) {
+            Closer.closeQuietly(conn);
+            throw ex;
         } catch (final IOException | RuntimeException ex) {
             Closer.close(conn, CloseMode.IMMEDIATE);
-            throw ex;
-        } catch (final HttpException ex) {
-            Closer.closeQuietly(conn);
             throw ex;
         }
     }
