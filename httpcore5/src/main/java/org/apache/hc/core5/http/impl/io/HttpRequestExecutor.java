@@ -59,6 +59,8 @@ import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
+import javax.net.ssl.SSLException;
+
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
  * on the blocking (classic) I/O model.
@@ -212,8 +214,11 @@ public class HttpRequestExecutor {
             }
             return response;
 
-        } catch (final HttpException | IOException | RuntimeException ex) {
+        } catch (final IOException | RuntimeException ex) {
             Closer.close(conn, CloseMode.IMMEDIATE);
+            throw ex;
+        } catch (final HttpException ex) {
+            Closer.closeQuietly(conn);
             throw ex;
         }
     }
