@@ -72,7 +72,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <conscrypt.version>2.5.2</conscrypt.version>
-    <junit.version>5.11.0</junit.version>
+    <junit.version>5.11.3</junit.version>
     <hamcrest.version>3.0</hamcrest.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.11.0</mockito.version>
