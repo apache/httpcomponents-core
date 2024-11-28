@@ -27,9 +27,6 @@
 
 package org.apache.hc.core5.http.impl.io;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HeaderElements;
@@ -37,18 +34,23 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.List;
 
 class TestHttpRequestExecutor {
 
@@ -402,7 +404,7 @@ class TestHttpRequestExecutor {
 
         Mockito.doThrow(new IOException("Oopsie")).when(conn).sendRequestHeader(request);
         Assertions.assertThrows(IOException.class, () -> executor.execute(request, conn, context));
-        Mockito.verify(conn).close();
+        Mockito.verify(conn).close(CloseMode.IMMEDIATE);
     }
 
     @Test
@@ -415,6 +417,19 @@ class TestHttpRequestExecutor {
 
         Mockito.doThrow(new RuntimeException("Oopsie")).when(conn).receiveResponseHeader();
         Assertions.assertThrows(RuntimeException.class, () -> executor.execute(request, conn, context));
+        Mockito.verify(conn).close(CloseMode.IMMEDIATE);
+    }
+
+    @Test
+    void testExecutionHttpException() throws Exception {
+        final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
+        final HttpRequestExecutor executor = new HttpRequestExecutor();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+
+        Mockito.doThrow(new HttpException("Oopsie")).when(conn).receiveResponseHeader();
+        Assertions.assertThrows(HttpException.class, () -> executor.execute(request, conn, context));
         Mockito.verify(conn).close();
     }
 

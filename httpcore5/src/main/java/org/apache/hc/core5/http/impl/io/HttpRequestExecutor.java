@@ -54,9 +54,12 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
+
+import javax.net.ssl.SSLException;
 
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
@@ -211,8 +214,11 @@ public class HttpRequestExecutor {
             }
             return response;
 
-        } catch (final HttpException | IOException | RuntimeException ex) {
+        } catch (final HttpException | SSLException ex) {
             Closer.closeQuietly(conn);
+            throw ex;
+        } catch (final IOException | RuntimeException ex) {
+            Closer.close(conn, CloseMode.IMMEDIATE);
             throw ex;
         }
     }
