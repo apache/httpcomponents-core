@@ -26,18 +26,25 @@
  */
 package org.apache.hc.core5.reactor;
 
-import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 
-import org.junit.jupiter.api.Test;
+class IOWorkerSelectorsTest {
 
-class IOWorkersTest {
-
-    @Test
-    void testIndexOverflow() {
-        final SingleCoreIOReactor reactor = new SingleCoreIOReactor(null, mock(IOEventHandlerFactory.class), IOReactorConfig.DEFAULT, null, null, null, null);
-        final IOWorkers.Selector selector = IOWorkers.newSelector(new SingleCoreIOReactor[]{reactor, reactor, reactor});
-        for (long i = Integer.MAX_VALUE - 10; i < (long) Integer.MAX_VALUE + 10; i++) {
-            selector.next();
+    @ParameterizedTest(name = "worker count = {0}")
+    @ValueSource(ints = {1, 2, 3, 4, 5, 10, 15, 16, 32})
+    void testIndexOverflow(final int workerCount) {
+        final long start = (long) Integer.MAX_VALUE - 10;
+        final long end = (long) Integer.MAX_VALUE + 10;
+        final IOWorkerStats[] workers = new IOWorkerStats[workerCount];
+        for (int i = 0; i < workerCount; i++) {
+            workers[i] = Mockito.mock(IOWorkerStats.class);
+        }
+        final IOWorkerSelector selector = IOWorkerSelectors.newSelector(workerCount, (int) start);
+        for (long i = start; i < end; i++) {
+            Assertions.assertTrue(selector.select(workers) < workerCount);
         }
     }
 

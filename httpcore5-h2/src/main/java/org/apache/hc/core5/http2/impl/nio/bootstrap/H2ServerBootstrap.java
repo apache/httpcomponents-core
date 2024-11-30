@@ -535,7 +535,7 @@ public class H2ServerBootstrap {
                 handshakeTimeout);
 
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
-                sessionListener, threadPoolListener, actualCanonicalHostName);
+                sessionListener, threadPoolListener, null, actualCanonicalHostName);
     }
 
 }

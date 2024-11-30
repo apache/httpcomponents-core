@@ -517,7 +517,7 @@ public class AsyncServerBootstrap {
                 tlsStrategy,
                 handshakeTimeout);
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
-                sessionListener, threadPoolListener);
+                sessionListener, threadPoolListener, null, null);
     }
 
 }

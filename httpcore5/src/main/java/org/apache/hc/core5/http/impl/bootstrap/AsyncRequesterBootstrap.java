@@ -293,7 +293,8 @@ public class AsyncRequesterBootstrap {
                 connPool,
                 tlsStrategyCopy,
                 handshakeTimeout,
-                threadPoolListener);
+                threadPoolListener,
+                null);
     }
 
 }

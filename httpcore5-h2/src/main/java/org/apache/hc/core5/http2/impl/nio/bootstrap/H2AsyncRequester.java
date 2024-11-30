@@ -47,6 +47,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Timeout;
@@ -73,30 +74,12 @@ public class H2AsyncRequester extends HttpAsyncRequester {
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool,
-            final IOReactorMetricsListener threadPoolListener) {
-        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool, threadPoolListener);
-        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-    }
-
-    /**
-     * Use {@link H2RequesterBootstrap} to create instances of this class.
-     *
-     * @since 5.2
-     */
-    @Internal
-    public H2AsyncRequester(
-            final HttpVersionPolicy versionPolicy,
-            final IOReactorConfig ioReactorConfig,
-            final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
-            final Callback<Exception> exceptionCallback,
-            final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout,
-            final IOReactorMetricsListener threadPoolListener) {
+            final IOReactorMetricsListener threadPoolListener,
+            final IOWorkerSelector workerSelector) {
         super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                tlsStrategy, handshakeTimeout, threadPoolListener);
+                tlsStrategy, handshakeTimeout, threadPoolListener, workerSelector);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

@@ -55,7 +55,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
-class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
+class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator, IOWorkerStats {
 
     private static final int MAX_CHANNEL_REQUESTS = 10000;
 
@@ -70,6 +70,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final AtomicBoolean shutdownInitiated;
     private final long selectTimeoutMillis;
     private volatile long lastTimeoutCheckMillis;
+    private volatile long lastSelectMillis;
     private final IOReactorMetricsListener threadPoolListener;
 
     // Atomic variables for tracking total wait time and count of processed requests
@@ -130,6 +131,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
 
             // Process selected I/O events
+            lastSelectMillis = System.currentTimeMillis();
             if (readyCount > 0) {
                 processEvents(this.selector.selectedKeys());
             }
@@ -463,6 +465,21 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 threadPoolListener.onResourceStarvationDetected();
             }
         }
+    }
+
+    @Override
+    public int totalChannelCount() {
+        return selector.keys().size();
+    }
+
+    @Override
+    public int pendingChannelCount() {
+        return channelQueue.size() + requestQueue.size();
+    }
+
+    @Override
+    public long lastSelectMilli() {
+        return lastSelectMillis;
     }
 
 }

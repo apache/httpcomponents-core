@@ -47,11 +47,12 @@ import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -75,8 +76,8 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
-            final IOReactorMetricsListener threadPoolListener
-            ) {
+            final IOReactorMetricsListener threadPoolListener,
+            final IOWorkerSelector workerSelector) {
         this.ioReactor = new DefaultConnectingIOReactor(
                 eventHandlerFactory,
                 ioReactorConfig,
@@ -85,7 +86,8 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
                 exceptionCallback,
                 sessionListener,
                 threadPoolListener,
-                sessionShutdownCallback);
+                sessionShutdownCallback,
+                workerSelector);
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
     }
 

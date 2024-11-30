@@ -43,11 +43,12 @@ import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -66,7 +67,8 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final IOReactorMetricsListener threadPoolListener,
-            final Callback<IOSession> sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback,
+            final IOWorkerSelector workerSelector) {
         this.ioReactor = new DefaultListeningIOReactor(
                 eventHandlerFactory,
                 ioReactorConfig,
@@ -76,7 +78,8 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
                 exceptionCallback,
                 sessionListener,
                 threadPoolListener,
-                sessionShutdownCallback);
+                sessionShutdownCallback,
+                workerSelector);
     }
 
     @Override

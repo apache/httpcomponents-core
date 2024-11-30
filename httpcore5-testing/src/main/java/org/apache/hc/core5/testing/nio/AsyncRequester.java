@@ -66,7 +66,8 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
                 LoggingExceptionCallback.INSTANCE,
                 LoggingIOSessionListener.INSTANCE,
                 LoggingReactorMetricsListener.INSTANCE,
-                sessionShutdownCallback);
+                sessionShutdownCallback,
+                null);
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {
