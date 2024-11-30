@@ -73,6 +73,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -98,9 +99,11 @@ public class H2MultiplexingRequester extends AsyncRequester {
             final IOSessionListener sessionListener,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy,
-            final IOReactorMetricsListener threadPoolListener) {
+            final IOReactorMetricsListener threadPoolListener,
+            final IOWorkerSelector workerSelector) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                        ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE, threadPoolListener);
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE,
+                threadPoolListener, workerSelector);
         this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
     }
 

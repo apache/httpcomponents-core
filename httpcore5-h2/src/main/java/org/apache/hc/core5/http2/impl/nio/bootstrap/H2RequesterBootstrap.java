@@ -408,7 +408,8 @@ public class H2RequesterBootstrap {
                 connPool,
                 actualTlsStrategy,
                 handshakeTimeout,
-                threadPoolListener);
+                threadPoolListener,
+                null);
     }
 
 }

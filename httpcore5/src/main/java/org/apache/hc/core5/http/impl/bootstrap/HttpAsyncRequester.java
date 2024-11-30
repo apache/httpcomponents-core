@@ -81,6 +81,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
@@ -113,28 +114,14 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout,
-            final IOReactorMetricsListener threadPoolListener) {
+            final IOReactorMetricsListener threadPoolListener,
+            final IOWorkerSelector workerSelector) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE, threadPoolListener);
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE, threadPoolListener,
+                workerSelector);
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
-    }
-
-    /**
-     * Use {@link AsyncRequesterBootstrap} to create instances of this class.
-     */
-    @Internal
-    public HttpAsyncRequester(
-            final IOReactorConfig ioReactorConfig,
-            final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
-            final Callback<Exception> exceptionCallback,
-            final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool,
-            final IOReactorMetricsListener threadPoolListener) {
-        this(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                null, null, threadPoolListener);
     }
 
     @Override

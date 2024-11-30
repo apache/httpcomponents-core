@@ -35,13 +35,14 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.IOWorkerSelector;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 /**
@@ -66,24 +67,11 @@ public class HttpAsyncServer extends AsyncServer {
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final IOReactorMetricsListener threadPoolListener,
+            final IOWorkerSelector workerSelector,
             final String canonicalName) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                threadPoolListener, ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
+                threadPoolListener, ShutdownCommand.GRACEFUL_NORMAL_CALLBACK, workerSelector);
         this.canonicalName = canonicalName;
-    }
-
-    /**
-     * Use {@link AsyncServerBootstrap} to create instances of this class.
-     */
-    @Internal
-    public HttpAsyncServer(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig ioReactorConfig,
-            final Decorator<IOSession> ioSessionDecorator,
-            final Callback<Exception> exceptionCallback,
-            final IOSessionListener sessionListener,
-            final IOReactorMetricsListener threadPoolListener) {
-        this(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener, threadPoolListener, null);
     }
 
     /**

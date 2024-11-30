@@ -30,6 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -48,16 +49,16 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
 
-    private final int workerCount;
     private final SingleCoreIOReactor[] workers;
     private final MultiCoreIOReactor ioReactor;
-    private final IOWorkers.Selector workerSelector;
+    private final IOWorkerSelector workerSelector;
 
     private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O client dispatch", true);
 
     /**
      * @since 5.4
      */
+    @Internal
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
@@ -66,9 +67,10 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final IOReactorMetricsListener threadPoolListener,
-            final Callback<IOSession> sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback,
+            final IOWorkerSelector workerSelector) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
-        this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
+        final int workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount];
         for (int i = 0; i < this.workers.length; i++) {
@@ -84,7 +86,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         this.ioReactor = new MultiCoreIOReactor(this.workers, threads);
-        this.workerSelector = IOWorkers.newSelector(workers);
+        this.workerSelector = workerSelector != null ? workerSelector : IOWorkerSelectors.newSelector(workerCount);
     }
 
     public DefaultConnectingIOReactor(
@@ -95,7 +97,8 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory,ioReactorConfig, threadFactory,ioSessionDecorator, exceptionCallback, sessionListener, null, sessionShutdownCallback);
+        this(eventHandlerFactory,ioReactorConfig, threadFactory,ioSessionDecorator, exceptionCallback, sessionListener,
+                null, sessionShutdownCallback, null);
     }
 
     public DefaultConnectingIOReactor(
@@ -125,8 +128,8 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
     }
 
     @Override
-    IOWorkers.Selector getWorkerSelector() {
-        return workerSelector;
+    SingleCoreIOReactor selectWorker() {
+        return workers[workerSelector.select(workers)];
     }
 
     @Override

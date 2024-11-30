@@ -258,7 +258,8 @@ public class H2MultiplexingRequesterBootstrap {
                 sessionListener,
                 DefaultAddressResolver.INSTANCE,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
-                threadPoolListener);
+                threadPoolListener,
+                null);
     }
 
 }

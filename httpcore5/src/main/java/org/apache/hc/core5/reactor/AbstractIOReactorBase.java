@@ -50,13 +50,17 @@ abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorSe
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
         try {
-            return getWorkerSelector().next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+            final SingleCoreIOReactor dispatcher = selectWorker();
+            if (dispatcher.getStatus() == IOReactorStatus.SHUT_DOWN) {
+                throw new IOReactorShutdownException("I/O reactor has been shut down");
+            }
+            return dispatcher.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;
         }
     }
 
-    abstract IOWorkers.Selector getWorkerSelector();
+    abstract SingleCoreIOReactor selectWorker();
 
 }
