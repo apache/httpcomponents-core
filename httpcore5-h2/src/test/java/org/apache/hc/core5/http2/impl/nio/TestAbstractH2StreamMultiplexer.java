@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
@@ -269,6 +270,88 @@ class TestAbstractH2StreamMultiplexer {
         streamMultiplexer.onInput(ByteBuffer.wrap(bytes));
         Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(false));
         Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+    }
+
+
+    @Test
+    void testUpdateWindowBehaviorComparison() {
+        AtomicInteger window = new AtomicInteger(1);  // Start with window at 1
+
+        // Test with new implementation where overflow should be capped at Integer.MAX_VALUE
+        int resultNew = updateWindowNew(window, Integer.MAX_VALUE);
+        System.out.println("New implementation: Current window size after attempted overflow: " + resultNew);
+        Assertions.assertEquals(Integer.MAX_VALUE, resultNew, "New implementation should cap at Integer.MAX_VALUE");
+
+        // Reset for old implementation test
+        window = new AtomicInteger(1);
+
+        // Test with old implementation where an overflow should throw an ArithmeticException
+        try {
+            updateWindowOld(window, Integer.MAX_VALUE);
+            Assertions.fail("Old implementation should throw ArithmeticException for overflow");
+        } catch (final ArithmeticException e) {
+            System.out.println("Old implementation: ArithmeticException caught: " + e.getMessage());
+        }
+
+        // Test non-overflow scenario for both implementations
+        window = new AtomicInteger(1);
+        final int resultNewSafe = updateWindowNew(window, Integer.MAX_VALUE / 2 - 1);
+        System.out.println("New safe update result: " + resultNewSafe);
+        window = new AtomicInteger(1); // Reset for old test
+        final int resultOldSafe = updateWindowOld(window, Integer.MAX_VALUE / 2 - 1);
+        System.out.println("Old safe update result: " + resultOldSafe);
+
+        Assertions.assertEquals(Integer.MAX_VALUE / 2, resultNewSafe, "New implementation safe update");
+        Assertions.assertEquals(Integer.MAX_VALUE / 2, resultOldSafe, "Old implementation safe update");
+        // Test capping behavior from below Integer.MAX_VALUE with new implementation
+        window = new AtomicInteger(Integer.MAX_VALUE - 1);
+        resultNew = updateWindowNew(window, 2);
+        System.out.println("New implementation: Current window size after attempted overflow from below: " + resultNew);
+        Assertions.assertEquals(Integer.MAX_VALUE, resultNew, "New implementation should cap at Integer.MAX_VALUE from below");
+
+        // Test overflow from below with old implementation
+        window = new AtomicInteger(Integer.MAX_VALUE - 1);
+        try {
+            updateWindowOld(window, 2);
+            Assertions.fail("Old implementation should throw ArithmeticException for overflow from below");
+        } catch (final ArithmeticException e) {
+            System.out.println("Old implementation: ArithmeticException caught for overflow from below: " + e.getMessage());
+        }
+    }
+
+    // New implementation of updateWindow method with capping
+        private int updateWindowNew(final AtomicInteger window, final int delta) {
+        for (;;) {
+            final int current = window.get();
+            long newValue = (long) current + delta;
+
+            if (newValue > Integer.MAX_VALUE) {
+                newValue = Integer.MAX_VALUE;
+            } else if (newValue < Integer.MIN_VALUE) {
+                newValue = Integer.MIN_VALUE;
+            }
+
+            if (window.compareAndSet(current, (int) newValue)) {
+                return (int) newValue;
+            }
+        }
+    }
+
+    // Old implementation of updateWindow method which throws exception on overflow
+    private int updateWindowOld(final AtomicInteger window, final int delta) throws ArithmeticException {
+        for (;;) {
+            final int current = window.get();
+            System.out.println("Old - Current: " + current + ", Delta: " + delta);
+            final long newValue = (long) current + delta;
+            System.out.println("Old - New value before check: " + newValue);
+            if (Math.abs(newValue) > 0x7fffffffL) {
+                throw new ArithmeticException("Update causes flow control window to exceed " + Integer.MAX_VALUE);
+            }
+            if (window.compareAndSet(current, (int) newValue)) {
+                System.out.println("Old - New value set: " + (int) newValue);
+                return (int) newValue;
+            }
+        }
     }
 }
 
