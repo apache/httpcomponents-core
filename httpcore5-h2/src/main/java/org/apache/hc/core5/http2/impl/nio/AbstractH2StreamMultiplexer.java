@@ -198,12 +198,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             HttpProcessor httpProcessor,
             BasicHttpConnectionMetrics connMetrics) throws IOException;
 
-    private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
+    private int updateWindow(final AtomicInteger window, final int delta) {
         for (;;) {
             final int current = window.get();
-            final long newValue = (long) current + delta;
-            if (Math.abs(newValue) > 0x7fffffffL) {
-                throw new ArithmeticException("Update causes flow control window to exceed " + Integer.MAX_VALUE);
+            long newValue = (long) current + delta;
+            // Cap the new value if it would exceed Integer.MAX_VALUE or go below Integer.MIN_VALUE
+            if (newValue > Integer.MAX_VALUE) {
+                newValue = Integer.MAX_VALUE;
+            } else if (newValue < Integer.MIN_VALUE) {
+                newValue = Integer.MIN_VALUE;
             }
             if (window.compareAndSet(current, (int) newValue)) {
                 return (int) newValue;
@@ -1040,7 +1043,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void maximizeConnWindow(final int connWinSize) throws IOException {
-        final int delta = Integer.MAX_VALUE - connWinSize;
+        final int delta = Integer.MAX_VALUE - 1 - connWinSize; // Use Integer.MAX_VALUE - 1 for a small buffer
         if (delta > 0) {
             final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(0, delta);
             commitFrame(windowUpdateFrame);
