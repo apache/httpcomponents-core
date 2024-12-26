@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -235,6 +236,16 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
      * @since 5.1
      */
     public static ClassicRequestBuilder copy(final ClassicHttpRequest request) {
+        Args.notNull(request, "HTTP request");
+        final ClassicRequestBuilder builder = new ClassicRequestBuilder(request.getMethod());
+        builder.digest(request);
+        return builder;
+    }
+
+    /**
+     * @since 5.4
+     */
+    public static ClassicRequestBuilder copy(final HttpRequest request) {
         Args.notNull(request, "HTTP request");
         final ClassicRequestBuilder builder = new ClassicRequestBuilder(request.getMethod());
         builder.digest(request);

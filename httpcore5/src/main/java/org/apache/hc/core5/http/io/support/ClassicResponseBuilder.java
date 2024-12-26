@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -62,6 +63,16 @@ public class ClassicResponseBuilder extends AbstractResponseBuilder<ClassicHttpR
      * @since 5.1
      */
     public static ClassicResponseBuilder copy(final ClassicHttpResponse response) {
+        Args.notNull(response, "HTTP response");
+        final ClassicResponseBuilder builder = new ClassicResponseBuilder(response.getCode());
+        builder.digest(response);
+        return builder;
+    }
+
+    /**
+     * @since 5.4
+     */
+    public static ClassicResponseBuilder copy(final HttpResponse response) {
         Args.notNull(response, "HTTP response");
         final ClassicResponseBuilder builder = new ClassicResponseBuilder(response.getCode());
         builder.digest(response);
