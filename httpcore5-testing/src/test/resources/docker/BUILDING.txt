@@ -22,8 +22,31 @@ openssl ca -config test-CA/openssl.cnf -days 36500 \
  && rm httpcore5-testing/src/test/resources/docker/server-certreq.pem
 ---
 
+# Export the certificate and the key into P12 store
+
+---
+openssl pkcs12 -export -out httpcore5-testing/src/test/resources/docker/server.p12 \
+ -CAfile test-CA/ca-cert.pem \
+ -in httpcore5-testing/src/test/resources/docker/server-cert.pem \
+ -inkey httpcore5-testing/src/test/resources/docker/server-key.pem \
+ -passin pass:nopassword -passout pass:nopassword
+---
+
+# Verify the P12 store
+
+---
+openssl pkcs12 -info -in httpcore5-testing/src/test/resources/docker/server.p12 \
+ -passin pass:nopassword -passout pass:nopassword
+---
+
+---
+keytool -list -keystore httpcore5-testing/src/test/resources/docker/server.p12 -storepass nopassword
+---
+
 # Create JKS store with the Test CA cert
+---
 keytool -import -trustcacerts -alias test-ca -file test-CA/ca-cert.pem -keystore httpcore5-testing/src/test/resources/test-ca.jks -storepass nopassword
+---
 
 = Running a local version of HttpBin
 

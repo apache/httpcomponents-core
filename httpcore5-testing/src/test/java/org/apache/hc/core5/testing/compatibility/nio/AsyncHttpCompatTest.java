@@ -168,4 +168,56 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
         }
     }
 
+    @Test
+    void test_multiple_request_execution_large_blob() throws Exception {
+        final HttpAsyncRequester client = client();
+        final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, null, null);
+        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        try {
+            final int n = 20;
+            final CountDownLatch countDownLatch = new CountDownLatch(n);
+            final Queue<Result<String>> resultQueue = new ConcurrentLinkedQueue<>();
+            for (int i = 0; i < n; i++) {
+                final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/blob");
+                endpoint.execute(
+                        new BasicRequestProducer(httpget, null),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                        new FutureCallback<Message<HttpResponse, String>>() {
+
+                            @Override
+                            public void completed(final Message<HttpResponse, String> responseMessage) {
+                                resultQueue.add(new Result<>(
+                                        httpget,
+                                        responseMessage.getHead(),
+                                        responseMessage.getBody()));
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                resultQueue.add(new Result<>(httpget, ex));
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                failed(new RequestNotExecutedException());
+                            }
+
+                        });
+            }
+            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+            for (final Result<String> result : resultQueue) {
+                if (result.isOK()) {
+                    Assertions.assertNotNull(result.response);
+                    Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
+                } else {
+                    Assertions.fail(result.exception);
+                }
+            }
+        } finally {
+            endpoint.releaseAndDiscard();
+        }
+    }
+
 }

@@ -26,12 +26,15 @@
  */
 package org.apache.hc.core5.testing.compatibility;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.utility.DockerImageName;
 
 public final class ContainerImages {
@@ -47,11 +50,23 @@ public final class ContainerImages {
     public static final String NGINX = "test-nginx";
     public static final String HTTPBIN = "test-httpbin";
     public static final String DANTE = "test-dante";
+    public static final String JETTY = "test-jetty";
 
     public static int HTTP_PORT = 80;
     public static int H2C_PORT = 81;
     public static int HTTPS_PORT = 443;
     public static int SOCKS_PORT = 1080;
+    public static int HTTP_EXT_PORT = 8080;
+    public static int HTTPS_EXT_PORT = 8443;
+
+    static byte[] blob() {
+        final Random random = new Random(System.currentTimeMillis());
+        final byte[] bytes = new byte[5 * 1024 * 1024 + random.nextInt(102400)];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) ('0' + random.nextInt(10));
+        }
+        return bytes;
+    }
 
     public static GenericContainer<?> httpBin(final Network network) {
         return new GenericContainer<>(DockerImageName.parse("kennethreitz/httpbin:latest"))
@@ -72,6 +87,7 @@ public final class ContainerImages {
                 .withFileFromString("aaa", AAA)
                 .withFileFromString("bbb", BBB)
                 .withFileFromString("ccc", CCC)
+                .withFileFromTransferable("blob", Transferable.of(blob()))
                 .withDockerfileFromBuilder(builder -> builder
                         .from("httpd:2.4")
                         .env("var_dir", "/var/httpd")
@@ -95,6 +111,7 @@ public final class ContainerImages {
                         .copy("aaa", "${www_dir}/")
                         .copy("bbb", "${www_dir}/")
                         .copy("ccc", "${www_dir}/")
+                        .copy("blob", "${www_dir}/")
                         .build()))
                 .withNetwork(network)
                 .withNetworkAliases(APACHE_HTTPD)
@@ -113,6 +130,7 @@ public final class ContainerImages {
                 .withFileFromString("aaa", AAA)
                 .withFileFromString("bbb", BBB)
                 .withFileFromString("ccc", CCC)
+                .withFileFromTransferable("blob", Transferable.of(blob()))
                 .withDockerfileFromBuilder(builder -> builder
                         .from("nginx:1.23")
                         .env("var_dir", "/var/nginx")
@@ -127,6 +145,7 @@ public final class ContainerImages {
                         .copy("aaa", "${www_dir}/")
                         .copy("bbb", "${www_dir}/")
                         .copy("ccc", "${www_dir}/")
+                        .copy("blob", "${www_dir}/")
                         .build()))
                 .withNetwork(network)
                 .withNetworkAliases(NGINX)
@@ -145,6 +164,36 @@ public final class ContainerImages {
                 .withNetworkAliases(DANTE)
                 .withLogConsumer(new Slf4jLogConsumer(LOG))
                 .withExposedPorts(SOCKS_PORT);
+    }
+
+    public static GenericContainer<?> jetty(final Network network) {
+        return new GenericContainer<>(new ImageFromDockerfile()
+                .withFileFromClasspath("server.p12", "docker/server.p12")
+                .withFileFromString("aaa", AAA)
+                .withFileFromString("bbb", BBB)
+                .withFileFromString("ccc", CCC)
+                .withFileFromTransferable("blob", Transferable.of(blob()))
+                .withDockerfileFromBuilder(builder -> builder
+                        .from("jetty:12.0-jdk17-amazoncorretto")
+                        .env("jetty_base", "/var/lib/jetty/")
+                        .env("webapp_root", "${jetty_base}/webapps/ROOT")
+                        .env("uid", "jetty")
+                        .user("root")
+                        .copy("server.p12", "${jetty_base}/etc/keystore.p12")
+                        .run("echo 'jetty.sslContext.keyStorePassword=nopassword' >> ${jetty_base}/start.d/ssl.ini")
+                        .run("mkdir -p ${webapp_root}/")
+                        .copy("aaa", "${webapp_root}/")
+                        .copy("bbb", "${webapp_root}/")
+                        .copy("ccc", "${webapp_root}/")
+                        .copy("blob", "${webapp_root}/")
+                        .run("chown -R ${uid}:${uid} ${jetty_base}/")
+                        .user("${uid}:${uid}")
+                        .run("java -jar ${JETTY_HOME}/start.jar --add-modules=http2 --add-modules=ee10-deploy --approve-all-licenses")
+                        .build()))
+                .withNetwork(network)
+                .withNetworkAliases(JETTY)
+                .withLogConsumer(new Slf4jLogConsumer(LOG))
+                .withExposedPorts(HTTP_EXT_PORT, HTTPS_EXT_PORT);
     }
 
 }
