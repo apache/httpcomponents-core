@@ -28,8 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.Provider;
 import java.security.SecureRandom;
@@ -40,15 +38,17 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.TimeValue;
@@ -195,12 +195,8 @@ abstract class JSSEProviderIntegrationTest {
     @Order(3)
     private final ClientResource clientResource = new ClientResource();
 
-    private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
-        try {
-            return new URI("https", null, "localhost", serverEndpoint.getPort(), path, null, null);
-        } catch (final URISyntaxException e) {
-            throw new IllegalStateException();
-        }
+    private HttpHost target(final InetSocketAddress serverEndpoint) {
+        return new HttpHost("https", null, "localhost", serverEndpoint.getPort());
     }
 
     @Test
@@ -208,14 +204,19 @@ abstract class JSSEProviderIntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < REQ_NUM; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assertions.assertNotNull(result);
@@ -232,14 +233,17 @@ abstract class JSSEProviderIntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final URI requestURI = createRequestURI(serverEndpoint, "/hello");
         for (int i = 0; i < REQ_NUM; i++) {
             final Future<ClientSessionEndpoint> connectFuture = client.connect(
                     "localhost", serverEndpoint.getPort(), TIMEOUT);
             try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                        AsyncRequestBuilder.get(requestURI)
+                        AsyncRequestBuilder.get()
+                                .setHttpHost(target)
+                                .setPath("/hello")
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -260,14 +264,20 @@ abstract class JSSEProviderIntegrationTest {
         server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
         for (int i = 0; i < REQ_NUM; i++) {
             final Future<ClientSessionEndpoint> connectFuture = client.connect(
                     "localhost", serverEndpoint.getPort(), TIMEOUT);
             try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
+                final BasicHttpRequest request = BasicRequestBuilder.get()
+                        .setHttpHost(target)
+                        .setPath("/hello")
+                        .build();
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                        new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                        new BasicRequestProducer(request, null),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
                 Assertions.assertNotNull(result);

@@ -38,8 +38,6 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -124,6 +122,7 @@ import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -151,12 +150,8 @@ abstract class Http1IntegrationTest {
         this.resources = new Http1TestResources(scheme, TIMEOUT);
     }
 
-    private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
-        try {
-            return new URI(scheme.id, null, "localhost", serverEndpoint.getPort(), path, null, null);
-        } catch (final URISyntaxException e) {
-            throw new IllegalStateException();
-        }
+    private HttpHost target(final InetSocketAddress serverEndpoint) {
+        return new HttpHost(scheme.id, null, "localhost", serverEndpoint.getPort());
     }
 
     @Test
@@ -167,14 +162,19 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assertions.assertNotNull(result);
@@ -194,14 +194,16 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final URI requestURI = createRequestURI(serverEndpoint, "/hello");
         for (int i = 0; i < 5; i++) {
-            final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                    "localhost", serverEndpoint.getPort(), TIMEOUT);
+            final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
             try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                        AsyncRequestBuilder.get(requestURI)
+                        AsyncRequestBuilder.get()
+                                .setHttpHost(target)
+                                .setPath("/hello")
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -225,6 +227,8 @@ abstract class Http1IntegrationTest {
         server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
         final int reqNo = 5;
@@ -233,8 +237,12 @@ abstract class Http1IntegrationTest {
             final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
             final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -259,6 +267,8 @@ abstract class Http1IntegrationTest {
         server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
         final int reqNo = 5;
@@ -267,10 +277,12 @@ abstract class Http1IntegrationTest {
             final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
             final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST,
-                            createRequestURI(serverEndpoint, "/hello"),
-                            new MultiLineEntityProducer("Hello", 16 * i)),
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("Hello", 16 * i)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -294,6 +306,8 @@ abstract class Http1IntegrationTest {
         server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
         final int reqNo = 5;
@@ -302,10 +316,12 @@ abstract class Http1IntegrationTest {
             final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
             final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST,
-                            createRequestURI(serverEndpoint, "/hello"),
-                            new MultiLineEntityProducer("Hello", 16 * i)),
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("Hello", 16 * i)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -328,15 +344,20 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -359,13 +380,18 @@ abstract class Http1IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 5000));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request1 = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
+                new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -380,8 +406,12 @@ abstract class Http1IntegrationTest {
             Assertions.assertEquals("0123456789abcdef", t1.nextToken());
         }
 
+        final BasicHttpRequest request2 = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/")
+                .build();
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
+                new BasicRequestProducer(request2, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer(512)), null);
 
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -405,15 +435,20 @@ abstract class Http1IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -440,15 +475,19 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello"),
-                            AsyncEntityProducers.create("Hi there")),
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assertions.assertNotNull(result);
@@ -468,16 +507,20 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello"),
-                            AsyncEntityProducers.create("Hi there")),
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -500,13 +543,17 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
-            final HttpRequest request = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             request.setVersion(HttpVersion.HTTP_1_0);
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
@@ -529,12 +576,16 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+        final BasicHttpRequest request = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         request.setVersion(HttpVersion.HTTP_1_0);
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(request, new BasicAsyncEntityProducer(new byte[] {'a', 'b', 'c'}, null, true)),
@@ -551,13 +602,17 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
-            final HttpRequest request = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -579,15 +634,19 @@ abstract class Http1IntegrationTest {
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/echo"),
-                            new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assertions.assertNotNull(result);
@@ -611,16 +670,20 @@ abstract class Http1IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 2; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/"),
-                            AsyncEntityProducers.create("Hi there")),
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -648,16 +711,20 @@ abstract class Http1IntegrationTest {
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/echo"),
-                            new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -684,14 +751,19 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.head()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Method.HEAD, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assertions.assertNotNull(result);
@@ -710,14 +782,17 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final URI requestURI = createRequestURI(serverEndpoint, "/hello");
         for (int i = 0; i < 5; i++) {
             final Future<ClientSessionEndpoint> connectFuture = client.connect(
                     "localhost", serverEndpoint.getPort(), TIMEOUT);
             try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                        AsyncRequestBuilder.head(requestURI)
+                        AsyncRequestBuilder.head()
+                                .setHttpHost(target)
+                                .setPath("/hello")
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -739,15 +814,20 @@ abstract class Http1IntegrationTest {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.head()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.HEAD, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -791,14 +871,19 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
                 new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession ioSession = sessionFuture.get();
         try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession)) {
 
-            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-            request1.addHeader("password", "secret");
+            final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .addHeader("password", "secret")
+                    .build();
             final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                     new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -811,7 +896,10 @@ abstract class Http1IntegrationTest {
 
             Assertions.assertTrue(ioSession.isOpen());
 
-            final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            final BasicHttpRequest request2 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                     new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -824,8 +912,11 @@ abstract class Http1IntegrationTest {
 
             Assertions.assertTrue(ioSession.isOpen());
 
-            final HttpRequest request3 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-            request3.addHeader("password", "secret");
+            final BasicHttpRequest request3 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .addHeader("password", "secret")
+                    .build();
             final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
                     new BasicRequestProducer(request3, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -838,7 +929,10 @@ abstract class Http1IntegrationTest {
 
             Assertions.assertTrue(ioSession.isOpen());
 
-            final HttpRequest request4 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            final BasicHttpRequest request4 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
                     new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -885,13 +979,18 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
                 new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession ioSession = sessionFuture.get();
         try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession)) {
 
-            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                     new BasicRequestProducer(request1, new MultiBinEntityProducer(
                             new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
@@ -903,7 +1002,7 @@ abstract class Http1IntegrationTest {
             final HttpResponse response1 = result1.getHead();
             Assertions.assertNotNull(response1);
             Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-            Assertions.assertNotNull("You shall not pass", result1.getBody());
+            Assertions.assertEquals("You shall not pass", result1.getBody());
 
             Assertions.assertFalse(streamEndpoint.isOpen());
         }
@@ -994,20 +1093,24 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.configure(Http1Config.custom()
                 .setWaitForContinueTimeout(Timeout.ofMilliseconds(100))
                 .build());
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/")
+                    .build();
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/"),
-                            AsyncEntityProducers.create("Some important message")),
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("Some important message")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -1017,7 +1120,7 @@ abstract class Http1IntegrationTest {
             final HttpResponse response = result.getHead();
             Assertions.assertNotNull(response);
             Assertions.assertEquals(200, response.getCode());
-            Assertions.assertNotNull("All is well", result.getBody());
+            Assertions.assertEquals("All is well", result.getBody());
         }
     }
 
@@ -1082,13 +1185,17 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         for (int i = 0; i < 3; i++) {
-            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
             final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                     new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 100000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -1097,11 +1204,14 @@ abstract class Http1IntegrationTest {
             final HttpResponse response1 = result1.getHead();
             Assertions.assertNotNull(response1);
             Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-            Assertions.assertNotNull("You shall not pass", result1.getBody());
+            Assertions.assertEquals("You shall not pass", result1.getBody());
 
             Assertions.assertTrue(streamEndpoint.isOpen());
         }
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiBinEntityProducer(
                         new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
@@ -1113,7 +1223,7 @@ abstract class Http1IntegrationTest {
         final HttpResponse response1 = result1.getHead();
         Assertions.assertNotNull(response1);
         Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-        Assertions.assertNotNull("You shall not pass", result1.getBody());
+        Assertions.assertEquals("You shall not pass", result1.getBody());
     }
 
     @Test
@@ -1124,16 +1234,20 @@ abstract class Http1IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 100));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.configure(Http1Config.custom()
                 .setBufferSize(256)
                 .build());
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/"));
+        final BasicHttpRequest request1 = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new AbstractClassicEntityConsumer<String>(16, Executors.newSingleThreadExecutor()) {
@@ -1181,12 +1295,16 @@ abstract class Http1IntegrationTest {
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new AbstractClassicEntityProducer(4096, ContentType.TEXT_PLAIN, Executors.newSingleThreadExecutor()) {
 
@@ -1276,16 +1394,20 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.configure(Http1Config.custom()
                 .setBufferSize(256)
                 .build());
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -1310,24 +1432,36 @@ abstract class Http1IntegrationTest {
         server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-1")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-1"),
-                        AsyncEntityProducers.create("Hi there")),
+                new BasicRequestProducer(request1, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello-2"));
-        request2.addHeader(HttpHeaders.CONNECTION, "close");
+
+        final BasicHttpRequest request2 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-2")
+                .addHeader(HttpHeaders.CONNECTION, "close")
+                .build();
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2,
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final BasicHttpRequest request3 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-3")
+                .build();
         final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        AsyncEntityProducers.create("Hi there")),
+                new BasicRequestProducer(request3, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -1352,9 +1486,12 @@ abstract class Http1IntegrationTest {
                 CoreMatchers.instanceOf(CancellationException.class),
                 CoreMatchers.instanceOf(ExecutionException.class)));
 
+        final BasicHttpRequest request4 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-3")
+                .build();
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        AsyncEntityProducers.create("Hi there")),
+                new BasicRequestProducer(request4, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Exception exception2 = Assertions.assertThrows(Exception.class, () ->
                 future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -1371,24 +1508,36 @@ abstract class Http1IntegrationTest {
         server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-1")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-1"),
-                        AsyncEntityProducers.create("Hi there")),
+                new BasicRequestProducer(request1, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello-2"));
-        request2.addHeader(HttpHeaders.HOST, "blah:blah");
+
+        final BasicHttpRequest request2 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-2")
+                .addHeader(HttpHeaders.HOST, "blah:blah")
+                .build();
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2,
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final BasicHttpRequest request3 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello-3")
+                .build();
         final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
-                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        AsyncEntityProducers.create("Hi there")),
+                new BasicRequestProducer(request3, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -1405,7 +1554,7 @@ abstract class Http1IntegrationTest {
         final String entity2 = result2.getBody();
         Assertions.assertNotNull(response2);
         Assertions.assertEquals(400, response2.getCode());
-        Assertions.assertTrue(entity2.length() > 0);
+        Assertions.assertFalse(entity2.isEmpty());
 
 
         final Exception exception = Assertions.assertThrows(Exception.class, () ->
@@ -1522,12 +1671,17 @@ abstract class Http1IntegrationTest {
 
         });
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final AsyncRequestProducer requestProducer = new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+        final BasicHttpRequest request = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
+        final AsyncRequestProducer requestProducer = new BasicRequestProducer(request, null);
         final StringAsyncEntityConsumer entityConsumer = new StringAsyncEntityConsumer() {
 
             @Override
@@ -1562,13 +1716,18 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result);
@@ -1587,13 +1746,18 @@ abstract class Http1IntegrationTest {
         server.register("/ehh", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result);
@@ -1622,13 +1786,18 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        final BasicHttpRequest request = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result);
@@ -1666,13 +1835,17 @@ abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+        final BasicHttpRequest request1 = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .build();
         final DigestingEntityConsumer<String> entityConsumer = new DigestingEntityConsumer<>("MD5", new StringAsyncEntityConsumer());
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
@@ -1756,12 +1929,17 @@ abstract class Http1IntegrationTest {
 
         final InetSocketAddress serverEndpoint = server.start();
 
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+        final BasicHttpRequest request = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/boom")
+                .build();
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/boom")),
+                new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result);
@@ -1782,15 +1960,20 @@ abstract class Http1IntegrationTest {
                 .setMaxLineLength(100)
                 .build());
         final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
-        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
-                "1234567890123456789012345678901234567890");
+        final BasicHttpRequest request1 = BasicRequestBuilder.get()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                        "1234567890123456789012345678901234567890")
+                .build();
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -1812,17 +1995,22 @@ abstract class Http1IntegrationTest {
                 .setMaxLineLength(100)
                 .build());
         final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
         client.configure(
                 new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE));
         client.start();
 
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
-        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
-                "1234567890123456789012345678901234567890");
+        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/hello")
+                .setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                        "1234567890123456789012345678901234567890")
+                .build();
 
         final byte[] b = new byte[2048];
         for (int i = 0; i < b.length; i++) {
