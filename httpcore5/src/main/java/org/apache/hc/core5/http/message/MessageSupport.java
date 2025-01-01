@@ -480,6 +480,16 @@ public class MessageSupport {
     }
 
     /**
+     * @since  5.4
+     */
+    public static boolean canResponseHaveBody(final HttpResponse response) {
+        final int status = response.getCode();
+        return status >= HttpStatus.SC_SUCCESS
+                && status != HttpStatus.SC_NO_CONTENT
+                && status != HttpStatus.SC_NOT_MODIFIED;
+    }
+
+    /**
      * @since  5.0
      */
     public static boolean canResponseHaveBody(final String method, final HttpResponse response) {
@@ -490,9 +500,7 @@ public class MessageSupport {
         if (Method.CONNECT.isSame(method) && status == HttpStatus.SC_OK) {
             return false;
         }
-        return status >= HttpStatus.SC_SUCCESS
-                && status != HttpStatus.SC_NO_CONTENT
-                && status != HttpStatus.SC_NOT_MODIFIED;
+        return canResponseHaveBody(response);
     }
 
     private final static Set<String> HOP_BY_HOP;

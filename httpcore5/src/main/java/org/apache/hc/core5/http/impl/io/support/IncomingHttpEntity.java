@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.io;
+package org.apache.hc.core5.http.impl.io.support;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,26 +34,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.io.Closer;
 
-class IncomingHttpEntity implements HttpEntity {
+@Internal
+public class IncomingHttpEntity implements HttpEntity {
 
     private final InputStream content;
     private final long len;
-    private final boolean chunked;
-    private final Header contentType;
-    private final Header contentEncoding;
+    private final HttpMessage message;
 
-    IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+    public IncomingHttpEntity(final InputStream content, final long len, final HttpMessage message) {
         this.content = content;
         this.len = len;
-        this.chunked = chunked;
-        this.contentType = contentType;
-        this.contentEncoding = contentEncoding;
+        this.message = message;
     }
 
     @Override
@@ -63,22 +64,24 @@ class IncomingHttpEntity implements HttpEntity {
 
     @Override
     public boolean isChunked() {
-        return chunked;
+        return len == ContentLengthStrategy.CHUNKED;
     }
 
     @Override
     public long getContentLength() {
-        return len;
+        return len >= 0 ? len : -1;
     }
 
     @Override
     public String getContentType() {
-        return contentType != null ? contentType.getValue() : null;
+        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        return h != null ? h.getValue() : null;
     }
 
     @Override
     public String getContentEncoding() {
-        return contentEncoding != null ? contentEncoding.getValue() : null;
+        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
+        return h != null ? h.getValue() : null;
     }
 
     @Override

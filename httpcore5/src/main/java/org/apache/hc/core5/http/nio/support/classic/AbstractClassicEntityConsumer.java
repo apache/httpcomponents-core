@@ -52,7 +52,10 @@ import org.apache.hc.core5.util.Args;
  * @param <T> entity representation.
  *
  * @since 5.0
+ *
+ * @deprecated Use {@link ClassicToAsyncResponseConsumer}.
  */
+@Deprecated
 public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityConsumer<T> {
 
     private enum State { IDLE, ACTIVE, COMPLETED }

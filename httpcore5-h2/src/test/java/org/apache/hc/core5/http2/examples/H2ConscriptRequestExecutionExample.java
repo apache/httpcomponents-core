@@ -114,12 +114,13 @@ public class H2ConscriptRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("https", "nghttp2.org", 443);
+        final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofDays(5));
+        final AsyncClientEndpoint clientEndpoint = future.get();
+
         final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofDays(5));
-            final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
                     AsyncRequestBuilder.get()
                             .setHttpHost(target)
