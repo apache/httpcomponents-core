@@ -77,6 +77,23 @@ public final class EntityTemplate extends AbstractHttpEntity {
         this.callback = Args.notNull(callback, "I/O callback");
     }
 
+    /**
+     * @since 5.4
+     */
+    public EntityTemplate(
+            final long contentLength,
+            final ContentType contentType,
+            final IOCallback<OutputStream> callback) {
+        this(contentLength, contentType, null, callback);
+    }
+
+    /**
+     * @since 5.4
+     */
+    public EntityTemplate(final ContentType contentType, final IOCallback<OutputStream> callback) {
+        this(-1, contentType, null, callback);
+    }
+
     @Override
     public long getContentLength() {
         return contentLength;

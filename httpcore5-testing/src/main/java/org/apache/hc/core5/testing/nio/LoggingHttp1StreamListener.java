@@ -34,11 +34,10 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.testing.classic.LoggingSupport;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggingHttp1StreamListener implements Http1StreamListener {
 
@@ -61,7 +60,7 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
         if (headerLog.isDebugEnabled()) {
             final String idRequestDirection = LoggingSupport.getId(connection) + requestDirection;
-            headerLog.debug("{}{}", idRequestDirection, new RequestLine(request));
+            headerLog.debug("{}{} {}", idRequestDirection, request.getMethod(), request.getRequestUri());
             for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
                 headerLog.debug("{}{}", idRequestDirection, it.next());
             }

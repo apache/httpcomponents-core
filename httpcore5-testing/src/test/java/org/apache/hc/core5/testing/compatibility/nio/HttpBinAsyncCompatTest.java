@@ -59,7 +59,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2AsyncRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.compatibility.Result;
+import org.apache.hc.core5.testing.Result;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;

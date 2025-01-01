@@ -27,13 +27,10 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -46,13 +43,17 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
@@ -63,6 +64,11 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.entity.EntityTemplate;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
@@ -88,9 +94,9 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
-import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityConsumer;
-import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProducer;
-import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncResponseConsumer;
+import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.testing.extension.ExecutorResource;
@@ -524,47 +530,37 @@ abstract class HttpIntegrationTest {
         final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final BasicHttpRequest request = BasicRequestBuilder.get()
+        final ClassicHttpRequest request = ClassicRequestBuilder.get()
                 .setHttpHost(target)
                 .setPath("/")
                 .build();
+        final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
 
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+        streamEndpoint.execute(
                 new BasicRequestProducer(request, null),
-                new BasicResponseConsumer<>(new AbstractClassicEntityConsumer<String>(16, executorResource.getExecutorService()) {
-
-                    @Override
-                    protected String consumeData(
-                            final ContentType contentType, final InputStream inputStream) throws IOException {
-                        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
-
-                        final StringBuilder buffer = new StringBuilder();
-                        try {
-                            final byte[] tmp = new byte[16];
-                            int l;
-                            while ((l = inputStream.read(tmp)) != -1) {
-                                buffer.append(charset.decode(ByteBuffer.wrap(tmp, 0, l)));
-                                Thread.sleep(500);
-                            }
-                        } catch (final InterruptedException ex) {
-                            Thread.currentThread().interrupt();
-                            throw new InterruptedIOException(ex.getMessage());
-                        }
-                        return buffer.toString();
-                    }
-                }),
+                responseConsumer,
                 null);
 
-        final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        final String s1 = result1.getBody();
-        Assertions.assertNotNull(s1);
-        final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
-        while (t1.hasMoreTokens()) {
-            Assertions.assertEquals("0123456789abcd", t1.nextToken());
+        final Random random = new Random();
+
+        try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+            final HttpEntity entity = response.getEntity();
+            final ContentType contentType = ContentType.parse(entity.getContentType());
+            final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
+
+            try (final InputStream inputStream = entity.getContent()) {
+                final StringBuilder buffer = new StringBuilder();
+                final byte[] tmp = new byte[16];
+                int l;
+                while ((l = inputStream.read(tmp)) != -1) {
+                    buffer.append(charset.decode(ByteBuffer.wrap(tmp, 0, l)));
+                    Thread.sleep(100 + random.nextInt(400));
+                }
+                final StringTokenizer t1 = new StringTokenizer(buffer.toString(), "\r\n");
+                while (t1.hasMoreTokens()) {
+                    Assertions.assertEquals("0123456789abcd", t1.nextToken());
+                }
+            }
         }
     }
 
@@ -582,33 +578,37 @@ abstract class HttpIntegrationTest {
         final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+        final Random random = new Random();
+
+        final ClassicHttpRequest request1 = ClassicRequestBuilder.post()
                 .setHttpHost(target)
                 .setPath("/echo")
+                .setEntity(new EntityTemplate(
+                        -1,
+                        ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8),
+                        null,
+                        outputStream -> {
+                            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+                                for (int i = 0; i < 500; i++) {
+                                    if (i % 100 == 0) {
+                                        writer.flush();
+                                        Thread.sleep(100 + random.nextInt(400));
+                                    }
+                                    writer.write("0123456789abcdef\r\n");
+                                }
+                            } catch (final InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                                throw new InterruptedIOException(ex.getMessage());
+                            }
+                        }))
                 .build();
+        final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request1, 16, TIMEOUT);
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new AbstractClassicEntityProducer(4096, ContentType.TEXT_PLAIN, executorResource.getExecutorService()) {
-
-                    @Override
-                    protected void produceData(final ContentType contentType, final OutputStream outputStream) throws IOException {
-                        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
-                        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, charset))) {
-                            for (int i = 0; i < 500; i++) {
-                                if (i % 100 == 0) {
-                                    writer.flush();
-                                    Thread.sleep(500);
-                                }
-                                writer.write("0123456789abcdef\r\n");
-                            }
-                        } catch (final InterruptedException ex) {
-                            Thread.currentThread().interrupt();
-                            throw new InterruptedIOException(ex.getMessage());
-                        }
-                    }
-
-                }),
+                requestProducer,
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        requestProducer.blockWaiting().execute();
+
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
@@ -627,53 +627,42 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new AbstractClassicServerExchangeHandler(2048, executorResource.getExecutorService()) {
+        final Random random = new Random();
 
-            @Override
-            protected void handle(
-                    final HttpRequest request,
-                    final InputStream requestStream,
-                    final HttpResponse response,
-                    final OutputStream responseStream,
-                    final HttpContext context) throws IOException, HttpException {
-
-                if (!"/hello".equals(request.getPath())) {
-                    response.setCode(HttpStatus.SC_NOT_FOUND);
-                    return;
-                }
-                if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
-                    response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-                    return;
-                }
-                if (requestStream == null) {
-                    return;
-                }
-                final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-                final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
-                final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
-                response.setCode(HttpStatus.SC_OK);
-                response.setHeader(h1);
-                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));
-                     final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(responseStream, charset))) {
-                    try {
-                        String l;
-                        int count = 0;
-                        while ((l = reader.readLine()) != null) {
-                            writer.write(l);
-                            writer.write("\r\n");
-                            count++;
-                            if (count % 500 == 0) {
-                                Thread.sleep(500);
-                            }
-                        }
-                        writer.flush();
-                    } catch (final InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                        throw new InterruptedIOException(ex.getMessage());
-                    }
-                }
+        final HttpRequestHandler requestHandler = (request, response, context) -> {
+            final HttpEntity requestEntity = request.getEntity();
+            if (requestEntity != null) {
+                EntityUtils.consume(requestEntity);
             }
-        });
+            final HttpEntity responseEntity = new EntityTemplate(
+                    ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8),
+                    outputStream -> {
+                        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+                            for (int i = 0; i < 500; i++) {
+                                if (i % 100 == 0) {
+                                    writer.flush();
+                                    Thread.sleep(100 + random.nextInt(400));
+                                }
+                                writer.write("0123456789abcdef\r\n");
+                            }
+                        } catch (final InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                            throw new InterruptedIOException(ex.getMessage());
+                        }
+                    });
+            response.setEntity(responseEntity);
+        };
+
+        final RequestRouter<HttpRequestHandler> requestRouter = RequestRouter.<HttpRequestHandler>builder()
+                .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                .addRoute(RequestRouter.LOCAL_AUTHORITY, "/hello", requestHandler)
+                .build();
+
+        server.register("*", () -> new ClassicToAsyncServerExchangeHandler(
+                Executors.newSingleThreadExecutor(),
+                requestRouter,
+                LoggingExceptionCallback.INSTANCE));
+
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -681,13 +670,12 @@ abstract class HttpIntegrationTest {
         final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final BasicHttpRequest request1 = BasicRequestBuilder.post()
+        final BasicHttpRequest request1 = BasicRequestBuilder.get()
                 .setHttpHost(target)
                 .setPath("/hello")
                 .build();
-
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
+                new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result1);
@@ -698,7 +686,7 @@ abstract class HttpIntegrationTest {
         Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assertions.assertEquals("0123456789abcd", t1.nextToken());
+            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
         }
     }
 

@@ -44,7 +44,10 @@ import org.apache.hc.core5.util.Args;
  * processing is executed through an {@link Executor}.
  *
  * @since 5.0
+ *
+ * @deprecated Use {@link ClassicToAsyncRequestProducer}.
  */
+@Deprecated
 public abstract class AbstractClassicEntityProducer implements AsyncEntityProducer {
 
     private enum State { IDLE, ACTIVE, COMPLETED }

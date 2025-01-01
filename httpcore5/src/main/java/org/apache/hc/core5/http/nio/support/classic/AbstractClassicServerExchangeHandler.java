@@ -63,7 +63,10 @@ import org.apache.hc.core5.util.Asserts;
  * Blocking input / output processing is executed through an {@link Executor}.
  *
  * @since 5.0
+ *
+ * @deprecated Use {@link ClassicToAsyncServerExchangeHandler}.
  */
+@Deprecated
 public abstract class AbstractClassicServerExchangeHandler implements AsyncServerExchangeHandler {
 
     private enum State { IDLE, ACTIVE, COMPLETED }
