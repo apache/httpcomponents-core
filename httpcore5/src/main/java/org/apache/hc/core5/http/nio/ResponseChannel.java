@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
@@ -81,5 +82,13 @@ public interface ResponseChannel {
      * @throws IOException in case of an I/O error.
      */
     void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer, HttpContext context) throws HttpException, IOException;
+
+    /**
+     * Terminates message exchange due to an internal error generating
+     * a response or its content.
+     */
+    @Internal
+    default void terminateExchange() {
+    }
 
 }

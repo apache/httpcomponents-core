@@ -64,6 +64,7 @@ import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.CloseMode;
 
 class ServerHttp1StreamHandler implements ResourceHolder {
 
@@ -139,6 +140,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             public void pushPromise(
                     final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
                 commitPromise();
+            }
+
+            @Override
+            public void terminateExchange() {
+                terminate();
             }
 
             @Override
@@ -220,6 +226,10 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
     private void commitPromise() throws HttpException {
         throw new HttpException("HTTP/1.1 does not support server push");
+    }
+
+    private void terminate() {
+        outputChannel.close(CloseMode.IMMEDIATE);
     }
 
     void activateChannel() throws IOException, HttpException {

@@ -128,6 +128,11 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
+            public void close(final CloseMode closeMode) {
+                ServerHttp1StreamDuplexer.this.close(closeMode);
+            }
+
+            @Override
             public void submit(
                     final HttpResponse response,
                     final boolean endStream,
@@ -505,6 +510,10 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         @Override
         public void close() {
             channel.close();
+        }
+
+        public void close(final CloseMode closeMode) {
+            channel.close(closeMode);
         }
 
         @Override

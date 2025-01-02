@@ -43,4 +43,6 @@ interface H2StreamChannel extends DataStreamChannel, CapacityChannel, Cancellabl
 
     void push(List<Header> headers, AsyncPushProducer pushProducer) throws HttpException, IOException;
 
+    void terminate();
+
 }

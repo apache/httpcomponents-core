@@ -195,6 +195,10 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
         connMetrics.incrementRequestCount();
     }
 
+    private void terminate() {
+        outputChannel.terminate();
+    }
+
     @Override
     public void produceOutput() throws HttpException, IOException {
         switch (responseState) {
@@ -217,6 +221,11 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
                     public void pushPromise(
                             final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
                         commitPromise(promise, pushProducer);
+                    }
+
+                    @Override
+                    public void terminateExchange() {
+                        terminate();
                     }
 
                 }, context);
