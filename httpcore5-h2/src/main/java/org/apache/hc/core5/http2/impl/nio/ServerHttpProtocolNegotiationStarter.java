@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
@@ -59,18 +60,21 @@ public class ServerHttpProtocolNegotiationStarter implements IOEventHandlerFacto
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
     private final Timeout handshakeTimeout;
+    private final Callback<Exception> exceptionCallback;
 
     public ServerHttpProtocolNegotiationStarter(
             final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
-            final Timeout handshakeTimeout) {
+            final Timeout handshakeTimeout,
+            final Callback<Exception> exceptionCallback) {
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
+        this.exceptionCallback = exceptionCallback;
     }
 
     @Override
@@ -88,12 +92,14 @@ public class ServerHttpProtocolNegotiationStarter implements IOEventHandlerFacto
             }
         }
 
-        ioSession.registerProtocol(ApplicationProtocol.HTTP_1_1.id, new ServerHttp1UpgradeHandler(http1StreamHandlerFactory));
-        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ServerH2UpgradeHandler(http2StreamHandlerFactory));
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_1_1.id,
+                new ServerHttp1UpgradeHandler(http1StreamHandlerFactory));
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id,
+                new ServerH2UpgradeHandler(http2StreamHandlerFactory, exceptionCallback));
 
         switch (endpointPolicy) {
             case FORCE_HTTP_2:
-                return new ServerH2PrefaceHandler(ioSession, http2StreamHandlerFactory);
+                return new ServerH2PrefaceHandler(ioSession, http2StreamHandlerFactory, exceptionCallback);
             case FORCE_HTTP_1:
                 return new ServerHttp1IOEventHandler(http1StreamHandlerFactory.create(uriScheme.id, ioSession));
             default:

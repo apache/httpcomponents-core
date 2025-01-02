@@ -533,7 +533,8 @@ public class H2ServerBootstrap {
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 actualTlsStrategy,
-                handshakeTimeout);
+                handshakeTimeout,
+                exceptionCallback);
 
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
                 sessionListener, threadPoolListener, null, actualCanonicalHostName);

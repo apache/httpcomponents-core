@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.IOSession;
@@ -68,8 +69,9 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
     public ClientH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final boolean strictALPNHandshake) {
-        this(ioSession, http2StreamHandlerFactory, strictALPNHandshake, null);
+            final boolean strictALPNHandshake,
+            final Callback<Exception> exceptionCallback) {
+        this(ioSession, http2StreamHandlerFactory, strictALPNHandshake, null, exceptionCallback);
     }
 
     /**
@@ -79,8 +81,9 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
             final ProtocolIOSession ioSession,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final boolean strictALPNHandshake,
-            final FutureCallback<ProtocolIOSession> resultCallback) {
-        super(ioSession, resultCallback);
+            final FutureCallback<ProtocolIOSession> resultCallback,
+            final Callback<Exception> exceptionCallback) {
+        super(ioSession, resultCallback, exceptionCallback);
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.strictALPNHandshake = strictALPNHandshake;
         this.initialized = new AtomicBoolean();

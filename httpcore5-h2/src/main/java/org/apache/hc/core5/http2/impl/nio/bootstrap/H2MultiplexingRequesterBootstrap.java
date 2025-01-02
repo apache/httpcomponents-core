@@ -252,7 +252,8 @@ public class H2MultiplexingRequesterBootstrap {
                 streamListener);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
-                (ioSession, attachment) -> new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, strictALPNHandshake),
+                (ioSession, attachment) ->
+                        new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, strictALPNHandshake, exceptionCallback),
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,

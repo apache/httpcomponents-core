@@ -213,7 +213,8 @@ public class H2TestServer extends AsyncServer {
                     CharCodingConfig.DEFAULT,
                     sslContext,
                     sslSessionInitializer,
-                    sslSessionVerifier));
+                    sslSessionVerifier,
+                    LoggingExceptionCallback.INSTANCE));
         } else {
             start(new InternalServerProtocolNegotiationStarter(
                     httpProcessor != null ? httpProcessor : H2Processors.server(),
@@ -226,7 +227,8 @@ public class H2TestServer extends AsyncServer {
                     CharCodingConfig.DEFAULT,
                     sslContext,
                     sslSessionInitializer,
-                    sslSessionVerifier));
+                    sslSessionVerifier,
+                    LoggingExceptionCallback.INSTANCE));
         }
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();

@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
@@ -49,15 +50,18 @@ import org.apache.hc.core5.util.Args;
 public class ServerH2UpgradeHandler implements ProtocolUpgradeHandler {
 
     private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final Callback<Exception> exceptionCallback;
 
-    public ServerH2UpgradeHandler(final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory) {
+    public ServerH2UpgradeHandler(final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
+                                  final Callback<Exception> exceptionCallback) {
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+        this.exceptionCallback = exceptionCallback;
     }
 
     @Override
     public void upgrade(final ProtocolIOSession ioSession, final FutureCallback<ProtocolIOSession> callback) {
         final HttpConnectionEventHandler protocolNegotiator = new ServerH2PrefaceHandler(
-                ioSession, http2StreamHandlerFactory, callback);
+                ioSession, http2StreamHandlerFactory, callback, exceptionCallback);
         ioSession.upgrade(protocolNegotiator);
         try {
             protocolNegotiator.connected(ioSession);

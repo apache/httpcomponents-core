@@ -186,7 +186,8 @@ public class H2TestClient extends AsyncRequester {
                     CharCodingConfig.DEFAULT,
                     sslContext,
                     sslSessionInitializer,
-                    sslSessionVerifier));
+                    sslSessionVerifier,
+                    LoggingExceptionCallback.INSTANCE));
         } else {
             start(new InternalClientProtocolNegotiationStarter(
                     httpProcessor != null ? httpProcessor : H2Processors.client(),
@@ -198,7 +199,8 @@ public class H2TestClient extends AsyncRequester {
                     CharCodingConfig.DEFAULT,
                     sslContext,
                     sslSessionInitializer,
-                    sslSessionVerifier));
+                    sslSessionVerifier,
+                    LoggingExceptionCallback.INSTANCE));
         }
 
     }
