@@ -117,6 +117,11 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
+            public void close(final CloseMode closeMode) {
+                shutdownSession(closeMode);
+            }
+
+            @Override
             public void submit(
                     final HttpRequest request,
                     final boolean endStream,

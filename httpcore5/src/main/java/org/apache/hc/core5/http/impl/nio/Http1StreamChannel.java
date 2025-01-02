@@ -31,11 +31,14 @@ import java.io.IOException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.nio.ContentEncoder;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 
 interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
 
     void close();
+
+    void close(CloseMode closeMode);
 
     void activate() throws HttpException, IOException;
 

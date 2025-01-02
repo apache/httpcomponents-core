@@ -133,6 +133,11 @@ class ServerH2StreamHandler implements H2StreamHandler {
                 commitPromise(promise, pushProducer);
             }
 
+            @Override
+            public void terminateExchange() {
+                terminate();
+            }
+
         };
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
@@ -204,6 +209,10 @@ class ServerH2StreamHandler implements H2StreamHandler {
         final List<Header> promiseHeaders = DefaultH2RequestConverter.INSTANCE.convert(promise);
         outputChannel.push(promiseHeaders, pushProducer);
         connMetrics.incrementRequestCount();
+    }
+
+    private void terminate() {
+        outputChannel.terminate();
     }
 
     @Override

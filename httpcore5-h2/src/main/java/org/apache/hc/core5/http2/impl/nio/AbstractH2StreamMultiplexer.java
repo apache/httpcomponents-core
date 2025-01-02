@@ -1545,6 +1545,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         @Override
+        public void terminate() {
+            try {
+                localReset(H2Error.INTERNAL_ERROR);
+            } catch (final IOException ignore) {
+            }
+        }
+
+        @Override
         public boolean cancel() {
             try {
                 return localReset(H2Error.CANCEL);
