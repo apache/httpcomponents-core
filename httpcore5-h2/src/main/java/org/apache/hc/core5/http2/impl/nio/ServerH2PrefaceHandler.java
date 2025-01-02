@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.reactor.IOSession;
@@ -54,15 +55,17 @@ public class ServerH2PrefaceHandler extends PrefaceHandlerBase {
 
     public ServerH2PrefaceHandler(
             final ProtocolIOSession ioSession,
-            final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory) {
-        this(ioSession, http2StreamHandlerFactory, null);
+            final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final Callback<Exception> exceptionCallback) {
+        this(ioSession, http2StreamHandlerFactory, null, exceptionCallback);
     }
 
     public ServerH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final FutureCallback<ProtocolIOSession> resultCallback) {
-        super(ioSession, resultCallback);
+            final FutureCallback<ProtocolIOSession> resultCallback,
+            final Callback<Exception> exceptionCallback) {
+        super(ioSession, resultCallback, exceptionCallback);
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.inBuf = BufferedData.allocate(1024);
     }

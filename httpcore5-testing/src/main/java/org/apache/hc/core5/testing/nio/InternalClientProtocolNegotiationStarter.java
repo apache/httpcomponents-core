@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -64,6 +65,7 @@ class InternalClientProtocolNegotiationStarter implements IOEventHandlerFactory 
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
+    private final Callback<Exception> exceptionCallback;
 
     InternalClientProtocolNegotiationStarter(
             final HttpProcessor httpProcessor,
@@ -74,7 +76,8 @@ class InternalClientProtocolNegotiationStarter implements IOEventHandlerFactory 
             final CharCodingConfig charCodingConfig,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
-            final SSLSessionVerifier sslSessionVerifier) {
+            final SSLSessionVerifier sslSessionVerifier,
+            final Callback<Exception> exceptionCallback) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
@@ -84,6 +87,7 @@ class InternalClientProtocolNegotiationStarter implements IOEventHandlerFactory 
         this.sslContext = sslContext;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
+        this.exceptionCallback = exceptionCallback;
     }
 
     @Override
@@ -103,11 +107,11 @@ class InternalClientProtocolNegotiationStarter implements IOEventHandlerFactory 
                 charCodingConfig,
                 LoggingH2StreamListener.INSTANCE);
         ioSession.registerProtocol(ApplicationProtocol.HTTP_1_1.id, new ClientHttp1UpgradeHandler(http1StreamHandlerFactory));
-        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ClientH2UpgradeHandler(http2StreamHandlerFactory));
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ClientH2UpgradeHandler(http2StreamHandlerFactory, exceptionCallback));
 
         switch (versionPolicy) {
             case FORCE_HTTP_2:
-                return new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, false);
+                return new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, false, exceptionCallback);
             case FORCE_HTTP_1:
                 return new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession));
             default:

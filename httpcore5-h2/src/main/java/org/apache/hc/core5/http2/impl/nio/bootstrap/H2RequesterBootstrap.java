@@ -382,7 +382,8 @@ public class H2RequesterBootstrap {
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 actualTlsStrategy,
-                handshakeTimeout);
+                handshakeTimeout,
+                exceptionCallback);
 
         return new H2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,

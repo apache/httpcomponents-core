@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpVersion;
@@ -55,14 +56,17 @@ abstract class PrefaceHandlerBase implements HttpConnectionEventHandler {
     final ProtocolIOSession ioSession;
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
     private final FutureCallback<ProtocolIOSession> resultCallback;
+    private final Callback<Exception> exceptionCallback;
     private final AtomicBoolean completed;
 
     PrefaceHandlerBase(
             final ProtocolIOSession ioSession,
-            final FutureCallback<ProtocolIOSession> resultCallback) {
+            final FutureCallback<ProtocolIOSession> resultCallback,
+            final Callback<Exception> exceptionCallback) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.protocolHandlerRef = new AtomicReference<>();
         this.resultCallback = resultCallback;
+        this.exceptionCallback = exceptionCallback;
         this.completed = new AtomicBoolean();
     }
 
@@ -92,10 +96,16 @@ abstract class PrefaceHandlerBase implements HttpConnectionEventHandler {
                 protocolHandler.exception(session, cause);
             } else {
                 CommandSupport.failCommands(session, cause);
+                if (exceptionCallback != null) {
+                    exceptionCallback.execute(cause);
+                }
             }
         } catch (final Exception ex) {
             if (completed.compareAndSet(false, true) && resultCallback != null) {
                 resultCallback.failed(ex);
+            }
+            if (exceptionCallback != null) {
+                exceptionCallback.execute(cause);
             }
         }
     }
