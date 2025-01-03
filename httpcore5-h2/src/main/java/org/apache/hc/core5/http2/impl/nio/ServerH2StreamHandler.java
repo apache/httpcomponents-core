@@ -179,7 +179,7 @@ class ServerH2StreamHandler implements H2StreamHandler {
                     (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
             outputChannel.submit(responseHeaders, endStream);
             connMetrics.incrementResponseCount();
-            if (responseEntityDetails == null) {
+            if (endStream) {
                 responseState = MessageState.COMPLETE;
             } else {
                 responseState = MessageState.BODY;
