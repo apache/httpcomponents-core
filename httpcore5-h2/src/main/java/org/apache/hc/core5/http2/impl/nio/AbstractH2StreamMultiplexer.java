@@ -1441,7 +1441,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (remoteEndStream) {
                 return;
             }
-            incrementInputCapacity(0, connInputWindow, increment);
             incrementInputCapacity(id, inputWindow, increment);
         }
 
