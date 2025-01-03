@@ -188,6 +188,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     abstract H2StreamHandler createRemotelyInitiatedStream(
             H2StreamChannel channel,
+
             HttpProcessor httpProcessor,
             BasicHttpConnectionMetrics connMetrics,
             HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException;
@@ -207,6 +208,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             if (window.compareAndSet(current, (int) newValue)) {
                 return (int) newValue;
+            }
+        }
+    }
+
+    private int updateWindowMax(final AtomicInteger window) throws ArithmeticException {
+        for (;;) {
+            final int current = window.get();
+            if (window.compareAndSet(current, Integer.MAX_VALUE)) {
+                return Integer.MAX_VALUE - current;
             }
         }
     }
@@ -371,9 +381,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final int remainingCapacity = Integer.MAX_VALUE - streamWinSize;
             final int chunk = Math.min(inputCapacity, remainingCapacity);
             if (chunk != 0) {
+                updateInputWindow(streamId, inputWindow, chunk);
                 final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, chunk);
                 commitFrame(windowUpdateFrame);
-                updateInputWindow(streamId, inputWindow, chunk);
             }
         }
     }
@@ -412,7 +422,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
-        maximizeConnWindow(connInputWindow.get());
+        maximizeWindow(0, connInputWindow);
 
         if (streamListener != null) {
             final int initInputWindow = connInputWindow.get();
@@ -1024,7 +1034,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             final int connWinSize = updateInputWindow(0, connInputWindow, -frameLength);
             if (connWinSize < CONNECTION_WINDOW_LOW_MARK) {
-                maximizeConnWindow(connWinSize);
+                maximizeWindow(0, connInputWindow);
             }
         }
         if (stream.isRemoteClosed()) {
@@ -1039,12 +1049,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         stream.consumeData(payload);
     }
 
-    private void maximizeConnWindow(final int connWinSize) throws IOException {
-        final int delta = Integer.MAX_VALUE - connWinSize;
+    private void maximizeWindow(final int streamId, final AtomicInteger window) throws IOException {
+        final int delta = updateWindowMax(window);
         if (delta > 0) {
-            final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(0, delta);
+            final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, delta);
             commitFrame(windowUpdateFrame);
-            updateInputWindow(0, connInputWindow, delta);
         }
     }
 
