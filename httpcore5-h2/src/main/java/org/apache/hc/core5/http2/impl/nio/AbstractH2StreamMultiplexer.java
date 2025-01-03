@@ -1621,7 +1621,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         @Override
         public void update(final int increment) throws IOException {
-            incrementInputCapacity(0, connInputWindow, increment);
             incrementInputCapacity(id, inputWindow, increment);
         }
 
