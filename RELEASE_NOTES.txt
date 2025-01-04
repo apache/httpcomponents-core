@@ -1,3 +1,29 @@
+Release 5.3.2
+------------------
+
+This maintenance release corrects several major defects in the HTTP/2 protocol
+code reported since the 5.3.1 release.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-774: Fixed a race condition caused by concurrent update of the connection input
+  window to the max value.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Optimize connection close logic to resolve timeout delay issue (#508).
+  Contributed by Noah <yuns994@gmail.com>
+
+* Bug fix: Update the pointer of H2 continuation's headerBuffer after copying the payload
+  (#507).
+  Contributed by CoolTomatos <24667806+cooltomatos@users.noreply.github.com>
+
+* Removed workaround for an incompatibility in HTTP/2 frame management with older versions
+  of Nginx.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.3.1
 ------------------
 
