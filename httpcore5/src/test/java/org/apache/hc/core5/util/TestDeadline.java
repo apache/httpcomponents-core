@@ -130,4 +130,14 @@ class TestDeadline {
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneMin);
         Assertions.assertEquals(nowPlusOneMin, deadline.getValue());
     }
+
+    @Test
+    void testOverflowHandling() {
+        final long currentTime = Long.MAX_VALUE - 5000; // Simulate close to overflow
+        final TimeValue tenSeconds = TimeValue.ofMilliseconds(10000); // 10 seconds
+        final Deadline deadline = Deadline.calculate(currentTime, tenSeconds);
+
+        Assertions.assertEquals(Deadline.MAX_VALUE, deadline,
+                "Overflow should result in the maximum deadline value.");
+    }
 }

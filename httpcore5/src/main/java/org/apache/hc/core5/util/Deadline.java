@@ -83,9 +83,8 @@ public class Deadline {
      */
     public static Deadline calculate(final long timeMillis, final TimeValue timeValue) {
         if (TimeValue.isPositive(timeValue)) {
-            // TODO handle unlikely overflow
-            final long deadline = timeMillis + timeValue.toMilliseconds();
-            return deadline < 0 ? Deadline.MAX_VALUE : Deadline.fromUnixMilliseconds(deadline);
+            return Deadline.fromUnixMilliseconds(timeMillis +
+                    Math.min(timeValue.toMilliseconds(), Long.MAX_VALUE - timeMillis));
         }
         return Deadline.MAX_VALUE;
     }
