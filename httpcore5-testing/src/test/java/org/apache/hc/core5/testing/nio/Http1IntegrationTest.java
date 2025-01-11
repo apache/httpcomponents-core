@@ -123,6 +123,7 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.http.support.BasicRequestBuilder;
+import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -298,7 +299,7 @@ abstract class Http1IntegrationTest {
     }
 
     @Test
-    void testPostIdentityTransferOutOfSequenceResponse() throws Exception {
+    void testPostIdentityTransferOutOfSequenceResponseNotOK() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -333,6 +334,84 @@ abstract class Http1IntegrationTest {
             Assertions.assertNotNull(response);
             Assertions.assertEquals(500, response.getCode());
             Assertions.assertEquals("Go away", entity);
+        }
+    }
+
+    @Test
+    void testPostOutOfSequenceResponseOK() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new ImmediateResponseExchangeHandler(200, "Welcome"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+
+        final int reqNo = 5;
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        for (int i = 0; i < reqNo; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("Hello", 512 * i)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertEquals("Welcome", entity);
+        }
+    }
+
+    @Test
+    void testPostOutOfSequenceResponseOKConnectionClose() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new ImmediateResponseExchangeHandler(
+                BasicResponseBuilder.create(200)
+                        .addHeader(HttpHeaders.CONNECTION, "Close")
+                        .build(),
+                "Welcome"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+
+        final int reqNo = 5;
+
+        for (int i = 0; i < reqNo; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
+            final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(request, new MultiLineEntityProducer("Hello", 512 * i)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+            streamEndpoint.close();
+
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertEquals("Welcome", entity);
         }
     }
 
