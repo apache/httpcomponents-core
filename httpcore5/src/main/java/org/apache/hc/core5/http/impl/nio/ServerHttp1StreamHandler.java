@@ -100,10 +100,10 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             @Override
             public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.complete(trailers);
-                if (!keepAlive) {
+                responseState = MessageState.COMPLETE;
+                if (requestState == MessageState.COMPLETE && !keepAlive) {
                     outputChannel.close();
                 }
-                responseState = MessageState.COMPLETE;
             }
 
             @Override
@@ -324,6 +324,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             throw new ProtocolException("Unexpected message data");
         }
         requestState = MessageState.COMPLETE;
+        if (responseState == MessageState.COMPLETE && !keepAlive) {
+            outputChannel.close();
+        }
         exchangeHandler.streamEnd(trailers);
     }
 
