@@ -40,16 +40,24 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 
 public final class SSLTestContexts {
-
     public static SSLContext createServerSSLContext() {
+        return createServerSSLContext(null);
+    }
+
+    public static SSLContext createServerSSLContext(final String protocol) {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         try {
-            return SSLContextBuilder.create()
+            SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
                     .setKeyStoreType("pkcs12")
                     .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                    .build();
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray());
+
+            if (protocol != null) {
+                sslContextBuilder = sslContextBuilder.setProtocol(protocol);
+            }
+
+            return sslContextBuilder.build();
         } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
                        UnrecoverableKeyException | IOException ex) {
             throw new IllegalStateException(ex);
@@ -57,13 +65,22 @@ public final class SSLTestContexts {
     }
 
     public static SSLContext createClientSSLContext() {
+        return createClientSSLContext(null);
+    }
+
+    public static SSLContext createClientSSLContext(final String protocol) {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         try {
-            return SSLContextBuilder.create()
+            SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
                     .setKeyStoreType("pkcs12")
-                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                    .build();
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray());
+
+            if (protocol != null) {
+                sslContextBuilder = sslContextBuilder.setProtocol(protocol);
+            }
+
+            return sslContextBuilder.build();
         } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
                        IOException ex) {
             throw new IllegalStateException(ex);

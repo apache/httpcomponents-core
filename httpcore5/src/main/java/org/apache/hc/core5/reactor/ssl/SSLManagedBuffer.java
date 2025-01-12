@@ -57,13 +57,54 @@ abstract class SSLManagedBuffer {
      */
     abstract boolean hasData();
 
+    /**
+     * Expands the underlying buffer's to make sure it has enough write capacity to accommodate
+     * the required amount of bytes. This method has no side effect if the buffer has enough writeable
+     * capacity left.
+     * @param size the required write capacity
+     */
+    abstract void ensureWriteable(final int size);
+
+    /**
+     * Helper method to ensure additional writeable capacity with respect to the source buffer. It
+     * allocates a new buffer and copies all the data if needed, returning the new buffer. This method
+     * has no side effect if the source buffer has enough writeable capacity left.
+     * @param src source buffer
+     * @param size the required write capacity
+     * @return new buffer (or the source buffer of it  has enough writeable capacity left)
+     */
+    ByteBuffer ensureWriteable(final ByteBuffer src, final int size) {
+        if (src == null) {
+            // Nothing to do, the buffer is not allocated
+            return null;
+        }
+
+        // There is not enough capacity left, we need to expand
+        if (src.remaining() < size) {
+            final int additionalCapacityNeeded = size - src.remaining();
+            final ByteBuffer expanded = ByteBuffer.allocate(src.capacity() + additionalCapacityNeeded);
+
+            // use a duplicated buffer so we don't disrupt the limit of the original buffer
+            final ByteBuffer tmp = src.duplicate();
+            tmp.flip();
+
+            // Copy to expanded buffer
+            expanded.put(tmp);
+
+            // Use a new buffer
+            return expanded;
+        } else {
+            return src;
+        }
+    }
+
     static SSLManagedBuffer create(final SSLBufferMode mode, final int size) {
         return mode == SSLBufferMode.DYNAMIC ? new DynamicBuffer(size) : new StaticBuffer(size);
     }
 
     static final class StaticBuffer extends SSLManagedBuffer {
 
-        private final ByteBuffer buffer;
+        private ByteBuffer buffer;
 
         public StaticBuffer(final int size) {
             Args.positive(size, "size");
@@ -90,6 +131,10 @@ abstract class SSLManagedBuffer {
             return buffer.position() > 0;
         }
 
+        @Override
+        void ensureWriteable(final int size) {
+            buffer = ensureWriteable(buffer, size);
+        }
     }
 
     static final class DynamicBuffer extends SSLManagedBuffer {
@@ -126,6 +171,10 @@ abstract class SSLManagedBuffer {
             return wrapped != null && wrapped.position() > 0;
         }
 
+        @Override
+        void ensureWriteable(final int size) {
+            wrapped = ensureWriteable(wrapped, size);
+        }
     }
 
 }

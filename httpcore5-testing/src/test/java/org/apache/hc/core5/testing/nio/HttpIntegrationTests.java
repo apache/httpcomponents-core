@@ -54,6 +54,16 @@ class HttpIntegrationTests {
     }
 
     @Nested
+    @DisplayName("Core transport (HTTP/1.1, TLSv1.3)")
+    class CoreTransportTls13 extends Http1CoreTransportTest {
+
+        public CoreTransportTls13() {
+            super(URIScheme.HTTPS, "TLSv1.3");
+        }
+
+    }
+
+    @Nested
     @DisplayName("Core transport (H2)")
     class CoreTransportH2 extends H2CoreTransportTest {
 
@@ -69,6 +79,16 @@ class HttpIntegrationTests {
 
         public CoreTransportH2Tls() {
             super(URIScheme.HTTPS);
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Core transport (H2, TLSv1.3)")
+    class CoreTransportH2Tls13 extends H2CoreTransportTest {
+
+        public CoreTransportH2Tls13() {
+            super(URIScheme.HTTPS, "TLSv1.3");
         }
 
     }

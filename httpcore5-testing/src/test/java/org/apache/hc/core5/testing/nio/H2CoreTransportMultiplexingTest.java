@@ -34,6 +34,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.CountDownLatchFutureCallback;
@@ -48,6 +50,7 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
@@ -144,6 +147,27 @@ abstract class H2CoreTransportMultiplexingTest {
         assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body3 = message3.getBody();
         assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+    }
+
+    @Test
+    void testLargeRequest() throws Exception {
+        final HttpAsyncServer server = serverResource.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final H2MultiplexingRequester requester = clientResource.start();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final String content = IntStream.range(0, 1000).mapToObj(i -> "a lot of stuff").collect(Collectors.joining(" "));
+        final Future<Message<HttpResponse, String>> resultFuture = requester.execute(
+                new BasicRequestProducer(Method.POST, target, "/a-lot-of-stuff", AsyncEntityProducers.create(content, ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message, CoreMatchers.notNullValue());
+        final HttpResponse response = message.getHead();
+        assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body = message.getBody();
+        assertThat(body, CoreMatchers.equalTo(content));
     }
 
     @Test
