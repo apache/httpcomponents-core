@@ -57,8 +57,11 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -76,8 +79,13 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
     private final HttpAsyncRequesterResource clientResource;
 
     public Http1CoreTransportTest(final URIScheme scheme) {
+        this(scheme, null);
+    }
+
+    public Http1CoreTransportTest(final URIScheme scheme, final String tlsProtocol) {
         super(scheme);
         this.serverResource = new HttpAsyncServerResource(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(tlsProtocol)))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -115,6 +123,7 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                         }))
         );
         this.clientResource = new HttpAsyncRequesterResource(bootstrap -> bootstrap
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(tlsProtocol)))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())

@@ -93,6 +93,7 @@ public class SSLIOSession implements IOSession {
     private final AtomicInteger outboundClosedCount;
     private final AtomicReference<TLSHandShakeState> handshakeStateRef;
     private final IOEventHandler internalEventHandler;
+    private final int packetBufferSize;
 
     private int appEventMask;
 
@@ -178,9 +179,9 @@ public class SSLIOSession implements IOSession {
 
         final SSLSession sslSession = this.sslEngine.getSession();
         // Allocate buffers for network (encrypted) data
-        final int netBufferSize = sslSession.getPacketBufferSize();
-        this.inEncrypted = SSLManagedBuffer.create(sslBufferMode, netBufferSize);
-        this.outEncrypted = SSLManagedBuffer.create(sslBufferMode, netBufferSize);
+        this.packetBufferSize = sslSession.getPacketBufferSize();
+        this.inEncrypted = SSLManagedBuffer.create(sslBufferMode, packetBufferSize);
+        this.outEncrypted = SSLManagedBuffer.create(sslBufferMode, packetBufferSize);
 
         // Allocate buffers for application (unencrypted) data
         final int appBufferSize = sslSession.getApplicationBufferSize();
@@ -668,9 +669,18 @@ public class SSLIOSession implements IOSession {
             if (this.handshakeStateRef.get() == TLSHandShakeState.READY) {
                 return 0;
             }
-            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
-            final SSLEngineResult result = doWrap(src, outEncryptedBuf);
-            return result.bytesConsumed();
+
+            for (;;) {
+                final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+                final SSLEngineResult result = doWrap(src, outEncryptedBuf);
+                if (result.getStatus() == SSLEngineResult.Status.BUFFER_OVERFLOW) {
+                    // We don't release the buffer here, it will be expanded (if needed)
+                    // and returned by the next attempt of SSLManagedBuffer#acquire() call.
+                    this.outEncrypted.ensureWriteable(packetBufferSize);
+                } else {
+                    return result.bytesConsumed();
+                }
+            }
         } finally {
             this.session.getLock().unlock();
         }

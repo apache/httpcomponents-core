@@ -36,7 +36,10 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
@@ -52,9 +55,14 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
     private final H2AsyncRequesterResource clientResource;
 
     public H2CoreTransportTest(final URIScheme scheme) {
+        this(scheme, null);
+    }
+
+    public H2CoreTransportTest(final URIScheme scheme, final String tlsProtocol) {
         super(scheme);
         this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(tlsProtocol)))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -66,6 +74,7 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
         );
         this.clientResource = new H2AsyncRequesterResource(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(tlsProtocol)))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
