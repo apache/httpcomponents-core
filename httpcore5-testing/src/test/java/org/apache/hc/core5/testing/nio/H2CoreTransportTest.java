@@ -55,11 +55,15 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
     private final H2AsyncRequesterResource clientResource;
 
     public H2CoreTransportTest(final URIScheme scheme) {
+        this(scheme, null);
+    }
+
+    public H2CoreTransportTest(final URIScheme scheme, final String tlsProtocol) {
         super(scheme);
         this.serverResource = new H2AsyncServerResource();
         this.serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(tlsProtocol)))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -72,7 +76,7 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
         this.clientResource = new H2AsyncRequesterResource();
         this.clientResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(tlsProtocol)))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
