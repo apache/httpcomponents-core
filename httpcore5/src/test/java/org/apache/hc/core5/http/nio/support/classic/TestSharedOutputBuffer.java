@@ -219,17 +219,35 @@ class TestSharedOutputBuffer {
     }
 
     @Test
-    void testEndStreamOnlyCalledOnce() throws IOException {
-
-        final DataStreamChannel channel = Mockito.mock(DataStreamChannel.class);
+    void testEndStreamOnlyCalledOnce() throws Exception {
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);
 
-        outputBuffer.flush(channel);
+        final WritableByteChannelMock channel = new WritableByteChannelMock(1024);
+        final DataStreamChannelMock dataStreamChannel = Mockito.spy(new DataStreamChannelMock(channel));
 
-        outputBuffer.writeCompleted();
-        outputBuffer.flush(channel);
+        final ExecutorService executorService = Executors.newFixedThreadPool(2);
+        try {
+            final Future<Boolean> task1 = executorService.submit(() -> {
+                outputBuffer.writeCompleted();
+                return Boolean.TRUE;
+            });
+            final Future<Boolean> task2 = executorService.submit(() -> {
+                for (;;) {
+                    outputBuffer.flush(dataStreamChannel);
+                    if (outputBuffer.isEndStream()) {
+                        break;
+                    }
+                }
+                return Boolean.TRUE;
+            });
 
-        Mockito.verify(channel, Mockito.times(1)).endStream();
+            Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+            Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+
+            Mockito.verify(dataStreamChannel, Mockito.times(1)).endStream();
+        } finally {
+            executorService.shutdownNow();
+        }
     }
 
 }
