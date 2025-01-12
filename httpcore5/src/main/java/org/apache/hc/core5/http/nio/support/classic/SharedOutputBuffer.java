@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -41,18 +42,23 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 @Contract(threading = ThreadingBehavior.SAFE)
 public final class SharedOutputBuffer extends AbstractSharedBuffer implements ContentOutputBuffer {
 
+    private final AtomicBoolean endStreamPropagated;
     private volatile DataStreamChannel dataStreamChannel;
     private volatile boolean hasCapacity;
-    private volatile boolean endStreamPropagated;
 
     public SharedOutputBuffer(final ReentrantLock lock, final int initialBufferSize) {
         super(lock, initialBufferSize);
         this.hasCapacity = false;
-        this.endStreamPropagated = false;
+        this.endStreamPropagated = new AtomicBoolean();
     }
 
     public SharedOutputBuffer(final int bufferSize) {
         this(new ReentrantLock(), bufferSize);
+    }
+
+    @Override
+    public boolean isEndStream() {
+        return endStreamPropagated.get();
     }
 
     public void flush(final DataStreamChannel channel) throws IOException {
@@ -65,7 +71,9 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
                 dataStreamChannel.write(buffer());
             }
             if (!buffer().hasRemaining() && endStream) {
-                propagateEndStream();
+                if (endStreamPropagated.compareAndSet(false, true)) {
+                    dataStreamChannel.endStream();
+                }
             }
             condition.signalAll();
         } finally {
@@ -132,14 +140,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
         try {
             if (!endStream) {
                 endStream = true;
-                if (dataStreamChannel != null) {
-                    setOutputMode();
-                    if (buffer().hasRemaining()) {
-                        dataStreamChannel.requestOutput();
-                    } else {
-                        propagateEndStream();
-                    }
-                }
+                waitEndStream();
             }
         } finally {
             lock.unlock();
@@ -147,27 +148,32 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
     }
 
     private void waitFlush() throws InterruptedIOException {
-        setOutputMode();
         if (dataStreamChannel != null) {
             dataStreamChannel.requestOutput();
         }
-        ensureNotAborted();
+        setOutputMode();
         while (buffer().hasRemaining() || !hasCapacity) {
-            try {
-                condition.await();
-            } catch (final InterruptedException ex) {
-                Thread.currentThread().interrupt();
-                throw new InterruptedIOException(ex.getMessage());
-            }
             ensureNotAborted();
+            waitForSignal();
         }
         setInputMode();
     }
 
-    private void propagateEndStream() throws IOException {
-        if (!endStreamPropagated) {
-            dataStreamChannel.endStream();
-            endStreamPropagated = true;
+    private void waitEndStream() throws InterruptedIOException {
+        if (dataStreamChannel != null) {
+            dataStreamChannel.requestOutput();
+        }
+        while (!endStreamPropagated.get() && !aborted) {
+            waitForSignal();
+        }
+    }
+
+    private void waitForSignal() throws InterruptedIOException {
+        try {
+            condition.await();
+        } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new InterruptedIOException(ex.getMessage());
         }
     }
 
