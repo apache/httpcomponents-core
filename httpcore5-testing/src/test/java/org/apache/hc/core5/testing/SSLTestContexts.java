@@ -48,16 +48,12 @@ public final class SSLTestContexts {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         try {
-            SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
+            return SSLContextBuilder.create()
                     .setKeyStoreType("pkcs12")
                     .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray());
-
-            if (protocol != null) {
-                sslContextBuilder = sslContextBuilder.setProtocol(protocol);
-            }
-
-            return sslContextBuilder.build();
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .setProtocol(protocol)
+                    .build();
         } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
                        UnrecoverableKeyException | IOException ex) {
             throw new IllegalStateException(ex);
@@ -72,15 +68,11 @@ public final class SSLTestContexts {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         try {
-            SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
+            return SSLContextBuilder.create()
                     .setKeyStoreType("pkcs12")
-                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray());
-
-            if (protocol != null) {
-                sslContextBuilder = sslContextBuilder.setProtocol(protocol);
-            }
-
-            return sslContextBuilder.build();
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .setProtocol(protocol)
+                    .build();
         } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
                        IOException ex) {
             throw new IllegalStateException(ex);

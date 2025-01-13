@@ -82,11 +82,11 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
         this(scheme, null);
     }
 
-    public Http1CoreTransportTest(final URIScheme scheme, final String protocol) {
+    public Http1CoreTransportTest(final URIScheme scheme, final String tlsProtocol) {
         super(scheme);
         this.serverResource = new HttpAsyncServerResource();
         this.serverResource.configure(bootstrap -> bootstrap
-                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(protocol)))
+                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(tlsProtocol)))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -125,7 +125,7 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
         );
         this.clientResource = new HttpAsyncRequesterResource();
         this.clientResource.configure(bootstrap -> bootstrap
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(protocol)))
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(tlsProtocol)))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
