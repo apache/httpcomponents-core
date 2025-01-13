@@ -270,7 +270,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             inTransportMetrics.incrementBytesTransferred(n);
         }
 
-        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inbuf.hasData() && inputIdle()) {
+        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && !inbuf.hasData() && inputIdle()) {
             ioSession.clearEvent(SelectionKey.OP_READ);
             return;
         }
@@ -347,7 +347,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         } while (inbuf.hasData());
 
         if (endOfStream && !inbuf.hasData()) {
-            if (outputIdle() && inputIdle()) {
+            if (inputIdle()) {
                 requestShutdown(CloseMode.GRACEFUL);
             } else {
                 shutdownSession(new ConnectionClosedException("Connection closed by peer"));
