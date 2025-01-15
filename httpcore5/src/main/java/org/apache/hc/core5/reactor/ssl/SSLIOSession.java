@@ -101,6 +101,7 @@ public class SSLIOSession implements IOSession {
     private volatile Status status = Status.ACTIVE;
     private volatile Timeout socketTimeout;
     private volatile TlsDetails tlsDetails;
+    private volatile boolean appClosed;
 
     /**
      * Creates new instance of {@code SSLIOSession} class.
@@ -477,7 +478,8 @@ public class SSLIOSession implements IOSession {
                     && (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING || handshakeStatus == HandshakeStatus.FINISHED)
                     && !this.outEncrypted.hasData()
                     && this.sslEngine.isOutboundDone()
-                    && (this.endOfStream || this.sslEngine.isInboundDone())) {
+                    && (this.endOfStream || this.sslEngine.isInboundDone())
+                    && appClosed) {
                 this.status = Status.CLOSED;
             }
             // Abnormal session termination
@@ -520,8 +522,6 @@ public class SSLIOSession implements IOSession {
             // Do we have encrypted data ready to be sent?
             if (this.outEncrypted.hasData()) {
                 newMask = newMask | EventMask.WRITE;
-            } else if (this.sslEngine.isOutboundDone()) {
-                newMask = newMask & ~EventMask.WRITE;
             }
 
             // Update the mask if necessary
@@ -648,7 +648,7 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             appReady = (this.appEventMask & SelectionKey.OP_WRITE) > 0
-                    && this.status == Status.ACTIVE
+                    && this.status.compareTo(Status.CLOSED) < 0
                     && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
         } finally {
             this.session.getLock().unlock();
@@ -724,6 +724,7 @@ public class SSLIOSession implements IOSession {
     public void close(final CloseMode closeMode) {
         this.session.getLock().lock();
         try {
+            appClosed = true;
             if (closeMode == CloseMode.GRACEFUL) {
                 if (this.status.compareTo(Status.CLOSING) >= 0) {
                     return;
