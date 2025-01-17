@@ -27,11 +27,13 @@
 
 package org.apache.hc.core5.http.nio.support.classic;
 
+import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -194,7 +196,8 @@ class TestSharedInputBuffer {
         final Future<Integer> task2 = executorService.submit((Callable<Integer>) inputBuffer::read);
 
         Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException ex = Assertions.assertThrows(ExecutionException.class, () -> task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertInstanceOf(InterruptedIOException.class, ex.getCause());
         Mockito.verify(capacityChannel, Mockito.never()).update(10);
     }
 

@@ -108,15 +108,19 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         }
     }
 
+    private void ensureNotAborted() throws InterruptedIOException {
+        if (aborted) {
+            throw new InterruptedIOException("Operation aborted");
+        }
+    }
+
     @Override
     public int read() throws IOException {
         lock.lock();
         try {
             setOutputMode();
             awaitInput();
-            if (aborted) {
-                return -1;
-            }
+            ensureNotAborted();
             if (!buffer().hasRemaining() && endStream) {
                 return -1;
             }
@@ -140,9 +144,7 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         try {
             setOutputMode();
             awaitInput();
-            if (aborted) {
-                return -1;
-            }
+            ensureNotAborted();
             if (!buffer().hasRemaining() && endStream) {
                 return -1;
             }
