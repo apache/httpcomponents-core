@@ -1,3 +1,40 @@
+Release 5.3.3
+------------------
+
+This maintenance release fixes a defect in how asynchronous SSL sessions handle an overflow
+condition when encrypting application data. There have also been several fixes for edge
+cases related to handling HTTP/1.1 asynchronous connections half-closed by the opposite
+endpoint.
+
+
+Change Log
+-------------------
+
+* Bug fix: Shared input buffer to propagate aborted status as I/O interrupted exception.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Half-closed SSL sessions must not shut down until explicitly closed by
+  the application (protocol) layer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected shutdown of asynchronous HTTP/1.1 connections half-closed by the opposite
+  endpoint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Made shared output buffer #writeCompleted block until the end of a stream has been
+  written out.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-775: Fixed handling SSLEngineResult#BUFFER_OVERFLOW of by asynchronous SSLIOSession#write
+  Contributed by Andriy Redko <drreta at gmail.com>
+
+* Bug fix: In some edge cases, the request may still not be fully completed while
+  the response has already been fully committed by the HTTP/1.1 stream handler. Connections
+  that cannot be kept alive must be closed only once both request and response streams are
+  fully complete.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.3.2
 ------------------
 
