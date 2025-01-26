@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -93,12 +94,18 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         }
     }
 
-    private void awaitInput() throws InterruptedIOException {
+    private void awaitInput(final Timeout timeout) throws InterruptedIOException {
         if (!buffer().hasRemaining()) {
             setInputMode();
             while (buffer().position() == 0 && !endStream && !aborted) {
                 try {
-                    condition.await();
+                    if (timeout == null) {
+                        condition.await();
+                    } else {
+                        if (!condition.await(timeout.getDuration(), timeout.getTimeUnit())) {
+                            throw new InterruptedIOException("Timeout blocked waiting for input (" + timeout + ")");
+                        }
+                    }
                 } catch (final InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedIOException(ex.getMessage());
@@ -116,10 +123,17 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
 
     @Override
     public int read() throws IOException {
+        return read(null);
+    }
+
+    /**
+     * @since 5.4
+     */
+    public int read(final Timeout timeout) throws IOException {
         lock.lock();
         try {
             setOutputMode();
-            awaitInput();
+            awaitInput(timeout);
             ensureNotAborted();
             if (!buffer().hasRemaining() && endStream) {
                 return -1;
@@ -137,13 +151,20 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
+        return read(b, off, len, null);
+    }
+
+    /**
+     * @since 5.4
+     */
+    public int read(final byte[] b, final int off, final int len, final Timeout timeout) throws IOException {
         if (len == 0) {
             return 0;
         }
         lock.lock();
         try {
             setOutputMode();
-            awaitInput();
+            awaitInput(timeout);
             ensureNotAborted();
             if (!buffer().hasRemaining() && endStream) {
                 return -1;
