@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.ServerSupport;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -332,7 +333,19 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
     void failed(final Exception cause) {
         if (!done.get()) {
-            exchangeHandler.failed(cause);
+            if (exchangeHandler != null) {
+                exchangeHandler.failed(cause);
+            }
+            else {
+                //exception thrown before handler was initialized, attempt to report to new handler
+                try {
+                    exchangeHandlerFactory.create(new BasicHttpRequest(Method.GET, "/"), new HttpCoreContext()).failed(cause);
+                }
+                catch (final Exception e)
+                {
+                    //ignore
+                }
+            }
         }
     }
 
@@ -341,7 +354,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         if (done.compareAndSet(false, true)) {
             requestState = MessageState.COMPLETE;
             responseState = MessageState.COMPLETE;
-            exchangeHandler.releaseResources();
+            if (exchangeHandler != null) {
+                exchangeHandler.releaseResources();
+            }
         }
     }
 
