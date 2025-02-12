@@ -1711,6 +1711,8 @@ abstract class Http1IntegrationTest {
                 Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
+                null,
+                null,
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null) {
 
             @Override

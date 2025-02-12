@@ -83,6 +83,8 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
+            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) {
@@ -95,8 +97,8 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
         this.sslContext = sslContext;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
-        this.requestParserFactory = new DefaultHttpRequestParserFactory(this.http1Config);
-        this.responseWriterFactory = new DefaultHttpResponseWriterFactory(this.http1Config);
+        this.requestParserFactory = requestParserFactory != null ? requestParserFactory : new DefaultHttpRequestParserFactory(this.http1Config);
+        this.responseWriterFactory = responseWriterFactory != null ? responseWriterFactory : new DefaultHttpResponseWriterFactory(this.http1Config);
     }
 
     protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(

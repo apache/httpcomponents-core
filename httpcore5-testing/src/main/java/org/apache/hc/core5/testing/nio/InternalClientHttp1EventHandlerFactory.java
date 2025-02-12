@@ -77,6 +77,8 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) {
@@ -86,8 +88,8 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.sslContext = sslContext;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(this.http1Config);
-        this.requestWriterFactory = DefaultHttpRequestWriterFactory.INSTANCE;
+        this.responseParserFactory = responseParserFactory != null ? responseParserFactory : new DefaultHttpResponseParserFactory(this.http1Config);
+        this.requestWriterFactory = requestWriterFactory != null ? requestWriterFactory : DefaultHttpRequestWriterFactory.INSTANCE;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
     }
