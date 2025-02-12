@@ -35,8 +35,11 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -44,6 +47,8 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
+import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
@@ -66,6 +71,8 @@ public class Http1TestServer extends AsyncServer {
 
     private Http1Config http1Config;
     private HttpProcessor httpProcessor;
+    private NHttpMessageParserFactory<HttpRequest> requestParserFactory;
+    private NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator;
 
     public Http1TestServer(
@@ -123,6 +130,18 @@ public class Http1TestServer extends AsyncServer {
         this.exchangeHandlerDecorator = exchangeHandlerDecorator;
     }
 
+    @Internal
+    public void configure(final NHttpMessageParserFactory<HttpRequest> requestParserFactory) {
+        ensureNotRunning();
+        this.requestParserFactory = requestParserFactory;
+    }
+
+    @Internal
+    public void configure(final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+        ensureNotRunning();
+        this.responseWriterFactory = responseWriterFactory;
+    }
+
     public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
         execute(handlerFactory);
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
@@ -163,6 +182,8 @@ public class Http1TestServer extends AsyncServer {
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
+                requestParserFactory,
+                responseWriterFactory,
                 sslContext,
                 sslSessionInitializer,
                 sslSessionVerifier));

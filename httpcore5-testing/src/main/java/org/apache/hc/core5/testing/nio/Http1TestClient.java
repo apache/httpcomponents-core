@@ -32,14 +32,19 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
+import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
@@ -57,6 +62,8 @@ public class Http1TestClient extends AsyncRequester  {
 
     private Http1Config http1Config;
     private HttpProcessor httpProcessor;
+    private NHttpMessageParserFactory<HttpResponse> responseParserFactory;
+    private NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
 
     public Http1TestClient(
             final IOReactorConfig ioReactorConfig,
@@ -93,6 +100,18 @@ public class Http1TestClient extends AsyncRequester  {
         this.httpProcessor = httpProcessor;
     }
 
+    @Internal
+    public void configure(final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
+        ensureNotRunning();
+        this.responseParserFactory = responseParserFactory;
+    }
+
+    @Internal
+    public void configure(final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory) {
+        ensureNotRunning();
+        this.requestWriterFactory = requestWriterFactory;
+    }
+
     /**
      * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
      */
@@ -119,6 +138,8 @@ public class Http1TestClient extends AsyncRequester  {
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
+                responseParserFactory,
+                requestWriterFactory,
                 sslContext,
                 sslSessionInitializer,
                 sslSessionVerifier));
