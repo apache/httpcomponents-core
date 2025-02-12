@@ -253,15 +253,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
         receivedRequest = request;
         requestState = requestEntityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
-
-        final ProtocolVersion transportVersion = request.getVersion();
-        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException(transportVersion);
-        }
-        context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
-        context.setRequest(request);
-
         try {
+            final ProtocolVersion transportVersion = request.getVersion();
+            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException(transportVersion);
+            }
+            context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
+            context.setRequest(request);
+
             httpProcessor.process(request, requestEntityDetails, context);
 
             AsyncServerExchangeHandler handler;
