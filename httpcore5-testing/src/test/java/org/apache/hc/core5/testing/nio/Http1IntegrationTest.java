@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
@@ -84,6 +85,8 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestFactory;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParser;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -1916,6 +1919,40 @@ abstract class Http1IntegrationTest {
         Assertions.assertNotNull(response1);
         Assertions.assertEquals(431, response1.getCode());
         Assertions.assertEquals("Maximum line length limit exceeded", result1.getBody());
+    }
+
+    @Test
+    void testInvalidRequestMessage() throws Exception {
+        final Http1Config http1Config = Http1Config.DEFAULT;
+        final Http1TestServer server = resources.server();
+        server.configure(http1Config);
+        server.configure(() -> new DefaultHttpRequestParser<HttpRequest>(http1Config, DefaultHttpRequestFactory.INSTANCE) {
+
+            @Override
+            protected HttpRequest createMessage(final CharArrayBuffer buffer) throws HttpException {
+                throw new RuntimeException("Ka-boom");
+            }
+
+        });
+
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
+                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertInstanceOf(ConnectionClosedException.class, executionException.getCause());
     }
 
 }
