@@ -58,6 +58,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
@@ -1569,13 +1570,15 @@ abstract class Http1IntegrationTest {
                     final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
                     final ContentLengthStrategy incomingContentStrategy,
                     final ContentLengthStrategy outgoingContentStrategy,
-                    final Http1StreamListener streamListener) {
+                    final Http1StreamListener streamListener,
+                    final Callback<Exception> exceptionCallback) {
                 return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                         scheme.id,
                         http1Config, connectionConfig, connectionReuseStrategy,
                         incomingMessageParser, outgoingMessageWriter,
                         incomingContentStrategy, outgoingContentStrategy,
-                        streamListener) {
+                        streamListener,
+                        exceptionCallback) {
 
                     @Override
                     protected ContentEncoder createContentEncoder(

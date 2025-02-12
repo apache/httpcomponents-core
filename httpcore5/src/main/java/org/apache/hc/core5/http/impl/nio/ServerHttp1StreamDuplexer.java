@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -87,6 +88,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private final Http1Config http1Config;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final Http1StreamListener streamListener;
+    private final Callback<Exception> exceptionCallback;
     private final Queue<ServerHttp1StreamHandler> pipeline;
     private final Http1StreamChannel<HttpResponse> outputChannel;
 
@@ -105,7 +107,8 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final Http1StreamListener streamListener,
+            final Callback<Exception> exceptionCallback) {
         super(ioSession, http1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter,
                 incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -115,6 +118,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
+        this.exceptionCallback = exceptionCallback;
         this.pipeline = new ConcurrentLinkedQueue<>();
         this.outputChannel = new Http1StreamChannel<HttpResponse>() {
 
@@ -324,6 +328,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    exceptionCallback,
                     context);
             outgoing = streamHandler;
         } else {
@@ -333,6 +338,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    exceptionCallback,
                     context);
             pipeline.add(streamHandler);
         }
@@ -356,6 +362,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    exceptionCallback,
                     context);
             outgoing = streamHandler;
         } else {
@@ -365,6 +372,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    exceptionCallback,
                     context);
             pipeline.add(streamHandler);
         }

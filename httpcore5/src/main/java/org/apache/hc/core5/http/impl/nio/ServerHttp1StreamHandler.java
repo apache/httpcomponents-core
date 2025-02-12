@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -70,8 +71,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private final ResponseChannel responseChannel;
     private final HttpProcessor httpProcessor;
     private final Http1Config http1Config;
-    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final ConnectionReuseStrategy connectionReuseStrategy;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
+    private final Callback<Exception> exceptionCallback;
     private final HttpCoreContext context;
     private final AtomicBoolean responseCommitted;
     private final AtomicBoolean done;
@@ -88,6 +90,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             final Http1Config http1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
+            final Callback<Exception> exceptionCallback,
             final HttpCoreContext context) {
         this.outputChannel = outputChannel;
         this.internalDataChannel = new DataStreamChannel() {
@@ -148,6 +151,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
+        this.exceptionCallback = exceptionCallback;
         this.context = context;
         this.responseCommitted = new AtomicBoolean();
         this.done = new AtomicBoolean();
@@ -333,6 +337,8 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     void failed(final Exception cause) {
         if (!done.get() && exchangeHandler != null) {
             exchangeHandler.failed(cause);
+        } else if (exceptionCallback != null) {
+            exceptionCallback.execute(cause);
         }
     }
 

@@ -499,7 +499,8 @@ public class AsyncServerBootstrap {
                 new DefaultHttpResponseWriterFactory(http1Config),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                streamListener);
+                streamListener,
+                exceptionCallback);
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 streamHandlerFactory,
                 tlsStrategy,

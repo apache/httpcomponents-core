@@ -512,7 +512,8 @@ public class H2ServerBootstrap {
                 new DefaultHttpResponseWriterFactory(http1Config),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                http1StreamListener);
+                http1StreamListener,
+                exceptionCallback);
 
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiationStarter(
                 http1StreamHandlerFactory,
