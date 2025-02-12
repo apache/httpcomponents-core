@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpRequest;
@@ -66,6 +67,7 @@ public final class ServerHttp1StreamDuplexerFactory {
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
     private final Http1StreamListener streamListener;
+    private final Callback<Exception> exceptionCallback;
 
     public ServerHttp1StreamDuplexerFactory(
             final HttpProcessor httpProcessor,
@@ -77,7 +79,8 @@ public final class ServerHttp1StreamDuplexerFactory {
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final Http1StreamListener streamListener,
+            final Callback<Exception> exceptionCallback) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
@@ -93,6 +96,7 @@ public final class ServerHttp1StreamDuplexerFactory {
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
         this.streamListener = streamListener;
+        this.exceptionCallback = exceptionCallback;
     }
 
     public ServerHttp1StreamDuplexerFactory(
@@ -103,10 +107,11 @@ public final class ServerHttp1StreamDuplexerFactory {
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final Http1StreamListener streamListener) {
+            final Http1StreamListener streamListener,
+            final Callback<Exception> exceptionCallback) {
         this(httpProcessor, exchangeHandlerFactory, http1Config, charCodingConfig,
                 connectionReuseStrategy, requestParserFactory, responseWriterFactory,
-                null, null, streamListener);
+                null, null, streamListener, exceptionCallback);
     }
 
     public ServerHttp1StreamDuplexerFactory(
@@ -114,8 +119,10 @@ public final class ServerHttp1StreamDuplexerFactory {
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, http1Config, charCodingConfig, null, null ,null, streamListener);
+            final Http1StreamListener streamListener,
+            final Callback<Exception> exceptionCallback) {
+        this(httpProcessor, exchangeHandlerFactory, http1Config, charCodingConfig, null, null ,null,
+                streamListener, exceptionCallback);
     }
 
     public ServerHttp1StreamDuplexer create(final String scheme, final ProtocolIOSession ioSession) {
@@ -128,7 +135,8 @@ public final class ServerHttp1StreamDuplexerFactory {
                 responseWriterFactory.create(),
                 incomingContentStrategy,
                 outgoingContentStrategy,
-                streamListener);
+                streamListener,
+                exceptionCallback);
     }
 
 }

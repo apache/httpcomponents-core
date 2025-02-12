@@ -97,7 +97,8 @@ class InternalServerProtocolNegotiationStarter implements IOEventHandlerFactory 
                 exchangeHandlerFactory,
                 http1Config,
                 charCodingConfig,
-                LoggingHttp1StreamListener.INSTANCE_SERVER);
+                LoggingHttp1StreamListener.INSTANCE_SERVER,
+                LoggingExceptionCallback.INSTANCE);
         final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.server(),
                 exchangeHandlerFactory,
