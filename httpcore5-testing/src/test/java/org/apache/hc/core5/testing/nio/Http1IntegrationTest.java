@@ -85,11 +85,15 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
+import org.apache.hc.core5.http.impl.nio.AbstractMessageWriter;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParser;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicLineFormatter;
+import org.apache.hc.core5.http.message.LineFormatter;
+import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
@@ -1953,6 +1957,44 @@ abstract class Http1IntegrationTest {
         final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
                 future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Assertions.assertInstanceOf(ConnectionClosedException.class, executionException.getCause());
+    }
+
+    @Test
+    void testInvalidProtocolVersion() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final LineFormatter lineFormatter = BasicLineFormatter.INSTANCE;
+        client.configure(() -> new AbstractMessageWriter<HttpRequest>(lineFormatter) {
+
+            @Override
+            protected void writeHeadLine(final HttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
+                lineBuf.clear();
+                lineFormatter.formatRequestLine(lineBuf, new RequestLine(
+                    message.getMethod(),
+                    message.getRequestUri(),
+                    new HttpVersion(2, 1)));
+            }
+
+        });
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+            "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+            new BasicRequestProducer(request, null),
+            new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(result);
+        final HttpResponse response = result.getHead();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(505, response.getCode());
     }
 
 }
