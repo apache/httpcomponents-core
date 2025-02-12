@@ -288,12 +288,12 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     boolean inputIdle() {
-        return incoming == null;
+        return incoming == null && pipeline.isEmpty();
     }
 
     @Override
     boolean outputIdle() {
-        return outgoing == null && pipeline.isEmpty();
+        return outgoing == null;
     }
 
     @Override
