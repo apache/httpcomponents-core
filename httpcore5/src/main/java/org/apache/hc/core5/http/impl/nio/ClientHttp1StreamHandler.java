@@ -122,6 +122,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         this.responseState = MessageState.HEADERS;
     }
 
+    boolean isRequestFinal() {
+        return requestState == MessageState.COMPLETE;
+    }
+
     boolean isResponseFinal() {
         return responseState == MessageState.COMPLETE;
     }
@@ -137,8 +141,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     boolean isOutputReady() {
         switch (requestState) {
             case IDLE:
-            case ACK:
                 return true;
+            case HEADERS:
+            case ACK:
+                return false;
             case BODY:
                 return exchangeHandler.available() > 0;
             default:
@@ -186,6 +192,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         switch (requestState) {
             case IDLE:
                 requestState = MessageState.HEADERS;
+                outputChannel.suspendOutput();
                 exchangeHandler.produceRequest((request, entityDetails, httpContext) -> commitRequest(request, entityDetails), context);
                 break;
             case ACK:

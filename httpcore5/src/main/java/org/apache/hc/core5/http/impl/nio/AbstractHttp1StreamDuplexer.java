@@ -212,6 +212,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     abstract boolean isOutputReady();
 
+    abstract boolean isRequestInitiated();
+
     abstract void produceOutput() throws HttpException, IOException;
 
     abstract void execute(RequestExecutionCommand executionCommand) throws HttpException, IOException;
@@ -379,7 +381,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 } else {
                     outputRequests.addAndGet(-pendingOutputRequests);
                 }
-                outputEnd = outgoingMessage == null && !outbuf.hasData();
+                outputEnd = outgoingMessage == null && !outbuf.hasData() && !isRequestInitiated();
             } finally {
                 ioSession.getLock().unlock();
             }

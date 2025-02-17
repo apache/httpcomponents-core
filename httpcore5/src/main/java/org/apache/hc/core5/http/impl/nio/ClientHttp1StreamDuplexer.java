@@ -287,6 +287,11 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
+    boolean isRequestInitiated() {
+        return outgoing != null && !outgoing.isRequestFinal();
+    }
+
+    @Override
     boolean inputIdle() {
         return incoming == null && pipeline.isEmpty();
     }
