@@ -418,6 +418,11 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
+    boolean isRequestInitiated() {
+        return false;
+    }
+
+    @Override
     boolean isOutputReady() {
         return outgoing != null && outgoing.isOutputReady();
     }

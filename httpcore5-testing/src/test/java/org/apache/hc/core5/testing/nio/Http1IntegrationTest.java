@@ -104,6 +104,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
+import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
@@ -2244,6 +2245,105 @@ abstract class Http1IntegrationTest {
         final HttpResponse response = result.getHead();
         Assertions.assertNotNull(response);
         Assertions.assertEquals(505, response.getCode());
+    }
+
+    @Test
+    void testDelayedRequestSubmission() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new SingleLineResponseHandler("All is well"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < 5; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
+            final AsyncEntityProducer entityProducer = AsyncEntityProducers.create("Some important message");
+            queue.add(streamEndpoint.execute(
+                    new AsyncRequestProducer() {
+
+                        private final Random random = new Random(System.currentTimeMillis());
+                        private final ReentrantLock lock = new ReentrantLock();
+
+                        @Override
+                        public void sendRequest(final RequestChannel channel, final HttpContext context) throws HttpException, IOException {
+                            executorResource.getExecutorService().execute(() -> {
+                                try {
+                                    Thread.sleep(random.nextInt(200));
+                                    lock.lock();
+                                    try {
+                                        channel.sendRequest(request, entityProducer, context);
+                                    } finally {
+                                        lock.unlock();
+                                    }
+                                } catch (final Exception ignore) {
+                                    // ignore
+                                }
+                            });
+                        }
+
+                        @Override
+                        public boolean isRepeatable() {
+                            lock.lock();
+                            try {
+                                return entityProducer.isRepeatable();
+                            } finally {
+                                lock.unlock();
+                            }
+                        }
+
+                        @Override
+                        public int available() {
+                            lock.lock();
+                            try {
+                                return entityProducer.available();
+                            } finally {
+                                lock.unlock();
+                            }
+                        }
+
+                        @Override
+                        public void produce(final DataStreamChannel channel) throws IOException {
+                            lock.lock();
+                            try {
+                                entityProducer.produce(channel);
+                            } finally {
+                                lock.unlock();
+                            }
+                        }
+
+                        @Override
+                        public void failed(final Exception cause) {
+                            entityProducer.failed(cause);
+                        }
+
+                        @Override
+                        public void releaseResources() {
+                            entityProducer.releaseResources();
+                        }
+
+                    },
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+        }
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertEquals("All is well", result.getBody());
+        }
     }
 
 }
