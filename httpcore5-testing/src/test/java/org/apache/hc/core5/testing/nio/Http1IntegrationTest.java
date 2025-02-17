@@ -136,6 +136,7 @@ import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.extension.ExecutorResource;
 import org.apache.hc.core5.testing.extension.nio.Http1TestResources;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -151,15 +152,15 @@ abstract class Http1IntegrationTest {
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
     private final URIScheme scheme;
-
-    private final ReentrantLock lock = new ReentrantLock();
-
     @RegisterExtension
     private final Http1TestResources resources;
+    @RegisterExtension
+    private final ExecutorResource executorResource;
 
     public Http1IntegrationTest(final URIScheme scheme) {
         this.scheme = scheme;
         this.resources = new Http1TestResources(scheme, TIMEOUT);
+        this.executorResource = new ExecutorResource(5);
     }
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
@@ -991,15 +992,19 @@ abstract class Http1IntegrationTest {
     }
 
     @Test
-    void testDelayedExpectationVerification() throws Exception {
+    void testDelayedExpectContinueAck() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
+
+        // Disable 100-continue handshake on the server side
+        server.configure(handler -> handler);
 
         server.register("*", () -> new AsyncServerExchangeHandler() {
 
             private final Random random = new Random(System.currentTimeMillis());
             private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
                     "All is well");
+            private final ReentrantLock lock = new ReentrantLock();
 
             @Override
             public void handleRequest(
@@ -1008,7 +1013,7 @@ abstract class Http1IntegrationTest {
                     final ResponseChannel responseChannel,
                     final HttpContext context) throws HttpException, IOException {
 
-                Executors.newSingleThreadExecutor().execute(() -> {
+                executorResource.getExecutorService().execute(() -> {
                     try {
                         if (entityDetails != null) {
                             final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
@@ -1099,6 +1104,41 @@ abstract class Http1IntegrationTest {
             Assertions.assertNotNull(response);
             Assertions.assertEquals(200, response.getCode());
             Assertions.assertNotNull("All is well", result.getBody());
+        }
+    }
+
+    @Test
+    void testMissingExpectContinueAckClientContinues() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        // Disable 100-continue handshake on the server side
+        server.configure(handler -> handler);
+
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there back"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.configure(Http1Config.custom()
+                .setWaitForContinueTimeout(Timeout.ofMilliseconds(100))
+                .build());
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        for (int i = 0; i < 5; i++) {
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello"),
+                            AsyncEntityProducers.create("Hi there")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response1 = result.getHead();
+            final String entity1 = result.getBody();
+            Assertions.assertNotNull(response1);
+            Assertions.assertEquals(200, response1.getCode());
+            Assertions.assertEquals("Hi there back", entity1);
         }
     }
 
