@@ -92,10 +92,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             @Override
             public void endStream(final List<? extends Header> trailers) throws IOException {
                 requestState = MessageState.COMPLETE;
+                outputChannel.complete(trailers);
                 if (!keepAlive && responseState == MessageState.COMPLETE) {
                     outputChannel.close();
                 }
-                outputChannel.complete(trailers);
             }
 
             @Override
