@@ -59,8 +59,9 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;
     private final AtomicBoolean completed;
-    private final FutureCallback<T> resultCallback;
     private final AtomicBoolean outputTerminated;
+    private final AtomicBoolean inputTerminated;
+    private final FutureCallback<T> resultCallback;
 
     public BasicClientExchangeHandler(
             final AsyncRequestProducer requestProducer,
@@ -71,6 +72,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
         this.completed = new AtomicBoolean();
         this.resultCallback = resultCallback;
         this.outputTerminated = new AtomicBoolean();
+        this.inputTerminated = new AtomicBoolean();
     }
 
     @Override
@@ -100,48 +102,23 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     @Override
     public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
         if (response.getCode() >= HttpStatus.SC_CLIENT_ERROR) {
-            outputTerminated.set(true);
-            requestProducer.releaseResources();
+            releaseRequestProducer();
         }
         responseConsumer.consumeResponse(response, entityDetails, httpContext, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {
-                if (completed.compareAndSet(false, true)) {
-                    try {
-                        if (resultCallback != null) {
-                            resultCallback.completed(result);
-                        }
-                    } finally {
-                        internalReleaseResources();
-                    }
-                }
+                completedInternal(result);
             }
 
             @Override
             public void failed(final Exception ex) {
-                if (completed.compareAndSet(false, true)) {
-                    try {
-                        if (resultCallback != null) {
-                            resultCallback.failed(ex);
-                        }
-                    } finally {
-                        internalReleaseResources();
-                    }
-                }
+                failedInternal(ex);
             }
 
             @Override
             public void cancelled() {
-                if (completed.compareAndSet(false, true)) {
-                    try {
-                        if (resultCallback != null) {
-                            resultCallback.cancelled();
-                        }
-                    } finally {
-                        internalReleaseResources();
-                    }
-                }
+                cancelledInternal();
             }
 
         });
@@ -149,15 +126,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
 
     @Override
     public void cancel() {
-        if (completed.compareAndSet(false, true)) {
-            try {
-                if (resultCallback != null) {
-                    resultCallback.cancelled();
-                }
-            } finally {
-                internalReleaseResources();
-            }
-        }
+        cancelledInternal();
     }
 
     @Override
@@ -178,28 +147,77 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     @Override
     public void failed(final Exception cause) {
         try {
-            requestProducer.failed(cause);
-            responseConsumer.failed(cause);
+            if (inputTerminated.get()) {
+                responseConsumer.failed(cause);
+            }
+            if (!outputTerminated.get()) {
+                requestProducer.failed(cause);
+            }
         } finally {
-            if (completed.compareAndSet(false, true)) {
-                try {
-                    if (resultCallback != null) {
-                        resultCallback.failed(cause);
-                    }
-                } finally {
-                    internalReleaseResources();
+            failedInternal(cause);
+        }
+    }
+
+    private void completedInternal(final T result) {
+        if (completed.compareAndSet(false, true)) {
+            try {
+                if (resultCallback != null) {
+                    resultCallback.completed(result);
                 }
+            } finally {
+                releaseResourcesInternal();
             }
         }
     }
 
-    private void internalReleaseResources() {
-        requestProducer.releaseResources();
-        responseConsumer.releaseResources();
+    private void failedInternal(final Exception ex) {
+        if (completed.compareAndSet(false, true)) {
+            try {
+                if (resultCallback != null) {
+                    resultCallback.failed(ex);
+                }
+            } finally {
+                releaseResourcesInternal();
+            }
+        }
+    }
+
+    private void cancelledInternal() {
+        if (completed.compareAndSet(false, true)) {
+            try {
+                if (resultCallback != null) {
+                    resultCallback.cancelled();
+                }
+            } finally {
+                releaseResourcesInternal();
+            }
+        }
+    }
+
+    private void releaseResponseConsumer() {
+        if (inputTerminated.compareAndSet(false, true)) {
+            responseConsumer.releaseResources();
+        }
+    }
+
+    private void releaseRequestProducer() {
+        if (outputTerminated.compareAndSet(false, true)) {
+            requestProducer.releaseResources();
+        }
+    }
+
+    private void releaseResourcesInternal() {
+        releaseRequestProducer();
+        releaseResponseConsumer();
     }
 
     @Override
     public void releaseResources() {
+        // Note even though the message exchange has been fully
+        // completed on the transport level, the response
+        // consumer may still be busy consuming and digesting
+        // the response message
+        releaseRequestProducer();
     }
 
 }
