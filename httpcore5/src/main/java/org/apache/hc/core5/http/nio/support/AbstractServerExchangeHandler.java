@@ -148,21 +148,23 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                                         .build(),
                                 context);
                     } catch (final HttpException | IOException ex2) {
-                        failed(ex2);
+                        failedInternal(ex2);
                     }
                 } catch (final IOException ex) {
-                    failed(ex);
+                    failedInternal(ex);
+                } finally {
+                    releaseRequestConsumer();
                 }
             }
 
             @Override
             public void failed(final Exception ex) {
-                AbstractServerExchangeHandler.this.failed(ex);
+                failedInternal(ex);
             }
 
             @Override
             public void cancelled() {
-                releaseResources();
+                releaseResourcesInternal();
             }
 
         });
@@ -205,30 +207,54 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
 
     @Override
     public final void failed(final Exception cause) {
+        failedInternal(cause);
+    }
+
+    void failedInternal(final Exception cause) {
         try {
             final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
             if (requestConsumer != null) {
                 requestConsumer.failed(cause);
             }
+        } finally {
+            releaseRequestConsumer();
+        }
+        try {
             final AsyncResponseProducer dataProducer = responseProducerRef.get();
             if (dataProducer != null) {
                 dataProducer.failed(cause);
             }
         } finally {
-            releaseResources();
+            releaseResponseProducer();
         }
     }
 
-    @Override
-    public final void releaseResources() {
+    private void releaseRequestConsumer() {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.getAndSet(null);
         if (requestConsumer != null) {
             requestConsumer.releaseResources();
         }
+    }
+
+    private void releaseResponseProducer() {
         final AsyncResponseProducer dataProducer = responseProducerRef.getAndSet(null);
         if (dataProducer != null) {
             dataProducer.releaseResources();
         }
+    }
+
+    private void releaseResourcesInternal() {
+        releaseResponseProducer();
+        releaseRequestConsumer();
+    }
+
+    @Override
+    public final void releaseResources() {
+        // Note even though the message exchange has been fully
+        // completed on the transport level, the request
+        // consumer may still be busy post-processing
+        // the request message.
+        releaseResponseProducer();
     }
 
 }
