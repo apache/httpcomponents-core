@@ -30,15 +30,10 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.concurrent.BasicFuture;
-import org.apache.hc.core5.concurrent.CompletingFutureContribution;
-import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -52,42 +47,28 @@ import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
-import org.apache.hc.core5.util.Timeout;
 
-public class H2TestClient extends AsyncRequester {
+public class H2TestClient extends HttpTestClient {
 
-    private final SSLContext sslContext;
-    private final SSLSessionInitializer sslSessionInitializer;
-    private final SSLSessionVerifier sslSessionVerifier;
     private final List<RequestRouter.Entry<Supplier<AsyncPushConsumer>>> routeEntries;
 
     private H2Config h2Config;
     private Http1Config http1Config;
-    private HttpProcessor httpProcessor;
 
     public H2TestClient(
             final IOReactorConfig ioReactorConfig,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) throws IOException {
-        super(ioReactorConfig);
-        this.sslContext = sslContext;
-        this.sslSessionInitializer = sslSessionInitializer;
-        this.sslSessionVerifier = sslSessionVerifier;
+        super(ioReactorConfig, sslContext, sslSessionInitializer, sslSessionVerifier);
         this.routeEntries = new ArrayList<>();
     }
 
     public H2TestClient() throws IOException {
         this(IOReactorConfig.DEFAULT, null, null, null);
-    }
-
-    private void ensureNotRunning() {
-        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Client is already running");
     }
 
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
@@ -115,13 +96,9 @@ public class H2TestClient extends AsyncRequester {
     }
 
     /**
-     * @since 5.3
+     * @deprecated Use {@link #startExecution(IOEventHandlerFactory)}.
      */
-    public void configure(final HttpProcessor httpProcessor) {
-        ensureNotRunning();
-        this.httpProcessor = httpProcessor;
-    }
-
+    @Deprecated
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
         super.execute(handlerFactory);
     }
@@ -174,6 +151,7 @@ public class H2TestClient extends AsyncRequester {
         start(null, http1Config);
     }
 
+    @Override
     public void start() throws Exception {
         if (http1Config != null) {
             start(new InternalClientProtocolNegotiationStarter(
@@ -203,23 +181,6 @@ public class H2TestClient extends AsyncRequester {
                     LoggingExceptionCallback.INSTANCE));
         }
 
-    }
-
-    public Future<ClientSessionEndpoint> connect(
-            final HttpHost host,
-            final Timeout timeout,
-            final FutureCallback<ClientSessionEndpoint> callback) {
-        final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
-        requestSession(host, timeout, new CompletingFutureContribution<>(future, ClientSessionEndpoint::new));
-        return future;
-    }
-
-    public Future<ClientSessionEndpoint> connect(final HttpHost host,final Timeout timeout) {
-        return connect(host, timeout, null);
-    }
-
-    public Future<ClientSessionEndpoint> connect(final String hostname, final int port, final Timeout timeout) {
-        return connect(new HttpHost(hostname, port), timeout, null);
     }
 
 }

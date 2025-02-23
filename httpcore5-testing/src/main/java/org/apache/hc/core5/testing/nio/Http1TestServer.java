@@ -29,14 +29,10 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -45,64 +41,33 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
-import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.util.Asserts;
 
-public class Http1TestServer extends AsyncServer {
-
-    private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
-    private final SSLContext sslContext;
-    private final SSLSessionInitializer sslSessionInitializer;
-    private final SSLSessionVerifier sslSessionVerifier;
+public class Http1TestServer extends HttpTestServer {
 
     private Http1Config http1Config;
-    private HttpProcessor httpProcessor;
     private NHttpMessageParserFactory<HttpRequest> requestParserFactory;
     private NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
-    private Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator;
 
     public Http1TestServer(
             final IOReactorConfig ioReactorConfig,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) throws IOException {
-        super(ioReactorConfig);
-        this.routeEntries = new ArrayList<>();
-        this.sslContext = sslContext;
-        this.sslSessionInitializer = sslSessionInitializer;
-        this.sslSessionVerifier = sslSessionVerifier;
+        super(ioReactorConfig, sslContext, sslSessionInitializer, sslSessionVerifier);
     }
 
     public Http1TestServer() throws IOException {
         this(IOReactorConfig.DEFAULT, null, null, null);
-    }
-
-    private void ensureNotRunning() {
-        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server is already running");
-    }
-
-    public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        ensureNotRunning();
-        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
-    }
-
-    public <T> void register(
-            final String uriPattern,
-            final AsyncServerRequestHandler<T> requestHandler) {
-        register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
     /**
@@ -111,22 +76,6 @@ public class Http1TestServer extends AsyncServer {
     public void configure(final Http1Config http1Config) {
         ensureNotRunning();
         this.http1Config = http1Config;
-    }
-
-    /**
-     * @since 5.3
-     */
-    public void configure(final HttpProcessor httpProcessor) {
-        ensureNotRunning();
-        this.httpProcessor = httpProcessor;
-    }
-
-    /**
-     * @since 5.3
-     */
-    public void configure(final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator) {
-        ensureNotRunning();
-        this.exchangeHandlerDecorator = exchangeHandlerDecorator;
     }
 
     /**
@@ -145,11 +94,12 @@ public class Http1TestServer extends AsyncServer {
         this.responseWriterFactory = responseWriterFactory;
     }
 
+    /**
+     * @deprecated Use {@link #startExecution(IOEventHandlerFactory)}.
+     */
+    @Deprecated
     public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
-        execute(handlerFactory);
-        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
-        final ListenerEndpoint listener = future.get();
-        return (InetSocketAddress) listener.getAddress();
+        return startExecution(handlerFactory);
     }
 
     /**
@@ -176,8 +126,9 @@ public class Http1TestServer extends AsyncServer {
         return start();
     }
 
+    @Override
     public InetSocketAddress start() throws Exception {
-        return start(new InternalServerHttp1EventHandlerFactory(
+        return startExecution(new InternalServerHttp1EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),

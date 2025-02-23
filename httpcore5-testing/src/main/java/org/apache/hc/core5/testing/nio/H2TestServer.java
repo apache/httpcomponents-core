@@ -29,22 +29,16 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
-import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternType;
@@ -53,57 +47,24 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 
-public class H2TestServer extends AsyncServer {
-
-    private final SSLContext sslContext;
-    private final SSLSessionInitializer sslSessionInitializer;
-    private final SSLSessionVerifier sslSessionVerifier;
-    private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
+public class H2TestServer extends HttpTestServer {
 
     private H2Config h2Config;
     private Http1Config http1Config;
-    private HttpProcessor httpProcessor;
-    private Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator;
 
     public H2TestServer(
             final IOReactorConfig ioReactorConfig,
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) throws IOException {
-        super(ioReactorConfig);
-        this.sslContext = sslContext;
-        this.sslSessionInitializer = sslSessionInitializer;
-        this.sslSessionVerifier = sslSessionVerifier;
-        this.routeEntries = new ArrayList<>();
+        super(ioReactorConfig, sslContext, sslSessionInitializer, sslSessionVerifier);
     }
 
     public H2TestServer() throws IOException {
         this(IOReactorConfig.DEFAULT, null, null, null);
-    }
-
-    private void ensureNotRunning() {
-        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server is already running");
-    }
-
-    public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        Args.notNull(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Exchange handler supplier");
-        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server has already been started");
-        ensureNotRunning();
-        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
-    }
-
-    public <T> void register(
-            final String uriPattern,
-            final AsyncServerRequestHandler<T> requestHandler) {
-        register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
     /**
@@ -140,6 +101,10 @@ public class H2TestServer extends AsyncServer {
         this.exchangeHandlerDecorator = exchangeHandlerDecorator;
     }
 
+    /**
+     * @deprecated Use {@link #startExecution(IOEventHandlerFactory)}.
+     */
+    @Deprecated
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
         execute(handlerFactory);
     }
@@ -202,7 +167,7 @@ public class H2TestServer extends AsyncServer {
 
     public InetSocketAddress start() throws Exception {
         if (http1Config != null) {
-            start(new InternalServerProtocolNegotiationStarter(
+            return startExecution(new InternalServerProtocolNegotiationStarter(
                     httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                     new DefaultAsyncResponseExchangeHandlerFactory(
                             RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
@@ -216,7 +181,7 @@ public class H2TestServer extends AsyncServer {
                     sslSessionVerifier,
                     LoggingExceptionCallback.INSTANCE));
         } else {
-            start(new InternalServerProtocolNegotiationStarter(
+            return startExecution(new InternalServerProtocolNegotiationStarter(
                     httpProcessor != null ? httpProcessor : H2Processors.server(),
                     new DefaultAsyncResponseExchangeHandlerFactory(
                             RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
@@ -230,9 +195,6 @@ public class H2TestServer extends AsyncServer {
                     sslSessionVerifier,
                     LoggingExceptionCallback.INSTANCE));
         }
-        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
-        final ListenerEndpoint listener = future.get();
-        return (InetSocketAddress) listener.getAddress();
     }
 
 }
