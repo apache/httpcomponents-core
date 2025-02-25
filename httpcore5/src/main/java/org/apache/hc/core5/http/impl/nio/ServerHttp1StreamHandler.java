@@ -188,14 +188,18 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 keepAlive = false;
             }
 
-            outputChannel.submit(response, endStream, endStream ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
-            if (endStream) {
-                if (!keepAlive) {
-                    outputChannel.close();
+            synchronized (this) {
+                outputChannel.submit(response, endStream, endStream ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
+                if (endStream) {
+                    if (!keepAlive) {
+                        outputChannel.close();
+                    }
+                    responseState = MessageState.COMPLETE;
+                } else {
+                    responseState = MessageState.BODY;
                 }
-                responseState = MessageState.COMPLETE;
-            } else {
-                responseState = MessageState.BODY;
+            }
+            if (!endStream) {
                 exchangeHandler.produce(internalDataChannel);
             }
         } else {
@@ -222,7 +226,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         outputChannel.activate();
     }
 
-    boolean isResponseFinal() {
+    synchronized boolean isResponseFinal() {
         return responseState == MessageState.COMPLETE;
     }
 
