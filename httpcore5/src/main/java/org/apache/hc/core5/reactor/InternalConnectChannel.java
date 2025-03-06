@@ -110,8 +110,14 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     public void close() throws IOException {
-        key.cancel();
-        socketChannel.close();
+        try {
+            if (!sessionRequest.isDone()) {
+                sessionRequest.cancel();
+            }
+        } finally {
+            key.cancel();
+            socketChannel.close();
+        }
     }
 
     @Override
