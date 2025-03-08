@@ -183,8 +183,10 @@ class ServerH2StreamHandler implements H2StreamHandler {
             if (endStream) {
                 responseState.set(MessageState.COMPLETE);
             } else {
-                responseState.set(MessageState.BODY);
                 exchangeHandler.produce(outputChannel);
+                if (responseState.compareAndSet(MessageState.IDLE, MessageState.BODY)) {
+                    outputChannel.requestOutput();
+                }
             }
         } else {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");

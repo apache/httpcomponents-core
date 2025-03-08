@@ -196,8 +196,10 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 }
                 responseState.set(MessageState.COMPLETE);
             } else {
-                responseState.set(MessageState.BODY);
                 exchangeHandler.produce(internalDataChannel);
+                if (responseState.compareAndSet(MessageState.IDLE, MessageState.BODY)) {
+                    outputChannel.requestOutput();
+                }
             }
         } else {
             throw new HttpException("Response already committed");

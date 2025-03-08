@@ -180,8 +180,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                     final Timeout timeout = http1Config.getWaitForContinueTimeout() != null ? http1Config.getWaitForContinueTimeout() : DEFAULT_WAIT_FOR_CONTINUE;
                     outputChannel.setSocketTimeout(timeout);
                 } else {
-                    requestState.set(MessageState.BODY);
                     exchangeHandler.produce(internalDataChannel);
+                    if (requestState.compareAndSet(MessageState.HEADERS, MessageState.BODY)) {
+                        outputChannel.requestOutput();
+                    }
                 }
             }
         } else {
