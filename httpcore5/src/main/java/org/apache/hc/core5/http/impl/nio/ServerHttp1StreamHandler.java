@@ -189,13 +189,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 keepAlive = false;
             }
 
-            outputChannel.submit(response, endStream, endStream ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
             if (endStream) {
+                responseState.set(MessageState.COMPLETE);
+                outputChannel.submit(response, true, FlushMode.IMMEDIATE);
                 if (!keepAlive) {
                     outputChannel.close();
                 }
-                responseState.set(MessageState.COMPLETE);
             } else {
+                outputChannel.submit(response, false, FlushMode.BUFFER);
                 exchangeHandler.produce(internalDataChannel);
                 if (responseState.compareAndSet(MessageState.IDLE, MessageState.BODY)) {
                     outputChannel.requestOutput();

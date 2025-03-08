@@ -116,6 +116,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
@@ -142,6 +143,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -2092,6 +2095,132 @@ abstract class Http1IntegrationTest {
             Assertions.assertNotNull(response);
             Assertions.assertEquals(200, response.getCode());
             Assertions.assertEquals("All is well", result.getBody());
+        }
+    }
+
+    @Test
+    void testDelayedResponseSubmission() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
+
+            private final Random random = new Random(System.currentTimeMillis());
+
+            @Override
+            protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final HttpContext context) throws HttpException {
+                return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
+            }
+
+            @Override
+            protected void handle(
+                    final Message<HttpRequest, String> requestMessage,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws HttpException, IOException {
+                executorResource.getExecutorService().execute(() -> {
+                    try {
+                        Thread.sleep(random.nextInt(200));
+                        responseTrigger.submitResponse(AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                        .setEntity(new MultiLineEntityProducer("All is well", 100))
+                                        .build(),
+                                context);
+                        Thread.sleep(random.nextInt(200));
+                    } catch (final Exception ignore) {
+                        // ignore
+                    }
+                });
+
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < 5; i++) {
+            final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+            queue.add(streamEndpoint.execute(
+                    new BasicRequestProducer(request, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+        }
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            MatcherAssert.assertThat(result.getBody(), Matchers.startsWith("All is well"));
+        }
+    }
+
+    @Test
+    void testDelayedResponseSubmissionNoResponseBody() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
+
+            private final Random random = new Random(System.currentTimeMillis());
+
+            @Override
+            protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final HttpContext context) throws HttpException {
+                return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
+            }
+
+            @Override
+            protected void handle(
+                    final Message<HttpRequest, String> requestMessage,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws HttpException, IOException {
+                executorResource.getExecutorService().execute(() -> {
+                    try {
+                        Thread.sleep(random.nextInt(200));
+                        responseTrigger.submitResponse(AsyncResponseBuilder.create(200)
+                                        .build(),
+                                context);
+                        Thread.sleep(random.nextInt(200));
+                    } catch (final Exception ignore) {
+                        // ignore
+                    }
+                });
+
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < 5; i++) {
+            final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+            queue.add(streamEndpoint.execute(
+                    new BasicRequestProducer(request, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+        }
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
         }
     }
 

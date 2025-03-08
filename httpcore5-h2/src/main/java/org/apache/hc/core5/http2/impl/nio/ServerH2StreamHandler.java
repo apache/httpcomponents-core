@@ -177,12 +177,14 @@ class ServerH2StreamHandler implements H2StreamHandler {
             final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
 
             final boolean endStream = responseEntityDetails == null ||
-                    (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
-            outputChannel.submit(responseHeaders, endStream);
-            connMetrics.incrementResponseCount();
+                    receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod());
             if (endStream) {
                 responseState.set(MessageState.COMPLETE);
+                outputChannel.submit(responseHeaders, endStream);
+                connMetrics.incrementResponseCount();
             } else {
+                outputChannel.submit(responseHeaders, endStream);
+                connMetrics.incrementResponseCount();
                 exchangeHandler.produce(outputChannel);
                 if (responseState.compareAndSet(MessageState.IDLE, MessageState.BODY)) {
                     outputChannel.requestOutput();
