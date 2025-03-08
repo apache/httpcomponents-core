@@ -392,7 +392,6 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     void appendState(final StringBuilder buf) {
         super.appendState(buf);
-        super.appendState(buf);
         buf.append(", incoming=[");
         if (incoming != null) {
             incoming.appendState(buf);
