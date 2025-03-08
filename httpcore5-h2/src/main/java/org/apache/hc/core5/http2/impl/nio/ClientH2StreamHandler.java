@@ -142,12 +142,13 @@ class ClientH2StreamHandler implements H2StreamHandler {
             httpProcessor.process(request, entityDetails, context);
 
             final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
-            outputChannel.submit(headers, entityDetails == null);
-            connMetrics.incrementRequestCount();
-
             if (entityDetails == null) {
                 requestState.set(MessageState.COMPLETE);
+                outputChannel.submit(headers, true);
+                connMetrics.incrementRequestCount();
             } else {
+                outputChannel.submit(headers, false);
+                connMetrics.incrementRequestCount();
                 final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
                 final boolean expectContinue = h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue());
                 if (expectContinue) {
