@@ -56,7 +56,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -1005,7 +1004,6 @@ abstract class Http1IntegrationTest {
             private final Random random = new Random(System.currentTimeMillis());
             private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
                     "All is well");
-            private final ReentrantLock lock = new ReentrantLock();
 
             @Override
             public void handleRequest(
@@ -1023,12 +1021,7 @@ abstract class Http1IntegrationTest {
                                 responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                             }
                             final HttpResponse response = new BasicHttpResponse(200);
-                            lock.lock();
-                            try {
-                                responseChannel.sendResponse(response, entityProducer, context);
-                            } finally {
-                                lock.unlock();
-                            }
+                            responseChannel.sendResponse(response, entityProducer, context);
                         }
                     } catch (final Exception ignore) {
                         // ignore
@@ -1052,22 +1045,12 @@ abstract class Http1IntegrationTest {
 
             @Override
             public int available() {
-                lock.lock();
-                try {
-                    return entityProducer.available();
-                } finally {
-                    lock.unlock();
-                }
+                return entityProducer.available();
             }
 
             @Override
             public void produce(final DataStreamChannel channel) throws IOException {
-                lock.lock();
-                try {
-                    entityProducer.produce(channel);
-                } finally {
-                    lock.unlock();
-                }
+                entityProducer.produce(channel);
             }
 
             @Override
@@ -2060,19 +2043,13 @@ abstract class Http1IntegrationTest {
                     new AsyncRequestProducer() {
 
                         private final Random random = new Random(System.currentTimeMillis());
-                        private final ReentrantLock lock = new ReentrantLock();
 
                         @Override
                         public void sendRequest(final RequestChannel channel, final HttpContext context) throws HttpException, IOException {
                             executorResource.getExecutorService().execute(() -> {
                                 try {
                                     Thread.sleep(random.nextInt(200));
-                                    lock.lock();
-                                    try {
-                                        channel.sendRequest(request, entityProducer, context);
-                                    } finally {
-                                        lock.unlock();
-                                    }
+                                    channel.sendRequest(request, entityProducer, context);
                                 } catch (final Exception ignore) {
                                     // ignore
                                 }
@@ -2081,32 +2058,17 @@ abstract class Http1IntegrationTest {
 
                         @Override
                         public boolean isRepeatable() {
-                            lock.lock();
-                            try {
-                                return entityProducer.isRepeatable();
-                            } finally {
-                                lock.unlock();
-                            }
+                            return entityProducer.isRepeatable();
                         }
 
                         @Override
                         public int available() {
-                            lock.lock();
-                            try {
-                                return entityProducer.available();
-                            } finally {
-                                lock.unlock();
-                            }
+                            return entityProducer.available();
                         }
 
                         @Override
                         public void produce(final DataStreamChannel channel) throws IOException {
-                            lock.lock();
-                            try {
-                                entityProducer.produce(channel);
-                            } finally {
-                                lock.unlock();
-                            }
+                            entityProducer.produce(channel);
                         }
 
                         @Override

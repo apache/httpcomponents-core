@@ -153,8 +153,10 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 if (expectContinue) {
                     requestState.set(MessageState.ACK);
                 } else {
-                    requestState.set(MessageState.BODY);
                     exchangeHandler.produce(dataChannel);
+                    if (requestState.compareAndSet(MessageState.HEADERS, MessageState.BODY)) {
+                        outputChannel.requestOutput();
+                    }
                 }
             }
         } else {
