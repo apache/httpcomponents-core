@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -65,12 +66,11 @@ class ClientH2StreamHandler implements H2StreamHandler {
     private final AsyncClientExchangeHandler exchangeHandler;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final HttpCoreContext context;
+    private final AtomicReference<MessageState> requestState;
+    private final AtomicReference<MessageState> responseState;
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
-
-    private volatile MessageState requestState;
-    private volatile MessageState responseState;
 
     ClientH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -95,13 +95,13 @@ class ClientH2StreamHandler implements H2StreamHandler {
             @Override
             public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.endStream(trailers);
-                requestState = MessageState.COMPLETE;
+                requestState.set(MessageState.COMPLETE);
             }
 
             @Override
             public void endStream() throws IOException {
                 outputChannel.endStream();
-                requestState = MessageState.COMPLETE;
+                requestState.set(MessageState.COMPLETE);
             }
 
         };
@@ -113,8 +113,8 @@ class ClientH2StreamHandler implements H2StreamHandler {
         this.requestCommitted = new AtomicBoolean();
         this.failed = new AtomicBoolean();
         this.done = new AtomicBoolean();
-        this.requestState = MessageState.HEADERS;
-        this.responseState = MessageState.HEADERS;
+        this.requestState = new AtomicReference<>(MessageState.HEADERS);
+        this.responseState = new AtomicReference<>(MessageState.HEADERS);
     }
 
     @Override
@@ -124,7 +124,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
 
     @Override
     public boolean isOutputReady() {
-        switch (requestState) {
+        switch (requestState.get()) {
             case HEADERS:
                 return true;
             case BODY:
@@ -146,14 +146,14 @@ class ClientH2StreamHandler implements H2StreamHandler {
             connMetrics.incrementRequestCount();
 
             if (entityDetails == null) {
-                requestState = MessageState.COMPLETE;
+                requestState.set(MessageState.COMPLETE);
             } else {
                 final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
                 final boolean expectContinue = h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue());
                 if (expectContinue) {
-                    requestState = MessageState.ACK;
+                    requestState.set(MessageState.ACK);
                 } else {
-                    requestState = MessageState.BODY;
+                    requestState.set(MessageState.BODY);
                     exchangeHandler.produce(dataChannel);
                 }
             }
@@ -164,7 +164,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
 
     @Override
     public void produceOutput() throws HttpException, IOException {
-        switch (requestState) {
+        switch (requestState.get()) {
             case HEADERS:
                 exchangeHandler.produceRequest((request, entityDetails, httpContext) -> commitRequest(request, entityDetails), context);
                 break;
@@ -184,7 +184,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
         if (done.get()) {
             throw new ProtocolException("Unexpected message headers");
         }
-        switch (responseState) {
+        switch (responseState.get()) {
             case HEADERS:
                 final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
                 final int status = response.getCode();
@@ -194,9 +194,9 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
                     exchangeHandler.consumeInformation(response, context);
                 }
-                if (requestState == MessageState.ACK) {
+                if (requestState.get() == MessageState.ACK) {
                     if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
-                        requestState = MessageState.BODY;
+                        requestState.set(MessageState.BODY);
                         exchangeHandler.produce(dataChannel);
                     }
                 }
@@ -210,10 +210,10 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 connMetrics.incrementResponseCount();
 
                 exchangeHandler.consumeResponse(response, entityDetails, context);
-                responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
+                responseState.set(endStream ? MessageState.COMPLETE : MessageState.BODY);
                 break;
             case BODY:
-                responseState = MessageState.COMPLETE;
+                responseState.set(MessageState.COMPLETE);
                 exchangeHandler.streamEnd(headers);
                 break;
             default:
@@ -228,14 +228,14 @@ class ClientH2StreamHandler implements H2StreamHandler {
 
     @Override
     public void consumeData(final ByteBuffer src, final boolean endStream) throws HttpException, IOException {
-        if (done.get() || responseState != MessageState.BODY) {
+        if (done.get() || responseState.get() != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
         if (src != null) {
             exchangeHandler.consume(src);
         }
         if (endStream) {
-            responseState = MessageState.COMPLETE;
+            responseState.set(MessageState.COMPLETE);
             exchangeHandler.streamEnd(null);
         }
     }
@@ -261,8 +261,8 @@ class ClientH2StreamHandler implements H2StreamHandler {
     @Override
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
-            responseState = MessageState.COMPLETE;
-            requestState = MessageState.COMPLETE;
+            responseState.set(MessageState.COMPLETE);
+            requestState.set(MessageState.COMPLETE);
             exchangeHandler.releaseResources();
         }
     }
@@ -270,8 +270,8 @@ class ClientH2StreamHandler implements H2StreamHandler {
     @Override
     public String toString() {
         return "[" +
-                "requestState=" + requestState +
-                ", responseState=" + responseState +
+                "requestState=" + requestState.get() +
+                ", responseState=" + responseState.get() +
                 ']';
     }
 
