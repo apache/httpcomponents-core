@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
@@ -75,14 +76,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final Callback<Exception> exceptionCallback;
     private final HttpCoreContext context;
+    private final AtomicReference<MessageState> requestState;
+    private final AtomicReference<MessageState> responseState;
     private final AtomicBoolean responseCommitted;
     private final AtomicBoolean done;
 
     private volatile boolean keepAlive;
     private volatile AsyncServerExchangeHandler exchangeHandler;
     private volatile HttpRequest receivedRequest;
-    private volatile MessageState requestState;
-    private volatile MessageState responseState;
 
     ServerHttp1StreamHandler(
             final Http1StreamChannel<HttpResponse> outputChannel,
@@ -102,9 +103,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
             @Override
             public void endStream(final List<? extends Header> trailers) throws IOException {
-                responseState = MessageState.COMPLETE;
+                responseState.set( MessageState.COMPLETE);
                 outputChannel.complete(trailers);
-                if (requestState == MessageState.COMPLETE && !keepAlive) {
+                if (requestState.get() == MessageState.COMPLETE && !keepAlive) {
                     outputChannel.close();
                 }
             }
@@ -153,11 +154,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.exceptionCallback = exceptionCallback;
         this.context = context;
+        this.requestState = new AtomicReference<>(MessageState.HEADERS);
+        this.responseState = new AtomicReference<>(MessageState.IDLE);
         this.responseCommitted = new AtomicBoolean();
         this.done = new AtomicBoolean();
         this.keepAlive = true;
-        this.requestState = MessageState.HEADERS;
-        this.responseState = MessageState.IDLE;
     }
 
     private void commitResponse(
@@ -193,9 +194,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 if (!keepAlive) {
                     outputChannel.close();
                 }
-                responseState = MessageState.COMPLETE;
+                responseState.set(MessageState.COMPLETE);
             } else {
-                responseState = MessageState.BODY;
+                responseState.set(MessageState.BODY);
                 exchangeHandler.produce(internalDataChannel);
             }
         } else {
@@ -223,7 +224,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     boolean isResponseFinal() {
-        return responseState == MessageState.COMPLETE;
+        return responseState.get() == MessageState.COMPLETE;
     }
 
     boolean keepAlive() {
@@ -231,15 +232,15 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     boolean isCompleted() {
-        return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
+        return requestState.get() == MessageState.COMPLETE && responseState.get() == MessageState.COMPLETE;
     }
 
     void terminateExchange(final HttpException ex) throws HttpException, IOException {
-        if (done.get() || requestState != MessageState.HEADERS) {
+        if (done.get() || requestState.get() != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
         }
         receivedRequest = null;
-        requestState = MessageState.COMPLETE;
+        requestState.set(MessageState.COMPLETE);
         final HttpResponse response = new BasicHttpResponse(ServerSupport.toStatusCode(ex));
         response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
         final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, ServerSupport.toErrorMessage(ex));
@@ -248,11 +249,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void consumeHeader(final HttpRequest request, final EntityDetails requestEntityDetails) throws HttpException, IOException {
-        if (done.get() || requestState != MessageState.HEADERS) {
+        if (done.get() || requestState.get() != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
         }
         receivedRequest = request;
-        requestState = requestEntityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
+        requestState.set(requestEntityDetails == null ? MessageState.COMPLETE : MessageState.BODY);
         try {
             final ProtocolVersion transportVersion = request.getVersion();
             if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
@@ -292,7 +293,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     boolean isOutputReady() {
-        switch (responseState) {
+        switch (responseState.get()) {
             case BODY:
                 return exchangeHandler.available() > 0;
             default:
@@ -301,7 +302,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void produceOutput() throws IOException {
-        switch (responseState) {
+        switch (responseState.get()) {
             case BODY:
                 exchangeHandler.produce(internalDataChannel);
                 break;
@@ -309,10 +310,10 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void consumeData(final ByteBuffer src) throws HttpException, IOException {
-        if (done.get() || requestState != MessageState.BODY) {
+        if (done.get() || requestState.get() != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
-        if (responseState == MessageState.ACK) {
+        if (responseState.get() == MessageState.ACK) {
             outputChannel.requestOutput();
         }
         exchangeHandler.consume(src);
@@ -323,11 +324,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void dataEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-        if (done.get() || requestState != MessageState.BODY) {
+        if (done.get() || requestState.get() != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
-        requestState = MessageState.COMPLETE;
-        if (responseState == MessageState.COMPLETE && !keepAlive) {
+        requestState.set(MessageState.COMPLETE);
+        if (responseState.get() == MessageState.COMPLETE && !keepAlive) {
             outputChannel.close();
         }
         exchangeHandler.streamEnd(trailers);
@@ -344,8 +345,8 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     @Override
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
-            requestState = MessageState.COMPLETE;
-            responseState = MessageState.COMPLETE;
+            requestState.set(MessageState.COMPLETE);
+            responseState.set(MessageState.COMPLETE);
             if (exchangeHandler != null) {
                 exchangeHandler.releaseResources();
             }
@@ -353,8 +354,8 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void appendState(final StringBuilder buf) {
-        buf.append("requestState=").append(requestState)
-                .append(", responseState=").append(responseState)
+        buf.append("requestState=").append(requestState.get())
+                .append(", responseState=").append(responseState.get())
                 .append(", responseCommitted=").append(responseCommitted)
                 .append(", keepAlive=").append(keepAlive)
                 .append(", done=").append(done);
