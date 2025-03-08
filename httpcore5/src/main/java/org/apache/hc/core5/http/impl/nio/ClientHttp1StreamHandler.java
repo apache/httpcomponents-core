@@ -314,7 +314,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     void appendState(final StringBuilder buf) {
         buf.append("requestState=").append(requestState)
                 .append(", responseState=").append(responseState)
-                .append(", responseCommitted=").append(requestCommitted)
+                .append(", requestCommitted=").append(requestCommitted)
                 .append(", keepAlive=").append(keepAlive)
                 .append(", done=").append(done);
     }
