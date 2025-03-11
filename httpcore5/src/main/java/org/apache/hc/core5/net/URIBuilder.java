@@ -306,7 +306,7 @@ public class URIBuilder {
             if (i > 0 || !rootless) {
                 buf.append(PATH_SEPARATOR);
             }
-            PercentCodec.encode(buf, segment, charset);
+            PercentCodec.encode(buf, segment, charset, PercentCodec.PATH_SEGMENT, false);
             i++;
         }
     }
@@ -356,18 +356,18 @@ public class URIBuilder {
                 } else if (this.userInfo != null) {
                     final int idx = this.userInfo.indexOf(':');
                     if (idx != -1) {
-                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset);
+                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset, PercentCodec.USERINFO, false);
                         sb.append(':');
-                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset);
+                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset, PercentCodec.USERINFO, false);
                     } else {
-                        PercentCodec.encode(sb, this.userInfo, this.charset);
+                        PercentCodec.encode(sb, this.userInfo, this.charset, PercentCodec.USERINFO, false);
                     }
                     sb.append("@");
                 }
                 if (InetAddressUtils.isIPv6(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
-                    PercentCodec.encode(sb, this.host, this.charset);
+                    PercentCodec.encode(sb, this.host, this.charset, PercentCodec.REG_NAME, false);
                 }
                 if (this.port >= 0) {
                     sb.append(":").append(this.port);
@@ -391,14 +391,14 @@ public class URIBuilder {
                 formatQuery(sb, this.queryParams, this.charset, false);
             } else if (this.query != null) {
                 sb.append("?");
-                PercentCodec.encode(sb, this.query, this.charset, PercentCodec.URIC, false);
+                PercentCodec.encode(sb, this.query, this.charset, PercentCodec.QUERY, false);
             }
         }
         if (this.encodedFragment != null) {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
             sb.append("#");
-            PercentCodec.encode(sb, this.fragment, this.charset, PercentCodec.URIC, false);
+            PercentCodec.encode(sb, this.fragment, this.charset, PercentCodec.FRAGMENT, false);
         }
         return sb.toString();
     }

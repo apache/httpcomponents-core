@@ -84,6 +84,16 @@ public class PercentCodec {
         URIC.or(UNRESERVED);
     }
 
+    static final BitSet FRAGMENT_SAFE = new BitSet(256);
+    static {
+        FRAGMENT_SAFE.or(UNRESERVED);
+        FRAGMENT_SAFE.or(SUB_DELIMS);
+        FRAGMENT_SAFE.set(':');
+        FRAGMENT_SAFE.set('@');
+        FRAGMENT_SAFE.set('/');
+        FRAGMENT_SAFE.set('?');
+    }
+
     static final BitSet RFC5987_UNRESERVED = new BitSet(256);
 
     static {
@@ -111,6 +121,37 @@ public class PercentCodec {
         RFC5987_UNRESERVED.set('`');
         RFC5987_UNRESERVED.set('|');
         RFC5987_UNRESERVED.set('~');
+    }
+
+    static final BitSet PCHAR = new BitSet(256);
+    static final BitSet USERINFO = new BitSet(256);
+    static final BitSet REG_NAME = new BitSet(256);
+    static final BitSet PATH_SEGMENT = new BitSet(256);
+    static final BitSet QUERY = new BitSet(256);
+    static final BitSet FRAGMENT = new BitSet(256);
+
+    static {
+        PCHAR.or(UNRESERVED);
+        PCHAR.or(SUB_DELIMS);
+        PCHAR.set(':');
+        PCHAR.set('@');
+        USERINFO.or(UNRESERVED);
+        USERINFO.or(SUB_DELIMS);
+        USERINFO.set(':');
+        REG_NAME.or(UNRESERVED);
+        REG_NAME.or(SUB_DELIMS);
+        REG_NAME.clear('!');
+        PATH_SEGMENT.or(PCHAR);
+        QUERY.or(PCHAR);
+        QUERY.set('/');
+        QUERY.set('?');
+        FRAGMENT.or(PCHAR);
+        FRAGMENT.set('/');
+        FRAGMENT.set('?');
+        // Some sub-delims remain encoded (RFC 3986 allows them unencoded, but we choose to be strict).
+        PATH_SEGMENT.clear('(');
+        PATH_SEGMENT.clear(')');
+        PATH_SEGMENT.clear('&');
     }
 
     private static final int RADIX = 16;

@@ -997,4 +997,33 @@ class TestURIBuilder {
         params = uriBuilder.getQueryParams();
         Assertions.assertEquals("hello world", params.get(0).getValue());
     }
+
+    @Test
+    void testFragmentEncoding() throws Exception {
+        final String fragment = "frag ment:!@/?\"";
+        final String expectedEncodedFragment = "frag%20ment:!@/?%22";
+
+        final URI uri = new URIBuilder()
+                .setScheme("http")
+                .setHost("example.com")
+                .setFragment(fragment)
+                .build();
+
+        Assertions.assertEquals(expectedEncodedFragment, uri.getRawFragment());
+    }
+
+    @Test
+    void testCustomQueryEncoding() throws Exception {
+        final String query = "query param:!@/?\"";
+        final String expectedEncodedQuery = "query%20param:!@/?%22";
+
+        final URI uri = new URIBuilder()
+                .setScheme("http")
+                .setHost("example.com")
+                .setCustomQuery(query)
+                .build();
+
+        Assertions.assertEquals(expectedEncodedQuery, uri.getRawQuery());
+    }
+
 }
