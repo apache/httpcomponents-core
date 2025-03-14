@@ -367,7 +367,7 @@ public class URIBuilder {
                 if (InetAddressUtils.isIPv6(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
-                    sb.append(PercentCodec.encode(this.host, this.charset));
+                    PercentCodec.encode(sb, this.host, this.charset);
                 }
                 if (this.port >= 0) {
                     sb.append(":").append(this.port);
@@ -398,7 +398,7 @@ public class URIBuilder {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
             sb.append("#");
-            PercentCodec.encode(sb, this.fragment, this.charset);
+            PercentCodec.encode(sb, this.fragment, this.charset, PercentCodec.URIC, false);
         }
         return sb.toString();
     }
