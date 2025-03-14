@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,8 +88,35 @@ public class URIBuilder {
     private Charset charset;
     private String fragment;
     private String encodedFragment;
+    private EncodingPolicy encodingPolicy = EncodingPolicy.ALL_RESERVED;
 
     private boolean plusAsBlank;
+
+    /**
+     * Defines the encoding policy for URI components in {@link URIBuilder}.
+     * This enum controls how characters are percent-encoded when constructing a URI,
+     * allowing flexibility between strict encoding and RFC 3986-compliant behavior.
+     *
+     * @since 5.4
+     */
+    public enum EncodingPolicy {
+        /**
+         * Encodes all reserved characters, allowing only unreserved characters
+         * (ALPHA, DIGIT, "-", ".", "_", "~") to remain unencoded. This is a strict
+         * policy suitable for conservative URI production where maximum encoding
+         * is desired.
+         */
+        ALL_RESERVED,
+
+        /**
+         * Follows RFC 3986 component-specific encoding rules. For example, query and
+         * fragment components allow unreserved characters, sub-delimiters ("!", "$",
+         * "&", "'", "(", ")", "*", "+", ",", ";", "="), and additional characters
+         * (":", "@", "/", "?") to remain unencoded, as defined by {@code PercentCodec.FRAGMENT}.
+         * This policy ensures compliance with RFC 3986 while maintaining interoperability.
+         */
+        RFC_3986
+    }
 
     /**
      * Constructs an empty instance.
@@ -172,6 +200,22 @@ public class URIBuilder {
      */
     public URIBuilder setCharset(final Charset charset) {
         this.charset = charset;
+        return this;
+    }
+
+    /**
+     * Sets the encoding policy for this {@link URIBuilder}.
+     * The encoding policy determines how URI components (e.g., query, fragment) are
+     * percent-encoded when building the URI string. If not set, the default policy
+     * is {@link EncodingPolicy#RFC_3986}.
+     *
+     * @param encodingPolicy the encoding policy to apply, or {@code null} to reset
+     *                       to the default ({@link EncodingPolicy#ALL_RESERVED})
+     * @return this {@link URIBuilder} instance for method chaining
+     * @since 5.4
+     */
+    public URIBuilder setEncodingPolicy(final EncodingPolicy encodingPolicy) {
+        this.encodingPolicy = encodingPolicy;
         return this;
     }
 
@@ -300,32 +344,45 @@ public class URIBuilder {
         return list;
     }
 
-    static void formatPath(final StringBuilder buf, final Iterable<String> segments, final boolean rootless, final Charset charset) {
+    static void formatPath(final StringBuilder buf, final Iterable<String> segments, final boolean rootless,
+                           final Charset charset, final BitSet safechars) {
         int i = 0;
         for (final String segment : segments) {
             if (i > 0 || !rootless) {
                 buf.append(PATH_SEPARATOR);
             }
-            PercentCodec.encode(buf, segment, charset, PercentCodec.PATH_SEGMENT, false);
+            PercentCodec.encode(buf, segment, charset, safechars, false);
             i++;
         }
     }
 
-    static void formatQuery(final StringBuilder buf, final Iterable<? extends NameValuePair> params, final Charset charset,
-                            final boolean blankAsPlus) {
+    static void formatPath(final StringBuilder buf, final Iterable<String> segments, final boolean rootless,
+                           final Charset charset) {
+        formatPath(buf, segments, rootless, charset, PercentCodec.UNRESERVED);
+    }
+
+
+    static void formatQuery(final StringBuilder buf, final Iterable<? extends NameValuePair> params,
+                            final Charset charset, final BitSet safechars, final boolean blankAsPlus) {
         int i = 0;
         for (final NameValuePair parameter : params) {
             if (i > 0) {
                 buf.append(QUERY_PARAM_SEPARATOR);
             }
-            PercentCodec.encode(buf, parameter.getName(), charset, blankAsPlus);
+            PercentCodec.encode(buf, parameter.getName(), charset, safechars, blankAsPlus);
             if (parameter.getValue() != null) {
                 buf.append(PARAM_VALUE_SEPARATOR);
-                PercentCodec.encode(buf, parameter.getValue(), charset, blankAsPlus);
+                PercentCodec.encode(buf, parameter.getValue(), charset, safechars, blankAsPlus);
             }
             i++;
         }
     }
+
+    static void formatQuery(final StringBuilder buf, final Iterable<? extends NameValuePair> params,
+                            final Charset charset, final boolean blankAsPlus) {
+        formatQuery(buf, params, charset, PercentCodec.UNRESERVED, blankAsPlus);
+    }
+
 
     /**
      * Builds a {@link URI} instance.
@@ -356,18 +413,22 @@ public class URIBuilder {
                 } else if (this.userInfo != null) {
                     final int idx = this.userInfo.indexOf(':');
                     if (idx != -1) {
-                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset, PercentCodec.USERINFO, false);
+                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset,
+                                encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.USERINFO, false);
                         sb.append(':');
-                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset, PercentCodec.USERINFO, false);
+                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset,
+                                encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.USERINFO, false);
                     } else {
-                        PercentCodec.encode(sb, this.userInfo, this.charset, PercentCodec.USERINFO, false);
+                        PercentCodec.encode(sb, this.userInfo, this.charset,
+                                encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.USERINFO, false);
                     }
                     sb.append("@");
                 }
                 if (InetAddressUtils.isIPv6(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
-                    PercentCodec.encode(sb, this.host, this.charset, PercentCodec.REG_NAME, false);
+                    PercentCodec.encode(sb, this.host, this.charset,
+                            encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.REG_NAME, false);
                 }
                 if (this.port >= 0) {
                     sb.append(":").append(this.port);
@@ -382,23 +443,27 @@ public class URIBuilder {
                 }
                 sb.append(this.encodedPath);
             } else if (this.pathSegments != null) {
-                formatPath(sb, this.pathSegments, !authoritySpecified && this.pathRootless, this.charset);
+                formatPath(sb, this.pathSegments, !authoritySpecified && this.pathRootless, this.charset,
+                        encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.PATH_SEGMENT);
             }
             if (this.encodedQuery != null) {
                 sb.append("?").append(this.encodedQuery);
             } else if (this.queryParams != null && !this.queryParams.isEmpty()) {
                 sb.append("?");
-                formatQuery(sb, this.queryParams, this.charset, false);
+                formatQuery(sb, this.queryParams, this.charset,
+                        encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.QUERY, false);
             } else if (this.query != null) {
                 sb.append("?");
-                PercentCodec.encode(sb, this.query, this.charset, PercentCodec.QUERY, false);
+                PercentCodec.encode(sb, this.query, this.charset,
+                        encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.URIC : PercentCodec.QUERY, false);
             }
         }
         if (this.encodedFragment != null) {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
             sb.append("#");
-            PercentCodec.encode(sb, this.fragment, this.charset, PercentCodec.FRAGMENT, false);
+            PercentCodec.encode(sb, this.fragment, this.charset,
+                    encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.URIC : PercentCodec.FRAGMENT, false);
         }
         return sb.toString();
     }
