@@ -1,3 +1,61 @@
+Release 5.3.4
+------------------
+
+This maintenance release fixes several corner-case defects in the asynchronous HTTP/1.1 protocol
+handler as well as several other minor defects.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-778: URIBuilder to not encode sub-delimiters in URI fragment component for consistency
+  with query component encoding
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed a race condition in the async message stream handlers that can occur when
+  a message with no content body is being submitted asynchronously.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Async message stream handlers to avoid firing data produce events from multiple
+  threads.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-777: I/O reactor to cancel out incomplete connect requests when shutting down.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Resource release corrections and code improvements in the base implementations of client
+  and server async exchange handlers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected the state management in the async HTTP/1.1 protocol handler when
+  committing requests asynchronously.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug-fix: Corrected message stream termination by the async HTTP/1.1 protocol handler
+  when the connection has been half-closed by the opposite endpoint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Shared output buffer #writeCompleted fails to signal the end of the stream correctly
+  when there is no buffered data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected handling of invalid HTTP protocol version by HTTP/1.1 async client
+  protocol handler.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected state tracking of pipelined message exchanges by HTTP/1.1 async client
+  protocol handler.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/1.1 server protocol handler to use exception callback to report exceptions that cannot
+  be handled by individual exchange handlers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: ServerHttp1StreamHandler throws an NPE when attempting to handle a corrupt/invalid
+  incoming request message head.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.3.3
 ------------------
 
