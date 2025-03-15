@@ -8,7 +8,7 @@ handler as well as several other minor defects.
 Change Log
 -------------------
 
-* HTTPCORE-778: URIBuilder to not encode sub-delims in URI fragment component for consistency
+* HTTPCORE-778: URIBuilder to not encode sub-delimiters in URI fragment component for consistency
   with query component encoding
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -20,14 +20,14 @@ Change Log
   threads.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-777: I/O reactos to cancel out incomplete connect requests when shutting down.
+* HTTPCORE-777: I/O reactor to cancel out incomplete connect requests when shutting down.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Resource release corrections and code improvements in the base implementations of client
- and server async exchange handlers.
+  and server async exchange handlers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: corrected the state management in the async HTTP/1.1 protocol handler when
+* Bug fix: Corrected the state management in the async HTTP/1.1 protocol handler when
   committing requests asynchronously.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -35,8 +35,8 @@ Change Log
   when the connection has been half-closed by the opposite endpoint.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: Shared output buffer #writeCompleted fails to signal end of stream correctly when
-  there is no buffered data.
+* Bug fix: Shared output buffer #writeCompleted fails to signal the end of the stream correctly
+  when there is no buffered data.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Bug fix: Corrected handling of invalid HTTP protocol version by HTTP/1.1 async client
@@ -51,10 +51,9 @@ Change Log
   be handled by individual exchange handlers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: ServerHttp1StreamHandler throws an NPE when attempting to handle a corrupt / invalid
+* Bug fix: ServerHttp1StreamHandler throws an NPE when attempting to handle a corrupt/invalid
   incoming request message head.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-
 
 
 Release 5.3.3
