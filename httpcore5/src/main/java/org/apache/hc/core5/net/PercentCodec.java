@@ -113,6 +113,32 @@ public class PercentCodec {
         RFC5987_UNRESERVED.set('~');
     }
 
+    static final BitSet PCHAR = new BitSet(256);
+    static final BitSet USERINFO = new BitSet(256);
+    static final BitSet REG_NAME = new BitSet(256);
+    static final BitSet PATH_SEGMENT = new BitSet(256);
+    static final BitSet QUERY = new BitSet(256);
+    static final BitSet FRAGMENT = new BitSet(256);
+
+    static {
+        PCHAR.or(UNRESERVED);
+        PCHAR.or(SUB_DELIMS);
+        PCHAR.set(':');
+        PCHAR.set('@');
+        USERINFO.or(UNRESERVED);
+        USERINFO.or(SUB_DELIMS);
+        USERINFO.set(':');
+        REG_NAME.or(UNRESERVED);
+        REG_NAME.or(SUB_DELIMS);
+        PATH_SEGMENT.or(PCHAR);
+        QUERY.or(PCHAR);
+        QUERY.set('/');
+        QUERY.set('?');
+        FRAGMENT.or(PCHAR);
+        FRAGMENT.set('/');
+        FRAGMENT.set('?');
+    }
+
     private static final int RADIX = 16;
 
     static void encode(final StringBuilder buf, final CharSequence content, final Charset charset,
