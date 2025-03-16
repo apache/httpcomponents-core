@@ -171,7 +171,7 @@ class TestURIBuilder {
     @Test
     void testHierarchicalUri() throws Exception {
         final URI uri = new URI("http", "stuff", "localhost", 80, "/some stuff", "param=stuff", "fragment");
-        final URIBuilder uribuilder = new URIBuilder(uri);
+        final URIBuilder uribuilder = new URIBuilder(uri).setEncodingPolicy(URIBuilder.EncodingPolicy.ALL_RESERVED);
         final URI result = uribuilder.build();
         Assertions.assertEquals(new URI("http://stuff@localhost:80/some%20stuff?param=stuff#fragment"), result);
     }
@@ -997,4 +997,20 @@ class TestURIBuilder {
         params = uriBuilder.getQueryParams();
         Assertions.assertEquals("hello world", params.get(0).getValue());
     }
+
+    @Test
+    void testCustomQueryEncoding() throws Exception {
+        final String query = "query param:!@/?\"";
+        final String expectedEncodedQuery = "query%20param:!@/?%22";
+
+        final URI uri = new URIBuilder()
+                .setScheme("http")
+                .setHost("example.com")
+                .setCustomQuery(query)
+                .setEncodingPolicy(URIBuilder.EncodingPolicy.RFC_3986)
+                .build();
+
+        Assertions.assertEquals(expectedEncodedQuery, uri.getRawQuery());
+    }
+
 }
