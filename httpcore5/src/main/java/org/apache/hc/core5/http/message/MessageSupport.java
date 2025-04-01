@@ -35,8 +35,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
@@ -167,21 +169,57 @@ public class MessageSupport {
         return headerOfTokens(name, Arrays.asList(tokens));
     }
 
-    /**
-     * @since 5.3
-     */
-    public static void parseTokens(final CharSequence src, final ParserCursor cursor, final Consumer<String> consumer) {
+    @Internal
+    public static void parseHeader(final Header header, final BiConsumer<CharSequence, ParserCursor> consumer) {
+        Args.notNull(header, "Header");
+        if (header instanceof FormattedHeader) {
+            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
+            final ParserCursor cursor = new ParserCursor(0, buf.length());
+            cursor.updatePos(((FormattedHeader) header).getValuePos());
+            consumer.accept(buf, cursor);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            consumer.accept(value, cursor);
+        }
+    }
+
+    @Internal
+    public static void parseHeaders(final MessageHeaders headers, final String name, final BiConsumer<CharSequence, ParserCursor> consumer) {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        final Iterator<Header> it = headers.headerIterator(name);
+        while (it.hasNext()) {
+            parseHeader(it.next(), consumer);
+        }
+    }
+
+    @Internal
+    public static void parseElementList(final CharSequence src,
+                                        final ParserCursor cursor,
+                                        final BiConsumer<CharSequence, ParserCursor> consumer) {
         Args.notNull(src, "Source");
         Args.notNull(cursor, "Cursor");
         Args.notNull(consumer, "Consumer");
         while (!cursor.atEnd()) {
-            final int pos = cursor.getPos();
-            if (src.charAt(pos) == ',') {
-                cursor.updatePos(pos + 1);
+            consumer.accept(src, cursor);
+            if (!cursor.atEnd()) {
+                final char ch = src.charAt(cursor.getPos());
+                if (ch == ',') {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
             }
-            final String token = Tokenizer.INSTANCE.parseToken(src, cursor, COMMA);
-            consumer.accept(token);
         }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void parseTokens(final CharSequence src, final ParserCursor cursor, final Consumer<String> consumer) {
+        parseElementList(src, cursor, (sequence, c) -> {
+            final String token = Tokenizer.INSTANCE.parseToken(src, c, COMMA);
+            consumer.accept(token);
+        });
     }
 
     /**
@@ -189,16 +227,8 @@ public class MessageSupport {
      */
     public static void parseTokens(final Header header, final Consumer<String> consumer) {
         Args.notNull(header, "Header");
-        if (header instanceof FormattedHeader) {
-            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
-            final ParserCursor cursor = new ParserCursor(0, buf.length());
-            cursor.updatePos(((FormattedHeader) header).getValuePos());
-            parseTokens(buf, cursor, consumer);
-        } else {
-            final String value = header.getValue();
-            final ParserCursor cursor = new ParserCursor(0, value.length());
-            parseTokens(value, cursor, consumer);
-        }
+        parseHeader(header, (sequence, cursor) ->
+                parseTokens(sequence, cursor, consumer));
     }
 
     /**
@@ -206,10 +236,8 @@ public class MessageSupport {
      */
     public static void parseTokens(final MessageHeaders headers, final String headerName, final Consumer<String> consumer) {
         Args.notNull(headers, "Headers");
-        final Iterator<Header> it = headers.headerIterator(headerName);
-        while (it.hasNext()) {
-            parseTokens(it.next(), consumer);
-        }
+        parseHeaders(headers, headerName, (sequence, cursor) ->
+                parseTokens(sequence, cursor, consumer));
     }
 
     public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
@@ -291,19 +319,10 @@ public class MessageSupport {
      * @since 5.3
      */
     public static void parseElements(final CharSequence buffer, final ParserCursor cursor, final Consumer<HeaderElement> consumer) {
-        Args.notNull(buffer, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
-        Args.notNull(consumer, "Consumer");
-        while (!cursor.atEnd()) {
+        parseElementList(buffer, cursor, (sequence, c) -> {
             final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(buffer, cursor);
             consumer.accept(element);
-            if (!cursor.atEnd()) {
-                final char ch = buffer.charAt(cursor.getPos());
-                if (ch == ',') {
-                    cursor.updatePos(cursor.getPos() + 1);
-                }
-            }
-        }
+        });
     }
 
     /**
@@ -311,16 +330,8 @@ public class MessageSupport {
      */
     public static void parseElements(final Header header, final Consumer<HeaderElement> consumer) {
         Args.notNull(header, "Header");
-        if (header instanceof FormattedHeader) {
-            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
-            final ParserCursor cursor = new ParserCursor(0, buf.length());
-            cursor.updatePos(((FormattedHeader) header).getValuePos());
-            parseElements(buf, cursor, consumer);
-        } else {
-            final String value = header.getValue();
-            final ParserCursor cursor = new ParserCursor(0, value.length());
-            parseElements(value, cursor, consumer);
-        }
+        parseHeader(header, (sequence, cursor) ->
+                parseElements(sequence, cursor, consumer));
     }
 
     /**
@@ -328,10 +339,8 @@ public class MessageSupport {
      */
     public static void parseElements(final MessageHeaders headers, final String headerName, final Consumer<HeaderElement> consumer) {
         Args.notNull(headers, "Headers");
-        final Iterator<Header> it = headers.headerIterator(headerName);
-        while (it.hasNext()) {
-            parseElements(it.next(), consumer);
-        }
+        parseHeaders(headers, headerName, (sequence, cursor) ->
+                parseElements(sequence, cursor, consumer));
     }
 
     /**
