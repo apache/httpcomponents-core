@@ -451,4 +451,52 @@ class TLSIntegrationTest {
 
     }
 
+    @Test
+    void testHttpsProxyWithConnectAndSecondTls() throws Exception {
+        final TlsStrategy targetTlsStrategy = new BasicServerTlsStrategy(
+                SSLTestContexts.createServerSSLContext());
+        server = createServer(targetTlsStrategy);
+        server.start();
+        final ListenerEndpoint targetListener = server
+                .listen(new InetSocketAddress("localhost", 0), URIScheme.HTTPS)
+                .get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final InetSocketAddress targetAddress = (InetSocketAddress) targetListener.getAddress();
+
+        final HttpAsyncServer proxyServer = createServer(
+                new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()));
+        proxyServer.start();
+        final ListenerEndpoint proxyListener = proxyServer
+                .listen(new InetSocketAddress("localhost", 0), URIScheme.HTTPS)
+                .get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final InetSocketAddress proxyAddress = (InetSocketAddress) proxyListener.getAddress();
+
+        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(
+                SSLTestContexts.createClientSSLContext());
+        client = createClient(clientTlsStrategy);
+        client.start();
+
+        final HttpHost proxy = new HttpHost("https", "localhost", proxyAddress.getPort());
+        final HttpHost target = new HttpHost("https", "localhost", targetAddress.getPort());
+
+        final Future<Message<HttpResponse, String>> future = client.execute(
+                proxy,
+                new BasicRequestProducer(
+                        Method.POST,
+                        target,
+                        "/test",
+                        new StringAsyncEntityProducer("ping", ContentType.TEXT_PLAIN)
+                ),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                TIMEOUT, null
+        );
+
+        final Message<HttpResponse, String> response = future
+                .get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getHead().getCode());
+        Assertions.assertEquals("ping", response.getBody());
+
+        proxyServer.close(CloseMode.IMMEDIATE);
+    }
+
 }
