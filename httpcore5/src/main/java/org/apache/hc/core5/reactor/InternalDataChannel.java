@@ -226,6 +226,19 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
             final SSLSessionVerifier verifier,
             final Timeout handshakeTimeout,
             final FutureCallback<TransportSecurityLayer> callback) {
+
+        // If we already performed TLS (e.g. to the HTTPS proxy), clear out the old session
+        if (tlsSessionRef.get() != null) {
+            // Drop the previous SSLIOSession so we can start fresh
+            tlsSessionRef.set(null);
+            // Revert to raw TCP I/O before installing the new TLS layer
+            currentSessionRef.set(
+                    ioSessionDecorator != null
+                            ? ioSessionDecorator.decorate(ioSession)
+                            : ioSession
+            );
+        }
+
         final SSLIOSession sslioSession = new SSLIOSession(
                 endpoint != null ? endpoint : initialEndpoint,
                 ioSession,
@@ -247,11 +260,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     }
 
                 });
-        if (tlsSessionRef.compareAndSet(null, sslioSession)) {
-            currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);
-        } else {
-            throw new IllegalStateException("TLS already activated");
-        }
+        tlsSessionRef.set(sslioSession);
+        currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);
         try {
             if (sessionListener != null) {
                 sessionListener.startTls(sslioSession);
