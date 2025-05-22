@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketOption;
+import java.net.StandardSocketOptions;
 import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
@@ -277,21 +278,26 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void prepareSocket(final SocketChannel socketChannel) throws IOException {
-        final Socket socket = socketChannel.socket();
-        socket.setTcpNoDelay(this.reactorConfig.isTcpNoDelay());
-        socket.setKeepAlive(this.reactorConfig.isSoKeepAlive());
         if (this.reactorConfig.getSndBufSize() > 0) {
-            socket.setSendBufferSize(this.reactorConfig.getSndBufSize());
+            socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, this.reactorConfig.getSndBufSize());
         }
         if (this.reactorConfig.getRcvBufSize() > 0) {
-            socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
-        }
-        if (this.reactorConfig.getTrafficClass() > 0) {
-            socket.setTrafficClass(this.reactorConfig.getTrafficClass());
+            socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, this.reactorConfig.getRcvBufSize());
         }
         final int linger = this.reactorConfig.getSoLinger().toSecondsIntBound();
         if (linger >= 0) {
-            socket.setSoLinger(true, linger);
+            socketChannel.setOption(StandardSocketOptions.SO_LINGER, linger);
+        }
+
+        // None of the below options are applicable to Unix domain sockets.
+        if (!(socketChannel.getRemoteAddress() instanceof InetSocketAddress)) {
+            return;
+        }
+        socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, this.reactorConfig.isTcpNoDelay());
+        socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, this.reactorConfig.isSoKeepAlive());
+
+        if (this.reactorConfig.getTrafficClass() > 0) {
+            socketChannel.setOption(StandardSocketOptions.IP_TOS, this.reactorConfig.getTrafficClass());
         }
         if (this.reactorConfig.getTcpKeepIdle() > 0) {
             setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());

@@ -131,12 +131,20 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public SocketAddress getLocalAddress() {
-        return this.channel.socket().getLocalSocketAddress();
+        try {
+            return this.channel.getLocalAddress();
+        } catch (final IOException e) {
+            return null;
+        }
     }
 
     @Override
     public SocketAddress getRemoteAddress() {
-        return this.channel.socket().getRemoteSocketAddress();
+        try {
+            return channel.getRemoteAddress();
+        } catch (final IOException e) {
+            return null;
+        }
     }
 
     @Override
