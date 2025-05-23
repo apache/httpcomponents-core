@@ -29,9 +29,11 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ProtocolFamily;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketOption;
+import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
@@ -346,7 +348,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             if (!sessionRequest.isCancelled()) {
                 final SocketChannel socketChannel;
                 try {
-                    socketChannel = SocketChannel.open();
+                    socketChannel = openSocketFor(sessionRequest.remoteAddress);
                 } catch (final IOException ex) {
                     sessionRequest.failed(ex);
                     return;
@@ -358,6 +360,18 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     sessionRequest.failed(ex);
                 }
             }
+        }
+    }
+
+    private static SocketChannel openSocketFor(final SocketAddress remoteAddress) throws IOException {
+        if (remoteAddress instanceof InetSocketAddress) {
+            return SocketChannel.open();
+        }
+        try {
+            return (SocketChannel) SocketChannel.class.getMethod("open", ProtocolFamily.class)
+                .invoke(null, StandardProtocolFamily.valueOf("UNIX"));
+        } catch (final ReflectiveOperationException e) {
+            throw new UnsupportedOperationException("UNIX-family socket channels not supported", e);
         }
     }
 
