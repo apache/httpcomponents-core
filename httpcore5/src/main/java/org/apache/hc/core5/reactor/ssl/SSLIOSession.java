@@ -626,6 +626,15 @@ public class SSLIOSession implements IOSession {
                             }
                             break;
                         }
+                        if (result.bytesConsumed() == 0) {
+                            throw new SSLException(String.format("Unable to decrypt incoming data " +
+                                    "[status = " + result.getStatus() +
+                                    "; handshakeStatus = " + result.getHandshakeStatus() +
+                                    "; bytesConsumed = " + result.bytesConsumed() +
+                                    "; bytesProduced = " + result.bytesProduced() +
+                                    "; end of stream = " + endOfStream +
+                                    "]"));
+                        }
                     } finally {
                         inPlain.release();
                     }
