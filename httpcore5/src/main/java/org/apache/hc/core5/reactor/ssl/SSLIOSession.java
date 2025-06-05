@@ -73,6 +73,8 @@ import org.apache.hc.core5.util.Timeout;
 @Internal
 public class SSLIOSession implements IOSession {
 
+    public static final int UNPRODUCTIVE_CYCLE_COUNT_LIMIT = 10_000;
+
     enum TLSHandShakeState { READY, INITIALIZED, HANDSHAKING, COMPLETE }
 
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
@@ -602,10 +604,16 @@ public class SSLIOSession implements IOSession {
             final ByteBuffer inEncryptedBuf = inEncrypted.acquire();
             inEncryptedBuf.flip();
             try {
+                int unproductiveCounter = 0;
                 while (inEncryptedBuf.hasRemaining()) {
                     final ByteBuffer inPlainBuf = inPlain.acquire();
                     try {
                         final SSLEngineResult result = doUnwrap(inEncryptedBuf, inPlainBuf);
+                        if(result.getStatus() == SSLEngineResult.Status.OK && result.bytesConsumed() == 0){
+                            unproductiveCounter ++;
+                        } else {
+                            unproductiveCounter = 0;
+                        }
                         if (!inEncryptedBuf.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
                             throw new SSLException("Unable to complete SSL handshake");
                         }
@@ -625,6 +633,9 @@ public class SSLIOSession implements IOSession {
                                 throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
                             }
                             break;
+                        }
+                        if(unproductiveCounter > UNPRODUCTIVE_CYCLE_COUNT_LIMIT){
+                            throw new SSLException(String.format("Unable to decrypt incoming data due to unproductive cycle. Position on the buffer %s and the limit is %s with handshake status of %s and EndOfStream flag as %s", inEncryptedBuf.position(), inEncryptedBuf.limit(), result.getHandshakeStatus(), endOfStream));
                         }
                     } finally {
                         inPlain.release();
