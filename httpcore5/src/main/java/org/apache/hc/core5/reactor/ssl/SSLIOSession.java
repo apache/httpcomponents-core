@@ -73,7 +73,7 @@ import org.apache.hc.core5.util.Timeout;
 @Internal
 public class SSLIOSession implements IOSession {
 
-    public static final int UNPRODUCTIVE_CYCLE_COUNT_LIMIT = 10_000;
+    public static final int UNPRODUCTIVE_CYCLE_COUNT_LIMIT = 1000;
 
     enum TLSHandShakeState { READY, INITIALIZED, HANDSHAKING, COMPLETE }
 
