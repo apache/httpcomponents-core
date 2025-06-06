@@ -76,6 +76,17 @@ public final class ContentType implements Serializable {
             "application/json", StandardCharsets.UTF_8);
 
     /**
+     * Public constant media type for ZIP archives {@code application/x-zip-compressed}.
+     * <p>
+     * Note that Windows uploads {@code .zip} files with this non-standard MIME type.
+     * </p>
+     *
+     * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types/Common_types">ZIP archive application/x-zip-compressed</a>
+     * @since 5.4
+     */
+    public static final ContentType APPLICATION_ZIP_COMPRESSED = create("application/x-zip-compressed");
+
+    /**
      * Public constant media type for {@code application/x-ndjson}.
      * @since 5.1
      */

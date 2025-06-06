@@ -1,3 +1,16 @@
+Release 5.4-alpha1
+------------------
+
+This is the first release in the 5.4 release series.
+ 
+
+Change Log
+-------------------
+
+* Add ContentType.APPLICATION_ZIP_COMPRESSED.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 5.3
 ------------------
 

@@ -41,6 +41,14 @@ import org.junit.jupiter.api.Test;
 class TestContentType {
 
     @Test
+    void testApplicationZipCompressed() {
+        final ContentType contentType = ContentType.create("application/x-zip-compressed");
+        Assertions.assertEquals(contentType.toString(), ContentType.APPLICATION_ZIP_COMPRESSED.toString());
+        Assertions.assertTrue(contentType.isSameMimeType(ContentType.APPLICATION_ZIP_COMPRESSED));
+        Assertions.assertTrue(ContentType.APPLICATION_ZIP_COMPRESSED.isSameMimeType(contentType));
+    }
+
+    @Test
     void testBasis() throws Exception {
         final ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
