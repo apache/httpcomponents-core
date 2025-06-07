@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -53,25 +54,38 @@ public final class ClientH2StreamMultiplexerFactory {
     private final H2Config h2Config;
     private final CharCodingConfig charCodingConfig;
     private final H2StreamListener streamListener;
+    private final FrameFactory frameFactory;
 
     public ClientH2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
-            final H2StreamListener streamListener) {
+            final H2StreamListener streamListener,
+            final FrameFactory frameFactory) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.streamListener = streamListener;
+        this.frameFactory = frameFactory != null ? frameFactory : DefaultFrameFactory.INSTANCE;
+    }
+
+    public ClientH2StreamMultiplexerFactory(
+            final HttpProcessor httpProcessor,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final H2Config h2Config,
+            final CharCodingConfig charCodingConfig,
+            final H2StreamListener streamListener
+    ) {
+        this(httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, streamListener, null);
     }
 
     public ClientH2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2StreamListener streamListener) {
-        this(httpProcessor, pushHandlerFactory, null, null, streamListener);
+        this(httpProcessor, pushHandlerFactory, null, null, streamListener, null);
     }
 
     public ClientH2StreamMultiplexerFactory(
@@ -81,7 +95,7 @@ public final class ClientH2StreamMultiplexerFactory {
     }
 
     public ClientH2StreamMultiplexer create(final ProtocolIOSession ioSession) {
-        return new ClientH2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
+        return new ClientH2StreamMultiplexer(ioSession, frameFactory, httpProcessor,
                 pushHandlerFactory, h2Config, charCodingConfig, streamListener);
     }
 
