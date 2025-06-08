@@ -305,6 +305,11 @@ public class H2RequesterBootstrap {
         return this;
     }
 
+    /**
+     * Sets {@link FrameFactory} instance.
+     *
+     * @return this instance.
+     */
     public final H2RequesterBootstrap setFrameFactory(final FrameFactory frameFactory) {
         this.frameFactory = frameFactory;
         return this;
