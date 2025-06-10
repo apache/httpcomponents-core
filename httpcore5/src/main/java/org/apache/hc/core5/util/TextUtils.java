@@ -124,17 +124,16 @@ public final class TextUtils {
      *
      * @since 5.0
      */
+    private static final char[] HEX_CHARS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+            'e', 'f' };
+
     public static String toHexString(final byte[] bytes) {
         if (bytes == null) {
             return null;
         }
         final StringBuilder buffer = new StringBuilder(bytes.length * 2);
-        for (final byte element : bytes) {
-            final int unsignedB = element & 0xff;
-            if (unsignedB < 16) {
-                buffer.append('0');
-            }
-            buffer.append(Integer.toHexString(unsignedB));
+        for (final byte b : bytes) {
+            buffer.append(HEX_CHARS[(0xf0 & b) >>> 4]).append(HEX_CHARS[0x0f & b]);
         }
         return buffer.toString();
     }
