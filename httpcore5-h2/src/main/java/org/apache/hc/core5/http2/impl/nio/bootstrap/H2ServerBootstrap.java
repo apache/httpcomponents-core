@@ -62,6 +62,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.ServerH2StreamMultiplexerFactory;
@@ -104,6 +105,7 @@ public class H2ServerBootstrap {
     private H2StreamListener h2StreamListener;
     private Http1StreamListener http1StreamListener;
     private IOReactorMetricsListener threadPoolListener;
+    private FrameFactory frameFactory;
 
     private H2ServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -249,6 +251,17 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap setStreamListener(final H2StreamListener h2StreamListener) {
         this.h2StreamListener = h2StreamListener;
+        return this;
+    }
+
+    /**
+     * Sets {@link FrameFactory} instance.
+     *
+     * @since 5.4
+     * @return this instance.
+     */
+    public final H2ServerBootstrap setFrameFactory(final FrameFactory frameFactory) {
+        this.frameFactory = frameFactory;
         return this;
     }
 
@@ -511,7 +524,8 @@ public class H2ServerBootstrap {
                 handlerFactory,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                h2StreamListener);
+                h2StreamListener,
+                frameFactory);
 
         final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy();
 

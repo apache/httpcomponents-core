@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientH2PrefaceHandler;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
@@ -71,6 +72,7 @@ public class H2MultiplexingRequesterBootstrap {
     private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private H2StreamListener streamListener;
+    private FrameFactory frameFactory;
 
     private IOReactorMetricsListener threadPoolListener;
 
@@ -189,6 +191,17 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * Sets {@link FrameFactory} instance.
+     *
+     * @since 5.4
+     * @return this instance.
+     */
+    public final H2MultiplexingRequesterBootstrap setStreamListener(final FrameFactory frameFactory) {
+        this.frameFactory = frameFactory;
+        return this;
+    }
+
+    /**
      * Sets {@link UriPatternType} for handler registration.
      *
      * @return this instance.
@@ -249,7 +262,8 @@ public class H2MultiplexingRequesterBootstrap {
                 new DefaultAsyncPushConsumerFactory(requestRouter),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                streamListener);
+                streamListener,
+                frameFactory);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
                 (ioSession, attachment) ->
