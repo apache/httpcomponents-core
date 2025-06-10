@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -53,6 +54,22 @@ public final class ServerH2StreamMultiplexerFactory {
     private final H2Config h2Config;
     private final CharCodingConfig charCodingConfig;
     private final H2StreamListener streamListener;
+    private final FrameFactory frameFactory;
+
+    public ServerH2StreamMultiplexerFactory(
+            final HttpProcessor httpProcessor,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
+            final H2Config h2Config,
+            final CharCodingConfig charCodingConfig,
+            final H2StreamListener streamListener,
+            final FrameFactory frameFactory) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
+        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.streamListener = streamListener;
+        this.frameFactory = frameFactory != null ? frameFactory : DefaultFrameFactory.INSTANCE;
+    }
 
     public ServerH2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
@@ -60,17 +77,13 @@ public final class ServerH2StreamMultiplexerFactory {
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
             final H2StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.streamListener = streamListener;
+        this(httpProcessor, exchangeHandlerFactory, h2Config, charCodingConfig, streamListener, null);
     }
 
     public ServerH2StreamMultiplexer create(final ProtocolIOSession ioSession) {
         return new ServerH2StreamMultiplexer(
                 ioSession,
-                DefaultFrameFactory.INSTANCE,
+                frameFactory,
                 httpProcessor,
                 exchangeHandlerFactory,
                 charCodingConfig,
