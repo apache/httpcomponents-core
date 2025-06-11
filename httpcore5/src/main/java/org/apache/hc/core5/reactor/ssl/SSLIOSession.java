@@ -609,8 +609,8 @@ public class SSLIOSession implements IOSession {
                     final ByteBuffer inPlainBuf = inPlain.acquire();
                     try {
                         final SSLEngineResult result = doUnwrap(inEncryptedBuf, inPlainBuf);
-                        if(result.getStatus() == SSLEngineResult.Status.OK && result.bytesConsumed() == 0){
-                            unproductiveDoUnwrapCycles ++;
+                        if (result.getStatus() == SSLEngineResult.Status.OK && result.bytesConsumed() == 0) {
+                            unproductiveDoUnwrapCycles++;
                         } else {
                             unproductiveDoUnwrapCycles = 0;
                         }
