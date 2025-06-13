@@ -13,7 +13,7 @@ Change Log
 * Bump io.reactivex.rxjava3:rxjava from 3.1.9 to 3.1.10 #509
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Bump org.junit:junit-bom from 5.11.0 to 5.11.3 #501
+* Bump org.junit:junit-bom from 5.11.0 to 5.13.1 #501, #528
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Bump testcontainers.version from 1.20.2 to 1.20.4 #505
