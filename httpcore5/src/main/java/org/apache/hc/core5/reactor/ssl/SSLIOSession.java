@@ -620,10 +620,11 @@ public class SSLIOSession implements IOSession {
                                 inPlainBuf.clear();
                             }
                         }
-                        if (result.getStatus() != SSLEngineResult.Status.OK) {
-                            if (result.getStatus() == SSLEngineResult.Status.BUFFER_UNDERFLOW && endOfStream) {
-                                throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
-                            }
+                        if (result.getStatus() == SSLEngineResult.Status.BUFFER_UNDERFLOW && endOfStream) {
+                            throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
+                        }
+                        if (result.getStatus() != SSLEngineResult.Status.OK ||
+                                result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING && result.getHandshakeStatus() != HandshakeStatus.FINISHED) {
                             break;
                         }
                     } finally {
