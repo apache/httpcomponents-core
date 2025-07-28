@@ -412,10 +412,8 @@ public final class ContentType implements Serializable {
      *
      * @param s text
      * @return content type {@code Content-Type} value or null.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
      */
-    public static ContentType parseLenient(final CharSequence s) throws UnsupportedCharsetException {
+    public static ContentType parseLenient(final CharSequence s) {
         return parse(s, false);
     }
 
