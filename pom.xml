@@ -78,7 +78,6 @@
     <mockito.version>4.11.0</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
     <log4j.version>2.25.0</log4j.version>
-    <rxjava.version>2.2.21</rxjava.version>
     <rxjava3.version>3.1.10</rxjava3.version>
     <testcontainers.version>1.21.3</testcontainers.version>
     <api.comparison.version>5.3</api.comparison.version>
@@ -232,6 +231,7 @@
           <parameter>
             <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
             <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+            <ignoreMissingClasses>true</ignoreMissingClasses>
             <overrideCompatibilityChangeParameters>
               <overrideCompatibilityChangeParameter>
                 <compatibilityChange>METHOD_NEW_DEFAULT</compatibilityChange>
@@ -241,6 +241,7 @@
             </overrideCompatibilityChangeParameters>
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
+              <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
             </excludes>
           </parameter>
         </configuration>
@@ -369,7 +370,6 @@
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
             </excludes>
-            <ignoreMissingClasses>true</ignoreMissingClasses>
           </parameter>
         </configuration>
       </plugin>
