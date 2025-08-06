@@ -32,7 +32,6 @@ import java.net.InetSocketAddress;
 import java.net.ProtocolFamily;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketOption;
 import java.net.StandardProtocolFamily;
 import java.net.StandardSocketOptions;
 import java.net.UnknownHostException;
@@ -48,12 +47,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import jdk.net.ExtendedSocketOptions;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.io.SocketSupport;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
@@ -302,26 +301,14 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             socketChannel.setOption(StandardSocketOptions.IP_TOS, this.reactorConfig.getTrafficClass());
         }
         if (this.reactorConfig.getTcpKeepIdle() > 0) {
-            setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());
+            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());
         }
         if (this.reactorConfig.getTcpKeepInterval() > 0) {
-            setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
+            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
         }
         if (this.reactorConfig.getTcpKeepCount() > 0) {
-            setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
+            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
         }
-    }
-
-    /**
-     * @since 5.3
-     */
-    <T> void setExtendedSocketOption(final SocketChannel socketChannel,
-                                     final String optionName, final T value) throws IOException {
-        final SocketOption<T> socketOption = SocketSupport.getExtendedSocketOptionOrNull(optionName);
-        if (socketOption == null) {
-            throw new UnsupportedOperationException(optionName + " is not supported in the current jdk");
-        }
-        socketChannel.setOption(socketOption, value);
     }
 
     private void validateAddress(final SocketAddress address) throws UnknownHostException {
