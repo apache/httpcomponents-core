@@ -307,7 +307,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         if (this.reactorConfig.getTcpKeepInterval() > 0) {
             setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
         }
-        if (this.reactorConfig.getTcpKeepInterval() > 0) {
+        if (this.reactorConfig.getTcpKeepCount() > 0) {
             setExtendedSocketOption(socketChannel, SocketSupport.TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
         }
     }

@@ -90,6 +90,8 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
+                                .setTcpKeepIdle(5)
+                                .setTcpKeepInterval(3)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
