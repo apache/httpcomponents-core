@@ -27,12 +27,20 @@
 
 package org.apache.hc.core5.util;
 
-import java.lang.reflect.Method;
-
+import jdk.net.ExtendedSocketOptions;
+import jdk.net.Sockets;
 import org.apache.hc.core5.annotation.Internal;
 
+import java.lang.reflect.Method;
+import java.net.Socket;
+import java.util.Arrays;
+
 @Internal
+@SuppressWarnings("Since15")
 public final class ReflectionUtils {
+    private static final boolean SUPPORTS_KEEPALIVE_OPTIONS = Sockets.supportedOptions(Socket.class)
+            .containsAll(Arrays.asList(ExtendedSocketOptions.TCP_KEEPIDLE, ExtendedSocketOptions.TCP_KEEPINTERVAL,
+                    ExtendedSocketOptions.TCP_KEEPCOUNT));
 
     public static void callSetter(final Object object, final String setterName, final Class<?> type, final Object value) {
         try {
@@ -89,4 +97,7 @@ public final class ReflectionUtils {
         return 7;
     }
 
+    public static boolean supportsKeepAliveOptions() {
+        return SUPPORTS_KEEPALIVE_OPTIONS;
+    }
 }
