@@ -317,7 +317,7 @@ class ClassicTLSIntegrationTest {
                 .create();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost target1 = new HttpHost("https", InetAddress.getLocalHost(), "localhost", server.getLocalPort());
+        final HttpHost target1 = new HttpHost("https", InetAddress.getLoopbackAddress(), "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target1, request1, TIMEOUT, context)) {
@@ -325,7 +325,7 @@ class ClassicTLSIntegrationTest {
         }
 
         Assertions.assertThrows(SSLHandshakeException.class, () -> {
-            final HttpHost target2 = new HttpHost("https", InetAddress.getLocalHost(), "some-other-host", server.getLocalPort());
+            final HttpHost target2 = new HttpHost("https", InetAddress.getLoopbackAddress(), "some-other-host", server.getLocalPort());
             final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
             request2.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
             try (final ClassicHttpResponse response2 = requester.execute(target2, request2, TIMEOUT, context)) {

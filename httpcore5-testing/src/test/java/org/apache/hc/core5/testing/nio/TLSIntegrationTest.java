@@ -370,7 +370,7 @@ class TLSIntegrationTest {
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
-        final HttpHost target1 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLocalHost(), "localhost", address.getPort());
+        final HttpHost target1 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLoopbackAddress(), "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = client.execute(
                 target1,
                 new BasicRequestProducer(Method.POST, target1, "/stuff",
@@ -380,7 +380,7 @@ class TLSIntegrationTest {
         Assertions.assertNotNull(message1);
         Assertions.assertEquals(200, message1.getHead().getCode());
 
-        final HttpHost target2 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLocalHost(), "some-other-host", address.getPort());
+        final HttpHost target2 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLoopbackAddress(), "some-other-host", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture2 = client.execute(
                 target2,
                 new BasicRequestProducer(Method.POST, target2, "/stuff",
