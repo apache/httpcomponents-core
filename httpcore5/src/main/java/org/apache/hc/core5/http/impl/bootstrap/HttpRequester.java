@@ -84,6 +84,7 @@ import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -240,6 +241,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         }
     }
 
+    @SuppressWarnings("Since15")
     private HttpClientConnection createConnection(final Socket sock, final HttpHost targetHost) throws IOException {
         sock.setSoTimeout(socketConfig.getSoTimeout().toMillisecondsIntBound());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
@@ -251,14 +253,16 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         if (socketConfig.getSndBufSize() > 0) {
             sock.setSendBufferSize(socketConfig.getSndBufSize());
         }
-        if (this.socketConfig.getTcpKeepIdle() > 0) {
-            Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
-        }
-        if (this.socketConfig.getTcpKeepInterval() > 0) {
-            Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
-        }
-        if (this.socketConfig.getTcpKeepCount() > 0) {
-            Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
+        if (ReflectionUtils.supportsKeepAliveOptions()) {
+            if (this.socketConfig.getTcpKeepIdle() > 0) {
+                Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
+            }
+            if (this.socketConfig.getTcpKeepInterval() > 0) {
+                Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
+            }
+            if (this.socketConfig.getTcpKeepCount() > 0) {
+                Sockets.setOption(sock, ExtendedSocketOptions.TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
+            }
         }
         final int linger = socketConfig.getSoLinger().toMillisecondsIntBound();
         if (linger >= 0) {

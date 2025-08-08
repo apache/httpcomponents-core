@@ -55,6 +55,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator, IOWorkerStats {
@@ -278,6 +279,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         return sessionRequest;
     }
 
+    @SuppressWarnings("Since15")
     private void prepareSocket(final SocketChannel socketChannel) throws IOException {
         if (this.reactorConfig.getSndBufSize() > 0) {
             socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, this.reactorConfig.getSndBufSize());
@@ -300,14 +302,16 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         if (this.reactorConfig.getTrafficClass() > 0) {
             socketChannel.setOption(StandardSocketOptions.IP_TOS, this.reactorConfig.getTrafficClass());
         }
-        if (this.reactorConfig.getTcpKeepIdle() > 0) {
-            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());
-        }
-        if (this.reactorConfig.getTcpKeepInterval() > 0) {
-            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
-        }
-        if (this.reactorConfig.getTcpKeepCount() > 0) {
-            socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
+        if (ReflectionUtils.supportsKeepAliveOptions()) {
+            if (this.reactorConfig.getTcpKeepIdle() > 0) {
+                socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());
+            }
+            if (this.reactorConfig.getTcpKeepInterval() > 0) {
+                socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
+            }
+            if (this.reactorConfig.getTcpKeepCount() > 0) {
+                socketChannel.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
+            }
         }
     }
 
