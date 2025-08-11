@@ -29,7 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.net.SocketException;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
@@ -266,8 +266,8 @@ class IOSessionImpl implements IOSession {
         if (this.status.compareAndSet(Status.ACTIVE, Status.CLOSED)) {
             if (closeMode == CloseMode.IMMEDIATE) {
                 try {
-                    this.channel.socket().setSoLinger(true, 0);
-                } catch (final SocketException e) {
+                    this.channel.setOption(StandardSocketOptions.SO_LINGER, 0);
+                } catch (final UnsupportedOperationException | IOException e) {
                     // Quietly ignore
                 }
             }
