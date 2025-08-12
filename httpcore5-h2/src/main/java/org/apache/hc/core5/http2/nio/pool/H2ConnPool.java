@@ -39,9 +39,8 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http2.nio.command.PingCommand;
-import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.AbstractIOSessionPool;
 import org.apache.hc.core5.reactor.Command;
@@ -146,11 +145,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
                 final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
                 final long deadline = lastAccessTime + timeValue.toMilliseconds();
                 if (deadline <= System.currentTimeMillis()) {
-                    final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
-                    ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
-                        ioSession.setSocketTimeout(socketTimeoutMillis);
-                        callback.execute(result);
-                    })), Command.Priority.NORMAL);
+                    ioSession.enqueue(new StaleCheckCommand(callback::execute), Command.Priority.NORMAL);
                     return;
                 }
             }
