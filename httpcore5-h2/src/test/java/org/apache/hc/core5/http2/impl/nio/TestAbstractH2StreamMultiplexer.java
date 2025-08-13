@@ -30,7 +30,9 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
@@ -44,6 +46,8 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
+import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
@@ -72,6 +76,8 @@ class TestAbstractH2StreamMultiplexer {
     @Mock
     ProtocolIOSession protocolIOSession;
     @Mock
+    Lock lock;
+    @Mock
     HttpProcessor httpProcessor;
     @Mock
     H2StreamListener h2StreamListener;
@@ -79,10 +85,13 @@ class TestAbstractH2StreamMultiplexer {
     H2StreamHandler streamHandler;
     @Captor
     ArgumentCaptor<List<Header>> headersCaptor;
+    @Captor
+    ArgumentCaptor<Exception> exceptionCaptor;
 
     @BeforeEach
     void prepareMocks() {
         MockitoAnnotations.openMocks(this);
+        Mockito.when(protocolIOSession.getLock()).thenReturn(lock);
     }
 
     static class H2StreamMultiplexerImpl extends AbstractH2StreamMultiplexer {
@@ -270,5 +279,264 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(false));
         Assertions.assertFalse(headersCaptor.getValue().isEmpty());
     }
+
+    @Test
+    void testZeroIncrement() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(true));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        writableChannel.reset();
+        final ByteBuffer payload = ByteBuffer.allocate(4);
+        payload.putInt(0);
+        payload.flip();
+        final RawFrame incrementFrame = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 1, payload);
+        outBuffer.write(incrementFrame, writableChannel);
+
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(exception.getCode()));
+    }
+
+    @Test
+    void testIncrementOverflow() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(true));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        writableChannel.reset();
+        final RawFrame incrementFrame1 = FRAME_FACTORY.createWindowUpdate(1, 100);
+        outBuffer.write(incrementFrame1, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        writableChannel.reset();
+        final RawFrame incrementFrame2 = FRAME_FACTORY.createWindowUpdate(1, 0x7fffffff - 50);
+        outBuffer.write(incrementFrame2, writableChannel);
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+        Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR, H2Error.getByCode(exception.getCode()));
+    }
+
+    @Test
+    void testHeadersAfterEndOfStream() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame1 = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame1, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(true));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        writableChannel.reset();
+        final RawFrame headerFrame2 = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame2, writableChannel);
+
+        // Treat the first occurrence as a stream error
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamResetException.class, exceptionCaptor.getValue());
+
+        writableChannel.reset();
+        final RawFrame headerFrame3 = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame3, writableChannel);
+
+        // Treat subsequent occurrences as a connection-wide protocol error
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+        Assertions.assertEquals(H2Error.STREAM_CLOSED, H2Error.getByCode(exception.getCode()));
+    }
+
+    @Test
+    void testDataAfterEndOfStream() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame1 = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame1, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(true));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        writableChannel.reset();
+        final RawFrame dataFrame1 = FRAME_FACTORY.createData(1, ByteBuffer.wrap(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}), true);
+        outBuffer.write(dataFrame1, writableChannel);
+
+        // Treat the first occurrence as a stream error
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamResetException.class, exceptionCaptor.getValue());
+
+        writableChannel.reset();
+        final RawFrame dataFrame2 = FRAME_FACTORY.createData(1, ByteBuffer.wrap(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}), true);
+        outBuffer.write(dataFrame2, writableChannel);
+
+        // Treat subsequent occurrences as a connection-wide protocol error
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+        Assertions.assertEquals(H2Error.STREAM_CLOSED, H2Error.getByCode(exception.getCode()));
+    }
+
+    @Test
+    void testContinuationAfterEndOfStream() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame1 = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, true);
+        outBuffer.write(headerFrame1, writableChannel);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(true));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        writableChannel.reset();
+        final RawFrame continuationFrame = FRAME_FACTORY.createContinuation(1, ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true);
+        outBuffer.write(continuationFrame, writableChannel);
+
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(exception.getCode()));
+    }
+
 }
 

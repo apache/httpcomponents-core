@@ -756,7 +756,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 H2Stream stream = streamMap.get(streamId);
                 if (stream == null) {
                     acceptHeaderFrame();
-
+                    if (streamId <= lastStreamId.get()) {
+                        throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
+                    }
                     if (idGenerator.isSameSide(streamId)) {
                         throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
                     }
@@ -814,7 +816,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
                 final H2Stream stream = getValidStream(streamId);
                 try {
-
                     consumeContinuationFrame(frame, stream);
                 } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
@@ -1024,6 +1025,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void consumeDataFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
+        if (stream.isRemoteClosed()) {
+            throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+        }
         final int streamId = stream.getId();
         final ByteBuffer payload = frame.getPayloadContent();
         if (payload != null) {
@@ -1036,9 +1040,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (connWinSize < CONNECTION_WINDOW_LOW_MARK) {
                 maximizeWindow(0, connInputWindow);
             }
-        }
-        if (stream.isRemoteClosed()) {
-            throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
         }
         if (frame.isFlagSet(FrameFlag.END_STREAM)) {
             stream.setRemoteEndStream();
@@ -1081,6 +1082,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void consumeHeaderFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
+        if (stream.isRemoteClosed()) {
+            throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+        }
         final int streamId = stream.getId();
         if (!frame.isFlagSet(FrameFlag.END_HEADERS)) {
             continuation = new Continuation(streamId, frame.getType(), frame.isFlagSet(FrameFlag.END_STREAM));
@@ -1099,9 +1103,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
             }
-            if (stream.isRemoteClosed()) {
-                throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
-            }
             if (stream.isLocalReset()) {
                 return;
             }
@@ -1115,6 +1116,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void consumeContinuationFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
+        if (stream.isRemoteClosed()) {
+            throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+        }
         final int streamId = frame.getStreamId();
         final ByteBuffer payload = frame.getPayload();
         continuation.copyPayload(payload);
@@ -1125,9 +1129,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
-            }
-            if (stream.isRemoteClosed()) {
-                throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
             }
             if (stream.isLocalReset()) {
                 return;
