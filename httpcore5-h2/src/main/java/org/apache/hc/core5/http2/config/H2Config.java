@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.config;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.util.Args;
@@ -50,10 +51,11 @@ public class H2Config {
     private final int maxFrameSize;
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
+    private final int maxContinuations;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled) {
+             final boolean compressionEnabled, final int maxContinuations) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -62,6 +64,7 @@ public class H2Config {
         this.maxFrameSize = maxFrameSize;
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
+        this.maxContinuations = maxContinuations;
     }
 
     public int getHeaderTableSize() {
@@ -92,6 +95,11 @@ public class H2Config {
         return compressionEnabled;
     }
 
+    @Internal
+    public int getMaxContinuations() {
+        return maxContinuations;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -102,6 +110,7 @@ public class H2Config {
                 .append(", maxFrameSize=").append(this.maxFrameSize)
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
+                .append(", maxContinuations=").append(this.maxContinuations)
                 .append("]");
         return builder.toString();
     }
@@ -147,6 +156,7 @@ public class H2Config {
         private int maxFrameSize;
         private int maxHeaderListSize;
         private boolean compressionEnabled;
+        private int maxContinuations;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -156,6 +166,7 @@ public class H2Config {
             this.maxFrameSize  = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
+            this.maxContinuations = 100;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -198,6 +209,17 @@ public class H2Config {
             return this;
         }
 
+        /**
+         * Sets max limit on number of continuations.
+         * <p>value zero represents no limit</p>
+         */
+        @Internal
+        public Builder setMaxContinuations(final int maxContinuations) {
+            Args.positive(maxContinuations, "Max continuations");
+            this.maxContinuations = maxContinuations;
+            return this;
+        }
+
         public H2Config build() {
             return new H2Config(
                     headerTableSize,
@@ -206,7 +228,8 @@ public class H2Config {
                     initialWindowSize,
                     maxFrameSize,
                     maxHeaderListSize,
-                    compressionEnabled);
+                    compressionEnabled,
+                    maxContinuations);
         }
 
     }
