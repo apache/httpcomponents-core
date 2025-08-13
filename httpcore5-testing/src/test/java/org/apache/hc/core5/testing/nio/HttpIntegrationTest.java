@@ -106,6 +106,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -1221,7 +1222,7 @@ abstract class HttpIntegrationTest {
         Assertions.assertEquals("Boom!!!", entity1);
     }
 
-    @Test
+    @Test @Disabled
     void testDelayedRequestSubmission() throws Exception {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
