@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -68,6 +69,7 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
@@ -244,6 +246,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     execute((RequestExecutionCommand) command);
                     return;
                 }
+            } else if (command instanceof StaleCheckCommand) {
+                doStalecheck(((StaleCheckCommand) command).getCallback());
             } else {
                 throw new HttpException("Unexpected command: " + command.getClass());
             }
@@ -427,6 +431,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 break;
         }
         ioSession.setEvent(SelectionKey.OP_WRITE);
+    }
+
+    void doStalecheck(final FutureCallback<Boolean> callback) throws IOException {
+        callback.completed(
+            ioSession.isOpen() && connState.compareTo(ConnectionState.ACTIVE) == 0);
     }
 
     void commitMessageHead(
