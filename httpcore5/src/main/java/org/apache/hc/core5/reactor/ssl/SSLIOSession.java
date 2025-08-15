@@ -52,7 +52,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
@@ -220,7 +219,7 @@ public class SSLIOSession implements IOSession {
                     close(CloseMode.IMMEDIATE);
                 }
                 if (handshakeStateRef.get() != TLSHandShakeState.COMPLETE) {
-                    exception(protocolSession, SocketTimeoutExceptionFactory.create(handshakeTimeout));
+                    exception(protocolSession, new TlsHandshakeTimeoutException("TLS handshake timed out after " + handshakeTimeout));
                 } else {
                     ensureHandler().timeout(protocolSession, timeout);
                 }
@@ -926,6 +925,15 @@ public class SSLIOSession implements IOSession {
         } finally {
             this.session.getLock().unlock();
         }
+    }
+
+    /**
+     * Indicates whether the TLS handshake has successfully completed.
+     *
+     * @return {@code true} if the handshake has completed; {@code false} otherwise.
+     */
+    public boolean isHandshakeComplete() {
+        return handshakeStateRef.get() == TLSHandShakeState.COMPLETE;
     }
 
 }
