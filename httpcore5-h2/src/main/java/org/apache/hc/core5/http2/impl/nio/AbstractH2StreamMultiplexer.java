@@ -64,6 +64,7 @@ import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -576,18 +577,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final H2Stream stream = entry.getValue();
             stream.cancel();
         }
-        for (;;) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof ExecutableCommand) {
-                    ((ExecutableCommand) command).failed(new ConnectionClosedException());
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
-        }
+        CommandSupport.cancelCommands(ioSession);
     }
 
     private void processPendingCommands() throws IOException, HttpException {
@@ -662,18 +652,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     break;
                 }
             }
-            for (;;) {
-                final Command command = ioSession.poll();
-                if (command != null) {
-                    if (command instanceof ExecutableCommand) {
-                        ((ExecutableCommand) command).failed(new ConnectionClosedException());
-                    } else {
-                        command.cancel();
-                    }
-                } else {
-                    break;
-                }
-            }
+            CommandSupport.cancelCommands(ioSession);
             for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                 final Map.Entry<Integer, H2Stream> entry = it.next();
                 final H2Stream stream = entry.getValue();
