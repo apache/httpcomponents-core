@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.RequestNotExecutedException;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -528,7 +529,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (connState.compareTo(ConnectionHandshake.SHUTDOWN) >= 0) {
             if (!streamMap.isEmpty()) {
                 for (final H2Stream stream : streamMap.values()) {
-                    stream.releaseResources();
+                    if (stream.isLocalClosed() && stream.isRemoteClosed()) {
+                        stream.releaseResources();
+                    } else {
+                        stream.fail(new ConnectionClosedException());
+                    }
                 }
                 streamMap.clear();
             }
@@ -575,7 +580,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
             final Map.Entry<Integer, H2Stream> entry = it.next();
             final H2Stream stream = entry.getValue();
-            stream.cancel();
+            if (stream.isLocalClosed() && stream.isRemoteClosed()) {
+                stream.releaseResources();
+            } else {
+                stream.fail(new ConnectionClosedException());
+            }
         }
         CommandSupport.cancelCommands(ioSession);
     }
@@ -592,7 +601,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                         final Map.Entry<Integer, H2Stream> entry = it.next();
                         final H2Stream stream = entry.getValue();
-                        stream.cancel();
+                        if (stream.isLocalClosed() && stream.isRemoteClosed()) {
+                            stream.releaseResources();
+                        } else {
+                            stream.fail(new ConnectionClosedException());
+                        }
                     }
                     streamMap.clear();
                     connState = ConnectionHandshake.SHUTDOWN;
@@ -982,7 +995,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                             final int activeStreamId = entry.getKey();
                             if (!idGenerator.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
                                 final H2Stream stream = entry.getValue();
-                                stream.cancel();
+                                stream.fail(new RequestNotExecutedException());
                                 it.remove();
                             }
                         }
@@ -1702,14 +1715,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             return handler.getPushHandlerFactory();
         }
 
-        void cancel() {
-            fail(new RequestNotExecutedException());
-        }
-
         boolean abort() {
             final boolean cancelled = channel.cancel();
             if (released.compareAndSet(false, true)) {
-                handler.failed(new RequestNotExecutedException());
+                handler.failed(new StreamClosedException());
                 handler.releaseResources();
             }
             return cancelled;
