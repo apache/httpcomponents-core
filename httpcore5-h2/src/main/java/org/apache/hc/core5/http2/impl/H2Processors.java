@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.http2.protocol.H2RequestConformance;
 import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
+import org.apache.hc.core5.http2.protocol.H2RequestPriority;
 import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.http2.protocol.H2RequestValidateHost;
 import org.apache.hc.core5.http2.protocol.H2ResponseConformance;
@@ -86,6 +87,7 @@ public final class H2Processors {
                         H2RequestTargetHost.INSTANCE,
                         H2RequestContent.INSTANCE,
                         H2RequestConnControl.INSTANCE,
+                        H2RequestPriority.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
                         RequestExpectContinue.INSTANCE);

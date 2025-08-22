@@ -32,6 +32,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -137,6 +138,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private EndpointDetails endpointDetails;
     private boolean goAwayReceived;
 
+    // RFC 9218 gating state
+    private volatile boolean serverSettingsSeen;
+    private volatile boolean remoteNoH2Priorities;
+
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
             final FrameFactory frameFactory,
@@ -173,6 +178,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
+
+        this.serverSettingsSeen = false;
+        this.remoteNoH2Priorities = false;
     }
 
     @Override
@@ -188,7 +196,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     abstract H2StreamHandler createRemotelyInitiatedStream(
             H2StreamChannel channel,
-
             HttpProcessor httpProcessor,
             BasicHttpConnectionMetrics connMetrics,
             HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException;
@@ -259,6 +266,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         } finally {
             ioSession.getLock().unlock();
         }
+    }
+
+    protected final void writeExtensionFrame(final int type, final int flags, final int streamId, final ByteBuffer payload)
+            throws IOException {
+        commitFrame(new RawFrame(type, flags, streamId, payload));
     }
 
     private void commitHeaders(
@@ -418,8 +430,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
                 new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
                 new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
-                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize()));
-
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize()),
+                // RFC 9218 MUST: advertise intent to ignore RFC 7540 priorities in the first SETTINGS
+                new H2Setting(H2Param.SETTINGS_NO_RFC7540_PRIORITIES, 1));
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
         maximizeWindow(0, connInputWindow);
@@ -547,10 +560,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final RawFrame goAway;
         if (localSettingState != SettingsHandshake.ACKED) {
             goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.SETTINGS_TIMEOUT,
-                            "Setting timeout (" + timeout + ")");
+                    "Setting timeout (" + timeout + ")");
         } else {
             goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR,
-                            "Timeout due to inactivity (" + timeout + ")");
+                    "Timeout due to inactivity (" + timeout + ")");
         }
         commitFrame(goAway);
         for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
@@ -918,10 +931,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         if ((payload.remaining() % 6) != 0) {
                             throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS payload");
                         }
-                        consumeSettingsFrame(payload);
-                        remoteSettingState = SettingsHandshake.TRANSMITTED;
+                        consumeSettingsFrame(payload); // inside: set remoteNoH2Priorities if NO_RFC7540=1 seen
                     }
-                    // Send ACK
+                    serverSettingsSeen = true;
+                    remoteSettingState = SettingsHandshake.TRANSMITTED;
                     final RawFrame response = frameFactory.createSettingsAck();
                     commitFrame(response);
                     remoteSettingState = SettingsHandshake.ACKED;
@@ -1021,7 +1034,19 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             ioSession.setEvent(SelectionKey.OP_WRITE);
             break;
+            case PRIORITY_UPDATE: {
+                onPriorityUpdateFrame(frame);
+            }
+            break;
+            default:
+                break;
         }
+    }
+
+    protected void onPriorityUpdateFrame(final RawFrame frame) throws H2ConnectionException {
+        parsePriorityUpdatePayload(frame); // allows empty PFV
+        // At this layer we don't need to parse the dictionary; unknown/ext params are fine.
+        // Apply 'u.priorityFieldValue' to your local scheduler as needed; no errors for empty.
     }
 
     private void consumeDataFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
@@ -1093,7 +1118,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         final ByteBuffer payload = frame.getPayloadContent();
         if (frame.isFlagSet(FrameFlag.PRIORITY)) {
-            // Priority not supported
             payload.getInt();
             payload.get();
         }
@@ -1193,8 +1217,20 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
                         break;
+                    case SETTINGS_NO_RFC7540_PRIORITIES:
+                        if (value != 0 && value != 1) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Invalid value for SETTINGS_NO_RFC7540_PRIORITIES");
+                        }
+                        if (serverSettingsSeen && remoteNoH2Priorities != (value == 1)) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "SETTINGS_NO_RFC7540_PRIORITIES changed");
+                        }
+                        remoteNoH2Priorities = value == 1;
+                        break;
                 }
             }
+        }
+        if (!serverSettingsSeen) {
+            serverSettingsSeen = true;
         }
         applyRemoteSettings(configBuilder.build());
     }
@@ -1336,6 +1372,27 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 .append(", processedRemoteStreamId=").append(processedRemoteStreamId);
     }
 
+    private boolean isPriorityUpdateAllowed() {
+        // pre-SETTINGS: allowed; post-SETTINGS: only if peer said "1"
+        return !serverSettingsSeen || remoteNoH2Priorities;
+    }
+
+    private void sendPriorityUpdateInternal(final int prioritizedStreamId,
+                                            final String priorityFieldValue) throws IOException {
+        if (priorityFieldValue == null) {
+            return;
+        }
+        if (!isPriorityUpdateAllowed()) {
+            return; // suppressed per RFC 9218 §2.1.1
+        }
+        final byte[] ascii = priorityFieldValue.getBytes(StandardCharsets.US_ASCII);
+        final ByteBuffer payload = ByteBuffer.allocate(4 + ascii.length);
+        payload.putInt(prioritizedStreamId & 0x7FFFFFFF);
+        payload.put(ascii);
+        payload.flip();
+        writeExtensionFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, payload);
+    }
+
     private static class Continuation {
 
         final int streamId;
@@ -1417,6 +1474,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
                 if (localEndStream) {
                     return;
+                }
+                for (final Header h : headers) {
+                    if ("priority".equalsIgnoreCase(h.getName())) {
+                        sendPriorityUpdateInternal(id, h.getValue());
+                        break;
+                    }
                 }
                 idle = false;
                 commitHeaders(id, headers, endStream);
@@ -1744,6 +1807,45 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             return buf.toString();
         }
 
+    }
+
+    /**
+     * RFC 9218 parsing helper for PRIORITY_UPDATE.
+     * - Validates streamId == 0 (HTTP/2 control stream)
+     * - Enforces payload length >= 4 (31-bit stream ID); allows exactly 4 (empty Priority Field Value)
+     * - Returns ASCII Priority Field Value as-is (unknown/ext parameters preserved).
+     *
+     * Base class does NOT call this by default; a server-side subclass can call it from
+     * {@link #onPriorityUpdateFrame(RawFrame)} to accept client PRIORITY_UPDATE frames.
+     */
+    protected final PrioritizedUpdate parsePriorityUpdatePayload(final RawFrame frame) throws H2ConnectionException {
+        if (frame.getStreamId() != 0) {
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "PRIORITY_UPDATE must use stream 0");
+        }
+        final ByteBuffer payload = frame.getPayloadContent();
+        if (payload == null || payload.remaining() < 4) {
+            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid PRIORITY_UPDATE payload");
+        }
+        final int prioritizedId = payload.getInt() & 0x7FFF_FFFF;
+
+        // Allow empty Priority Field Value (payload length exactly 4) => "all defaults"
+        final String fieldValue;
+        if (payload.hasRemaining()) {
+            // Preserve as-is (unknown/ext params are ignored by us but kept intact)
+            fieldValue = StandardCharsets.US_ASCII.decode(payload.slice()).toString();
+        } else {
+            fieldValue = "";
+        }
+        return new PrioritizedUpdate(prioritizedId, fieldValue);
+    }
+
+    protected static final class PrioritizedUpdate {
+        public final int prioritizedStreamId;
+        public final String priorityFieldValue; // may be empty => "all defaults"
+        PrioritizedUpdate(final int prioritizedStreamId, final String priorityFieldValue) {
+            this.prioritizedStreamId = prioritizedStreamId;
+            this.priorityFieldValue = priorityFieldValue != null ? priorityFieldValue : "";
+        }
     }
 
 }
