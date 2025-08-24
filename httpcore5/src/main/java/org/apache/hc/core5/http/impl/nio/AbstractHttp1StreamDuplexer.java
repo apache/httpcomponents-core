@@ -278,16 +278,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
 
         boolean endOfStream = false;
-        if (incomingMessage == null) {
-            final int bytesRead = inbuf.fill(ioSession);
-            if (bytesRead > 0) {
-                inTransportMetrics.incrementBytesTransferred(bytesRead);
-            }
-            endOfStream = bytesRead == -1;
-        }
 
         do {
             if (incomingMessage == null) {
+
+                final int bytesRead = inbuf.fill(ioSession);
+                if (bytesRead > 0) {
+                    inTransportMetrics.incrementBytesTransferred(bytesRead);
+                }
+                endOfStream = bytesRead == -1;
 
                 final IncomingMessage messageHead = parseMessageHead(endOfStream);
                 if (messageHead != null) {
