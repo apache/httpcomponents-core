@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.ReadableByteChannelMock;
@@ -255,8 +254,11 @@ class TestFrameInOutBuffers {
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {});
 
         Assertions.assertNull(inBuffer.read(readableChannel));
-        Assertions.assertThrows(ConnectionClosedException.class, () ->
-                inBuffer.read(readableChannel));
+        Assertions.assertFalse(inBuffer.isEndOfStream());
+        Assertions.assertNull(inBuffer.read(readableChannel));
+        Assertions.assertTrue(inBuffer.isEndOfStream());
+        Assertions.assertNull(inBuffer.read(readableChannel));
+        Assertions.assertTrue(inBuffer.isEndOfStream());
     }
 
     @Test
