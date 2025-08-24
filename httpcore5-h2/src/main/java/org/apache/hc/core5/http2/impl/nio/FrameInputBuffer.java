@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.H2Error;
@@ -61,6 +60,8 @@ public final class FrameInputBuffer {
     private int flags;
     private int streamId;
 
+    private boolean endOfStream;
+
     FrameInputBuffer(final BasicH2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrics");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
@@ -70,6 +71,7 @@ public final class FrameInputBuffer {
         this.buffer = ByteBuffer.wrap(bytes);
         this.buffer.flip();
         this.state = State.HEAD_EXPECTED;
+        this.endOfStream = false;
     }
 
     public FrameInputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
@@ -174,11 +176,13 @@ public final class FrameInputBuffer {
             }
             if (bytesRead == 0) {
                 break;
-            } else if (bytesRead < 0) {
+            }
+            if (bytesRead == -1) {
                 if (state != State.HEAD_EXPECTED || buffer.hasRemaining()) {
                     throw new H2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
                 } else {
-                    throw new ConnectionClosedException();
+                    endOfStream = true;
+                    break;
                 }
             }
         }
@@ -199,10 +203,18 @@ public final class FrameInputBuffer {
     public void reset() {
         buffer.compact();
         state = State.HEAD_EXPECTED;
+        endOfStream = false;
     }
 
     public H2TransportMetrics getMetrics() {
         return metrics;
+    }
+
+    /**
+     * @since 5.4
+     */
+    public boolean isEndOfStream() {
+        return endOfStream;
     }
 
 }
