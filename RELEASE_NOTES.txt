@@ -1,3 +1,43 @@
+Release 5.3.5
+------------------
+
+This maintenance release fixes several corner cases in the H2 protocol handler that could have been
+potentially exploited to make H2 endpoints allocate extra resources and lead to Denial-of-Service
+conditions. This release also improves handling of H2 stream abnormal termination.
+
+
+Change Log
+-------------------
+
+* Improved H2 connection termination in case of the opposite endpoint failing to send GOAWAY
+  frame.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected abnormal termination of H2 streams
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Use RequestNotExecutedException instead of ConnectionClosedException when failing enqueued
+  requests that never got executed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* H2 protocol handler to enforce a max limit on number of CONTINUATION frames.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed a potential 'End Stream Headers' vulnerability and adds test coverage for
+  various HTTP/2 stream reset exploits.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved ContentType Javadoc.
+  Contributed Winfried Gerlach <Winfried.Gerlach at draeger.com>
+
+* HTTPCORE-782: Non-blocking TLS session can end up in an endless loop in case of a protocol
+  negotiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Slightly better and efficient #toHexString method.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.3.4
 ------------------
 
@@ -31,7 +71,7 @@ Change Log
   committing requests asynchronously.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug-fix: Corrected message stream termination by the async HTTP/1.1 protocol handler
+* Bug fix: Corrected message stream termination by the async HTTP/1.1 protocol handler
   when the connection has been half-closed by the opposite endpoint.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -1157,7 +1197,7 @@ Change Log
 * Use UTF-8 encoding for XML-based content types.
   Contributed by Michael Osipov <michaelo at apache.org>
 
-* Bug-fix: H2 protocol handler to reset all streams unconditionally in case of an unexpected
+* Bug fix: H2 protocol handler to reset all streams unconditionally in case of an unexpected
   exception and attempt to close the i/o session gracefully if possible.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -1167,13 +1207,13 @@ Change Log
 * Corrected handling of illegal or invalid request heads by async server-side protocol handler
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug-fix: Fixed race condition in ReactiveDataConsumer.
+* Bug fix: Fixed race condition in ReactiveDataConsumer.
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
-* Bug-fix: Fixed H2 SETTINGS_HEADER_TABLE_SIZE negotiation.
+* Bug fix: Fixed H2 SETTINGS_HEADER_TABLE_SIZE negotiation.
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
-* Bug-fix: Fixed empty response handling in ReactiveResponseConsumer.
+* Bug fix: Fixed empty response handling in ReactiveResponseConsumer.
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
 * Allow for timeout while acquiring lock in StrictConnPool.
