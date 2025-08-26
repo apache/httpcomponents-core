@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
@@ -68,6 +69,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -413,6 +415,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
+    void doStaleCheck(final Consumer<Boolean> callback) throws IOException {
+        callback.accept(ioSession.isOpen() &&
+            connState.compareTo(ConnectionHandshake.ACTIVE) == 0);
+    }
+
     public final void onConnect() throws HttpException, IOException {
         connState = ConnectionHandshake.ACTIVE;
         final RawFrame settingsFrame = frameFactory.createSettings(
@@ -656,6 +663,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (!outputQueue.isEmpty()) {
                     return;
                 }
+            } else if (command instanceof StaleCheckCommand) {
+                doStaleCheck(((StaleCheckCommand) command).getCallback());
             }
         }
     }
