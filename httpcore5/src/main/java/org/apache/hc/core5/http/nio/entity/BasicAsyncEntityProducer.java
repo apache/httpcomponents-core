@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ContentType;
@@ -53,6 +54,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     private final int length;
     private final ContentType contentType;
     private final boolean chunked;
+    private final AtomicBoolean endOfStream;
     private final AtomicReference<Exception> exception;
 
     public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType, final boolean chunked) {
@@ -61,6 +63,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         this.length = this.bytebuf.remaining();
         this.contentType = contentType;
         this.chunked = chunked;
+        this.endOfStream = new AtomicBoolean();
         this.exception = new AtomicReference<>();
     }
 
@@ -79,6 +82,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         this.bytebuf = charset.encode(CharBuffer.wrap(content));
         this.length = this.bytebuf.remaining();
         this.chunked = chunked;
+        this.endOfStream = new AtomicBoolean();
         this.exception = new AtomicReference<>();
     }
 
@@ -130,7 +134,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         if (bytebuf.hasRemaining()) {
             channel.write(bytebuf);
         }
-        if (!bytebuf.hasRemaining()) {
+        if (!bytebuf.hasRemaining() && endOfStream.compareAndSet(false, true)) {
             channel.endStream();
         }
     }
@@ -150,6 +154,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     public void releaseResources() {
         bytebuf.clear();
         bytebuf.limit(length);
+        endOfStream.set(false);
     }
 
 }

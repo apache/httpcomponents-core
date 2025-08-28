@@ -1405,6 +1405,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             return inputWindow;
         }
 
+        void ensureNotClosed() throws H2ConnectionException {
+            if (localEndStream) {
+                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Stream already closed locally");
+            }
+        }
+
         @Override
         public void submit(final List<Header> headers, final boolean endStream) throws IOException {
             ioSession.getLock().lock();
@@ -1412,9 +1418,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (headers == null || headers.isEmpty()) {
                     throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
                 }
-                if (localEndStream) {
-                    return;
-                }
+                ensureNotClosed();
                 idle = false;
                 commitHeaders(id, headers, endStream);
                 if (endStream) {
@@ -1428,26 +1432,25 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         @Override
         public void push(final List<Header> headers, final AsyncPushProducer pushProducer) throws HttpException, IOException {
             acceptPushRequest();
-            final int promisedStreamId = generateStreamId();
-            final H2StreamChannelImpl channel = new H2StreamChannelImpl(
-                    promisedStreamId,
-                    true,
-                    localConfig.getInitialWindowSize(),
-                    remoteConfig.getInitialWindowSize());
-            final HttpCoreContext context = HttpCoreContext.create();
-            context.setSSLSession(getSSLSession());
-            context.setEndpointDetails(getEndpointDetails());
-            final H2StreamHandler streamHandler = new ServerPushH2StreamHandler(
-                    channel, httpProcessor, connMetrics, pushProducer, context);
-            final H2Stream stream = new H2Stream(channel, streamHandler, false);
-            streamMap.put(promisedStreamId, stream);
 
             ioSession.getLock().lock();
             try {
-                if (localEndStream) {
-                    stream.releaseResources();
-                    return;
-                }
+                ensureNotClosed();
+
+                final int promisedStreamId = generateStreamId();
+                final H2StreamChannelImpl channel = new H2StreamChannelImpl(
+                        promisedStreamId,
+                        true,
+                        localConfig.getInitialWindowSize(),
+                        remoteConfig.getInitialWindowSize());
+                final HttpCoreContext context = HttpCoreContext.create();
+                context.setSSLSession(getSSLSession());
+                context.setEndpointDetails(getEndpointDetails());
+                final H2StreamHandler streamHandler = new ServerPushH2StreamHandler(
+                        channel, httpProcessor, connMetrics, pushProducer, context);
+                final H2Stream stream = new H2Stream(channel, streamHandler, false);
+                streamMap.put(promisedStreamId, stream);
+
                 commitPushPromise(id, promisedStreamId, headers);
                 idle = false;
             } finally {
@@ -1468,9 +1471,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         public int write(final ByteBuffer payload) throws IOException {
             ioSession.getLock().lock();
             try {
-                if (localEndStream) {
-                    return 0;
-                }
+                ensureNotClosed();
                 return streamData(id, outputWindow, payload);
             } finally {
                 ioSession.getLock().unlock();
@@ -1481,9 +1482,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         public void endStream(final List<? extends Header> trailers) throws IOException {
             ioSession.getLock().lock();
             try {
-                if (localEndStream) {
-                    return;
-                }
+                ensureNotClosed();
                 localEndStream = true;
                 if (trailers != null && !trailers.isEmpty()) {
                     commitHeaders(id, trailers, true);
@@ -1534,9 +1533,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         boolean localReset(final int code) throws IOException {
             ioSession.getLock().lock();
             try {
-                if (localEndStream) {
+                if (isLocalReset()) {
                     return false;
                 }
+                ensureNotClosed();
                 localEndStream = true;
                 deadline = System.currentTimeMillis() + LINGER_TIME;
                 if (!idle) {
