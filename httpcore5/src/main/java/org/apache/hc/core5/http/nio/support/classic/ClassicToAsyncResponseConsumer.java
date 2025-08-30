@@ -186,6 +186,9 @@ public class ClassicToAsyncResponseConsumer implements AsyncResponseConsumer<Voi
 
     @Override
     public void releaseResources() {
+        if (countDownLatch.getCount() > 0) {
+            countDownLatch.countDown();
+        }
     }
 
     class InternalInputStream extends InputStream {
