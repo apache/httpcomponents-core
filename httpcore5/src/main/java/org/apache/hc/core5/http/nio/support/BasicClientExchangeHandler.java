@@ -147,11 +147,13 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     @Override
     public void failed(final Exception cause) {
         try {
-            if (inputTerminated.get()) {
+            if (inputTerminated.compareAndSet(false, true)) {
                 responseConsumer.failed(cause);
+                responseConsumer.releaseResources();
             }
-            if (!outputTerminated.get()) {
+            if (outputTerminated.compareAndSet(false, true)) {
                 requestProducer.failed(cause);
+                requestProducer.releaseResources();
             }
         } finally {
             failedInternal(cause);
