@@ -951,7 +951,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (promisedStreamId == 0 || idGenerator.isSameSide(promisedStreamId)) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal promised stream id: " + promisedStreamId);
                 }
-                if (streamMap.get(promisedStreamId) != null) {
+                if (promisedStreamId <= lastStreamId.get() || streamMap.get(promisedStreamId) != null) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected promised stream id: " + promisedStreamId);
                 }
 
@@ -1055,6 +1055,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private void consumePushPromiseFrame(final RawFrame frame, final ByteBuffer payload, final H2Stream promisedStream) throws HttpException, IOException {
         final int promisedStreamId = promisedStream.getId();
+
+
+
         if (!frame.isFlagSet(FrameFlag.END_HEADERS)) {
             continuation = new Continuation(promisedStreamId, frame.getType(), true,
                     localConfig.getMaxContinuations());
