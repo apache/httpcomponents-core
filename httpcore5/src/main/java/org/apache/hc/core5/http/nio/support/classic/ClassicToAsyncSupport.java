@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 
 final class ClassicToAsyncSupport {
@@ -40,6 +41,8 @@ final class ClassicToAsyncSupport {
             throw (Error) ex;
         } else if (ex instanceof RuntimeException) {
             throw (RuntimeException) ex;
+        } else if (ex instanceof ConnectionClosedException) {
+            throw (ConnectionClosedException) ex;
         } else if (ex instanceof IOException) {
             throw new TransportException((IOException) ex);
         } else if (ex instanceof HttpException) {
