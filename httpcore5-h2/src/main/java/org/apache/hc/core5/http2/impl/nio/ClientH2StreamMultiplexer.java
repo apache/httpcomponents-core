@@ -41,6 +41,8 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -85,6 +87,25 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig) {
         this(ioSession, httpProcessor, null, h2Config, charCodingConfig);
+    }
+
+    @Override
+    void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
+        if (param == H2Param.ENABLE_PUSH && value == 1) {
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal ENABLE_PUSH setting");
+        }
+    }
+
+    @Override
+    H2Setting[] generateSettings(final H2Config localConfig) {
+        return new H2Setting[] {
+                new H2Setting(H2Param.HEADER_TABLE_SIZE, localConfig.getHeaderTableSize()),
+                new H2Setting(H2Param.ENABLE_PUSH, localConfig.isPushEnabled() ? 1 : 0),
+                new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
+                new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
+                new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize())
+        };
     }
 
     @Override

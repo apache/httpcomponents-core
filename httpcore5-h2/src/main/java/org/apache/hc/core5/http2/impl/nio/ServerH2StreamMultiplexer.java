@@ -45,6 +45,8 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -83,6 +85,21 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config) {
         this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charCodingConfig, h2Config, null);
+    }
+
+    @Override
+    void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
+    }
+
+    @Override
+    H2Setting[] generateSettings(final H2Config localConfig) {
+        return new H2Setting[] {
+                new H2Setting(H2Param.HEADER_TABLE_SIZE, localConfig.getHeaderTableSize()),
+                new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
+                new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
+                new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize())
+        };
     }
 
     @Override

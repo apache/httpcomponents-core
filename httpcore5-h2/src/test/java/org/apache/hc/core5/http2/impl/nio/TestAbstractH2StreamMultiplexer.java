@@ -49,6 +49,8 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFactory;
@@ -108,6 +110,22 @@ class TestAbstractH2StreamMultiplexer {
                 final Supplier<H2StreamHandler> streamHandlerSupplier) {
             super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener);
             this.streamHandlerSupplier = streamHandlerSupplier;
+        }
+
+        @Override
+        void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
+        }
+
+        @Override
+        H2Setting[] generateSettings(final H2Config localConfig) {
+            return new H2Setting[] {
+                    new H2Setting(H2Param.HEADER_TABLE_SIZE, localConfig.getHeaderTableSize()),
+                    new H2Setting(H2Param.ENABLE_PUSH, localConfig.isPushEnabled() ? 1 : 0),
+                    new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
+                    new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
+                    new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
+                    new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize())
+            };
         }
 
         @Override

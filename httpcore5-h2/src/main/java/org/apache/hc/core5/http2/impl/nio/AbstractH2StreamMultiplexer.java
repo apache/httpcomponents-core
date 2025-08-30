@@ -183,6 +183,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return ioSession.getId();
     }
 
+    abstract void validateSetting(H2Param param, int value) throws H2ConnectionException;
+
+    abstract H2Setting[] generateSettings(H2Config localConfig);
+
     abstract void acceptHeaderFrame() throws H2ConnectionException;
 
     abstract void acceptPushRequest() throws H2ConnectionException;
@@ -415,13 +419,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     public final void onConnect() throws HttpException, IOException {
         connState = ConnectionHandshake.ACTIVE;
-        final RawFrame settingsFrame = frameFactory.createSettings(
-                new H2Setting(H2Param.HEADER_TABLE_SIZE, localConfig.getHeaderTableSize()),
-                new H2Setting(H2Param.ENABLE_PUSH, localConfig.isPushEnabled() ? 1 : 0),
-                new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
-                new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
-                new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
-                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize()));
+        final RawFrame settingsFrame = frameFactory.createSettings(generateSettings(localConfig));
 
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
@@ -1151,6 +1149,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final int value = payload.getInt();
             final H2Param param = H2Param.valueOf(code);
             if (param != null) {
+                validateSetting(param, value);
                 switch (param) {
                     case HEADER_TABLE_SIZE:
                         try {
