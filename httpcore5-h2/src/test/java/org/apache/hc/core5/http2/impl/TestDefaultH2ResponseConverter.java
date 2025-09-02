@@ -159,5 +159,26 @@ class TestDefaultH2ResponseConverter {
                 "Header name ':custom' is invalid");
     }
 
+    @Test
+    void testConvertFromFieldsMultipleCookies() throws Exception {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("cookie", "a=b"),
+                new BasicHeader("location", "http://www.example.com/"),
+                new BasicHeader("cookie", "c=d"),
+                new BasicHeader("cookie", "e=f"));
+
+        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final HttpResponse response = converter.convert(headers);
+        Assertions.assertNotNull(response );
+        Assertions.assertEquals(200, response .getCode());
+        final Header[] allHeaders = response.getHeaders();
+        Assertions.assertEquals(2, allHeaders.length);
+        Assertions.assertEquals("location", allHeaders[0].getName());
+        Assertions.assertEquals("http://www.example.com/", allHeaders[0].getValue());
+        Assertions.assertEquals("cookie", allHeaders[1].getName());
+        Assertions.assertEquals("a=b; c=d; e=f", allHeaders[1].getValue());
+    }
+
 }
 

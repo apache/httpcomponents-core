@@ -30,9 +30,11 @@ package org.apache.hc.core5.http2.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
@@ -55,6 +57,8 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
     public HttpResponse convert(final List<Header> headers) throws HttpException {
         String statusText = null;
         final List<Header> messageHeaders = new ArrayList<>();
+
+        int cookieCount = 0;
 
         for (int i = 0; i < headers.size(); i++) {
             final Header header = headers.get(i);
@@ -80,6 +84,9 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
                 if (!FieldValidationSupport.isNameLowerCaseValid(name)) {
                     throw new ProtocolException("Header name '%s' is invalid", name);
                 }
+                if (name.equalsIgnoreCase(HttpHeaders.COOKIE)) {
+                    cookieCount++;
+                }
                 messageHeaders.add(header);
             }
             if (!FieldValidationSupport.isValueValid(value)) {
@@ -101,6 +108,20 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         for (int i = 0; i < messageHeaders.size(); i++) {
             response.addHeader(messageHeaders.get(i));
         }
+
+        if (cookieCount > 1) {
+            final StringBuilder buf = new StringBuilder();
+            for (final Iterator<Header> it = response.headerIterator(HttpHeaders.COOKIE); it.hasNext(); ) {
+                if (buf.length() > 0) {
+                    buf.append("; ");
+                }
+                final Header cookie = it.next();
+                buf.append(cookie.getValue());
+                it.remove();
+            }
+            response.setHeader(HttpHeaders.COOKIE.toLowerCase(Locale.ROOT), buf.toString());
+        }
+
         return response;
     }
 
