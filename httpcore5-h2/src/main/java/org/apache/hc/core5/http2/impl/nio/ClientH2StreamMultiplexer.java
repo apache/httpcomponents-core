@@ -43,6 +43,7 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 
@@ -50,6 +51,8 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
  * client side HTTP/2 messaging protocol with full support for
  * multiplexed message transmission.
+ *
+ * Enforces RFC 9218 §7.1: clients MUST treat inbound PRIORITY_UPDATE as a connection error.
  *
  * @since 5.0
  */
@@ -94,6 +97,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
 
     @Override
     void acceptPushFrame() throws H2ConnectionException {
+        // Allowed; server may send push streams if enabled.
     }
 
     @Override
@@ -135,6 +139,17 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
                 context);
     }
 
+    /**
+     * RFC 9218 §7.1: clients MUST treat inbound PRIORITY_UPDATE as a connection error.
+     * @since 5.4
+     */
+    @Override
+    protected void onPriorityUpdateFrame(final RawFrame frame) throws H2ConnectionException {
+        throw new H2ConnectionException(
+                H2Error.PROTOCOL_ERROR,
+                "Inbound PRIORITY_UPDATE is not permitted on client connections");
+    }
+
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
@@ -145,4 +160,3 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
 }
-
