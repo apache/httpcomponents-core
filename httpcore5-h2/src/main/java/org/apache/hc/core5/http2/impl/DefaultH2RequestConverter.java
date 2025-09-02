@@ -68,14 +68,10 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             final String name = header.getName();
             final String value = header.getValue();
 
-            for (int n = 0; n < name.length(); n++) {
-                final char ch = name.charAt(n);
-                if (Character.isAlphabetic(ch) && !Character.isLowerCase(ch)) {
-                    throw new ProtocolException("Header name '%s' is invalid (header name contains uppercase characters)", name);
-                }
-            }
-
             if (name.startsWith(":")) {
+                if (!FieldValidationSupport.isNameLowerCaseValid(name, 1, name.length())) {
+                    throw new ProtocolException("Header name '%s' is invalid", name);
+                }
                 if (!messageHeaders.isEmpty()) {
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }
@@ -106,7 +102,13 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                         throw new ProtocolException("Unsupported request header '%s'", name);
                 }
             } else {
+                if (!FieldValidationSupport.isNameLowerCaseValid(name)) {
+                    throw new ProtocolException("Header name '%s' is invalid", name);
+                }
                 messageHeaders.add(header);
+            }
+            if (!FieldValidationSupport.isValueValid(value)) {
+                throw new ProtocolException("Header value is invalid");
             }
         }
         if (method == null) {
@@ -184,8 +186,11 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             final Header header = it.next();
             final String name = header.getName();
             final String value = header.getValue();
-            if (name.startsWith(":")) {
+            if (!FieldValidationSupport.isNameValid(name)) {
                 throw new ProtocolException("Header name '%s' is invalid", name);
+            }
+            if (!FieldValidationSupport.isValueValid(value)) {
+                throw new ProtocolException("Header value is invalid");
             }
             headers.add(new BasicHeader(TextUtils.toLowerCase(name), value));
         }
