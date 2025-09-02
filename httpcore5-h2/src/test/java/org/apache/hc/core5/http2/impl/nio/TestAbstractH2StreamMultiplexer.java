@@ -157,6 +157,12 @@ class TestAbstractH2StreamMultiplexer {
                 final BasicHttpConnectionMetrics connMetrics) throws IOException {
             return null;
         }
+
+        @Override
+        boolean allowGracefulAbort(final H2Stream stream) {
+            return stream.isRemoteClosed() && !stream.isLocalClosed();
+        }
+
     }
 
     @Test
@@ -661,6 +667,104 @@ class TestAbstractH2StreamMultiplexer {
 
         Assertions.assertThrows(H2ConnectionException.class, () ->
             streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+    }
+
+    @Test
+    void testStreamRemoteReset() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final AbstractH2StreamMultiplexer.H2StreamChannelImpl channel = streamMultiplexer.createChannel(1);
+        final AbstractH2StreamMultiplexer.H2Stream stream = new AbstractH2StreamMultiplexer.H2Stream(channel, streamHandler, false);
+        streamMultiplexer.addStream(stream);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(19);
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader(":status", "200"));
+        encoder.encodeHeaders(buf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(buf.array(), 0, 10), true, false);
+        outBuffer.write(headerFrame, writableChannel);
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Assertions.assertFalse(stream.isRemoteClosed());
+        Assertions.assertFalse(stream.isLocalClosed());
+
+        final RawFrame resetFrame = FRAME_FACTORY.createResetStream(1, H2Error.NO_ERROR);
+        outBuffer.write(resetFrame, writableChannel);
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Assertions.assertTrue(stream.isRemoteClosed());
+        Assertions.assertTrue(stream.isLocalClosed());
+
+        final ArgumentCaptor<Exception> exceptionCaptor = ArgumentCaptor.forClass(Exception.class);
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamResetException.class, exceptionCaptor.getValue());
+    }
+
+    @Test
+    void testStreamRemoteResetNoErrorRemoteAlreadyClosed() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final AbstractH2StreamMultiplexer.H2StreamChannelImpl channel = streamMultiplexer.createChannel(1);
+        final AbstractH2StreamMultiplexer.H2Stream stream = new AbstractH2StreamMultiplexer.H2Stream(channel, streamHandler, false);
+        streamMultiplexer.addStream(stream);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(19);
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader(":status", "200"));
+        encoder.encodeHeaders(buf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1, ByteBuffer.wrap(buf.array(), 0, 10), true, false);
+        outBuffer.write(headerFrame, writableChannel);
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        writableChannel.reset();
+        final RawFrame dataFrame = FRAME_FACTORY.createData(1, ByteBuffer.wrap(new byte[] { 'D', 'o', 'n', 'e'}), true);
+        outBuffer.write(dataFrame, writableChannel);
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Assertions.assertTrue(stream.isRemoteClosed());
+        Assertions.assertFalse(stream.isLocalClosed());
+
+        writableChannel.reset();
+        final RawFrame resetFrame = FRAME_FACTORY.createResetStream(1, H2Error.NO_ERROR);
+        outBuffer.write(resetFrame, writableChannel);
+        streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Assertions.assertTrue(stream.isRemoteClosed());
+        Assertions.assertTrue(stream.isLocalClosed());
+
+        Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
     }
 
 }

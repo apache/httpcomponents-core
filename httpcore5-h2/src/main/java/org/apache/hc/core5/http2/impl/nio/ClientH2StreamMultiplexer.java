@@ -157,6 +157,11 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
+    boolean allowGracefulAbort(final H2Stream stream) {
+        return stream.isRemoteClosed() && !stream.isLocalClosed();
+    }
+
+    @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append("[");

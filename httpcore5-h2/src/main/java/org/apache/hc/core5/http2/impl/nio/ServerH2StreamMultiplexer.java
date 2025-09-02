@@ -137,6 +137,11 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
+    boolean allowGracefulAbort(final H2Stream stream) {
+        return false;
+    }
+
+    @Override
     List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException {
         try {
             return super.decodeHeaders(payload);
