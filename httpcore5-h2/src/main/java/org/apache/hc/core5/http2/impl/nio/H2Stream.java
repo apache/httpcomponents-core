@@ -33,6 +33,8 @@ import java.nio.charset.CharacterCodingException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -45,22 +47,51 @@ import org.apache.hc.core5.http2.H2StreamResetException;
 
 class H2Stream {
 
+    enum State { RESERVED, OPEN, CLOSED }
+
     private static final long LINGER_TIME = 1000; // 1 second
 
     private final H2StreamChannel channel;
     private final H2StreamHandler handler;
+    private final Consumer<State> stateChangeCallback;
+    private final AtomicReference<State> transitionRef;
     private final AtomicBoolean released;
 
+    private volatile boolean reserved;
     private volatile boolean remoteClosed;
 
-    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler) {
+    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final Consumer<State> stateChangeCallback) {
         this.channel = channel;
         this.handler = handler;
+        this.stateChangeCallback = stateChangeCallback;
+        this.reserved = true;
+        this.transitionRef = new AtomicReference<>(State.RESERVED);
         this.released = new AtomicBoolean();
     }
 
     int getId() {
         return channel.getId();
+    }
+
+    boolean isReserved() {
+        return reserved;
+    }
+
+    private void triggerOpen() {
+        if (transitionRef.compareAndSet(State.RESERVED, State.OPEN) && stateChangeCallback != null) {
+            stateChangeCallback.accept(State.OPEN);
+        }
+    }
+
+    private void triggerClosed() {
+        if (transitionRef.compareAndSet(State.OPEN, State.CLOSED) && stateChangeCallback != null) {
+            stateChangeCallback.accept(State.CLOSED);
+        }
+    }
+
+    void activate() {
+        reserved = false;
+        triggerOpen();
     }
 
     AtomicInteger getOutputWindow() {
@@ -71,13 +102,21 @@ class H2Stream {
         return channel.getInputWindow();
     }
 
-    private boolean isPastResetDeadline() {
+    private boolean isPastLingerDeadline() {
         final long localResetTime = channel.getLocalResetTime();
         return localResetTime > 0 && localResetTime + LINGER_TIME < System.currentTimeMillis();
     }
 
-    boolean isTerminated() {
-        return channel.isLocalClosed() && (remoteClosed || isPastResetDeadline());
+    boolean isClosedPastLingerDeadline() {
+        return channel.isLocalClosed() && (remoteClosed || isPastLingerDeadline());
+    }
+
+    boolean isClosed() {
+        return channel.isLocalClosed() && (remoteClosed || channel.isLocalReset());
+    }
+
+    boolean isActive() {
+        return !reserved && !isClosed();
     }
 
     boolean isRemoteClosed() {
@@ -88,11 +127,8 @@ class H2Stream {
         return channel.isLocalClosed();
     }
 
-    void consumePromise(final List<Header> headers, final boolean endOfStream) throws HttpException, IOException {
+    void consumePromise(final List<Header> headers) throws HttpException, IOException {
         try {
-            if (endOfStream) {
-                remoteClosed = true;
-            }
             if (channel.isLocalReset()) {
                 return;
             }
@@ -134,7 +170,7 @@ class H2Stream {
     }
 
     boolean isOutputReady() {
-        return handler.isOutputReady();
+        return !channel.isLocalClosed() && handler.isOutputReady();
     }
 
     void produceOutput() throws HttpException, IOException {
@@ -153,16 +189,24 @@ class H2Stream {
         remoteClosed = true;
         channel.markLocalClosed();
         if (released.compareAndSet(false, true)) {
-            handler.failed(cause);
-            handler.releaseResources();
+            try {
+                handler.failed(cause);
+                handler.releaseResources();
+            } finally {
+                triggerClosed();
+            }
         }
     }
 
     void localReset(final Exception cause, final int code) throws IOException {
         channel.localReset(code);
         if (released.compareAndSet(false, true)) {
-            handler.failed(cause);
-            handler.releaseResources();
+            try {
+                handler.failed(cause);
+                handler.releaseResources();
+            } finally {
+                triggerClosed();
+            }
         }
     }
 
@@ -185,8 +229,12 @@ class H2Stream {
     boolean abort() {
         final boolean cancelled = channel.cancel();
         if (released.compareAndSet(false, true)) {
-            handler.failed(new StreamClosedException());
-            handler.releaseResources();
+            try {
+                handler.failed(new StreamClosedException());
+                handler.releaseResources();
+            } finally {
+                triggerClosed();
+            }
         }
         return cancelled;
     }
@@ -194,7 +242,7 @@ class H2Stream {
     boolean abortGracefully() throws IOException {
         if (!isLocalClosed() && isRemoteClosed()) {
             channel.endStream();
-            handler.releaseResources();
+            releaseResources();
             return true;
         } else {
             return abort();
@@ -203,13 +251,25 @@ class H2Stream {
 
     void releaseResources() {
         if (released.compareAndSet(false, true)) {
-            handler.releaseResources();
+            try {
+                handler.releaseResources();
+            } finally {
+                triggerClosed();
+            }
         }
     }
 
     @Override
     public String toString() {
-        return channel.toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append("[")
+                .append("id=").append(channel.getId())
+                .append(", reserved=").append(reserved)
+                .append(", removeClosed=").append(remoteClosed)
+                .append(", localClosed=").append(channel.isLocalClosed())
+                .append(", localReset=").append(channel.isLocalReset())
+                .append("]");
+        return buf.toString();
     }
 
 }

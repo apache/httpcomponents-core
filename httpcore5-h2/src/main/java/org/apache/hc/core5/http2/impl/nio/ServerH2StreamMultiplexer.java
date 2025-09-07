@@ -35,11 +35,12 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.command.ExecutableCommand;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -103,11 +104,11 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
-    void acceptHeaderFrame() throws H2ConnectionException {
+    void acceptHeaderFrame() {
     }
 
     @Override
-    void acceptPushRequest() throws H2ConnectionException {
+    void acceptPushRequest() {
     }
 
     @Override
@@ -116,24 +117,35 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
-    H2StreamHandler createRemotelyInitiatedStream(
-            final H2StreamChannel channel,
-            final HttpProcessor httpProcessor,
-            final BasicHttpConnectionMetrics connMetrics,
-            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
+    H2StreamHandler incomingRequest(final H2StreamChannel channel) {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setSSLSession(getSSLSession());
         context.setEndpointDetails(getEndpointDetails());
-        return new ServerH2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
+        return new ServerH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(), exchangeHandlerFactory, context);
     }
 
     @Override
-    H2StreamHandler createLocallyInitiatedStream(
-            final ExecutableCommand command,
+    H2StreamHandler outgoingRequest(
             final H2StreamChannel channel,
-            final HttpProcessor httpProcessor,
-            final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final HttpContext context) throws IOException {
+        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to send a request");
+    }
+
+    @Override
+    H2StreamHandler incomingPushPromise(final H2StreamChannel channel,
+                                        final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
+        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal incoming push promise");
+    }
+
+    @Override
+    H2StreamHandler outgoingPushPromise(final H2StreamChannel channel,
+                                        final AsyncPushProducer pushProducer) throws IOException {
+        final HttpCoreContext context = HttpCoreContext.create();
+        context.setSSLSession(getSSLSession());
+        context.setEndpointDetails(getEndpointDetails());
+        return new ServerPushH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(), pushProducer, context);
     }
 
     @Override

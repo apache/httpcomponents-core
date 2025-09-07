@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,12 +36,13 @@ import java.util.concurrent.locks.Lock;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.command.ExecutableCommand;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -141,20 +141,27 @@ class TestAbstractH2StreamMultiplexer {
         }
 
         @Override
-        H2StreamHandler createRemotelyInitiatedStream(
-                final H2StreamChannel channel,
-                final HttpProcessor httpProcessor,
-                final BasicHttpConnectionMetrics connMetrics,
-                final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
+        H2StreamHandler incomingRequest(final H2StreamChannel channel) {
             return streamHandlerSupplier.get();
         }
 
         @Override
-        H2StreamHandler createLocallyInitiatedStream(
-                final ExecutableCommand command,
-                final H2StreamChannel channel,
-                final HttpProcessor httpProcessor,
-                final BasicHttpConnectionMetrics connMetrics) throws IOException {
+        H2StreamHandler outgoingRequest(final H2StreamChannel channel,
+                                        final AsyncClientExchangeHandler exchangeHandler,
+                                        final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+                                        final HttpContext context) {
+            return null;
+        }
+
+        @Override
+        H2StreamHandler incomingPushPromise(final H2StreamChannel channel,
+                                            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
+            return streamHandlerSupplier.get();
+        }
+
+        @Override
+        H2StreamHandler outgoingPushPromise(final H2StreamChannel channel,
+                                            final AsyncPushProducer pushProducer) {
             return null;
         }
 
@@ -684,9 +691,8 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
-        final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
-        final H2Stream stream = new H2Stream(channel, streamHandler);
-        streamMultiplexer.addStream(stream);
+        final H2StreamChannel channel = streamMultiplexer.createChannel(1);
+        final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
         final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
@@ -731,9 +737,8 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
-        final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
-        final H2Stream stream = new H2Stream(channel, streamHandler);
-        streamMultiplexer.addStream(stream);
+        final H2StreamChannel channel = streamMultiplexer.createChannel(1);
+        final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
         final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
