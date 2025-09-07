@@ -134,7 +134,7 @@ class H2Stream {
     }
 
     boolean isOutputReady() {
-        return handler.isOutputReady();
+        return !channel.isLocalClosed() && handler.isOutputReady();
     }
 
     void produceOutput() throws HttpException, IOException {
