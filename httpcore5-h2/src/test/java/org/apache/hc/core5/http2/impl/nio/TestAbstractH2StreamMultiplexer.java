@@ -684,8 +684,8 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
-        final AbstractH2StreamMultiplexer.H2StreamChannelImpl channel = streamMultiplexer.createChannel(1);
-        final AbstractH2StreamMultiplexer.H2Stream stream = new AbstractH2StreamMultiplexer.H2Stream(channel, streamHandler, false);
+        final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
+        final H2Stream stream = new H2Stream(channel, streamHandler, false);
         streamMultiplexer.addStream(stream);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
@@ -731,8 +731,8 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
-        final AbstractH2StreamMultiplexer.H2StreamChannelImpl channel = streamMultiplexer.createChannel(1);
-        final AbstractH2StreamMultiplexer.H2Stream stream = new AbstractH2StreamMultiplexer.H2Stream(channel, streamHandler, false);
+        final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
+        final H2Stream stream = new H2Stream(channel, streamHandler, false);
         streamMultiplexer.addStream(stream);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);

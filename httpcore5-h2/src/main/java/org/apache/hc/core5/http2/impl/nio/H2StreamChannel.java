@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.Header;
@@ -36,13 +37,41 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http2.H2Error;
 
 interface H2StreamChannel extends DataStreamChannel, CapacityChannel, Cancellable {
+
+    int getId();
+
+    AtomicInteger getOutputWindow();
+
+    AtomicInteger getInputWindow();
 
     void submit(List<Header> headers, boolean endStream) throws HttpException, IOException;
 
     void push(List<Header> headers, AsyncPushProducer pushProducer) throws HttpException, IOException;
 
-    void terminate();
+    boolean isLocalClosed();
+
+    void markLocalClosed();
+
+    boolean localReset(int errorCode) throws IOException;
+
+    default boolean localReset(H2Error error) throws IOException {
+        return localReset(error != null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
+    }
+
+    default void terminate() {
+        try {
+            localReset(H2Error.INTERNAL_ERROR);
+        } catch (final IOException ignore) {
+        }
+    }
+
+    long getLocalResetTime();
+
+    default boolean isLocalReset() {
+        return getLocalResetTime() > 0;
+    }
 
 }
