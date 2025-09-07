@@ -49,27 +49,18 @@ class H2Stream {
 
     private final H2StreamChannel channel;
     private final H2StreamHandler handler;
-    private final boolean remoteInitiated;
     private final AtomicBoolean released;
 
     private volatile boolean remoteClosed;
 
-    H2Stream(
-            final H2StreamChannel channel,
-            final H2StreamHandler handler,
-            final boolean remoteInitiated) {
+    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler) {
         this.channel = channel;
         this.handler = handler;
-        this.remoteInitiated = remoteInitiated;
         this.released = new AtomicBoolean();
     }
 
     int getId() {
         return channel.getId();
-    }
-
-    boolean isRemoteInitiated() {
-        return remoteInitiated;
     }
 
     AtomicInteger getOutputWindow() {

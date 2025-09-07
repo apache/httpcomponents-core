@@ -677,7 +677,7 @@ class TestAbstractH2StreamMultiplexer {
         final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
                 protocolIOSession,
                 FRAME_FACTORY,
-                StreamIdGenerator.EVEN,
+                StreamIdGenerator.ODD,
                 httpProcessor,
                 CharCodingConfig.DEFAULT,
                 h2Config,
@@ -685,7 +685,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
-        final H2Stream stream = new H2Stream(channel, streamHandler, false);
+        final H2Stream stream = new H2Stream(channel, streamHandler);
         streamMultiplexer.addStream(stream);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
@@ -724,7 +724,7 @@ class TestAbstractH2StreamMultiplexer {
         final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
                 protocolIOSession,
                 FRAME_FACTORY,
-                StreamIdGenerator.EVEN,
+                StreamIdGenerator.ODD,
                 httpProcessor,
                 CharCodingConfig.DEFAULT,
                 h2Config,
@@ -732,7 +732,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final H2StreamChannel channel = streamMultiplexer.createChannel(1, false);
-        final H2Stream stream = new H2Stream(channel, streamHandler, false);
+        final H2Stream stream = new H2Stream(channel, streamHandler);
         streamMultiplexer.addStream(stream);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
