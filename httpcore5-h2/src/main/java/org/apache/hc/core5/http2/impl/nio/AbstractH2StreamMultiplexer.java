@@ -528,7 +528,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0 && remoteSettingState == SettingsHandshake.ACKED) {
-            while (streamMap.size() < remoteConfig.getMaxConcurrentStreams()) {
+            final int outboundLimit = remoteConfig.getMaxConcurrentStreams();
+            while (countActiveLocalInitiated() < outboundLimit) {
                 final Command command = ioSession.poll();
                 if (command == null) {
                     break;
@@ -771,6 +772,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     if (goAwayReceived ) {
                         throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "GOAWAY received");
                     }
+                    final int inboundLimit = localConfig.getMaxConcurrentStreams();
+                    final boolean refuseInbound = countActiveRemoteInitiated() >= inboundLimit;
 
                     updateLastStreamId(streamId);
 
@@ -785,10 +788,31 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     }
 
                     stream = new H2Stream(channel, streamHandler, true);
+                    if (refuseInbound) {
+                        try {
+                            stream.localReset(new H2StreamResetException(H2Error.REFUSED_STREAM, "Inbound stream concurrency limit exceeded"));
+                        } catch (final IOException ignore) {
+                        }
+                    }
+
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
                     }
                     streamMap.put(streamId, stream);
+                } else {
+                    if (stream.isRemoteInitiated() && stream.channel.idle) {
+                        final int inboundLimit = localConfig.getMaxConcurrentStreams();
+                        final int active = countActiveRemoteInitiated();
+                        if (active >= inboundLimit) {
+                            try {
+                                stream.localReset(new H2StreamResetException(
+                                        H2Error.REFUSED_STREAM, "Inbound stream concurrency limit exceeded"));
+                            } catch (final IOException ignore) {
+                            }
+                            break;
+                        }
+                        stream.channel.idle = false;
+                    }
                 }
 
                 try {
@@ -973,7 +997,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 updateLastStreamId(promisedStreamId);
 
                 final H2StreamChannelImpl channel = new H2StreamChannelImpl(
-                        promisedStreamId, false, initInputWinSize, initOutputWinSize);
+                        promisedStreamId, true, initInputWinSize, initOutputWinSize);
                 final H2StreamHandler streamHandler;
                 if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
                     streamHandler = createRemotelyInitiatedStream(channel, httpProcessor, connMetrics,
@@ -985,7 +1009,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
                 final H2Stream promisedStream = new H2Stream(channel, streamHandler, true);
                 streamMap.put(promisedStreamId, promisedStream);
-
                 try {
                     consumePushPromiseFrame(frame, payload, promisedStream);
                 } catch (final H2StreamResetException ex) {
@@ -1218,6 +1241,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final Map.Entry<Integer, H2Stream> entry = it.next();
             final H2Stream stream = entry.getValue();
             if (!stream.isLocalClosed() && stream.getOutputWindow().get() > 0) {
+                if (!stream.isRemoteInitiated() && stream.channel.idle) {
+                    final int outboundLimit = remoteConfig.getMaxConcurrentStreams();
+                    if (countActiveLocalInitiated() >= outboundLimit) {
+                        continue;
+                    }
+                }
                 stream.produceOutput();
             }
             if (stream.isTerminated()) {
@@ -1260,6 +1289,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
             }
         }
+        requestSessionOutput();
     }
 
     private void applyLocalSettings() throws H2ConnectionException {
@@ -1393,6 +1423,29 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     H2StreamChannelImpl createChannel(final int streamId) {
         return new H2StreamChannelImpl(streamId, false, initInputWinSize, initOutputWinSize);
+    }
+
+    // Count active streams by initiator (directional) for concurrency limits
+    private int countActiveLocalInitiated() {
+        int n = 0;
+        for (final Map.Entry<Integer, H2Stream> e : streamMap.entrySet()) {
+            final H2Stream s = e.getValue();
+            if (!s.isRemoteInitiated() && !s.isTerminated() && !s.channel.idle) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private int countActiveRemoteInitiated() {
+        int n = 0;
+        for (final Map.Entry<Integer, H2Stream> e : streamMap.entrySet()) {
+            final H2Stream s = e.getValue();
+            if (s.isRemoteInitiated() && !s.isTerminated() && !s.channel.idle) {
+                n++;
+            }
+        }
+        return n;
     }
 
     class H2StreamChannelImpl implements H2StreamChannel {
@@ -1557,15 +1610,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (isLocalReset()) {
                     return false;
                 }
-                ensureNotClosed();
+                // Allow RST_STREAM from any state, including reserved (idle) and even if local end is already closed.
                 localEndStream = true;
                 deadline = System.currentTimeMillis() + LINGER_TIME;
-                if (!idle) {
-                    final RawFrame resetStream = frameFactory.createResetStream(id, code);
-                    commitFrameInternal(resetStream);
-                    return true;
-                }
-                return false;
+
+                final RawFrame resetStream = frameFactory.createResetStream(id, code);
+                commitFrameInternal(resetStream);
+                return true;
             } finally {
                 ioSession.getLock().unlock();
             }

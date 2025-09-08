@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -88,11 +89,14 @@ class TestAbstractH2StreamMultiplexer {
     ArgumentCaptor<List<Header>> headersCaptor;
     @Captor
     ArgumentCaptor<Exception> exceptionCaptor;
+    @Captor
+    ArgumentCaptor<RawFrame> frameCaptor;
 
     @BeforeEach
     void prepareMocks() {
         MockitoAnnotations.openMocks(this);
         Mockito.when(protocolIOSession.getLock()).thenReturn(lock);
+        Mockito.when(protocolIOSession.poll()).thenReturn(null);
     }
 
     static class H2StreamMultiplexerImpl extends AbstractH2StreamMultiplexer {
@@ -666,7 +670,7 @@ class TestAbstractH2StreamMultiplexer {
         outBuffer.write(continuationFrame3, writableChannel);
 
         Assertions.assertThrows(H2ConnectionException.class, () ->
-            streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+                streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
     }
 
     @Test
@@ -767,5 +771,80 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
     }
 
-}
+    @Test
+    void testInboundPushPromise_thenRefuseOnFirstHeadersWhenOverLimit() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setMaxConcurrentStreams(1) // allow only one active remote stream
+                .build();
 
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock chan = new WritableByteChannelMock(2048);
+        final FrameOutputBuffer out = new FrameOutputBuffer(16 * 1024);
+
+        // Keep one remote stream (2) active
+        final ByteArrayBuffer respHdr = new ByteArrayBuffer(64);
+        final HPackEncoder enc = new HPackEncoder(H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        enc.encodeHeaders(respHdr,
+                Collections.singletonList(new BasicHeader(":status", "200")),
+                h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createHeaders(
+                2, ByteBuffer.wrap(respHdr.array(), 0, respHdr.length()), true, false), chan);
+        mux.onInput(ByteBuffer.wrap(chan.toByteArray()));
+
+        // Send PUSH_PROMISE (do NOT verify outputs here)
+        chan.reset();
+        final int promisedId = 4;
+        final ByteArrayBuffer promiseBuf = new ByteArrayBuffer(128);
+        promiseBuf.append((byte) (promisedId >> 24));
+        promiseBuf.append((byte) (promisedId >> 16));
+        promiseBuf.append((byte) (promisedId >> 8));
+        promiseBuf.append((byte) promisedId);
+        enc.encodeHeaders(promiseBuf, Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.org"),
+                new BasicHeader(":path", "/pushed")
+        ), h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createPushPromise(
+                2, ByteBuffer.wrap(promiseBuf.array(), 0, promiseBuf.length()), true), chan);
+        mux.onInput(ByteBuffer.wrap(chan.toByteArray()));
+
+        chan.reset();
+        final ByteArrayBuffer pushedResp = new ByteArrayBuffer(32);
+        enc.encodeHeaders(pushedResp,
+                Collections.singletonList(new BasicHeader(":status", "200")),
+                h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createHeaders(
+                4, ByteBuffer.wrap(pushedResp.array(), 0, pushedResp.length()), true, false), chan);
+        mux.onInput(ByteBuffer.wrap(chan.toByteArray()));
+
+        // Flush any queued outbound frames so listener sees them
+        mux.onOutput();
+
+        Mockito.verify(h2StreamListener, Mockito.atLeastOnce())
+                .onFrameOutput(ArgumentMatchers.same(mux), ArgumentMatchers.anyInt(), frameCaptor.capture());
+
+        boolean refused = false;
+        for (final RawFrame f : frameCaptor.getAllValues()) {
+            if (f.getType() == FrameType.RST_STREAM.getValue() && f.getStreamId() == promisedId) {
+                final int code = f.getPayload().duplicate().getInt();
+                Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), code);
+                refused = true;
+                break;
+            }
+        }
+        Assertions.assertTrue(refused, "Expected RST_STREAM(REFUSED_STREAM) on first HEADERS for promised stream 4");
+    }
+
+
+}
