@@ -441,18 +441,22 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         } else {
             for (;;) {
                 final RawFrame frame = inputBuffer.read(src, ioSession);
-                if (frame == null) {
-                    if (inputBuffer.isEndOfStream() && connState == ConnectionHandshake.ACTIVE) {
+                if (frame != null) {
+                    if (streamListener != null) {
+                        streamListener.onFrameInput(this, frame.getStreamId(), frame);
+                    }
+                    consumeFrame(frame);
+                } else {
+                    if (inputBuffer.isEndOfStream()) {
+                        if (connState == ConnectionHandshake.ACTIVE) {
+                            final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR, "Unexpected end of stream");
+                            commitFrame(goAway);
+                        }
                         connState = ConnectionHandshake.SHUTDOWN;
-                        final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR, "Unexpected end of stream");
-                        commitFrame(goAway);
+                        requestSessionOutput();
                     }
                     break;
                 }
-                if (streamListener != null) {
-                    streamListener.onFrameInput(this, frame.getStreamId(), frame);
-                }
-                consumeFrame(frame);
             }
         }
     }
