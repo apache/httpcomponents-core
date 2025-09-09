@@ -123,6 +123,10 @@ class H2Stream {
         return remoteClosed;
     }
 
+    void markRemoteClosed() {
+        remoteClosed = true;
+    }
+
     boolean isLocalClosed() {
         return channel.isLocalClosed();
     }
@@ -170,7 +174,7 @@ class H2Stream {
     }
 
     boolean isOutputReady() {
-        return !channel.isLocalClosed() && handler.isOutputReady();
+        return !reserved && !channel.isLocalClosed() && handler.isOutputReady();
     }
 
     void produceOutput() throws HttpException, IOException {

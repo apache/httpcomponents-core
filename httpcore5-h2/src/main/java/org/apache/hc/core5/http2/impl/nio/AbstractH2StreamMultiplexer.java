@@ -82,6 +82,7 @@ import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
+import org.apache.hc.core5.http2.nio.command.PushResponseCommand;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -499,7 +500,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0 && remoteSettingState == SettingsHandshake.ACKED) {
-            while (streams.size() < remoteConfig.getMaxConcurrentStreams()) {
+            while (streams.getLocalCount() < remoteConfig.getMaxConcurrentStreams()) {
                 final Command command = ioSession.poll();
                 if (command == null) {
                     break;
@@ -510,6 +511,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     executePing((PingCommand) command);
                 } else if (command instanceof RequestExecutionCommand) {
                     executeRequest((RequestExecutionCommand) command);
+                } else if (command instanceof PushResponseCommand) {
+                    executePush((PushResponseCommand) command);
                 }
                 if (!outputQueue.isEmpty()) {
                     return;
@@ -635,6 +638,23 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final CancellableDependency cancellableDependency = requestExecutionCommand.getCancellableDependency();
         if (cancellableDependency != null) {
             cancellableDependency.setDependency(stream::abort);
+        }
+    }
+
+    private void executePush(final PushResponseCommand pushResponseCommand) throws IOException, HttpException {
+        if (pushResponseCommand.isCancelled()) {
+            return;
+        }
+        final H2Stream stream = streams.lookupSeen(pushResponseCommand.getStreamId());
+        if (stream != null && stream.isReserved()) {
+            if (!stream.isLocalClosed()) {
+                stream.activate();
+                if (stream.isOutputReady()) {
+                    stream.produceOutput();
+                }
+            } else {
+                stream.abort();
+            }
         }
     }
 
@@ -812,7 +832,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (streamId == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
                 }
-                final H2Stream stream = streams.lookupValidOrNull(streamId);
+                final H2Stream stream = streams.lookupSeen(streamId);
                 if (stream != null) {
                     final ByteBuffer payload = frame.getPayload();
                     if (payload == null || payload.remaining() != 4) {
@@ -1247,7 +1267,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 .append(", connInputWindow=").append(connInputWindow)
                 .append(", connOutputWindow=").append(connOutputWindow)
                 .append(", outputQueue=").append(outputQueue.size())
-                .append(", streams.size=").append(streams.size())
+                .append(", streams.localCoubt=").append(streams.getLocalCount())
+                .append(", streams.remoteCount=").append(streams.getRemoteCount())
                 .append(", streams.lastLocal=").append(streams.getLastLocalId())
                 .append(", streams.lastRemote=").append(streams.getLastRemoteId());
     }
@@ -1362,9 +1383,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 ensureNotClosed();
                 final int promisedStreamId = streams.generateStreamId();
                 final H2StreamChannel channel = createChannel(promisedStreamId);
-                streams.createReserved(channel, outgoingPushPromise(channel, pushProducer));
+                final H2Stream stream = streams.createReserved(channel, outgoingPushPromise(channel, pushProducer));
 
                 commitPushPromise(id, promisedStreamId, headers);
+                stream.markRemoteClosed();
+                submitCommand(new PushResponseCommand(promisedStreamId));
             } finally {
                 ioSession.getLock().unlock();
             }

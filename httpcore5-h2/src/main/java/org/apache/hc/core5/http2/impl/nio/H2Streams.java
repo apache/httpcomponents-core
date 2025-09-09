@@ -60,10 +60,6 @@ class H2Streams {
         this.remoteCount = new AtomicInteger(0);
     }
 
-    public int size() {
-        return streams.size();
-    }
-
     public boolean isEmpty() {
         return streams.isEmpty();
     }
@@ -78,6 +74,14 @@ class H2Streams {
 
     public int getLastRemoteId() {
         return lastRemoteId.get();
+    }
+
+    public int getLocalCount() {
+        return localCount.get();
+    }
+
+    public int getRemoteCount() {
+        return remoteCount.get();
     }
 
     private H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) {

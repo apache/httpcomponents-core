@@ -30,20 +30,15 @@ package org.apache.hc.core5.testing.nio;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HeaderElements;
@@ -58,7 +53,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
@@ -160,6 +154,7 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                         context);
             }
         });
+
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -169,53 +164,70 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                 .build());
         client.start();
 
-        final BlockingQueue<Message<HttpResponse, String>> pushMessageQueue = new LinkedBlockingDeque<>();
+        final int reqNo = 200;
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final BasicHttpRequest request = BasicRequestBuilder.get()
-                .setHttpHost(target)
-                .setPath("/hello")
-                .build();
+        final CountDownLatch latch = new CountDownLatch(reqNo);
+        final Queue<Future<Message<HttpResponse, String>>> responseQueue = new LinkedList<>();
+        final Queue<Message<HttpResponse, String>> pushMessageQueue = new LinkedList<>();
 
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                (r, c) -> new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
+        for (int i = 0; i < reqNo; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/hello")
+                    .build();
 
-                    @Override
-                    protected void handleResponse(
-                            final HttpRequest promise,
-                            final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
-                        try {
-                            pushMessageQueue.put(responseMessage);
-                        } catch (final InterruptedException ex) {
-                            Thread.currentThread().interrupt();
-                            throw new InterruptedIOException(ex.getMessage());
+            responseQueue.add(streamEndpoint.execute(
+                    new BasicRequestProducer(request, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                    (r, c) -> new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
+
+                        @Override
+                        protected void handleResponse(
+                                final HttpRequest promise,
+                                final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
+                            pushMessageQueue.add(responseMessage);
+                            latch.countDown();
                         }
-                    }
 
-                },
-                null,
-                null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        final String entity1 = result1.getBody();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hi there", entity1);
+                        @Override
+                        protected void handleError(final HttpRequest promise, final Exception cause) {
+                            latch.countDown();
+                        }
+                    },
+                    null,
+                    null));
+        }
 
-        final Message<HttpResponse, String> result2 = pushMessageQueue.poll(5, TimeUnit.SECONDS);
-        Assertions.assertNotNull(result2);
-        final HttpResponse response2 = result2.getHead();
-        final String entity2 = result2.getBody();
-        Assertions.assertEquals(200, response2.getCode());
-        Assertions.assertNotNull(entity2);
-        final StringTokenizer t1 = new StringTokenizer(entity2, "\r\n");
-        while (t1.hasMoreTokens()) {
-            Assertions.assertEquals("Pushing lots of stuff", t1.nextToken());
+        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+
+        Assertions.assertEquals(reqNo, responseQueue.size());
+        Assertions.assertEquals(reqNo, pushMessageQueue.size());
+
+        while (!responseQueue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = responseQueue.remove();
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response1 = result.getHead();
+            final String entity = result.getBody();
+            Assertions.assertNotNull(response1);
+            Assertions.assertEquals(200, response1.getCode());
+            Assertions.assertEquals("Hi there", entity);
+        }
+
+        while (!pushMessageQueue.isEmpty()) {
+            final Message<HttpResponse, String> pushMessage = pushMessageQueue.remove();
+            Assertions.assertNotNull(pushMessage);
+            final HttpResponse response = pushMessage.getHead();
+            final String entity = pushMessage.getBody();
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertNotNull(entity);
+            final StringTokenizer t1 = new StringTokenizer(entity, "\r\n");
+            while (t1.hasMoreTokens()) {
+                Assertions.assertEquals("Pushing lots of stuff", t1.nextToken());
+            }
         }
     }
 
@@ -224,12 +236,10 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
-        final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
+        final CountDownLatch latch = new CountDownLatch(2);
+        final Queue<Exception> pushResultQueue = new LinkedList<>();
+        server.register("/hello", () ->
+                new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
 
                     @Override
                     protected void handle(
@@ -239,34 +249,35 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
 
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/stuff"),
-                                context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
+                                context,
+                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 50000)) {
 
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
+                                    @Override
+                                    public void failed(final Exception cause) {
+                                        pushResultQueue.add(cause);
+                                        latch.countDown();
+                                    }
 
-                        });
+                                });
+
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/more-stuff"),
-                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
+                                context,
+                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 50000)) {
 
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
+                                    @Override
+                                    public void failed(final Exception cause) {
+                                        pushResultQueue.add(cause);
+                                        latch.countDown();
+                                    }
 
-                        });
+                                });
+
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
                                 context);
                     }
-                };
-            }
-
-        });
+                });
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -286,7 +297,10 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                (r, c) -> null, // refuse all push messages
+                null,
+                null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
@@ -295,12 +309,16 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
         Assertions.assertEquals(200, response1.getCode());
         Assertions.assertEquals("Hi there", entity1);
 
-        final Object result2 = pushResultQueue.poll(5, TimeUnit.SECONDS);
+        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+
+        Assertions.assertEquals(2, pushResultQueue.size());
+
+        final Object result2 = pushResultQueue.poll();
         Assertions.assertNotNull(result2);
         Assertions.assertTrue(result2 instanceof H2StreamResetException);
         Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
 
-        final Object result3 = pushResultQueue.poll(5, TimeUnit.SECONDS);
+        final Object result3 = pushResultQueue.poll();
         Assertions.assertNotNull(result3);
         Assertions.assertTrue(result3 instanceof H2StreamResetException);
         Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
