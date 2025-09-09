@@ -82,6 +82,7 @@ import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
+import org.apache.hc.core5.http2.nio.command.PushResponseCommand;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -510,6 +511,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     executePing((PingCommand) command);
                 } else if (command instanceof RequestExecutionCommand) {
                     executeRequest((RequestExecutionCommand) command);
+                } else if (command instanceof PushResponseCommand) {
+                    executePush((PushResponseCommand) command);
                 }
                 if (!outputQueue.isEmpty()) {
                     return;
@@ -639,6 +642,23 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
+    private void executePush(final PushResponseCommand pushResponseCommand) throws IOException, HttpException {
+        if (pushResponseCommand.isCancelled()) {
+            return;
+        }
+        final H2Stream stream = streams.lookupSeen(pushResponseCommand.getStreamId());
+        if (stream != null && stream.isReserved()) {
+            if (!stream.isRemoteClosed()) {
+                stream.activate();
+                if (stream.isOutputReady()) {
+                    stream.produceOutput();
+                }
+            } else {
+                stream.abort();
+            }
+        }
+    }
+
     public final void onException(final Exception cause) {
         try {
             for (;;) {
@@ -734,6 +754,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     streams.addRemotelyInitiated(stream);
                 } else if (stream.isLocalClosed() && stream.isRemoteClosed()) {
                     throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
+                } else if (stream.isReserved()) {
+                    stream.activate();
                 }
                 try {
                     consumeHeaderFrame(frame, stream);
@@ -1367,6 +1389,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 streams.addLocallyInitiated(stream);
 
                 commitPushPromise(id, promisedStreamId, headers);
+                submitCommand(new PushResponseCommand(promisedStreamId));
             } finally {
                 ioSession.getLock().unlock();
             }

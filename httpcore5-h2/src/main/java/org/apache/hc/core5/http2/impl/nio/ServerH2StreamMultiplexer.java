@@ -147,7 +147,7 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         context.setSSLSession(getSSLSession());
         context.setEndpointDetails(getEndpointDetails());
         return new H2Stream(channel, new ServerPushH2StreamHandler(
-                channel, getHttpProcessor(), getConnMetrics(), pushProducer, context));
+                channel, getHttpProcessor(), getConnMetrics(), pushProducer, context), true);
     }
 
     @Override

@@ -51,16 +51,30 @@ class H2Stream {
     private final H2StreamHandler handler;
     private final AtomicBoolean released;
 
+    private volatile boolean reserved;
     private volatile boolean remoteClosed;
 
-    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler) {
+    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final boolean reserved) {
         this.channel = channel;
         this.handler = handler;
+        this.reserved = reserved;
         this.released = new AtomicBoolean();
+    }
+
+    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler) {
+        this(channel, handler, false);
     }
 
     int getId() {
         return channel.getId();
+    }
+
+    boolean isReserved() {
+        return reserved;
+    }
+
+    void activate() {
+        reserved = false;
     }
 
     AtomicInteger getOutputWindow() {
@@ -134,7 +148,7 @@ class H2Stream {
     }
 
     boolean isOutputReady() {
-        return !channel.isLocalClosed() && handler.isOutputReady();
+        return !reserved && !channel.isLocalClosed() && handler.isOutputReady();
     }
 
     void produceOutput() throws HttpException, IOException {

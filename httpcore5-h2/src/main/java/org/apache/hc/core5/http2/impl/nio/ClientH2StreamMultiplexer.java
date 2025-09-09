@@ -153,7 +153,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         context.setEndpointDetails(getEndpointDetails());
         return new H2Stream(channel, new ClientPushH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(),
                 pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
-                context));
+                context), true);
     }
 
     @Override

@@ -120,22 +120,26 @@ class H2Streams {
         return streamMap.get(streamId);
     }
 
+    boolean hasBeenSeen(final int streamId) {
+        return streamId <= (isSameSide(streamId) ? lastLocalId : lastRemoteId).get();
+    }
+
+    boolean isClosed(final H2Stream stream, final int streamId) {
+        return stream != null ? stream.isLocalClosed() && stream.isRemoteClosed() : hasBeenSeen(streamId);
+    }
+
     public H2Stream lookupValidOrNull(final int streamId) throws H2ConnectionException {
         final H2Stream stream = streamMap.get(streamId);
-        if (stream == null) {
-            if (idGenerator.isSameSide(streamId)) {
-                if (streamId <= lastLocalId.get()) {
-                    throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
-                }
-            } else {
-                if (streamId <= lastRemoteId.get()) {
-                    throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
-                }
-            }
-        } else {
-            if (stream.isLocalClosed() && stream.isRemoteClosed()) {
-                throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
-            }
+        if (isClosed(stream, streamId)) {
+            throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
+        }
+        return stream;
+    }
+
+    public H2Stream lookupSeen(final int streamId) throws H2ConnectionException {
+        final H2Stream stream = streamMap.get(streamId);
+        if (stream == null && !hasBeenSeen(streamId)) {
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected stream id: " + streamId);
         }
         return stream;
     }
