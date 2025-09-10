@@ -94,7 +94,7 @@ import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
 
-    private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024; // 10 MiB
+    private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
@@ -757,6 +757,20 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 } else if (stream.isReserved()) {
                     stream.activate();
                 }
+                if (!streams.isSameSide(streamId)) {
+                    if (!streams.tryActivateRemote(streamId, localConfig.getMaxConcurrentStreams())) {
+                        try {
+                            stream.localReset(new H2StreamResetException(H2Error.REFUSED_STREAM, "Exceeded inbound concurrency limit"));
+                        } finally {
+                            if (!frame.isFlagSet(FrameFlag.END_HEADERS)) {
+                                continuation = new Continuation(streamId, frame.getType(), frame.isFlagSet(FrameFlag.END_STREAM), localConfig.getMaxContinuations());
+                                continuation.drainOnly = true;
+                            }
+                            requestSessionOutput();
+                        }
+                        return;
+                    }
+                }
                 try {
                     consumeHeaderFrame(frame, stream);
                     if (stream.isOutputReady()) {
@@ -893,7 +907,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         consumeSettingsFrame(payload);
                         remoteSettingState = SettingsHandshake.TRANSMITTED;
                     }
-                    // Send ACK
                     final RawFrame response = frameFactory.createSettingsAck();
                     commitFrame(response);
                     remoteSettingState = SettingsHandshake.ACKED;
@@ -901,7 +914,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             break;
             case PRIORITY:
-                // Stream priority not supported
                 break;
             case PUSH_PROMISE: {
                 acceptPushFrame();
@@ -944,6 +956,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     channel.localReset(H2Error.REFUSED_STREAM);
                 }
                 streams.addRemotelyInitiated(promisedStream);
+                streams.markReservedRemote(promisedStreamId);
                 try {
                     consumePushPromiseFrame(frame, payload, promisedStream);
                 } catch (final H2StreamResetException ex) {
@@ -1051,7 +1064,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         final ByteBuffer payload = frame.getPayloadContent();
         if (frame.isFlagSet(FrameFlag.PRIORITY)) {
-            // Priority not supported
             payload.getInt();
             payload.get();
         }
@@ -1074,6 +1086,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final ByteBuffer payload = frame.getPayload();
         continuation.copyPayload(payload);
         if (frame.isFlagSet(FrameFlag.END_HEADERS)) {
+            if (continuation.drainOnly) {
+                continuation = null;
+                return;
+            }
             final List<Header> headers = decodeHeaders(continuation.getContent());
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
@@ -1285,6 +1301,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final boolean enforceMacContinuations;
 
         private int count;
+        boolean drainOnly;
 
         private Continuation(final int streamId, final int type, final boolean endStream, final int maxContinuation) {
             this.streamId = streamId;
@@ -1449,6 +1466,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             localClosed = true;
         }
 
+        // FIX: make localReset idempotent and allow reset even if already locally closed
         @Override
         public boolean localReset(final int code) throws IOException {
             ioSession.getLock().lock();
@@ -1456,17 +1474,18 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (isLocalReset()) {
                     return false;
                 }
-                ensureNotClosed();
+                final boolean alreadyClosed = localClosed;
                 localClosed = true;
                 localResetTime = System.currentTimeMillis();
 
                 final RawFrame resetStream = frameFactory.createResetStream(id, code);
                 commitFrameInternal(resetStream);
-                return true;
+                return !alreadyClosed;
             } finally {
                 ioSession.getLock().unlock();
             }
         }
+
 
         @Override
         public long getLocalResetTime() {
