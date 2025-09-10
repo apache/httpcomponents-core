@@ -774,5 +774,161 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
     }
 
+    // add to TestAbstractH2StreamMultiplexer
+
+    @Test
+    void testInboundConcurrencyLimitRefusesSecondHeaders() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setMaxConcurrentStreams(1)
+                .setMaxFrameSize(FrameConsts.MIN_FRAME_SIZE)
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer buf1 = new ByteArrayBuffer(128);
+        final HPackEncoder enc1 = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        enc1.encodeHeaders(buf1, Arrays.asList(new BasicHeader(":status", "200"), new BasicHeader("a", "b")), h2Config.isCompressionEnabled());
+
+        final ByteArrayBuffer buf2 = new ByteArrayBuffer(128);
+        final HPackEncoder enc2 = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        enc2.encodeHeaders(buf2, Arrays.asList(new BasicHeader(":status", "200"), new BasicHeader("c", "d")), h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock ch = new WritableByteChannelMock(2048);
+        final FrameOutputBuffer out = new FrameOutputBuffer(16 * 1024);
+
+        final RawFrame h1 = FRAME_FACTORY.createHeaders(2, ByteBuffer.wrap(buf1.array(), 0, buf1.length()), true, false);
+        out.write(h1, ch);
+        final RawFrame h2 = FRAME_FACTORY.createHeaders(4, ByteBuffer.wrap(buf2.array(), 0, buf2.length()), true, false);
+        out.write(h2, ch);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        Mockito.verify(streamHandler, Mockito.atLeastOnce()).failed(exceptionCaptor.capture());
+        final boolean refused = exceptionCaptor.getAllValues().stream()
+                .filter(H2StreamResetException.class::isInstance)
+                .map(H2StreamResetException.class::cast)
+                .anyMatch(ex -> H2Error.getByCode(ex.getCode()) == H2Error.REFUSED_STREAM);
+        Assertions.assertTrue(refused);
+    }
+
+    @Test
+    void testPushPromiseReservationThenRefusedOnActivation() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setMaxConcurrentStreams(1)
+                .setMaxFrameSize(FrameConsts.MIN_FRAME_SIZE)
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock ch = new WritableByteChannelMock(4096);
+        final FrameOutputBuffer out = new FrameOutputBuffer(16 * 1024);
+
+        final ByteArrayBuffer respBuf = new ByteArrayBuffer(128);
+        final HPackEncoder respEnc = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        respEnc.encodeHeaders(respBuf, Arrays.asList(new BasicHeader(":status", "200"), new BasicHeader("a", "b")), h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createHeaders(2, ByteBuffer.wrap(respBuf.array(), 0, respBuf.length()), true, false), ch);
+
+        final ByteArrayBuffer promised = new ByteArrayBuffer(256);
+        promised.append((byte) (4 >> 24));
+        promised.append((byte) (4 >> 16));
+        promised.append((byte) (4 >> 8));
+        promised.append((byte) 4);
+        final HPackEncoder reqEnc = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        reqEnc.encodeHeaders(promised, Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/pushed"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader("x", "y")), h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createPushPromise(2, ByteBuffer.wrap(promised.array(), 0, promised.length()), true), ch);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        ch.reset();
+        final ByteArrayBuffer pushedResp = new ByteArrayBuffer(128);
+        final HPackEncoder pushedEnc = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        pushedEnc.encodeHeaders(pushedResp, Arrays.asList(new BasicHeader(":status", "200"), new BasicHeader("k", "v")), h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createHeaders(4, ByteBuffer.wrap(pushedResp.array(), 0, pushedResp.length()), true, false), ch);
+
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        Mockito.verify(streamHandler, Mockito.atLeastOnce()).failed(exceptionCaptor.capture());
+        final boolean refused = exceptionCaptor.getAllValues().stream()
+                .filter(H2StreamResetException.class::isInstance)
+                .map(H2StreamResetException.class::cast)
+                .anyMatch(ex -> H2Error.getByCode(ex.getCode()) == H2Error.REFUSED_STREAM);
+        Assertions.assertTrue(refused);
+    }
+
+    @Test
+    void testRefusedHeadersWithContinuationIsDrained() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setMaxConcurrentStreams(1)
+                .setMaxFrameSize(FrameConsts.MIN_FRAME_SIZE)
+                .build();
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock ch = new WritableByteChannelMock(4096);
+        final FrameOutputBuffer out = new FrameOutputBuffer(16 * 1024);
+
+        final ByteArrayBuffer first = new ByteArrayBuffer(128);
+        final HPackEncoder enc1 = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        enc1.encodeHeaders(first, Arrays.asList(new BasicHeader(":status", "200"), new BasicHeader("h1", "v1")), h2Config.isCompressionEnabled());
+        out.write(FRAME_FACTORY.createHeaders(2, ByteBuffer.wrap(first.array(), 0, first.length()), true, false), ch);
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        final ByteArrayBuffer second = new ByteArrayBuffer(1024);
+        final HPackEncoder enc2 = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> many = new ArrayList<>();
+        many.add(new BasicHeader(":status", "200"));
+        for (int i = 0; i < 50; i++) {
+            many.add(new BasicHeader("x-" + i, "y-" + i));
+        }
+        enc2.encodeHeaders(second, many, h2Config.isCompressionEnabled());
+        final int len = second.length();
+        final int cut = Math.max(1, Math.min(len - 1, len / 2));
+
+        ch.reset();
+        out.write(FRAME_FACTORY.createHeaders(4, ByteBuffer.wrap(second.array(), 0, cut), false, false), ch);
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        ch.reset();
+        out.write(FRAME_FACTORY.createContinuation(4, ByteBuffer.wrap(second.array(), cut, len - cut), true), ch);
+        streamMultiplexer.onInput(ByteBuffer.wrap(ch.toByteArray()));
+
+        Mockito.verify(streamHandler, Mockito.atLeastOnce()).failed(exceptionCaptor.capture());
+        final boolean refused = exceptionCaptor.getAllValues().stream()
+                .filter(H2StreamResetException.class::isInstance)
+                .map(H2StreamResetException.class::cast)
+                .anyMatch(ex -> H2Error.getByCode(ex.getCode()) == H2Error.REFUSED_STREAM);
+        Assertions.assertTrue(refused);
+    }
+
+
 }
 

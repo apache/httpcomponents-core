@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,6 +48,9 @@ class H2Streams {
     private final Queue<H2Stream> streams;
     private final AtomicInteger lastLocalId;
     private final AtomicInteger lastRemoteId;
+    private final AtomicInteger inboundActive = new AtomicInteger(0);
+    private final Set<Integer> inboundActiveSet = ConcurrentHashMap.newKeySet();
+    private final Set<Integer> reservedRemoteSet = ConcurrentHashMap.newKeySet();
 
     public H2Streams(final StreamIdGenerator idGenerator) {
         this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
@@ -100,6 +104,10 @@ class H2Streams {
 
     public void release(final H2Stream stream) {
         streamMap.remove(stream.getId());
+        if (inboundActiveSet.remove(stream.getId())) {
+            inboundActive.decrementAndGet();
+        }
+        reservedRemoteSet.remove(stream.getId());
         stream.releaseResources();
     }
 
@@ -114,6 +122,9 @@ class H2Streams {
         }
         streams.clear();
         streamMap.clear();
+        inboundActiveSet.clear();
+        reservedRemoteSet.clear();
+        inboundActive.set(0);
     }
 
     public H2Stream lookup(final int streamId) {
@@ -166,5 +177,25 @@ class H2Streams {
         }
     }
 
+    public void markReservedRemote(final int streamId) {
+        reservedRemoteSet.add(streamId);
+    }
+
+    public boolean tryActivateRemote(final int streamId, final int maxInboundConcurrent) {
+        if (inboundActiveSet.contains(streamId)) {
+            return true;
+        }
+        for (;;) {
+            final int cur = inboundActive.get();
+            if (cur >= maxInboundConcurrent) {
+                return false;
+            }
+            if (inboundActive.compareAndSet(cur, cur + 1)) {
+                inboundActiveSet.add(streamId);
+                reservedRemoteSet.remove(streamId);
+                return true;
+            }
+        }
+    }
 
 }
