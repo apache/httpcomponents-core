@@ -318,15 +318,15 @@ public final class IOReactorConfig {
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECOND;
-            this.soKeepAlive = false;
+            this.soKeepAlive = true;
             this.tcpNoDelay = true;
             this.trafficClass = 0;
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
-            this.tcpKeepIdle = -1;
-            this.tcpKeepInterval = -1;
-            this.tcpKeepCount = -1;
+            this.tcpKeepIdle = 5;
+            this.tcpKeepInterval = 5;
+            this.tcpKeepCount = 3;
             this.socksProxyAddress = null;
             this.socksProxyUsername = null;
             this.socksProxyPassword = null;
@@ -436,7 +436,7 @@ public final class IOReactorConfig {
          * Sets the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
          * for newly created sockets.
          * <p>
-         * Default: {@code -1}
+         * Default: {@code true}
          * </p>
          *
          * @return this instance.
@@ -526,6 +526,9 @@ public final class IOReactorConfig {
         /**
          * Sets the time (in seconds) the connection needs to remain idle before TCP starts
          * sending keepalive probes.
+         * <p>
+         * Default: {@code 5}
+         * </p>
          *
          * @return this instance.
          * @since 5.3
@@ -537,6 +540,9 @@ public final class IOReactorConfig {
 
         /**
          * Sets the time (in seconds) between individual keepalive probes.
+         * <p>
+         * Default: {@code 5}
+         * </p>
          *
          * @return this instance.
          * @since 5.3
@@ -548,6 +554,9 @@ public final class IOReactorConfig {
 
         /**
          * Sets the maximum number of keepalive probes TCP should send before dropping the connection.
+         * <p>
+         * Default: {@code 3}
+         * </p>
          *
          * @return this instance.
          * @since 5.3
