@@ -135,7 +135,7 @@ class RequestListener implements Runnable {
                     this.executorService.execute(worker);
                 } catch (final IOException | RuntimeException ex) {
                     Closer.closeQuietly(socket);
-                    throw ex;
+                    this.exceptionListener.onError(ex);
                 }
             }
         } catch (final Exception ex) {
