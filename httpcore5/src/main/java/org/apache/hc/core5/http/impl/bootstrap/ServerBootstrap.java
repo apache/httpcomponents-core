@@ -98,10 +98,12 @@ public class ServerBootstrap {
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionListener exceptionListener;
     private Http1StreamListener streamListener;
+    private boolean localAuthorityResolver;
 
     private ServerBootstrap() {
         this.routeEntries = new ArrayList<>();
         this.filters = new ArrayList<>();
+        this.localAuthorityResolver = false;
     }
 
     public static ServerBootstrap bootstrap() {
@@ -346,6 +348,16 @@ public class ServerBootstrap {
         return this;
     }
 
+    /**
+     * Create {@link RequestRouter} with LOCAL_AUTHORITY_RESOLVER (default: IGNORE_PORT_AUTHORITY_RESOLVER).
+     *
+     * @since 5.4
+     */
+    public final ServerBootstrap enableLocalAuthorityResolver() {
+        this.localAuthorityResolver = true;
+        return this;
+    }
+
     public HttpServer create() {
         final String actualCanonicalHostName = canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName();
         final HttpRequestMapper<HttpRequestHandler> requestRouterCopy;
@@ -362,10 +374,10 @@ public class ServerBootstrap {
                 requestRouterCopy = requestRouter;
             } else {
                 requestRouterCopy = RequestRouter.create(
-                        new URIAuthority(actualCanonicalHostName),
+                        this.localAuthorityResolver ? RequestRouter.LOCAL_AUTHORITY : new URIAuthority(actualCanonicalHostName),
                         UriPatternType.URI_PATTERN,
                         routeEntries,
-                        RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
+                        this.localAuthorityResolver ? RequestRouter.LOCAL_AUTHORITY_RESOLVER : RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
                         requestRouter);
             }
         }
