@@ -207,7 +207,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-        return this.channel.read(dst);
+            return this.channel.read(dst);
     }
 
     @Override
@@ -269,6 +269,11 @@ class IOSessionImpl implements IOSession {
                     this.channel.setOption(StandardSocketOptions.SO_LINGER, 0);
                 } catch (final UnsupportedOperationException | IOException e) {
                     // Quietly ignore
+                }
+            } else {
+                try {
+                    this.channel.shutdownOutput();
+                } catch (final IOException ignore) {
                 }
             }
             lock.lock();

@@ -69,7 +69,7 @@ public class HttpAsyncServerResource implements AfterEachCallback {
         LOG.debug("Shutting down test server");
         if (server != null) {
             try {
-                server.close(CloseMode.IMMEDIATE);
+                server.close(CloseMode.GRACEFUL);
             } catch (final Exception ignore) {
             }
         }
