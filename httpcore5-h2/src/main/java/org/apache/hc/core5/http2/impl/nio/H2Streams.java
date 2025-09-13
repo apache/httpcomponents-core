@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.util.Args;
 
@@ -118,6 +120,12 @@ class H2Streams {
 
     public H2Stream createReserved(final H2StreamChannel channel, final H2StreamHandler streamHandler) {
         return createStream(channel, streamHandler);
+    }
+
+    public void resetIfExceedsMaxConcurrentLimit(final H2Stream stream, final int max) throws IOException {
+        if (stream.isActive() && getRemoteCount() > max) {
+            stream.localReset(new H2StreamResetException(H2Error.REFUSED_STREAM, "Local SETTINGS_MAX_CONCURRENT_STREAMS exceeded"));
+        }
     }
 
     public void dropStreamId(final int streamId) {

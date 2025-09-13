@@ -746,6 +746,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     final H2StreamChannel channel = createChannel(streamId);
                     if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
                         stream = streams.createActive(channel, incomingRequest(channel));
+                        streams.resetIfExceedsMaxConcurrentLimit(stream, localConfig.getMaxConcurrentStreams());
                     } else {
                         channel.localReset(H2Error.REFUSED_STREAM);
                         stream = streams.createActive(channel, NoopH2StreamHandler.INSTANCE);
@@ -754,6 +755,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
                 } else if (stream.isReserved()) {
                     stream.activate();
+                    streams.resetIfExceedsMaxConcurrentLimit(stream, localConfig.getMaxConcurrentStreams());
                 }
                 try {
                     consumeHeaderFrame(frame, stream);

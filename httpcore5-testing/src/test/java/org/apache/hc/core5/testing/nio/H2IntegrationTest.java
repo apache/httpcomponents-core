@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HeaderElements;
@@ -133,8 +134,9 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
         super.testSlowResponseProducer();
     }
 
-    @Test
-    void testPush() throws Exception {
+    @ParameterizedTest(name = "Max concurrent streams: {0}")
+    @ValueSource(ints = {200, 20, 1})
+    void testPush(final int maxConcurrentStreams) throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -154,6 +156,9 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                         context);
             }
         });
+        server.configure(H2Config.custom()
+                .setMaxConcurrentStreams(maxConcurrentStreams)
+                .build());
 
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -161,6 +166,7 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
 
         client.configure(H2Config.custom()
                 .setPushEnabled(true)
+                .setMaxConcurrentStreams(maxConcurrentStreams)
                 .build());
         client.start();
 
@@ -198,7 +204,23 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                         }
                     },
                     null,
-                    null));
+                    new FutureCallback<Message<HttpResponse, String>>() {
+
+                        @Override
+                        public void completed(final Message<HttpResponse, String> result) {
+                        }
+
+                        @Override
+                        public void failed(final Exception ex) {
+                            latch.countDown();
+                        }
+
+                        @Override
+                        public void cancelled() {
+                            latch.countDown();
+                        }
+
+                    }));
         }
 
         Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -324,21 +346,22 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
         Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
     }
 
-    @Test
-    void testExcessOfConcurrentStreams() throws Exception {
+    @ParameterizedTest(name = "Max concurrent streams: {0}")
+    @ValueSource(ints = {200, 20, 1})
+    void testExcessOfConcurrentStreams(final int maxConcurrentStreams) throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         server.configure(H2Config.custom()
-                .setMaxConcurrentStreams(20)
+                .setMaxConcurrentStreams(maxConcurrentStreams)
                 .build());
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
 
         client.configure(H2Config.custom()
-                .setMaxConcurrentStreams(20)
+                .setMaxConcurrentStreams(maxConcurrentStreams )
                 .build());
         client.start();
 
