@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http2.H2Error;
@@ -56,6 +55,7 @@ class H2Stream {
     private final Consumer<State> stateChangeCallback;
     private final AtomicReference<State> transitionRef;
     private final AtomicBoolean released;
+    private final AtomicBoolean cancelled;
 
     private volatile boolean reserved;
     private volatile boolean remoteClosed;
@@ -67,6 +67,7 @@ class H2Stream {
         this.reserved = true;
         this.transitionRef = new AtomicReference<>(State.RESERVED);
         this.released = new AtomicBoolean();
+        this.cancelled = new AtomicBoolean();
     }
 
     int getId() {
@@ -136,6 +137,10 @@ class H2Stream {
             if (channel.isLocalReset()) {
                 return;
             }
+            if (cancelled.get()) {
+                localResetCancelled();
+                return;
+            }
             handler.consumePromise(headers);
             channel.markLocalClosed();
         } catch (final ProtocolException ex) {
@@ -151,6 +156,10 @@ class H2Stream {
             if (channel.isLocalReset()) {
                 return;
             }
+            if (cancelled.get()) {
+                localResetCancelled();
+                return;
+            }
             handler.consumeHeader(headers, remoteClosed);
         } catch (final ProtocolException ex) {
             localReset(ex, H2Error.PROTOCOL_ERROR);
@@ -163,6 +172,10 @@ class H2Stream {
                 remoteClosed = true;
             }
             if (channel.isLocalReset()) {
+                return;
+            }
+            if (cancelled.get()) {
+                localResetCancelled();
                 return;
             }
             handler.consumeData(src, remoteClosed);
@@ -222,6 +235,10 @@ class H2Stream {
         localReset(ex, ex.getCode());
     }
 
+    void localResetCancelled() throws IOException {
+        localReset(new H2StreamResetException(H2Error.CANCEL, "Cancelled"));
+    }
+
     void handle(final HttpException ex) throws IOException, HttpException {
         handler.handle(ex, remoteClosed);
     }
@@ -231,16 +248,12 @@ class H2Stream {
     }
 
     boolean abort() {
-        final boolean cancelled = channel.cancel();
-        if (released.compareAndSet(false, true)) {
-            try {
-                handler.failed(new StreamClosedException());
-                handler.releaseResources();
-            } finally {
-                triggerClosed();
-            }
+        if (cancelled.compareAndSet(false, true)) {
+            channel.requestOutput();
+            return true;
+        } else {
+            return false;
         }
-        return cancelled;
     }
 
     boolean abortGracefully() throws IOException {

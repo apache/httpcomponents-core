@@ -1367,6 +1367,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (headers == null || headers.isEmpty()) {
                     throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
                 }
+                if (isLocalReset()) {
+                    return;
+                }
                 ensureNotClosed();
                 commitHeaders(id, headers, endStream);
                 if (endStream) {
@@ -1382,6 +1385,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             acceptPushRequest();
             ioSession.getLock().lock();
             try {
+                if (isLocalReset()) {
+                    return;
+                }
                 ensureNotClosed();
                 final int promisedStreamId = streams.generateStreamId();
                 final H2StreamChannel channel = createChannel(promisedStreamId);
@@ -1405,6 +1411,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         public int write(final ByteBuffer payload) throws IOException {
             ioSession.getLock().lock();
             try {
+                if (isLocalReset()) {
+                    return 0;
+                }
                 ensureNotClosed();
                 return streamData(id, outputWindow, payload);
             } finally {
@@ -1416,6 +1425,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         public void endStream(final List<? extends Header> trailers) throws IOException {
             ioSession.getLock().lock();
             try {
+                if (isLocalReset()) {
+                    return;
+                }
                 ensureNotClosed();
                 localClosed = true;
                 if (trailers != null && !trailers.isEmpty()) {
