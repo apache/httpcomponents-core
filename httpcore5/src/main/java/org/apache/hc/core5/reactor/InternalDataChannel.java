@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,7 +65,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final NamedEndpoint initialEndpoint;
     private final Decorator<IOSession> ioSessionDecorator;
     private final IOSessionListener sessionListener;
-    private final Queue<InternalDataChannel> closedSessions;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final AtomicReference<IOSession> currentSessionRef;
     private final AtomicReference<IOEventHandler> eventHandlerRef;
@@ -77,11 +75,9 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
             final IOSession ioSession,
             final NamedEndpoint initialEndpoint,
             final Decorator<IOSession> ioSessionDecorator,
-            final IOSessionListener sessionListener,
-            final Queue<InternalDataChannel> closedSessions) {
+            final IOSessionListener sessionListener) {
         this.ioSession = ioSession;
         this.initialEndpoint = initialEndpoint;
-        this.closedSessions = closedSessions;
         this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>();
@@ -189,23 +185,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         }
     }
 
-    void onTLSSessionEnd(final SSLIOSession sslSession) {
-        if (closed.compareAndSet(false, true)) {
-            closedSessions.add(this);
-        }
-    }
-
-    void disconnected() {
-        final IOSession currentSession = currentSessionRef.get();
-        if (sessionListener != null) {
-            sessionListener.disconnected(currentSession);
-        }
-        final IOEventHandler handler = currentSession.getHandler();
-        if (handler != null) {
-            handler.disconnected(currentSession);
-        }
-    }
-
     @Override
     public void startTls(
             final SSLContext sslContext,
@@ -236,7 +215,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 verifier,
                 handshakeTimeout,
                 this::onTLSSessionStart,
-                this::onTLSSessionEnd,
+                null,
                 new CallbackContribution<SSLSession>(callback) {
 
                     @Override
@@ -281,18 +260,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public void close(final CloseMode closeMode) {
-        final IOSession currentSession = currentSessionRef.get();
         if (closeMode == CloseMode.IMMEDIATE) {
-            closed.set(true);
-            currentSession.close(closeMode);
+            ioSession.close(closeMode);
         } else {
-            if (closed.compareAndSet(false, true)) {
-                try {
-                    currentSession.close(closeMode);
-                } finally {
-                    closedSessions.add(this);
-                }
-            }
+            final IOSession currentSession = currentSessionRef.get();
+            currentSession.close(closeMode);
         }
     }
 

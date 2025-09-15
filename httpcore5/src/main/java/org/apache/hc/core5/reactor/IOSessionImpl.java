@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
@@ -57,6 +58,7 @@ class IOSessionImpl implements IOSession {
     private final Lock lock;
     private final String id;
     private final AtomicReference<IOEventHandler> handlerRef;
+    private final Callback<IOSession> sessionClosedCallback;
     private final AtomicReference<IOSession.Status> status;
 
     private volatile Timeout socketTimeout;
@@ -64,10 +66,12 @@ class IOSessionImpl implements IOSession {
     private volatile long lastWriteTime;
     private volatile long lastEventTime;
 
-    public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel) {
+    public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel,
+                         final Callback<IOSession> sessionClosedCallback) {
         super();
         this.key = Args.notNull(key, "Selection key");
         this.channel = Args.notNull(socketChannel, "Socket channel");
+        this.sessionClosedCallback = sessionClosedCallback;
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
         this.socketTimeout = Timeout.INFINITE;
@@ -264,28 +268,34 @@ class IOSessionImpl implements IOSession {
     @Override
     public void close(final CloseMode closeMode) {
         if (this.status.compareAndSet(Status.ACTIVE, Status.CLOSED)) {
-            if (closeMode == CloseMode.IMMEDIATE) {
-                try {
-                    this.channel.setOption(StandardSocketOptions.SO_LINGER, 0);
-                } catch (final UnsupportedOperationException | IOException e) {
-                    // Quietly ignore
-                }
-            } else {
-                try {
-                    this.channel.shutdownOutput();
-                } catch (final IOException ignore) {
-                }
-            }
-            lock.lock();
             try {
-                this.key.cancel();
-                this.key.attach(null);
+                if (closeMode == CloseMode.IMMEDIATE) {
+                    try {
+                        this.channel.setOption(StandardSocketOptions.SO_LINGER, 0);
+                    } catch (final UnsupportedOperationException | IOException e) {
+                        // Quietly ignore
+                    }
+                } else {
+                    try {
+                        this.channel.shutdownOutput();
+                    } catch (final IOException ignore) {
+                    }
+                }
+                lock.lock();
+                try {
+                    this.key.cancel();
+                    this.key.attach(null);
+                } finally {
+                    lock.unlock();
+                }
+                Closer.closeQuietly(this.key.channel());
+                if (this.key.selector().isOpen()) {
+                    this.key.selector().wakeup();
+                }
             } finally {
-                lock.unlock();
-            }
-            Closer.closeQuietly(this.key.channel());
-            if (this.key.selector().isOpen()) {
-                this.key.selector().wakeup();
+                if (sessionClosedCallback != null) {
+                    sessionClosedCallback.execute(this);
+                }
             }
         }
     }
