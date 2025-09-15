@@ -773,7 +773,11 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             this.session.enqueue(command, priority);
-            setEvent(SelectionKey.OP_WRITE);
+            if (status == Status.ACTIVE) {
+                setEvent(SelectionKey.OP_WRITE);
+            } else {
+                command.cancel();
+            }
         } finally {
             this.session.getLock().unlock();
         }
