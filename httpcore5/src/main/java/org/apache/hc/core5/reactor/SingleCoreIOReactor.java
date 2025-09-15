@@ -62,7 +62,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final Decorator<IOSession> ioSessionDecorator;
     private final IOSessionListener sessionListener;
     private final Callback<IOSession> sessionShutdownCallback;
-    private final Queue<InternalDataChannel> closedSessions;
+    private final Queue<IOSession> closedSessions;
     private final Queue<ChannelEntry> channelQueue;
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
@@ -205,13 +205,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             } catch (final ClosedChannelException ex) {
                 return;
             }
-            final IOSession ioSession = new IOSessionImpl("a", key, socketChannel);
+            final IOSessionImpl ioSession = new IOSessionImpl("a", key, socketChannel, closedSessions::add);
             final InternalDataChannel dataChannel = new InternalDataChannel(
                     ioSession,
                     null,
                     ioSessionDecorator,
-                    sessionListener,
-                    closedSessions);
+                    sessionListener);
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout());
             dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, attachment));
             key.attach(dataChannel);
@@ -221,12 +220,18 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void processClosedSessions() {
         for (;;) {
-            final InternalDataChannel dataChannel = this.closedSessions.poll();
-            if (dataChannel == null) {
+            final IOSession ioSession = this.closedSessions.poll();
+            if (ioSession == null) {
                 break;
             }
             try {
-                dataChannel.disconnected();
+                if (sessionListener != null) {
+                    sessionListener.disconnected(ioSession);
+                }
+                final IOEventHandler handler = ioSession.getHandler();
+                if (handler != null) {
+                    handler.disconnected(ioSession);
+                }
             } catch (final CancelledKeyException ex) {
                 // ignore and move on
             }
@@ -352,13 +357,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         validateAddress(remoteAddress);
         final boolean connected = socketChannel.connect(remoteAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-        final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
+        final IOSessionImpl ioSession = new IOSessionImpl("c", key, socketChannel, closedSessions::add);
         final InternalDataChannel dataChannel = new InternalDataChannel(
                 ioSession,
                 sessionRequest.remoteEndpoint,
                 ioSessionDecorator,
-                sessionListener,
-                closedSessions);
+                sessionListener);
         dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
         final InternalChannel connectChannel = new InternalConnectChannel(
                 key,
