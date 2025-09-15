@@ -107,9 +107,9 @@ class IOSessionImpl implements IOSession {
         } else {
             commandQueue.add(command);
         }
-        setEvent(SelectionKey.OP_WRITE);
-
-        if (isStatusClosed()) {
+        if (status.get() == Status.ACTIVE) {
+            setEvent(SelectionKey.OP_WRITE);
+        } else {
             command.cancel();
         }
     }
