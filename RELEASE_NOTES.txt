@@ -1,3 +1,35 @@
+Release 5.3.6
+------------------
+
+This maintenance release fixes a regression introduced by the previous release that can cause
+a temporary I/O spin during HTTP/2 connection shutdown in case the opposite endpoint fails
+to send a GOAWAY frame, and also fixes several bugs related to abnormal termination of HTTP/2
+connections found since the last release.
+
+
+Change Log
+-------------------
+
+* Bug fix: #disconnected method of protocol handlers is to be called only once
+  the underlying I/O session has been fully closed out.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed a race between async I/O session termination and command submission.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Async I/O sessions to explicitly close the I/O channel for output in GRACEFUL
+  close mode.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Classic HTTP server to keep RequestListener thread running when an exception
+  occurs during initialization of the incoming connection.
+  Contributed by Christian de Waal <christian at de.waal.name>
+
+* Regression: Improved HTTP/2 connection termination in case of the opposite endpoint
+  failing to send a GOAWAY frame (correction).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.3.5
 ------------------
 
