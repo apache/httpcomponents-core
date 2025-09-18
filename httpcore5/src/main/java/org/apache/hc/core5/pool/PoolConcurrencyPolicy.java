@@ -41,6 +41,11 @@ public enum PoolConcurrencyPolicy {
     /**
      * Strict connection max limit guarantees.
      */
-    STRICT
+    STRICT,
+    /**
+     * Lock-free, route-segmented pool: avoids blocking leases during slow connection disposal.
+     * @since 5.4
+     */
+    OFFLOCK
 
 }
