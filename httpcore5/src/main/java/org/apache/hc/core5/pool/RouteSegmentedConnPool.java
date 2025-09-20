@@ -77,7 +77,8 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     private final PoolReusePolicy reusePolicy;
     private final TimeValue timeToLive;
     private final DisposalCallback<C> disposal;
-    private final int defaultMaxPerRoute;
+
+    private final AtomicInteger defaultMaxPerRoute = new AtomicInteger(5);
 
     private final ConcurrentHashMap<R, Segment> segments = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<R, Integer> maxPerRoute = new ConcurrentHashMap<>();
@@ -95,7 +96,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             final PoolReusePolicy reusePolicy,
             final DisposalCallback<C> disposal) {
 
-        this.defaultMaxPerRoute = defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 5;
+        this.defaultMaxPerRoute.set(defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 5);
         this.maxTotal.set(maxTotal > 0 ? maxTotal : 25);
         this.timeToLive = timeToLive != null ? timeToLive : TimeValue.NEG_ONE_MILLISECOND;
         this.reusePolicy = reusePolicy != null ? reusePolicy : PoolReusePolicy.LIFO;
@@ -116,7 +117,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
         int limitPerRoute(final R route) {
             final Integer v = maxPerRoute.get(route);
-            return v != null ? v : defaultMaxPerRoute;
+            return v != null ? v : defaultMaxPerRoute.get();
         }
     }
 
@@ -358,18 +359,18 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     @Override
     public int getDefaultMaxPerRoute() {
-        return defaultMaxPerRoute;
+        return defaultMaxPerRoute.get();
     }
 
     @Override
     public void setDefaultMaxPerRoute(final int max) {
-        throw new UnsupportedOperationException("defaultMaxPerRoute is defined by the constructor");
+        defaultMaxPerRoute.set(Math.max(1, max));
     }
 
     @Override
     public int getMaxPerRoute(final R route) {
         final Integer v = maxPerRoute.get(route);
-        return v != null ? v : defaultMaxPerRoute;
+        return v != null ? v : defaultMaxPerRoute.get();
     }
 
     @Override
