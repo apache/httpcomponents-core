@@ -80,6 +80,8 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private final ReentrantLock lock;
     private final AtomicBoolean isShutDown;
 
+    private final AtomicBoolean dispatching = new AtomicBoolean(false);
+
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
 
@@ -225,6 +227,11 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public void release(final PoolEntry<T, C> entry, final boolean reusable) {
+        releaseInternal(entry, reusable);
+        fireCallbacks();
+    }
+
+    private void releaseInternal(final PoolEntry<T, C> entry, final boolean reusable) {
         if (entry == null) {
             return;
         }
@@ -264,7 +271,6 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         } finally {
             this.lock.unlock();
         }
-        fireCallbacks();
     }
 
     private void processPendingRequests() {
@@ -384,23 +390,35 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private void fireCallbacks() {
-        LeaseRequest<T, C> request;
-        while ((request = this.completedRequests.poll()) != null) {
-            final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
-            final Exception ex = request.getException();
-            final PoolEntry<T, C> result = request.getResult();
-            boolean successfullyCompleted = false;
-            if (ex != null) {
-                future.failed(ex);
-            } else if (result != null) {
-                if (future.completed(result)) {
-                    successfullyCompleted = true;
-                }
-            } else {
-                future.cancel();
+        for (;;) {
+            if (!dispatching.compareAndSet(false, true)) {
+                return;
             }
-            if (!successfullyCompleted) {
-                release(result, true);
+            try {
+                LeaseRequest<T, C> request;
+                while ((request = this.completedRequests.poll()) != null) {
+                    final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
+                    final Exception ex = request.getException();
+                    final PoolEntry<T, C> result = request.getResult();
+                    boolean delivered = false;
+                    if (ex != null) {
+                        future.failed(ex);
+                    } else if (result != null) {
+                        delivered = future.completed(result);
+                    } else {
+                        future.cancel();
+                    }
+                    if (!delivered && result != null) {
+                        // return quietly to pool without triggering another drain
+                        releaseInternal(result, true);
+                    }
+                }
+            } finally {
+                dispatching.set(false);
+            }
+            // if something arrived while we were draining, loop once more
+            if (this.completedRequests.isEmpty()) {
+                break;
             }
         }
     }
