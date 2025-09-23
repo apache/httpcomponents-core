@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http2.examples;
 
+import java.security.Provider;
+import java.security.Security;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -43,6 +45,7 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
@@ -55,7 +58,7 @@ import org.conscrypt.Conscrypt;
 
 /**
  * This example demonstrates how to execute HTTP/2 requests over TLS connections
- * with Java 1.7 or Java 1.8 and Conscrypt TLS library
+ * with Conscrypt TLS library.
  */
 public class H2ConscriptRequestExecutionExample {
 
@@ -66,13 +69,20 @@ public class H2ConscriptRequestExecutionExample {
                 .setPushEnabled(false)
                 .build();
 
+        final Provider conscryptProvider = Conscrypt.newProviderBuilder()
+                .provideTrustManager(true)
+                .build();
+
+        Security.insertProviderAt(conscryptProvider, 1);
+
         final SSLContext sslContext = SSLContexts.custom()
-                .setProvider(Conscrypt.newProvider())
                 .build();
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
+                // For JRE versions 11 or newer the standard H2ClientTlsStrategy should be used instead
                 .setTlsStrategy(new ConscryptClientTlsStrategy(sslContext))
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                 .setStreamListener(new H2StreamListener() {
 
                     @Override
