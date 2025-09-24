@@ -27,41 +27,48 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.http2.ssl.ConscryptClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.ConscryptServerTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 
-class JSSEProviderIntegrationTests {
+class AlpnTests {
 
     @Nested
-    @DisplayName("Oracle (default)")
-    class Oracle extends JSSEProviderIntegrationTest {
+    @DisplayName("ALPN Oracle")
+    class OracleJSSEAlpnTest extends AlpnTest {
 
-        public Oracle() {
-            super("Oracle", null);
+        public OracleJSSEAlpnTest() throws Exception {
+            super("Oracle", H2ServerTlsStrategy::new, H2ClientTlsStrategy::new);
         }
 
     }
 
     @Nested
-    @DisplayName("Conscrypt (TLSv1.2)")
+    @DisplayName("ALPN Conscrypt (Java 9 or newer)")
     @DisabledOnOs(OS.MAC)
-    class ConscryptTlsV1_2 extends JSSEProviderIntegrationTest {
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    class ConscryptJSSEAlpnTest extends AlpnTest {
 
-        public ConscryptTlsV1_2() {
-            super("Conscrypt", "TLSv1.2");
+        public ConscryptJSSEAlpnTest() throws Exception {
+            super("Conscrypt", H2ServerTlsStrategy::new, H2ClientTlsStrategy::new);
         }
 
     }
 
     @Nested
-    @DisplayName("Conscrypt (TLSv1.3)")
+    @DisplayName("ALPN Conscrypt (Conscrypt specific TLS strategies)")
     @DisabledOnOs(OS.MAC)
-    class ConscryptTlsV1_3 extends JSSEProviderIntegrationTest {
+    class ConscryptJSSEAndStrategiesAlpnTest extends AlpnTest {
 
-        public ConscryptTlsV1_3() {
-            super("Conscrypt", "TLSv1.3");
+        public ConscryptJSSEAndStrategiesAlpnTest() throws Exception {
+            super("Conscrypt", ConscryptServerTlsStrategy::new, ConscryptClientTlsStrategy::new);
         }
 
     }

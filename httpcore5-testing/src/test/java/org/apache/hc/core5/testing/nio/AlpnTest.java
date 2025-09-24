@@ -31,6 +31,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
@@ -48,35 +51,47 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.extension.SecurityProviderResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-class H2ProtocolNegotiationTest {
+abstract class AlpnTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @RegisterExtension
+    @Order(1)
+    private final SecurityProviderResource securityProviderResource;
+    @RegisterExtension
+    @Order(2)
     private final H2AsyncServerResource serverResource;
     @RegisterExtension
+    @Order(3)
     private final H2AsyncRequesterResource clientResource;
 
-    public H2ProtocolNegotiationTest() {
+    public AlpnTest(final String securityProviderName,
+                    final Function<SSLContext, TlsStrategy> serverTlsStrategyFactory,
+                    final Function<SSLContext, TlsStrategy> clientTlsStrategyFactory) {
+        this.securityProviderResource = new SecurityProviderResource(securityProviderName);
         this.serverResource = new H2AsyncServerResource();
         this.serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
+                .setTlsStrategy(serverTlsStrategyFactory != null ?
+                        serverTlsStrategyFactory.apply(SSLTestContexts.createServerSSLContext()) :
+                        new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -89,7 +104,9 @@ class H2ProtocolNegotiationTest {
         this.clientResource = new H2AsyncRequesterResource();
         this.clientResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setTlsStrategy(clientTlsStrategyFactory != null ?
+                        clientTlsStrategyFactory.apply(SSLTestContexts.createServerSSLContext()) :
+                        new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
