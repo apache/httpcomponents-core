@@ -44,8 +44,11 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Basic side-side implementation of {@link TlsStrategy} that upgrades to TLS for endpoints
- * with the specified local ports.
+ * Default server-side implementation of {@link TlsStrategy} that upgrades inbound connections
+ * with TLS security. This strategy will try to negotiate an application protocol
+ * using TLS ALPN extension based on {@link org.apache.hc.core5.http2.HttpVersionPolicy}
+ * passed to the strategy as an attachment. The strategy will also enforce restrictions on
+ * TLS parameters required by the HTTP/2 specification.
  *
  * @since 5.0
  */

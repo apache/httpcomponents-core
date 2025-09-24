@@ -45,8 +45,14 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Basic client-side implementation of {@link TlsStrategy} that upgrades to TLS for all endpoints
- * with {@code HTTPS} scheme.
+ * Basic client-side implementation of {@link TlsStrategy} that upgrades outbound connections
+ * with TLS security but does not make use of TLS ALPN extension to negotiate an application
+ * protocol. This strategy will also automatically enforce restrictions on TLS parameters
+ * by excluding TLS versions and ciphers considered weak.
+ * <p>
+ * This strategy should not be used unless no TLS ALPN support is actually desired. One is
+ * advised to use a custom {@link TlsStrategy} implementation or an implementation provided
+ * by the HTTP/2 module.
  *
  * @since 5.0
  */

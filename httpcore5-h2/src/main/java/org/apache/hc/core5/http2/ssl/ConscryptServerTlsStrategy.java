@@ -44,8 +44,10 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Basic side-side implementation of {@link TlsStrategy} that upgrades to TLS for endpoints
- * with the specified local ports.
+ * Conscrypt specific server-side implementation of {@link TlsStrategy} that upgrades inbound
+ * connection with TLS security. This strategy will try to negotiate an application protocol
+ * using TLS ALPN extension support through Conscrypt native APIs based on
+ * {@link org.apache.hc.core5.http2.HttpVersionPolicy} passed to the strategy as an attachment.
  *
  * @since 5.0
  */
