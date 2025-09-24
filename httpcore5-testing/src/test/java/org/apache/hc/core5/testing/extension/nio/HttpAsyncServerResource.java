@@ -53,6 +53,7 @@ public class HttpAsyncServerResource implements AfterEachCallback {
 
     public HttpAsyncServerResource() {
         this.bootstrap = AsyncServerBootstrap.bootstrap()
+                .setCanonicalHostName("localhost")
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)

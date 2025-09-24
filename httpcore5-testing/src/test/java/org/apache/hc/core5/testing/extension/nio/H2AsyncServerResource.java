@@ -53,6 +53,7 @@ public class H2AsyncServerResource implements AfterEachCallback {
 
     public H2AsyncServerResource() {
         this.bootstrap = H2ServerBootstrap.bootstrap()
+                .setCanonicalHostName("localhost")
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setStreamListener(LoggingH2StreamListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

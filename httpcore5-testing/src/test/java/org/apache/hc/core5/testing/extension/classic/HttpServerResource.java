@@ -50,6 +50,7 @@ public class HttpServerResource implements AfterEachCallback {
 
     public HttpServerResource() {
         this.bootstrap = ServerBootstrap.bootstrap()
+                .setCanonicalHostName("localhost")
                 .setExceptionListener(LoggingExceptionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE);
     }

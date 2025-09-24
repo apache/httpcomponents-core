@@ -137,6 +137,7 @@ class TLSIntegrationTest {
 
     HttpAsyncServer createServer(final TlsStrategy tlsStrategy) {
         return AsyncServerBootstrap.bootstrap()
+                .setCanonicalHostName("localhost")
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
