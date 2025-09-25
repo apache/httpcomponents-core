@@ -42,7 +42,7 @@ public interface HttpConnection extends SocketModalCloseable {
     /**
      * Closes this connection gracefully. This method will attempt to flush the internal output
      * buffer prior to closing the underlying socket. This method MUST NOT be called from a
-     * different thread to force shutdown of the connection. Use {@link #close shutdown} instead.
+     * different thread to force shutdown of the connection. Use {@link #close(CloseMode) close(CloseMode.IMMEDIATE)} instead.
      */
     @Override
     void close() throws IOException;
