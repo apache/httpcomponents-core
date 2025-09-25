@@ -111,7 +111,7 @@ class IOSessionImpl implements IOSession {
         } else {
             commandQueue.add(command);
         }
-        if (status.get() == Status.ACTIVE) {
+        if (isOpen()) {
             setEvent(SelectionKey.OP_WRITE);
         } else {
             command.cancel();
