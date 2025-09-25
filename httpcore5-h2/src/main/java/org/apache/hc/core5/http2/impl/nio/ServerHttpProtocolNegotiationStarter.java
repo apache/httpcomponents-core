@@ -83,12 +83,12 @@ public class ServerHttpProtocolNegotiationStarter implements IOEventHandlerFacto
         URIScheme uriScheme = URIScheme.HTTP;
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
-            if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
-                uriScheme = URIScheme.HTTPS;
-                tlsStrategy.upgrade(ioSession, params, params.getAttachment(), handshakeTimeout, null);
-            }
             if (params.getAttachment() instanceof HttpVersionPolicy) {
                 endpointPolicy = (HttpVersionPolicy) params.getAttachment();
+            }
+            if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
+                uriScheme = URIScheme.HTTPS;
+                tlsStrategy.upgrade(ioSession, params, endpointPolicy, handshakeTimeout, null);
             }
         }
 

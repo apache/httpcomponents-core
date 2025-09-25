@@ -137,6 +137,31 @@ abstract class AlpnTest {
     }
 
     @Test
+    void testForceHttp1GlobalPolicy() throws Exception {
+        serverResource.configure(bootstrap ->
+                bootstrap.setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_1));
+        final HttpAsyncServer server = serverResource.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
+        final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT);
+        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+        final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
+                new BasicRequestProducer(Method.POST, target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message1, CoreMatchers.notNullValue());
+        final HttpResponse response1 = message1.getHead();
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
+    }
+
+    @Test
     void testForceHttp2() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
@@ -146,6 +171,31 @@ abstract class AlpnTest {
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
+        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+        final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
+                new BasicRequestProducer(Method.POST, target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message1, CoreMatchers.notNullValue());
+        final HttpResponse response1 = message1.getHead();
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
+    }
+
+    @Test
+    void testForceHttp2GlobalPolicy() throws Exception {
+        serverResource.configure(bootstrap ->
+                bootstrap.setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2));
+        final HttpAsyncServer server = serverResource.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
+        final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
         final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
