@@ -72,15 +72,16 @@ final class InternalConnectChannel extends InternalChannel {
             //check out connectTimeout
             final long now = System.currentTimeMillis();
             if (checkTimeout(now)) {
-                key.attach(dataChannel);
                 if (reactorConfig.getSocksProxyAddress() == null) {
                     dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, sessionRequest.attachment));
+                    key.attach(dataChannel);
                     sessionRequest.completed(dataChannel);
                     dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
                 } else {
                     final IOEventHandler ioEventHandler = new SocksProxyProtocolHandler(
                             dataChannel, sessionRequest, eventHandlerFactory, reactorConfig);
                     dataChannel.upgrade(ioEventHandler);
+                    key.attach(dataChannel);
                     ioEventHandler.connected(dataChannel);
                 }
             }
