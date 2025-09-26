@@ -38,6 +38,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
@@ -64,6 +65,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -513,6 +515,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     executeRequest((RequestExecutionCommand) command);
                 } else if (command instanceof PushResponseCommand) {
                     executePush((PushResponseCommand) command);
+                } else if (command instanceof StaleCheckCommand) {
+                    executeStaleCheck((StaleCheckCommand) command);
                 }
                 if (!outputQueue.isEmpty()) {
                     return;
@@ -615,6 +619,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         pingHandlers.add(handler);
         final RawFrame ping = frameFactory.createPing(handler.getData());
         commitFrame(ping);
+    }
+
+    private void executeStaleCheck(final StaleCheckCommand staleCheckCommand) {
+        final Consumer<Boolean> callback = staleCheckCommand.getCallback();
+        callback.accept(ioSession.isOpen() &&
+                connState.compareTo(ConnectionHandshake.ACTIVE) == 0);
     }
 
     private void executeRequest(final RequestExecutionCommand requestExecutionCommand) throws IOException, HttpException {
