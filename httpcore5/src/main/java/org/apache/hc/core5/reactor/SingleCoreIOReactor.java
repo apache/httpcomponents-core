@@ -114,6 +114,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     void doTerminate() {
         closePendingChannels();
         closePendingConnectionRequests();
+        closeOpenChannels();
         processClosedSessions();
     }
 
@@ -409,6 +410,16 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         } else {
             key.attach(connectChannel);
             sessionRequest.assign(connectChannel);
+        }
+    }
+
+    private void closeOpenChannels() {
+        for (final SelectionKey key : selector.keys()) {
+            final Object attachment = key.attachment();
+            if (attachment instanceof InternalChannel) {
+                final InternalChannel channel = (InternalChannel) attachment;
+                channel.close(CloseMode.IMMEDIATE);
+            }
         }
     }
 
