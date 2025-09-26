@@ -95,6 +95,7 @@ public class AsyncServerBootstrap {
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private IOReactorMetricsListener threadPoolListener;
+    private boolean localAuthorityResolver;
 
     private AsyncServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -435,6 +436,16 @@ public class AsyncServerBootstrap {
         return this;
     }
 
+    /**
+     * Create {@link RequestRouter} with LOCAL_AUTHORITY_RESOLVER (default: IGNORE_PORT_AUTHORITY_RESOLVER).
+     *
+     * @since 5.4
+     */
+    public final AsyncServerBootstrap useLocalAuthorityResolver(final boolean localAuthorityResolver) {
+        this.localAuthorityResolver = localAuthorityResolver;
+        return this;
+    }
+
     public HttpAsyncServer create() {
         final String actualCanonicalHostName = canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName();
         final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> requestRouterCopy;
@@ -451,9 +462,9 @@ public class AsyncServerBootstrap {
                 requestRouterCopy = requestRouter;
             } else {
                 requestRouterCopy = RequestRouter.create(
-                        new URIAuthority(actualCanonicalHostName),
+                        this.localAuthorityResolver ? RequestRouter.LOCAL_AUTHORITY : new URIAuthority(actualCanonicalHostName),
                         UriPatternType.URI_PATTERN, routeEntries,
-                        RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
+                        this.localAuthorityResolver ? RequestRouter.LOCAL_AUTHORITY_RESOLVER : RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
                         requestRouter);
             }
         }
