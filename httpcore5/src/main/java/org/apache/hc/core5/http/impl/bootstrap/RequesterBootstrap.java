@@ -54,6 +54,7 @@ import org.apache.hc.core5.pool.LaxConnPool;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.pool.PoolReusePolicy;
+import org.apache.hc.core5.pool.RouteSegmentedConnPool;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.util.Timeout;
 
@@ -212,6 +213,14 @@ public class RequesterBootstrap {
                         poolReusePolicy,
                         new DefaultDisposalCallback<>(),
                         connPoolListener);
+                break;
+            case OFFLOCK:
+                connPool = new RouteSegmentedConnPool<>(
+                        defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
+                        maxTotal > 0 ? maxTotal : 50,
+                        timeToLive,
+                        poolReusePolicy,
+                        new DefaultDisposalCallback<>());
                 break;
             case STRICT:
             default:
