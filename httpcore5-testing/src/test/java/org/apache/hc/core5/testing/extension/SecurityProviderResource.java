@@ -82,7 +82,7 @@ public class SecurityProviderResource implements BeforeEachCallback, AfterEachCa
     }
 
     public Provider securityProvider() {
-        return securityProvider;
+        return securityProvider != null ? securityProvider : Security.getProvider(securityProviderName);
     }
 
 }
