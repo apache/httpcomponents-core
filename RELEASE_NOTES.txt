@@ -1,29 +1,191 @@
 Release 5.4-alpha1
 ------------------
 
-This is the first release in the 5.4 release series.
- 
+This is the first ALPHA release in the 5.4 release series that improves HTTP/2 protocol
+support by ensuring conformance to the latest HTTP specification (RFC 9113) and adds
+support for Unix domain sockets.
+
+This release also includes all the fixes from the stable 5.3 branch.
+
+Notable changes and features included in the 5.4 series:
+
+* Improved conformance to RFC 9113 (Hypertext Transfer Protocol Version 2).
+
+* Five-second TCP keep-alive enabled by default.
+
+* Unix domain socket support by the classic and async transports.
+
+* Redesign of classic over async API bridge.
+
+* Improved URI encoding per RFC 3986.
+
+* QUERY method support.
+
+
 
 Change Log
 -------------------
 
-* Add ContentType.APPLICATION_ZIP_COMPRESSED.
+* Corrected JavaDoc for HttpConnection#close to reference correct CloseMode mode (#561).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-785: Improved Javadocs of TlsStrategy implementations.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-785: Updated request execution example with Conscrypt as a security provider.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Five-second TCP keep-alive enabled by default.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* RFC 9113 conformance: H2 stream can be cancelled (reset) locally from multiple threads.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Strict SETTINGS_MAX_CONCURRENT_STREAMS enforcement for inbound and
+  outbound streams.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Use command queue to activate streams reserved with a push promise.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Improved H2 stream creation and initialization, improved H2 stream
+  state tracking and tracking of total stream counts.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Corrected H2 stream ID generation and verification logic.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Refactoring of internal H2 stream APIs.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Merge multiple Cookie Header fields into a single field after
+  decompression.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Stricter validation of message fields.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: RST_STREAM with NO_ERROR error code gracefully terminates the request
+  on the client if the server has sent the complete response (the stream has been closed
+  remotely).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Revised graceful / immediate H2 connection shutdown.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Ensure the ID of promised streams is valid (greater than the last seen).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Treat ENABLE_PUSH set to 1 transmitted by the server endpoint as
+  a protocol error.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 9113 conformance: Treat attempts to send frames on a locally closed stream as a protocol
+  violation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/1.1 async protocol handler to read message data more greedily.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Optimized release of resources associated with H2 streams. #releaseResources should be called
+  only once.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* H2 transport to enforce a max limit on the number of CONTINUATION frames.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Socket keep-alive option support.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Discontinue use of SocketSupport to set extended socket options.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* IOFunction functional interface.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Safeguard for infinite unproductive loop in non-blocking SSL session #527.
+  Contributed by Ali Farahani <ali.farahani at genesys.com>
+
+* Slightly better and efficient #toHexString method.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/2 protocol handler to allow configuring FrameFractory (#525).
+  Contributed by Marko <marco at sitar.dev>
+
+* ContentType.APPLICATION_ZIP_COMPRESSED (#524).
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Bump io.reactivex.rxjava3:rxjava from 3.1.9 to 3.1.10 #509
+* I/O reactors to support Unix domain sockets.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Redesign of classic over async bridge.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Shared buffers to support timeout on blocking operations.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added a method to the async response channel to terminate the ongoing message exchange
+  due to an internal error.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Avoid legacy Socket API in reactor code.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Support for parsing of headers representing a list of complex elements.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 3986 conformant URI encoding policy (#517).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Protocol negotiation handlers to use exception callback to report unexpected exceptions
+  during the protocol negotiation handshake.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Updated error message in ProtocolVersion.
+  Contributed by Mavelous <github at mavelo.us>
+
+* Handle overflow in Deadline calculation to ensure correct behavior for large time values
+  (#512).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-774: Update window management improvements.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added more convenience methods to classic request / response builders.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-773: Introduced customizable strategy to select I/O dispatch worker for new I/O
+  channels.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Optimize connection close logic to resolve timeout delay issue (#508).
+  Contributed by Noah <yuns994@gmail.com>
+
+* NoConnectionReuseStrategy
+  Contributed by Johnny Lim <izeye@naver.com>
+
+* Polish Javadoc for HttpResponseInterceptor.
+  Contributed by Johnny Lim <izeye@naver.com>
+
+* HTTP Method QUERY support (#499).
+  Contributed by Mario Daniel Ruiz Saavedra <desiderantes93 at gmail.com>
+
+* Ensure Date header is always present and replace invalid values. (#500).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/1.1 TE header interceptor and strict client/server option (#498).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCLIENT-2233: Metrics listener for IOReactor thread pool monitoring (#490).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* A FutureContribution should not allow a null BasicFuture (#485).
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Bump org.junit:junit-bom from 5.11.0 to 5.13.3 #501, #528, #533
-  Contributed by Gary Gregory <ggregory at apache.org>
+* HTTPCORE-770: Introduced `plusAsBlank` parameter for dynamic configuration.
+  Contributed by Arturo Bernal <abernal at apache.org>
 
-* Bump testcontainers.version from 1.20.2 to 1.20.4 #505
-  Contributed by Gary Gregory <ggregory at apache.org>
 
-* Bump testcontainers.version from 1.21.1 to 1.21.3 #530, #534 
-  Contributed by Gary Gregory <ggregory at apache.org>
-
-* Bump log4j.version from 2.24.3 to 2.25.0 #529 
-  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.3
 ------------------
