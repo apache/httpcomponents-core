@@ -103,7 +103,8 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
                 new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, localConfig.getMaxConcurrentStreams()),
                 new H2Setting(H2Param.INITIAL_WINDOW_SIZE, localConfig.getInitialWindowSize()),
                 new H2Setting(H2Param.MAX_FRAME_SIZE, localConfig.getMaxFrameSize()),
-                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize())
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, localConfig.getMaxHeaderListSize()),
+                new H2Setting(H2Param.SETTINGS_NO_RFC7540_PRIORITIES, 1)
         };
     }
 

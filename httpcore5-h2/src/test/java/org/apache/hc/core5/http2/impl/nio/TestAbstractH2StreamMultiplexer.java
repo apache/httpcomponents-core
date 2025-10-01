@@ -27,14 +27,19 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -770,6 +775,263 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertTrue(stream.isLocalClosed());
 
         Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
+    }
+
+    @Test
+    void testPriorityUpdateInputAccepted() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().setMaxFrameSize(FrameConsts.MIN_FRAME_SIZE).build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock writable = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+
+        final byte[] ascii = "u=3,i".getBytes(StandardCharsets.US_ASCII);
+        final ByteBuffer payload = ByteBuffer.allocate(4 + ascii.length);
+        payload.putInt(1); // prioritized stream id = 1
+        payload.put(ascii);
+        payload.flip();
+
+        final RawFrame priUpd = new RawFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, payload);
+        fob.write(priUpd, writable);
+        final byte[] bytes = writable.toByteArray();
+
+        // Should NOT throw; server must accept PRIORITY_UPDATE from client
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(bytes)));
+
+        // Listener sees the incoming frame
+        Mockito.verify(h2StreamListener).onFrameInput(
+                ArgumentMatchers.same(mux),
+                ArgumentMatchers.eq(0),
+                ArgumentMatchers.any());
+    }
+
+    // Helper: minimal stream handler that sends our headers once
+    static final class PriorityHeaderSender implements H2StreamHandler {
+        private final H2StreamChannel channel;
+        private final List<Header> headers;
+        private final boolean endStream;
+        private boolean sent;
+        PriorityHeaderSender(final H2StreamChannel channel,
+                             final List<Header> headers,
+                             final boolean endStream) {
+            this.channel = channel;
+            this.headers = headers;
+            this.endStream = endStream;
+            this.sent = false;
+        }
+        @Override public HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() { return null; }
+        @Override public boolean isOutputReady() { return !sent; }
+        @Override public void produceOutput() throws IOException, HttpException {
+            if (!sent) {
+                channel.submit(headers, endStream);
+                sent = true;
+            }
+        }
+        @Override public void consumePromise(final List<Header> headers) { }
+        @Override public void consumeHeader(final List<Header> headers, final boolean endStream) { }
+        @Override public void updateInputCapacity() { }
+        @Override public void consumeData(final ByteBuffer src, final boolean endStream) { }
+        @Override public void handle(final org.apache.hc.core5.http.HttpException ex, final boolean endStream) throws org.apache.hc.core5.http.HttpException, IOException { throw ex; }
+        @Override public void failed(final Exception cause) { }
+        @Override public void releaseResources() { }
+    }
+
+    // Small struct + parser to decode the frames we capture from writes
+    private static final class FrameStub {
+        final int type;
+        final int streamId;
+        FrameStub(final int type, final int streamId) { this.type = type; this.streamId = streamId; }
+    }
+    private static List<FrameStub> parseFrames(final byte[] all) {
+        final List<FrameStub> out = new ArrayList<>();
+        int p = 0;
+        while (p + 9 <= all.length) {
+            final int len = ((all[p] & 0xff) << 16) | ((all[p + 1] & 0xff) << 8) | (all[p + 2] & 0xff);
+            final int type = all[p + 3] & 0xff;
+            final int sid = ((all[p + 5] & 0x7f) << 24) | ((all[p + 6] & 0xff) << 16)
+                    | ((all[p + 7] & 0xff) << 8) | (all[p + 8] & 0xff);
+            p += 9;
+            if (p + len > all.length) break;
+            out.add(new FrameStub(type, sid));
+            p += len;
+        }
+        return out;
+    }
+
+    // 2) Client emits PRIORITY_UPDATE BEFORE HEADERS when Priority header present
+    @Test
+    void testSubmitWithPriorityHeaderEmitsPriorityUpdateBeforeHeaders() throws Exception {
+        // Capture writes
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+
+        // Start connection (sends our SETTINGS)
+        mux.onConnect();
+        writes.clear(); // ignore noise from onConnect
+
+        // Pretend server SETTINGS includes NO_RFC7540=1 (opts in to new scheme)
+        final WritableByteChannelMock writable = new WritableByteChannelMock(256);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+        final ByteBuffer pl = ByteBuffer.allocate(6);
+        pl.putShort((short) 0x0009); // SETTINGS_NO_RFC7540_PRIORITIES
+        pl.putInt(1);
+        pl.flip();
+        final RawFrame incomingSettings = new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, pl);
+        fob.write(incomingSettings, writable);
+        mux.onInput(ByteBuffer.wrap(writable.toByteArray()));
+        writes.clear(); // drop the ACK we sent
+
+        // Create a locally-initiated stream and a handler that will submit headers with Priority
+        final H2StreamChannel ch = mux.createChannel(1);
+        final List<Header> reqHeaders = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(HttpHeaders.PRIORITY, "u=3,i")
+        );
+         mux.createStream(ch, new PriorityHeaderSender(ch, reqHeaders, true));
+
+        // Drive output so the handler submits
+        mux.onOutput();
+
+        // Stitch captured bytes and parse frames
+        final int total = writes.stream().mapToInt(a -> a.length).sum();
+        final byte[] all = new byte[total];
+        int pos = 0;
+        for (final byte[] a : writes) { System.arraycopy(a, 0, all, pos, a.length); pos += a.length; }
+        final List<FrameStub> frames = parseFrames(all);
+
+        // Find first PRIORITY_UPDATE (type 0x10, sid 0) and first HEADERS for stream 1
+        int idxPriUpd = -1, idxHeaders = -1;
+        for (int i = 0; i < frames.size(); i++) {
+            final FrameStub f = frames.get(i);
+            if (idxPriUpd < 0 && f.type == FrameType.PRIORITY_UPDATE.getValue() && f.streamId == 0) idxPriUpd = i;
+            if (idxHeaders < 0 && f.type == FrameType.HEADERS.getValue() && f.streamId == 1) idxHeaders = i;
+        }
+        Assertions.assertTrue(idxPriUpd >= 0, "PRIORITY_UPDATE not emitted");
+        Assertions.assertTrue(idxHeaders >= 0, "HEADERS not emitted");
+        Assertions.assertTrue(idxPriUpd < idxHeaders, "PRIORITY_UPDATE must precede HEADERS");
+    }
+
+    // 3) Optional policy: suppress emission when peer’s first SETTINGS omits 0x9
+    @Test
+    void testPriorityUpdateSuppressedAfterSettingsWithoutNoH2() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> { final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] c = new byte[b.remaining()]; b.get(c); writes.add(c); return c.length; });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.custom().build(),
+                h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+        writes.clear();
+
+        // Server SETTINGS without 0x9
+        final WritableByteChannelMock w = new WritableByteChannelMock(256);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+        fob.write(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, ByteBuffer.allocate(0)), w);
+        mux.onInput(ByteBuffer.wrap(w.toByteArray()));
+        writes.clear(); // drop our ACK
+
+        // Create local stream that will send Priority header
+        final H2StreamChannel ch = mux.createChannel(1);
+        final List<Header> reqHeaders = Arrays.asList(
+                new BasicHeader(":method","GET"),
+                new BasicHeader(":scheme","https"),
+                new BasicHeader(":path","/"),
+                new BasicHeader(":authority","example.test"),
+                new BasicHeader(HttpHeaders.PRIORITY, "u=3")
+        );
+        mux.createStream(ch, new PriorityHeaderSender(ch, reqHeaders, true));
+
+        mux.onOutput();
+
+        final int total = writes.stream().mapToInt(a -> a.length).sum();
+        final byte[] all = new byte[total]; int p = 0;
+        for (final byte[] a : writes) { System.arraycopy(a, 0, all, p, a.length); p += a.length; }
+
+        final List<FrameStub> frames = parseFrames(all);
+        Assertions.assertTrue(frames.stream().noneMatch(f -> f.type == FrameType.PRIORITY_UPDATE.getValue()),
+                "PRIORITY_UPDATE must be suppressed when peer didn't send NO_RFC7540 (policy)");
+    }
+
+    // 4) Continue emission when peer sends NO_RFC7540=1
+    @Test
+    void testPriorityUpdateContinuesAfterSettingsWithNoH2Equals1() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> { final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] c = new byte[b.remaining()]; b.get(c); writes.add(c); return c.length; });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.custom().build(),
+                h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+        writes.clear();
+
+        // Server SETTINGS with 0x9 = 1
+        final WritableByteChannelMock w = new WritableByteChannelMock(256);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+        final ByteBuffer pl = ByteBuffer.allocate(6);
+        pl.putShort((short) 0x0009);
+        pl.putInt(1);
+        pl.flip();
+        fob.write(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, pl), w);
+        mux.onInput(ByteBuffer.wrap(w.toByteArray()));
+        writes.clear(); // drop ACK
+
+        final H2StreamChannel ch = mux.createChannel(1);
+        final List<Header> reqHeaders = Arrays.asList(
+                new BasicHeader(":method","GET"),
+                new BasicHeader(":scheme","https"),
+                new BasicHeader(":path","/"),
+                new BasicHeader(":authority","example.test"),
+                new BasicHeader(HttpHeaders.PRIORITY, "u=0,i")
+        );
+        mux.createStream(ch, new PriorityHeaderSender(ch, reqHeaders, true));
+
+        mux.onOutput();
+
+        final int total = writes.stream().mapToInt(a -> a.length).sum();
+        final byte[] all = new byte[total]; int p = 0;
+        for (final byte[] a : writes) { System.arraycopy(a, 0, all, p, a.length); p += a.length; }
+        final List<FrameStub> frames = parseFrames(all);
+
+        final int idxPriUpd = IntStream.range(0, frames.size())
+                .filter(i -> frames.get(i).type == FrameType.PRIORITY_UPDATE.getValue() && frames.get(i).streamId == 0)
+                .findFirst().orElse(-1);
+        Assertions.assertTrue(idxPriUpd >= 0, "PRIORITY_UPDATE should be emitted when NO_RFC7540=1");
     }
 
 }
