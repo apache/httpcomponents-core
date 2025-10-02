@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -95,6 +96,7 @@ public class AsyncServerBootstrap {
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private IOReactorMetricsListener threadPoolListener;
+    private BiFunction<String, URIAuthority, URIAuthority> authorityResolver = RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER;
 
     private AsyncServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -281,6 +283,17 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * Sets authority resolver to be used when creating the {@link RequestRouter}.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final AsyncServerBootstrap setAuthorityResolver(final BiFunction<String, URIAuthority, URIAuthority> authorityResolver) {
+        this.authorityResolver = authorityResolver;
+        return this;
+    }
+
+    /**
      * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a default handler for URIs
      * matching the given pattern.
      *
@@ -453,7 +466,7 @@ public class AsyncServerBootstrap {
                 requestRouterCopy = RequestRouter.create(
                         new URIAuthority(actualCanonicalHostName),
                         UriPatternType.URI_PATTERN, routeEntries,
-                        RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
+                        this.authorityResolver,
                         requestRouter);
             }
         }
