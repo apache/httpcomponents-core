@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
@@ -98,6 +99,7 @@ public class ServerBootstrap {
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionListener exceptionListener;
     private Http1StreamListener streamListener;
+    private BiFunction<String, URIAuthority, URIAuthority> authorityResolver;
 
     private ServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -295,6 +297,17 @@ public class ServerBootstrap {
     }
 
     /**
+     * Sets authority resolver to be used when creating the {@link RequestRouter}.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final ServerBootstrap setAuthorityResolver(final BiFunction<String, URIAuthority, URIAuthority> authorityResolver) {
+        this.authorityResolver = authorityResolver;
+        return this;
+    }
+
+    /**
      * Adds the filter before the filter with the given name.
      */
     public final ServerBootstrap addFilterBefore(final String existing, final String name, final HttpFilterHandler filterHandler) {
@@ -365,7 +378,7 @@ public class ServerBootstrap {
                         new URIAuthority(actualCanonicalHostName),
                         UriPatternType.URI_PATTERN,
                         routeEntries,
-                        RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
+                        authorityResolver != null ? authorityResolver : RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
                         requestRouter);
             }
         }
