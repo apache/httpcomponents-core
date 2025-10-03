@@ -204,4 +204,12 @@ public final class HttpHeaders {
 
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    /**
+     * RFC 7639 — ALPN HTTP header field used with CONNECT to advertise the
+     * application protocols intended to run inside the tunnel (e.g. {@code h2}, {@code http/1.1}).
+     *
+     * @since 5.4
+     */
+    public static final String ALPN = "ALPN";
+
 }
