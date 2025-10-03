@@ -24,59 +24,40 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.config;
+package org.apache.hc.core5.http2.priority;
+
+import org.apache.hc.core5.annotation.Internal;
 
 /**
- * HTTP/2 protocol parameters.
- *
- * @since 5.0
+ * Presence-aware view for RFC 9218 Priority on responses.
  */
-public enum H2Param {
+@Internal
+public final class PriorityParams {
+    private final Integer urgency;    // null if 'u' absent
+    private final Boolean incremental; // null if 'i' absent
 
-    HEADER_TABLE_SIZE(0x1),
-    ENABLE_PUSH(0x2),
-    MAX_CONCURRENT_STREAMS(0x3),
-    INITIAL_WINDOW_SIZE(0x4),
-    MAX_FRAME_SIZE(0x5),
-    MAX_HEADER_LIST_SIZE(0x6),
-    SETTINGS_NO_RFC7540_PRIORITIES (0x9);
-
-    int code;
-
-    H2Param(final int code) {
-        this.code = code;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    private static final H2Param[] LOOKUP_TABLE;
-    static {
-        int max = 0;
-        for (final H2Param p : H2Param.values()) {
-            if (p.code > max) {
-                max = p.code;
-            }
+    public PriorityParams(final Integer urgency, final Boolean incremental) {
+        if (urgency != null && (urgency < 0 || urgency > 7)) {
+            throw new IllegalArgumentException("urgency out of range [0..7]: " + urgency);
         }
-        LOOKUP_TABLE = new H2Param[max + 1];
-        for (final H2Param p : H2Param.values()) {
-            LOOKUP_TABLE[p.code] = p;
-        }
+        this.urgency = urgency;
+        this.incremental = incremental;
     }
 
-    public static H2Param valueOf(final int code) {
-        if (code < 0 || code >= LOOKUP_TABLE.length) {
-            return null;
-        }
-        return LOOKUP_TABLE[code];
+    public Integer getUrgency() {
+        return urgency;
     }
 
-    public static String toString(final int code) {
-        if (code < 0 || code >= LOOKUP_TABLE.length || LOOKUP_TABLE[code] == null) {
-            return Integer.toString(code);
-        }
-        return LOOKUP_TABLE[code].name();
+    public Boolean getIncremental() {
+        return incremental;
     }
 
+    /**
+     * Convert to concrete value by applying RFC defaults (u=3, i=false) for missing members.
+     */
+    public PriorityValue toValueWithDefaults() {
+        final int u = urgency != null ? urgency : PriorityValue.DEFAULT_URGENCY;
+        final boolean i = incremental != null ? incremental : PriorityValue.DEFAULT_INCREMENTAL;
+        return PriorityValue.of(u, i);
+    }
 }

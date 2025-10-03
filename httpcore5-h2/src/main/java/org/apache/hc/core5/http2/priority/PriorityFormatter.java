@@ -24,59 +24,40 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.config;
+package org.apache.hc.core5.http2.priority;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.hc.core5.annotation.Internal;
 
 /**
- * HTTP/2 protocol parameters.
- *
- * @since 5.0
+ * Formats PriorityValue as RFC 9218 Structured Fields Dictionary.
+ * Only emits non-defaults: u when != 3, i when true.
+ * Returns null when both are defaults (callers should omit the header then).
  */
-public enum H2Param {
+@Internal
+public final class PriorityFormatter {
 
-    HEADER_TABLE_SIZE(0x1),
-    ENABLE_PUSH(0x2),
-    MAX_CONCURRENT_STREAMS(0x3),
-    INITIAL_WINDOW_SIZE(0x4),
-    MAX_FRAME_SIZE(0x5),
-    MAX_HEADER_LIST_SIZE(0x6),
-    SETTINGS_NO_RFC7540_PRIORITIES (0x9);
-
-    int code;
-
-    H2Param(final int code) {
-        this.code = code;
+    private PriorityFormatter() {
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    private static final H2Param[] LOOKUP_TABLE;
-    static {
-        int max = 0;
-        for (final H2Param p : H2Param.values()) {
-            if (p.code > max) {
-                max = p.code;
-            }
-        }
-        LOOKUP_TABLE = new H2Param[max + 1];
-        for (final H2Param p : H2Param.values()) {
-            LOOKUP_TABLE[p.code] = p;
-        }
-    }
-
-    public static H2Param valueOf(final int code) {
-        if (code < 0 || code >= LOOKUP_TABLE.length) {
+    public static String format(final PriorityValue value) {
+        if (value == null) {
             return null;
         }
-        return LOOKUP_TABLE[code];
-    }
-
-    public static String toString(final int code) {
-        if (code < 0 || code >= LOOKUP_TABLE.length || LOOKUP_TABLE[code] == null) {
-            return Integer.toString(code);
+        final List<String> parts = new ArrayList<>(2);
+        if (value.getUrgency() != PriorityValue.DEFAULT_URGENCY) {
+            parts.add("u=" + value.getUrgency());
         }
-        return LOOKUP_TABLE[code].name();
+        if (value.isIncremental()) {
+            // In SF Dictionary, boolean true can be represented by key without value (per RFC 8941).
+            parts.add("i");
+        }
+        if (parts.isEmpty()) {
+            return null; // omit header when all defaults
+        }
+        return String.join(", ", parts);
     }
-
 }

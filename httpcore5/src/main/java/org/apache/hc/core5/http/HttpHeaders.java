@@ -204,4 +204,9 @@ public final class HttpHeaders {
 
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
+    /**
+     * The HTTP {@code Priority} header field name.
+     */
+    public static final String PRIORITY = "Priority";
+
 }

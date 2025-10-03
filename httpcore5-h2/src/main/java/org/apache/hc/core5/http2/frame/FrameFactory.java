@@ -111,4 +111,9 @@ public abstract class FrameFactory {
         return new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, streamId, payload);
     }
 
+    public RawFrame createPriorityUpdate(final ByteBuffer payload) {
+        // type 0x10, flags 0, streamId 0 (connection control stream)
+        return new RawFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, payload);
+    }
+
 }

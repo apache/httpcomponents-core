@@ -42,9 +42,10 @@ public enum FrameType {
     PING(0x06),
     GOAWAY(0x07),
     WINDOW_UPDATE(0x08),
-    CONTINUATION(0x09);
+    CONTINUATION(0x09),
+    PRIORITY_UPDATE(0x10); // 16
 
-    int value;
+    final int value;
 
     FrameType(final int value) {
         this.value = value;
@@ -54,10 +55,17 @@ public enum FrameType {
         return value;
     }
 
-    private static final FrameType[] LOOKUP_TABLE = new FrameType[10];
+    private static final FrameType[] LOOKUP_TABLE;
     static {
-        for (final FrameType frameType: FrameType.values()) {
-            LOOKUP_TABLE[frameType.value] = frameType;
+        int max = -1;
+        for (final FrameType t : FrameType.values()) {
+            if (t.value > max) {
+                max = t.value;
+            }
+        }
+        LOOKUP_TABLE = new FrameType[max + 1];
+        for (final FrameType t : FrameType.values()) {
+            LOOKUP_TABLE[t.value] = t;
         }
     }
 
@@ -65,14 +73,19 @@ public enum FrameType {
         if (value < 0 || value >= LOOKUP_TABLE.length) {
             return null;
         }
-        return LOOKUP_TABLE[value];
+        return LOOKUP_TABLE[value]; // may be null for gaps (e.g., 0x0A..0x0F)
     }
 
     public static String toString(final int value) {
         if (value < 0 || value >= LOOKUP_TABLE.length) {
             return Integer.toString(value);
         }
-        return LOOKUP_TABLE[value].name();
+        final FrameType t = LOOKUP_TABLE[value];
+        return t != null ? t.name() : Integer.toString(value);
     }
 
+    /** Convenience: compare this enum to a raw frame type byte. */
+    public boolean same(final int rawType) {
+        return this.value == rawType;
+    }
 }

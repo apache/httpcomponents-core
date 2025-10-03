@@ -31,10 +31,13 @@ import java.net.SocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,6 +71,7 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
@@ -85,6 +89,9 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.command.PushResponseCommand;
+import org.apache.hc.core5.http2.priority.PriorityParamsParser;
+import org.apache.hc.core5.http2.priority.PriorityValue;
+import org.apache.hc.core5.http2.priority.PriorityFormatter;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -96,7 +103,7 @@ import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
 
-    private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024; // 10 MiB
+    private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
@@ -134,6 +141,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private EndpointDetails endpointDetails;
     private boolean goAwayReceived;
+
+    private final Map<Integer, PriorityValue> priorities = new ConcurrentHashMap<>();
+    private volatile boolean peerNoRfc7540Priorities;
 
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -902,7 +912,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         consumeSettingsFrame(payload);
                         remoteSettingState = SettingsHandshake.TRANSMITTED;
                     }
-                    // Send ACK
                     final RawFrame response = frameFactory.createSettingsAck();
                     commitFrame(response);
                     remoteSettingState = SettingsHandshake.ACKED;
@@ -910,7 +919,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             break;
             case PRIORITY:
-                // Stream priority not supported
                 break;
             case PUSH_PROMISE: {
                 acceptPushFrame();
@@ -995,6 +1003,29 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             ioSession.setEvent(SelectionKey.OP_WRITE);
             break;
+            case PRIORITY_UPDATE: {
+                if (streamId != 0) {
+                    throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "PRIORITY_UPDATE must be on stream 0");
+                }
+                final ByteBuffer payload = frame.getPayload();
+                if (payload == null || payload.remaining() < 4) {
+                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid PRIORITY_UPDATE payload");
+                }
+                final int prioritizedId = payload.getInt() & 0x7fffffff;
+                final int len = payload.remaining();
+                final String field;
+                if (len > 0) {
+                    final byte[] b = new byte[len];
+                    payload.get(b);
+                    field = new String(b, StandardCharsets.US_ASCII);
+                } else {
+                    field = "";
+                }
+                final PriorityValue pv = PriorityParamsParser.parse(field).toValueWithDefaults();
+                priorities.put(prioritizedId, pv);
+                requestSessionOutput();
+            }
+            break;
         }
     }
 
@@ -1059,7 +1090,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         final ByteBuffer payload = frame.getPayloadContent();
         if (frame.isFlagSet(FrameFlag.PRIORITY)) {
-            // Priority not supported
             payload.getInt();
             payload.get();
         }
@@ -1068,6 +1098,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
             }
+            recordPriorityFromHeaders(streamId, headers);
             stream.consumeHeader(headers, frame.isFlagSet(FrameFlag.END_STREAM));
         } else {
             continuation.copyPayload(payload);
@@ -1086,6 +1117,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
             }
+            recordPriorityFromHeaders(streamId, headers);
             if (continuation.type == FrameType.PUSH_PROMISE.getValue()) {
                 stream.consumePromise(headers);
             } else {
@@ -1141,6 +1173,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
+                        break;
+                    case SETTINGS_NO_RFC7540_PRIORITIES:
+                        peerNoRfc7540Priorities = value == 1;
                         break;
                 }
             }
@@ -1334,6 +1369,38 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return streams.createActive(channel, streamHandler);
     }
 
+    public final void sendPriorityUpdate(final int prioritizedStreamId, final PriorityValue value) throws IOException {
+        if (value == null) {
+            return;
+        }
+        final String field = PriorityFormatter.format(value);
+        if (field == null) {
+            return;
+        }
+        final byte[] ascii = field.getBytes(StandardCharsets.US_ASCII);
+        final ByteArrayBuffer buf = new ByteArrayBuffer(4 + ascii.length);
+        buf.append((byte) (prioritizedStreamId >> 24));
+        buf.append((byte) (prioritizedStreamId >> 16));
+        buf.append((byte) (prioritizedStreamId >> 8));
+        buf.append((byte) prioritizedStreamId);
+        buf.append(ascii, 0, ascii.length);
+        final RawFrame frame = frameFactory.createPriorityUpdate(ByteBuffer.wrap(buf.array(), 0, buf.length()));
+        commitFrame(frame);
+    }
+
+    private void recordPriorityFromHeaders(final int streamId, final List<? extends Header> headers) {
+        if (headers == null || headers.isEmpty()) {
+            return;
+        }
+        for (final Header h : headers) {
+            if (HttpHeaders.PRIORITY.equalsIgnoreCase(h.getName())) {
+                final PriorityValue pv = PriorityParamsParser.parse(h.getValue()).toValueWithDefaults();
+                priorities.put(streamId, pv);
+                break;
+            }
+        }
+    }
+
     class H2StreamChannelImpl implements H2StreamChannel {
 
         private final int id;
@@ -1381,6 +1448,25 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     return;
                 }
                 ensureNotClosed();
+                if (peerNoRfc7540Priorities && streams.isSameSide(id)) {
+                    for (final Header h : headers) {
+                        if (HttpHeaders.PRIORITY.equalsIgnoreCase(h.getName())) {
+                            final byte[] ascii = h.getValue() != null
+                                    ? h.getValue().getBytes(StandardCharsets.US_ASCII)
+                                    : new byte[0];
+                            final ByteArrayBuffer b = new ByteArrayBuffer(4 + ascii.length);
+                            b.append((byte) (id >> 24));
+                            b.append((byte) (id >> 16));
+                            b.append((byte) (id >> 8));
+                            b.append((byte) id);
+                            b.append(ascii, 0, ascii.length);
+                            final ByteBuffer pl = ByteBuffer.wrap(b.array(), 0, b.length());
+                            final RawFrame priUpd = new RawFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, pl);
+                            commitFrameInternal(priUpd);
+                            break;
+                        }
+                    }
+                }
                 commitHeaders(id, headers, endStream);
                 if (endStream) {
                     localClosed = true;
