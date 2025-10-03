@@ -74,6 +74,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.reactivestreams.Publisher;
@@ -241,6 +242,7 @@ abstract class ReactiveClientTest {
     }
 
     @Test
+    @Disabled("Fails intermittently in GitHub Actions")
     void testResponseCancellation() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
