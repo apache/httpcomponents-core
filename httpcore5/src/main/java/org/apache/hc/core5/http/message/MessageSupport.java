@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
@@ -66,20 +67,27 @@ public class MessageSupport {
     }
 
     /**
-     * @since 5.3
+     * @since 5.4
      */
-    public static void formatTokens(final CharArrayBuffer dst, final List<String> tokens) {
+    public static void formatTokens(final CharArrayBuffer dst, final List<String> tokens, final UnaryOperator<String> transformation) {
         Args.notNull(dst, "Destination");
         if (tokens == null) {
             return;
         }
         for (int i = 0; i < tokens.size(); i++) {
-            final String element = tokens.get(i);
+            final String element = transformation != null ? transformation.apply(tokens.get(i)) : tokens.get(i);
             if (i > 0) {
                 dst.append(", ");
             }
             dst.append(element);
         }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void formatTokens(final CharArrayBuffer dst, final List<String> tokens) {
+        formatTokens(dst, tokens, null);
     }
 
     public static void formatTokens(final CharArrayBuffer dst, final String... tokens) {
@@ -118,9 +126,9 @@ public class MessageSupport {
     }
 
     /**
-     * @since 5.3
+     * @since 5.4
      */
-    public static Header headerOfTokens(final String name, final List<String> tokens) {
+    public static Header headerOfTokens(final String name, final List<String> tokens, final UnaryOperator<String> transformation) {
         Args.notBlank(name, "Header name");
         if (tokens == null) {
             return null;
@@ -128,8 +136,15 @@ public class MessageSupport {
         final CharArrayBuffer buffer = new CharArrayBuffer(256);
         buffer.append(name);
         buffer.append(": ");
-        formatTokens(buffer, tokens);
+        formatTokens(buffer, tokens, transformation);
         return BufferedHeader.create(buffer);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Header headerOfTokens(final String name, final List<String> tokens) {
+        return headerOfTokens(name, tokens, null);
     }
 
     /**
@@ -148,6 +163,7 @@ public class MessageSupport {
     }
 
     private static final Tokenizer.Delimiter COMMA = Tokenizer.delimiters(',');
+
     /**
      * @since 5.3
      */

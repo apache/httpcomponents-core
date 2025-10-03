@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.hc.core5.http.ContentType;
@@ -73,6 +74,14 @@ class TestMessageSupport {
         final Header header = MessageSupport.headerOfTokens(HttpHeaders.TRAILER, Arrays.asList("z", "b", "a", "a"));
         Assertions.assertNotNull(header);
         Assertions.assertEquals("z, b, a, a", header.getValue());
+    }
+
+    @Test
+    void testTokenListFormattingWithTransformation() {
+        final Header header = MessageSupport.headerOfTokens(HttpHeaders.TRAILER, Arrays.asList("z", "b", "a", "a"),
+                e -> e.toUpperCase(Locale.ROOT));
+        Assertions.assertNotNull(header);
+        Assertions.assertEquals("Z, B, A, A", header.getValue());
     }
 
     @Test
