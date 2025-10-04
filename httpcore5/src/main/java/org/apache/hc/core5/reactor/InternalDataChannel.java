@@ -53,6 +53,7 @@ import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
+import org.apache.hc.core5.reactor.ssl.TlsHandshakeTimeoutException;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -162,9 +163,16 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (sessionListener != null) {
             sessionListener.timeout(currentSession);
         }
+
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null && !tlsSession.isHandshakeComplete()) {
+            throw new TlsHandshakeTimeoutException("TLS handshake timed out after " + timeout);
+        }
+
         final IOEventHandler handler = ensureHandler(currentSession);
         handler.timeout(currentSession, timeout);
     }
+
 
     @Override
     void onException(final Exception cause) {
