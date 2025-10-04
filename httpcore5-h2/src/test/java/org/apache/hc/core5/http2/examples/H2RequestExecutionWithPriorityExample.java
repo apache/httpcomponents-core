@@ -26,34 +26,31 @@
  */
 package org.apache.hc.core5.http2.examples;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Experimental;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncRequestProducer;
-import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncResponseConsumer;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
+import org.apache.hc.core5.http2.priority.PriorityFormatter;
 import org.apache.hc.core5.http2.priority.PriorityValue;
-import org.apache.hc.core5.http2.protocol.H2RequestPriority;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 
@@ -63,7 +60,7 @@ import org.apache.hc.core5.util.Timeout;
  * Requires H2Processors to include H2RequestPriority (client chain) and an HTTP/2 connection.
  */
 @Experimental
-public class ClassicH2PriorityExample {
+public class H2RequestExecutionWithPriorityExample {
 
     public static void main(final String[] args) throws Exception {
 
@@ -120,50 +117,62 @@ public class ClassicH2PriorityExample {
         final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(30));
         final AsyncClientEndpoint clientEndpoint = future.get();
 
+        final CountDownLatch latch = new CountDownLatch(2);
+
         // ---- Request 1: Explicit non-default priority -> header MUST be emitted
-        executeWithPriority(clientEndpoint, target, "/httpbin/headers", PriorityValue.of(0, true));
+        executeWithPriority(clientEndpoint, target, "/httpbin/headers", PriorityValue.of(0, true), latch);
 
         // ---- Request 2: RFC defaults -> header MUST be omitted by the interceptor
-        executeWithPriority(clientEndpoint, target, "/httpbin/user-agent", PriorityValue.defaults());
+        executeWithPriority(clientEndpoint, target, "/httpbin/user-agent", PriorityValue.defaults(), latch);
 
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();
     }
 
     private static void executeWithPriority(
-            final AsyncClientEndpoint endpoint,
+            final AsyncClientEndpoint clientEndpoint,
             final HttpHost target,
-            final String path,
-            final PriorityValue priorityValue) throws Exception {
+            final String requestUri,
+            final PriorityValue priorityValue,
+            final CountDownLatch latch) throws Exception {
 
-        final ClassicHttpRequest request = ClassicRequestBuilder.get()
+        final BasicHttpRequest request = BasicRequestBuilder.get()
                 .setHttpHost(target)
-                .setPath(path)
+                .setPath(requestUri)
                 .build();
-
-        // Place the PriorityValue into the context so H2RequestPriority can format the header
-        final HttpCoreContext ctx = HttpCoreContext.create();
-        ctx.setAttribute(H2RequestPriority.ATTR_HTTP2_PRIORITY_VALUE, priorityValue);
-
-        final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, Timeout.ofMinutes(1));
-        final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(Timeout.ofMinutes(1));
-
-        endpoint.execute(requestProducer, responseConsumer, ctx, null);
-
-        requestProducer.blockWaiting().execute();
-        try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
-            System.out.println(path + " -> " + response.getCode());
-            final HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                final ContentType ct = ContentType.parse(entity.getContentType());
-                final Charset cs = ContentType.getCharset(ct, StandardCharsets.UTF_8);
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), cs))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
-            }
+        if (!PriorityValue.defaults().equals(priorityValue)) {
+            request.addHeader(PriorityFormatter.formatHeader(priorityValue));
         }
+
+        clientEndpoint.execute(
+                new BasicRequestProducer(request, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                new FutureCallback<Message<HttpResponse, String>>() {
+
+                    @Override
+                    public void completed(final Message<HttpResponse, String> message) {
+                        clientEndpoint.releaseAndReuse();
+                        final HttpResponse response = message.getHead();
+                        final String body = message.getBody();
+                        System.out.println(requestUri + "->" + response.getCode());
+                        System.out.println(body);
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void failed(final Exception ex) {
+                        clientEndpoint.releaseAndDiscard();
+                        System.out.println(requestUri + "->" + ex);
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        clientEndpoint.releaseAndDiscard();
+                        System.out.println(requestUri + " cancelled");
+                        latch.countDown();
+                    }
+
+                });
     }
 }

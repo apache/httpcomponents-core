@@ -71,9 +71,6 @@ public final class TestPriorityParserAndFormatter {
         final PriorityValue v2 = PriorityParser.parse((Header) null);
         assertEquals(3, v2.getUrgency());
         assertFalse(v2.isIncremental());
-
-        // Formatter omits header if all defaults
-        assertNull(PriorityFormatter.format(PriorityValue.defaults()));
     }
 
     // ---- Boolean variants per RFC 8941 --------------------------------------
@@ -132,11 +129,6 @@ public final class TestPriorityParserAndFormatter {
         assertEquals("u=1", PriorityFormatter.format(PriorityValue.of(1, false)));
         assertEquals("i", PriorityFormatter.format(PriorityValue.of(3, true)));
         assertEquals("u=2, i", PriorityFormatter.format(PriorityValue.of(2, true)));
-    }
-
-    @Test
-    void formatter_returns_null_for_defaults() {
-        assertNull(PriorityFormatter.format(PriorityValue.of(3, false)));
     }
 
     // ---- Round-trips ---------------------------------------------------------
