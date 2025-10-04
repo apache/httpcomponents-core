@@ -27,10 +27,12 @@
 package org.apache.hc.core5.http2.priority;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BufferedHeader;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Formats PriorityValue as RFC 9218 Structured Fields Dictionary.
@@ -43,21 +45,44 @@ public final class PriorityFormatter {
     private PriorityFormatter() {
     }
 
+    public static void format(final CharArrayBuffer dst, final PriorityValue value) {
+        if (value == null) {
+            return;
+        }
+        boolean urgencyPresent = false;
+        if (value.getUrgency() != PriorityValue.DEFAULT_URGENCY) {
+            dst.append("u=");
+            dst.append(value.getUrgency());
+            urgencyPresent = true;
+        }
+        if (value.isIncremental()) {
+            // In SF Dictionary, boolean true can be represented by key without value (per RFC 8941).
+            if (urgencyPresent) {
+                dst.append(", ");
+            }
+            dst.append("i");
+        }
+
+    }
+
     public static String format(final PriorityValue value) {
         if (value == null) {
             return null;
         }
-        final List<String> parts = new ArrayList<>(2);
-        if (value.getUrgency() != PriorityValue.DEFAULT_URGENCY) {
-            parts.add("u=" + value.getUrgency());
-        }
-        if (value.isIncremental()) {
-            // In SF Dictionary, boolean true can be represented by key without value (per RFC 8941).
-            parts.add("i");
-        }
-        if (parts.isEmpty()) {
-            return null; // omit header when all defaults
-        }
-        return String.join(", ", parts);
+        final CharArrayBuffer buf = new CharArrayBuffer(16);
+        format(buf, value);
+        return buf.toString();
     }
+
+    public static Header formatHeader(final PriorityValue value) {
+        if (value == null) {
+            return new BasicHeader(HttpHeaders.PRIORITY, null);
+        }
+        final CharArrayBuffer buf = new CharArrayBuffer(16);
+        buf.append(HttpHeaders.PRIORITY);
+        buf.append(": ");
+        format(buf, value);
+        return BufferedHeader.create(buf);
+    }
+
 }

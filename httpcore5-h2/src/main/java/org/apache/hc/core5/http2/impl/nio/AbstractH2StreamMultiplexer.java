@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
@@ -71,7 +72,6 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
@@ -91,7 +91,6 @@ import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.command.PushResponseCommand;
 import org.apache.hc.core5.http2.priority.PriorityParamsParser;
 import org.apache.hc.core5.http2.priority.PriorityValue;
-import org.apache.hc.core5.http2.priority.PriorityFormatter;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -1367,25 +1366,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) throws H2ConnectionException {
         return streams.createActive(channel, streamHandler);
-    }
-
-    public final void sendPriorityUpdate(final int prioritizedStreamId, final PriorityValue value) throws IOException {
-        if (value == null) {
-            return;
-        }
-        final String field = PriorityFormatter.format(value);
-        if (field == null) {
-            return;
-        }
-        final byte[] ascii = field.getBytes(StandardCharsets.US_ASCII);
-        final ByteArrayBuffer buf = new ByteArrayBuffer(4 + ascii.length);
-        buf.append((byte) (prioritizedStreamId >> 24));
-        buf.append((byte) (prioritizedStreamId >> 16));
-        buf.append((byte) (prioritizedStreamId >> 8));
-        buf.append((byte) prioritizedStreamId);
-        buf.append(ascii, 0, ascii.length);
-        final RawFrame frame = frameFactory.createPriorityUpdate(ByteBuffer.wrap(buf.array(), 0, buf.length()));
-        commitFrame(frame);
     }
 
     private void recordPriorityFromHeaders(final int streamId, final List<? extends Header> headers) {
