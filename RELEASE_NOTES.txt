@@ -9,6 +9,10 @@ This release also includes all the fixes from the stable 5.3 branch.
 
 Notable changes and features included in the 5.4 series:
 
+* Experimental OFFLOCK (lock-free) connection pool.
+
+* Conformance to RFC 9218 (Extensible Prioritization Scheme for HTTP).
+
 * Improved conformance to RFC 9113 (Hypertext Transfer Protocol Version 2).
 
 * Five-second TCP keep-alive enabled by default.
@@ -25,6 +29,19 @@ Notable changes and features included in the 5.4 series:
 
 Change Log
 -------------------
+
+* Experimental RouteSegmentedConnPool (OFFLOCK): lock-free, route-segmented, disposal off
+  critical path.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Configurable AuthorityResolver for async server bootstraps.
+  Contributed by Christian de Waal <christian at de.waal.name>
+
+* RFC 9218 HTTP/2 Priority support (#552).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Stale connection check for the async protocol handlers.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
 
 * Corrected JavaDoc for HttpConnection#close to reference correct CloseMode mode (#561).
   Contributed by Arturo Bernal <abernal at apache.org>
