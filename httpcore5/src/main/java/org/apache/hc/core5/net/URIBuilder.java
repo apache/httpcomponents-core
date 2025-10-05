@@ -111,7 +111,7 @@ public class URIBuilder {
         /**
          * Follows RFC 3986 component-specific encoding rules. For example, query and
          * fragment components allow unreserved characters, sub-delimiters ("!", "$",
-         * "&", "'", "(", ")", "*", "+", ",", ";", "="), and additional characters
+         * "&amp;", "'", "(", ")", "*", "+", ",", ";", "="), and additional characters
          * (":", "@", "/", "?") to remain unencoded, as defined by {@code PercentCodec.FRAGMENT}.
          * This policy ensures compliance with RFC 3986 while maintaining interoperability.
          */
