@@ -66,8 +66,13 @@ public class InetAddressUtils {
     private static final Pattern IPV4_PATTERN =
         Pattern.compile("^" + IPV4_BASIC_PATTERN_STRING + "$");
 
-    private static final Pattern IPV4_MAPPED_IPV6_PATTERN = // TODO does not allow for redundant leading zeros
-            Pattern.compile("^::[fF]{4}:" + IPV4_BASIC_PATTERN_STRING + "$");
+    // Accept IPv4-mapped IPv6, allowing redundant leading zeros in the IPv4 part.
+    // Examples: ::ffff:1.2.3.4, ::FFFF:001.002.003.004
+    // Still enforces each octet <= 255 and max 3 digits per octet.
+    private static final String IPV4_MAPPED_OCTET = "(25[0-5]|2[0-4]\\d|1\\d\\d|0?\\d?\\d)";
+    private static final Pattern IPV4_MAPPED_IPV6_PATTERN = Pattern.compile("^::[fF]{4}:((" + IPV4_MAPPED_OCTET + ")\\.){3}" + IPV4_MAPPED_OCTET + "$");
+
+
 
     private static final Pattern IPV6_STD_PATTERN =
         Pattern.compile(
