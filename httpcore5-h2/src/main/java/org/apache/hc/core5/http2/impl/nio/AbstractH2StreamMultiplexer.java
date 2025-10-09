@@ -27,16 +27,21 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -53,11 +58,13 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.RequestNotExecutedException;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -143,6 +150,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private final Map<Integer, PriorityValue> priorities = new ConcurrentHashMap<>();
     private volatile boolean peerNoRfc7540Priorities;
+
+    /**
+     * RFC 8336 Origin Set (client-side).
+     */
+    private final Set<HttpHost> originSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private volatile boolean originInit;
 
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -729,6 +742,19 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "CONTINUATION frame expected");
         }
         switch (frameType) {
+            case ORIGIN: { // RFC 8336
+                // Only valid on stream 0; ignore on h2c; ignore reserved incompatible flags (0x1|0x2|0x4|0x8)
+                if (streamId == 0 && getSSLSession() != null) {
+                    final int flags = frame.getFlags();
+                    if ((flags & 0x0F) == 0) {
+                        final ByteBuffer pl = frame.getPayloadContent();
+                        if (pl != null) {
+                            processOriginPayload(pl);
+                        }
+                    }
+                }
+            }
+            break;
             case DATA: {
                 if (streamId == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
@@ -1582,6 +1608,119 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             return buf.toString();
         }
 
+    }
+
+    /**
+     * Initialize the Origin Set once per connection (RFC 8336 §2.3).
+     */
+    private void ensureOriginInit() {
+        if (originInit) {
+            return;
+        }
+        // Initial origin: scheme "https", host = SNI (lowercased) if available, else remote IP; port = remote port.
+        final SSLSession ssl = getSSLSession();
+        if (ssl == null) {
+            return; // ORIGIN is ignored on h2c; keep uninitialized
+        }
+        String host = null;
+        try {
+            // Best-effort SNI via session value used by our TLS strategy (if present)
+            final Object sni = ssl.getValue("HOSTNAME");
+            if (sni instanceof String) {
+                host = ((String) sni).toLowerCase(Locale.ROOT);
+            }
+        } catch (final Exception ignore) {
+        }
+        if (host == null) {
+            final SocketAddress ra = getRemoteAddress();
+            if (ra instanceof InetSocketAddress) {
+                host = ((InetSocketAddress) ra).getHostString().toLowerCase(Locale.ROOT);
+            }
+        }
+        int port = 0;
+        final SocketAddress ra = getRemoteAddress();
+        if (ra instanceof java.net.InetSocketAddress) {
+            port = ((java.net.InetSocketAddress) ra).getPort();
+        }
+        if (host != null && port > 0) {
+            originSet.add(new HttpHost("https", host, port));
+            originInit = true;
+        }
+    }
+
+    /**
+     * Parse and merge ORIGIN payload (list of Origin-Entry).
+     */
+    private void processOriginPayload(final ByteBuffer pl) {
+        ensureOriginInit();
+        while (pl.remaining() >= 2) {
+            final int len = Short.toUnsignedInt(pl.getShort());
+            if (len == 0) {
+                // Empty Origin-Entry is allowed (server can signal "SNI-only"); no-op here.
+                continue;
+            }
+            if (pl.remaining() < len) {
+                break; // malformed; stop processing silently per robustness principle
+            }
+            final byte[] b = new byte[len];
+            pl.get(b);
+            final String ascii = new String(b, java.nio.charset.StandardCharsets.US_ASCII);
+            final org.apache.hc.core5.http.HttpHost parsed = parseAsciiOrigin(ascii);
+            if (parsed != null) {
+                originSet.add(parsed);
+            }
+        }
+    }
+
+    /**
+     * RFC 6454 ASCII origin parser (scheme/host/port only). Returns null if invalid.
+     */
+    private HttpHost parseAsciiOrigin(final String s) {
+        try {
+            final java.net.URI u = java.net.URI.create(s);
+            if (u.getFragment() != null) return null;
+            final String scheme = u.getScheme();
+            final String host = u.getHost();
+            if (scheme == null || host == null) return null;
+            int port = u.getPort();
+            if (port < 0) {
+                if (URIScheme.HTTPS.same(scheme)) {
+                    port = 443;
+                } else if (URIScheme.HTTP.same(scheme)) {
+                    port = 80;
+                } else {
+                    return null;
+                }
+            }
+            return new HttpHost(scheme.toLowerCase(Locale.ROOT), host.toLowerCase(Locale.ROOT), port);
+        } catch (final IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+
+    protected final void commitConnFrame(final RawFrame frame) throws IOException {
+        Args.notNull(frame, "Frame");
+        ioSession.getLock().lock();
+        try {
+            commitFrameInternal(frame);
+        } finally {
+            ioSession.getLock().unlock();
+        }
+    }
+
+    Set<HttpHost> getOriginSetSnapshot() {
+        return Collections.unmodifiableSet(new HashSet<>(originSet));
+    }
+
+    public void removeOrigin(final org.apache.hc.core5.http.HttpHost origin) {
+        if (origin != null) {
+            originSet.remove(origin);
+        }
+    }
+
+    boolean isOriginAllowed(final HttpHost origin) {
+        return origin != null && originSet.contains(origin);
     }
 
 }
