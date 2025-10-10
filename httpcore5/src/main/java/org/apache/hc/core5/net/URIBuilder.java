@@ -424,14 +424,16 @@ public class URIBuilder {
                     }
                     sb.append("@");
                 }
-                if (InetAddressUtils.isIPv6(this.host)) {
-                    sb.append("[").append(this.host).append("]");
+
+                // Bracket only true IPv6 hosts; decide based on address part only (ignore zone)
+                if (ZoneIdSupport.appendBracketedIPv6(sb, this.host)) {
+                    // wrote [IPv6%25zone]
                 } else {
                     PercentCodec.encode(sb, this.host, this.charset,
                             encodingPolicy == EncodingPolicy.ALL_RESERVED ? PercentCodec.UNRESERVED : PercentCodec.REG_NAME, false);
                 }
                 if (this.port >= 0) {
-                    sb.append(":").append(this.port);
+                    sb.append(':').append(this.port);
                 }
                 authoritySpecified = true;
             } else {
@@ -478,6 +480,10 @@ public class URIBuilder {
         this.host = uriHost != null && InetAddressUtils.isIPv6URLBracketed(uriHost)
                 ? uriHost.substring(1, uriHost.length() - 1)
                 : uriHost;
+
+        // Normalize zone-id to user-friendly form: "...%25zone" -> "...%zone" (and decode %HH in zone)
+        this.host = ZoneIdSupport.decodeZoneId(this.host);
+
         this.port = uri.getPort();
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();

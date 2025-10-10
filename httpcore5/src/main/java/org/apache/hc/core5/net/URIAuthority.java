@@ -51,9 +51,19 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     private final String userInfo;
     private final Host host;
 
+    static URIAuthority parse(final CharSequence s) throws URISyntaxException {
+        if (TextUtils.isBlank(s)) {
+            return null;
+        }
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        return parse(s, cursor); // intentionally no cursor.atEnd() check
+    }
+
     static URIAuthority parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
         String userInfo = null;
+
+        // optional userinfo@
         final int initPos = cursor.getPos();
         final String token = tokenizer.parseContent(s, cursor, URISupport.HOST_DELIMITERS);
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == '@') {
@@ -62,25 +72,111 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
                 userInfo = token;
             }
         } else {
-            //Rewind
             cursor.updatePos(initPos);
         }
+
+        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == '[') {
+            final int lb = cursor.getPos();
+            final int upper = cursor.getUpperBound();
+            int rb = -1;
+            for (int i = lb + 1; i < upper; i++) {
+                if (s.charAt(i) == ']') {
+                    rb = i;
+                    break;
+                }
+            }
+            if (rb < 0) {
+                throw URISupport.createException(s.toString(), cursor, "Expected closing bracket for IPv6 address");
+            }
+
+            final String literal = s.subSequence(lb + 1, rb).toString();
+            final int zoneMark = literal.indexOf("%25");
+            final String addrPart = zoneMark >= 0 ? literal.substring(0, zoneMark) : literal;
+
+            int colons = 0;
+            for (int i = 0; i < addrPart.length(); i++) {
+                if (addrPart.charAt(i) == ':') {
+                    if (++colons >= 2) {
+                        break;
+                    }
+                }
+            }
+            if (colons < 2) {
+                throw URISupport.createException(s.toString(), cursor, "Expected an IPv6 address");
+            }
+
+            if (zoneMark >= 0) {
+                final String zoneEnc = literal.substring(zoneMark + 3);
+                ZoneIdSupport.validateZoneIdEncoded(zoneEnc);
+            }
+            // Store host in friendly form: "...%<decoded-zone>"  (or literal as-is if no zone)
+            final String hostName = ZoneIdSupport.decodeZoneId(literal);
+
+            // optional :port
+            int pos = rb + 1;
+            int port = -1;
+            if (pos < upper && s.charAt(pos) == ':') {
+                pos++;
+                if (pos >= upper || !Character.isDigit(s.charAt(pos))) {
+                    throw URISupport.createException(s.toString(), cursor, "Invalid port");
+                }
+                long acc = 0;
+                while (pos < upper && Character.isDigit(s.charAt(pos))) {
+                    acc = acc * 10 + (s.charAt(pos) - '0');
+                    if (acc > 65535) {
+                        throw URISupport.createException(s.toString(), cursor, "Port out of range");
+                    }
+                    pos++;
+                }
+                port = (int) acc;
+            }
+            cursor.updatePos(pos);
+            return new URIAuthority(userInfo, hostName, port);
+        }
+
+        {
+            final int start = cursor.getPos();
+            final int upper = cursor.getUpperBound();
+            int i = start;
+            int colonCount = 0;
+            while (i < upper) {
+                final char ch = s.charAt(i);
+                if (ch == '/' || ch == '?' || ch == '#') {
+                    break; // end of authority
+                }
+                if (ch == ']') {
+                    break; // safety
+                }
+                if (ch == ':') {
+                    if (++colonCount > 1) {
+                        throw URISupport.createException(s.toString(), cursor, "Expected an IPv6 address");
+                    }
+                }
+                i++;
+            }
+        }
+
         final Host host = Host.parse(s, cursor);
         return new URIAuthority(userInfo, host);
     }
 
-    static URIAuthority parse(final CharSequence s) throws URISyntaxException {
-        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        return parse(s, cursor);
-    }
 
     static void format(final StringBuilder buf, final URIAuthority uriAuthority) {
         if (uriAuthority.getUserInfo() != null) {
-            buf.append(uriAuthority.getUserInfo());
-            buf.append("@");
+            buf.append(uriAuthority.getUserInfo()).append("@");
         }
-        Host.format(buf, uriAuthority);
+        final String hostName = uriAuthority.getHostName();
+        final int port = uriAuthority.getPort();
+
+        if (ZoneIdSupport.appendBracketedIPv6(buf, hostName)) {
+            if (port >= 0) {
+                buf.append(':').append(port);
+            }
+        } else {
+            Host.format(buf, uriAuthority);
+        }
     }
+
 
     static String format(final URIAuthority uriAuthority) {
         final StringBuilder buf = new StringBuilder();

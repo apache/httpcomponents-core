@@ -188,4 +188,21 @@ public final class TextUtils {
         return '?';
     }
 
+    /**
+     * Tests whether the given character is an ASCII hexadecimal digit.
+     * <p>
+     * Accepts {@code '0'..'9'}, {@code 'A'..'F'}, and {@code 'a'..'f'} only.
+     * This method does not consider non-ASCII numerals or fullwidth forms.
+     *
+     * @param c the character to test
+     * @return {@code true} if {@code c} is an ASCII hex digit, {@code false} otherwise
+     * @since 5.4
+     */
+    public static boolean isHex(final char c) {
+        return c >= '0' && c <= '9'
+                || c >= 'A' && c <= 'F'
+                || c >= 'a' && c <= 'f';
+    }
+
+
 }
