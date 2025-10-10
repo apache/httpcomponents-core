@@ -383,6 +383,7 @@
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
             </excludes>
+            <ignoreMissingClasses>true</ignoreMissingClasses>
           </parameter>
         </configuration>
       </plugin>
