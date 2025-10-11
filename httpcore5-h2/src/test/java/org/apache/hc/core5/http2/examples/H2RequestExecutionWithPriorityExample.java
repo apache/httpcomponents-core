@@ -49,15 +49,14 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.priority.PriorityFormatter;
 import org.apache.hc.core5.http2.priority.PriorityValue;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Example: HTTP/2 request that sets RFC 9218 Priority via context and emits the "Priority" header.
- * <p>
- * Requires H2Processors to include H2RequestPriority (client chain) and an HTTP/2 connection.
+ * HTTP/2 request that emits RFC 9218 Priority via "Priority" header.
  */
 @Experimental
 public class H2RequestExecutionWithPriorityExample {
@@ -69,8 +68,7 @@ public class H2RequestExecutionWithPriorityExample {
                 .setPushEnabled(false)
                 .build();
 
-        // Ensure the client processor chain has H2RequestPriority inside (see H2Processors.customClient)
-        final HttpAsyncRequester requester = org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap.bootstrap()
+        final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setHttpProcessor(H2Processors.client()) // includes H2RequestPriority
