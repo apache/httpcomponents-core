@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,11 +38,13 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
@@ -54,6 +57,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 
@@ -72,13 +76,18 @@ class ClientH2StreamHandler implements H2StreamHandler {
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
 
+    private final ClientH2StreamMultiplexer parent;
+    private volatile HttpHost lastRequestOrigin;
+
     ClientH2StreamHandler(
+            final ClientH2StreamMultiplexer parent,
             final H2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpCoreContext context) {
+        this.parent = parent;
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
 
@@ -142,6 +151,35 @@ class ClientH2StreamHandler implements H2StreamHandler {
             httpProcessor.process(request, entityDetails, context);
 
             final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
+            String scheme = null;
+            String authority = null;
+            for (final Header h : headers) {
+                final String n = h.getName();
+                if (H2PseudoRequestHeaders.SCHEME.equalsIgnoreCase(n)) {
+                    scheme = h.getValue();
+                } else if (H2PseudoRequestHeaders.AUTHORITY.equalsIgnoreCase(n)) {
+                    authority = h.getValue();
+                }
+            }
+            if (scheme != null && authority != null) {
+                String host = authority;
+                int port = -1;
+                final int colon = authority.lastIndexOf(':');
+                if (colon > 0 && authority.indexOf(']') < 0) {
+                    host = authority.substring(0, colon);
+                    try {
+                        port = Integer.parseInt(authority.substring(colon + 1));
+                    } catch (final NumberFormatException ignore) {
+
+                    }
+                }
+                if (port < 0) {
+                    port = URIScheme.HTTPS.same(scheme) ? 443 : (URIScheme.HTTP.same(scheme) ? 80 : -1);
+                }
+                if (port > 0) {
+                    lastRequestOrigin = new HttpHost(scheme.toLowerCase(Locale.ROOT), host.toLowerCase(Locale.ROOT),port);
+                }
+            }
             if (entityDetails == null) {
                 requestState.set(MessageState.COMPLETE);
                 outputChannel.submit(headers, true);
@@ -197,6 +235,16 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
                     exchangeHandler.consumeInformation(response, context);
                 }
+                if (status == HttpStatus.SC_MISDIRECTED_REQUEST /* 421 */ && lastRequestOrigin != null && parent != null) {
+                    parent.removeOrigin(lastRequestOrigin);
+                }
+                if (lastRequestOrigin != null) {
+                    // Only enforce after ORIGIN has initialized the set (i.e., it's not empty)
+                    if (!parent.getOriginSetSnapshot().isEmpty() && !parent.isOriginAllowed(lastRequestOrigin)) {
+                        throw new ProtocolException("Origin not allowed on this HTTP/2 connection: " + lastRequestOrigin);
+                    }
+                }
+
                 if (requestState.get() == MessageState.ACK) {
                     if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
                         requestState.set(MessageState.BODY);
