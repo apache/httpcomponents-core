@@ -80,37 +80,28 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
             final int upper = cursor.getUpperBound();
             int rb = -1;
             for (int i = lb + 1; i < upper; i++) {
-                if (s.charAt(i) == ']') {
-                    rb = i;
-                    break;
-                }
+                if (s.charAt(i) == ']') { rb = i; break; }
             }
             if (rb < 0) {
                 throw URISupport.createException(s.toString(), cursor, "Expected closing bracket for IPv6 address");
             }
-
             final String literal = s.subSequence(lb + 1, rb).toString();
-            final int zoneMark = literal.indexOf("%25");
-            final String addrPart = zoneMark >= 0 ? literal.substring(0, zoneMark) : literal;
+            final int z = literal.indexOf("%25");
+            final String addrPart = z >= 0 ? literal.substring(0, z) : literal;
 
+            // Minimal check: IPv6-like must have at least two colons
             int colons = 0;
             for (int i = 0; i < addrPart.length(); i++) {
-                if (addrPart.charAt(i) == ':') {
-                    if (++colons >= 2) {
-                        break;
-                    }
-                }
+                if (addrPart.charAt(i) == ':' && ++colons >= 2) break;
             }
             if (colons < 2) {
                 throw URISupport.createException(s.toString(), cursor, "Expected an IPv6 address");
             }
 
-            if (zoneMark >= 0) {
-                final String zoneEnc = literal.substring(zoneMark + 3);
-                ZoneIdSupport.validateZoneIdEncoded(zoneEnc);
+            if (z >= 0) {
+                ZoneIdSupport.validateZoneIdEncoded(literal.substring(z + 3));
             }
-            // Store host in friendly form: "...%<decoded-zone>"  (or literal as-is if no zone)
-            final String hostName = ZoneIdSupport.decodeZoneId(literal);
+            final String hostName = ZoneIdSupport.decodeZoneId(literal); // "...%25zone" → "...%zone"
 
             // optional :port
             int pos = rb + 1;
@@ -134,31 +125,11 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
             return new URIAuthority(userInfo, hostName, port);
         }
 
-        {
-            final int start = cursor.getPos();
-            final int upper = cursor.getUpperBound();
-            int i = start;
-            int colonCount = 0;
-            while (i < upper) {
-                final char ch = s.charAt(i);
-                if (ch == '/' || ch == '?' || ch == '#') {
-                    break; // end of authority
-                }
-                if (ch == ']') {
-                    break; // safety
-                }
-                if (ch == ':') {
-                    if (++colonCount > 1) {
-                        throw URISupport.createException(s.toString(), cursor, "Expected an IPv6 address");
-                    }
-                }
-                i++;
-            }
-        }
-
+        // Non-bracketed authority → existing fallback.
         final Host host = Host.parse(s, cursor);
         return new URIAuthority(userInfo, host);
     }
+
 
 
     static void format(final StringBuilder buf, final URIAuthority uriAuthority) {
