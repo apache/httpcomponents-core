@@ -27,6 +27,10 @@
 
 package org.apache.hc.core5.net;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -215,5 +219,69 @@ class TestInetAddressUtils {
         Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:0255.000.000.000"));
     }
 
+    @Test
+    void parseAuthorityWithZoneId_decodesDelimiter() throws URISyntaxException {
+        final URIAuthority a = URIAuthority.parse("[fe80::1%25eth0]:8080");
+        Assertions.assertNotNull(a);
+        Assertions.assertEquals("fe80::1%eth0", a.getHostName());
+        Assertions.assertEquals(8080, a.getPort());
+        Assertions.assertNull(a.getUserInfo());
+    }
+
+    @Test
+    void formatAuthorityWithZoneId_emitsPercent25() {
+        final URIAuthority a = new URIAuthority(null, "fe80::1%eth0", 8080);
+        Assertions.assertEquals("[fe80::1%25eth0]:8080", a.toString());
+    }
+
+    @Test
+    void httpHost_toURI_formatsZoneId() {
+        final HttpHost h = new HttpHost("http", "fe80::1%eth0", 8080);
+        Assertions.assertEquals("http://[fe80::1%25eth0]:8080", h.toURI());
+    }
+
+    @Test
+    void uriBuilder_roundTrip_zoneId() throws Exception {
+        final URI u = new URI("http://[fe80::1%25eth0]:8080/path?q=1");
+        final URIBuilder b = new URIBuilder(u);
+        Assertions.assertEquals("fe80::1%eth0", b.getHost());
+        final URI rebuilt = b.build();
+        Assertions.assertEquals("http://[fe80::1%25eth0]:8080/path?q=1", rebuilt.toASCIIString());
+    }
+
+    @Test
+    void zoneId_validation_rejects_bad_pct() {
+        // empty zone — invalid
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> URIAuthority.parse("[fe80::1%25]:80"));
+
+        // dangling percent-triplet — invalid
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> URIAuthority.parse("[fe80::1%25%]:80"));
+
+        // non-hex in percent-triplet — invalid
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> URIAuthority.parse("[fe80::1%25%G1]:80"));
+
+        // character not in RFC 3986 "unreserved" — invalid
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> URIAuthority.parse("[fe80::1%25!]:80"));
+
+    }
+
+    @Test
+    void zoneId_allows_unreserved_and_pct() throws URISyntaxException {
+        final URIAuthority a = URIAuthority.parse("[fe80::1%25en1-._~x%20]:443");
+        Assertions.assertNotNull(a);
+        Assertions.assertEquals("fe80::1%en1-._~x ", a.getHostName());
+        Assertions.assertEquals("[fe80::1%25en1-._~x%20]:443", a.toString());
+    }
+
+    @Test
+    void inetAddressUtils_helper_accepts_zone() {
+        Assertions.assertTrue(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1%eth0"));
+        Assertions.assertTrue(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1234:0:0:0:0:0%en1"));
+        Assertions.assertFalse(ZoneIdSupport.looksLikeIPv6AddressPart("not-an-ip"));
+    }
 
 }

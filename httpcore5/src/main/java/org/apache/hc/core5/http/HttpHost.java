@@ -38,6 +38,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.net.Host;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.net.ZoneIdSupport;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
@@ -303,12 +304,23 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      */
     public String toURI() {
         final StringBuilder buffer = new StringBuilder();
-        buffer.append(this.schemeName);
-        buffer.append("://");
-        buffer.append(this.host.toString());
+        buffer.append(this.schemeName).append("://");
+
+        final String hostname = this.host.getHostName();
+        final int port = this.host.getPort();
+
+        // Bracket only real IPv6 literals; decide using the address part only (ignore zone)
+        if (ZoneIdSupport.looksLikeIPv6AddressPart(hostname)) {
+            ZoneIdSupport.appendBracketedIPv6(buffer, hostname);
+            if (port >= 0) {
+                buffer.append(':').append(port);
+            }
+        } else {
+            // reg-name / IPv4 / special forms like "host:80" for CONNECT
+            buffer.append(this.host);
+        }
         return buffer.toString();
     }
-
 
     /**
      * Obtains the host string, without scheme prefix.
