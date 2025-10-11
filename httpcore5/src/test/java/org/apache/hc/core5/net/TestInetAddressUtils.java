@@ -198,4 +198,22 @@ class TestInetAddressUtils {
         Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:1:2:3:4"));
     }
 
+    @Test
+    void testValidIPv4MappedIPv6AddressWithLeadingZeros() {
+        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:001.002.003.004"));
+        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::FFFF:000.000.000.255"));
+        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:010.020.030.040"));
+    }
+
+    @Test
+    void testInvalidIPv4MappedIPv6AddressWithBadOctets() {
+        // >255 not allowed
+        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:256.000.000.000"));
+        // too few octets
+        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:01.02.03"));
+        // too many digits in an octet (4 digits)
+        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:0255.000.000.000"));
+    }
+
+
 }
