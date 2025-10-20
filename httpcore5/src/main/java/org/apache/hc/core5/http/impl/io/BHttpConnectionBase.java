@@ -238,6 +238,11 @@ class BHttpConnectionBase implements BHttpConnection {
                 try {
                     // force abortive close (RST)
                     baseSocket.setSoLinger(true, 0);
+                    // Some implementations like SSLSocketImpl read from the input stream to do a graceful close
+                    // We want an immediate close here, so we set a minimal timeout to prevent blocking
+                    // This specific case could happen if the underlying socketHolder is initialized through the
+                    // bind(Socket) method with an SSLSocket instance.
+                    baseSocket.setSoTimeout(1);
                 } catch (final IOException ignore) {
                 } finally {
                     Closer.closeQuietly(baseSocket);
