@@ -32,11 +32,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -52,6 +57,11 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
+import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -62,17 +72,22 @@ import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTE;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.ClassicTestResources;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import javax.net.ssl.SSLSocket;
 
 abstract class ClassicIntegrationTest {
 
@@ -775,4 +790,86 @@ abstract class ClassicIntegrationTest {
         }
     }
 
+    @Test
+    void testImmediateCloseUponSocketTimeout() throws Exception {
+        final int socketTimeoutMillis = 1000;
+        final int serverDelayMillis = 5 * socketTimeoutMillis;
+
+        final ClassicTestServer server = testResources.server();
+
+        final CountDownLatch serverDelayStarted = new CountDownLatch(1);
+
+        // Configure server to delay significantly before responding
+        server.register("*", (request, response, context) -> {
+            serverDelayStarted.countDown();
+            try {
+                // Delay much longer than socket timeout
+                Thread.sleep(serverDelayMillis);
+            } catch (final InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
+            response.setCode(HttpStatus.SC_OK);
+            response.setEntity(new StringEntity("Delayed response", ContentType.TEXT_PLAIN));
+        });
+
+        server.start();
+
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpConnectionFactory<? extends HttpClientConnection> connFactory =
+                DefaultBHttpClientConnectionFactory.builder().build();
+
+        final HttpRequestExecutor requestExecutor = new HttpRequestExecutor();
+        final HttpProcessor processor = HttpProcessors.client();
+
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setAuthority(new URIAuthority(host));
+        request.setScheme(host.getSchemeName());
+
+        runWithSocket(host, socketTimeoutMillis, socket -> {
+            try {
+                final HttpClientConnection connection = connFactory.createConnection(socket);
+
+                requestExecutor.preProcess(request, processor, context);
+
+                final long startTime = System.currentTimeMillis();
+                try (final ClassicHttpResponse response = requestExecutor.execute(
+                        request, connection, context)) {
+                    Assertions.fail("Expected SocketTimeoutException not thrown");
+                } catch (final SocketTimeoutException e) {
+                    // Expected due to server delay exceeding socket timeout
+                }
+
+                final long endTime = System.currentTimeMillis();
+                final long durationMillis = endTime - startTime;
+                // Assert that the timeout occurred around the socket timeout duration
+                Assertions.assertTrue(durationMillis >= socketTimeoutMillis && durationMillis < socketTimeoutMillis * 2,
+                        String.format("Socket timeout should occur around %dms (took %dms)",
+                                socketTimeoutMillis, durationMillis));
+            } catch (final IOException | HttpException e) {
+                Assertions.fail("IOException during request execution: " + e.getMessage());
+            }
+        });
+    }
+
+    private static void runWithSocket(
+            final HttpHost host, final int socketTimeoutMillis, final Consumer<Socket> socketConsumer)
+            throws IOException {
+        try (final Socket clientSocket = new Socket()) {
+            clientSocket.setSoTimeout(socketTimeoutMillis);
+            clientSocket.connect(new InetSocketAddress(host.getHostName(), host.getPort()));
+            if (host.getSchemeName().equalsIgnoreCase("http")) {
+                socketConsumer.accept(clientSocket);
+                return;
+            }
+
+            try (final SSLSocket sslSocket = (SSLSocket) SSLTestContexts.createClientSSLContext()
+                    .getSocketFactory()
+                    .createSocket(clientSocket, host.getHostName(), -1, true)) {
+                sslSocket.startHandshake();
+
+                socketConsumer.accept(sslSocket);
+            }
+        }
+    }
 }

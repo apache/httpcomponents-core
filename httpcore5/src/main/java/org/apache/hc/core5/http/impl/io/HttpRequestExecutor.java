@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -216,6 +217,13 @@ public class HttpRequestExecutor {
 
         } catch (final HttpException | SSLException ex) {
             Closer.closeQuietly(conn);
+            throw ex;
+        } catch (final SocketTimeoutException ex) {
+            // If the server isn't responsive, we want to close the connection immediately
+            // We set the socket timeout to a minimal value in such a case, because in some cases, the connection
+            // might only have access to an SSLSocket that it will try to close gracefully.
+            conn.setSocketTimeout(Timeout.ONE_MILLISECOND);
+            Closer.close(conn, CloseMode.IMMEDIATE);
             throw ex;
         } catch (final IOException | RuntimeException ex) {
             Closer.close(conn, CloseMode.IMMEDIATE);
