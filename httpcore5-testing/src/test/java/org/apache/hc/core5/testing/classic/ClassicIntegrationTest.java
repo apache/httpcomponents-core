@@ -40,7 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -56,16 +56,12 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.impl.DefaultAddressResolver;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -73,8 +69,16 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
-import org.apache.hc.core5.http.protocol.*;
-import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestConnControl;
+import org.apache.hc.core5.http.protocol.RequestContent;
+import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestTE;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
+import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.ClassicTestResources;
@@ -83,10 +87,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 abstract class ClassicIntegrationTest {
 
@@ -851,7 +852,8 @@ abstract class ClassicIntegrationTest {
         });
     }
 
-    private static void runWithSocket(HttpHost host, int socketTimeoutMillis, Consumer<Socket> socketConsumer)
+    private static void runWithSocket(
+            final HttpHost host, final int socketTimeoutMillis, final Consumer<Socket> socketConsumer)
             throws IOException {
         try (final Socket clientSocket = new Socket()) {
             clientSocket.setSoTimeout(socketTimeoutMillis);
@@ -861,7 +863,7 @@ abstract class ClassicIntegrationTest {
                 return;
             }
 
-            try (SSLSocket sslSocket = (SSLSocket) SSLTestContexts.createClientSSLContext()
+            try (final SSLSocket sslSocket = (SSLSocket) SSLTestContexts.createClientSSLContext()
                     .getSocketFactory()
                     .createSocket(clientSocket, host.getHostName(), -1, true)) {
                 sslSocket.startHandshake();
