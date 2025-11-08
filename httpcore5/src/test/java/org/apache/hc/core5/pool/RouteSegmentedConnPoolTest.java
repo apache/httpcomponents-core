@@ -39,10 +39,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
@@ -208,7 +210,6 @@ public class RouteSegmentedConnPoolTest {
         assertEquals("Pool closed", ex.getCause().getMessage());
     }
 
-
     @Test
     void reusePolicyLifoVsFifoIsObservable() throws Exception {
         final RouteSegmentedConnPool<String, FakeConnection> lifo =
@@ -250,9 +251,14 @@ public class RouteSegmentedConnPoolTest {
     @Test
     void disposalIsCalledOnDiscard() throws Exception {
         final List<FakeConnection> closed = new ArrayList<>();
+        final CountDownLatch disposed = new CountDownLatch(1);
         final DisposalCallback<FakeConnection> disposal = (c, m) -> {
-            c.close(m);
-            closed.add(c);
+            try {
+                c.close(m);
+            } finally {
+                closed.add(c);
+                disposed.countDown();
+            }
         };
         final RouteSegmentedConnPool<String, FakeConnection> pool =
                 newPool(1, 1, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, disposal);
@@ -261,6 +267,9 @@ public class RouteSegmentedConnPoolTest {
         final FakeConnection conn = new FakeConnection();
         e.assignConnection(conn);
         pool.release(e, false);
+
+        // Wait for async disposer to run
+        assertTrue(disposed.await(2, TimeUnit.SECONDS), "Disposal did not complete in time");
         assertEquals(1, closed.size());
         assertEquals(1, closed.get(0).closeCount());
         pool.close(CloseMode.IMMEDIATE);
@@ -268,23 +277,37 @@ public class RouteSegmentedConnPoolTest {
 
     @Test
     void slowDisposalDoesNotBlockOtherRoutes() throws Exception {
-        final DisposalCallback<FakeConnection> disposal = FakeConnection::close;
+        final CountDownLatch disposed = new CountDownLatch(1);
+        final AtomicLong closedAt = new AtomicLong(0L);
+        final DisposalCallback<FakeConnection> disposal = (c, m) -> {
+            try {
+                c.close(m); // FakeConnection sleeps closeDelayMs internally
+            } finally {
+                closedAt.set(System.nanoTime());
+                disposed.countDown();
+            }
+        };
         final RouteSegmentedConnPool<String, FakeConnection> pool =
                 newPool(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, disposal);
 
         final PoolEntry<String, FakeConnection> e1 = pool.lease("r1", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        e1.assignConnection(new FakeConnection(600));
-        final long startDiscard = System.nanoTime();
-        pool.release(e1, false);
+        e1.assignConnection(new FakeConnection(600)); // close sleeps ~600ms
 
+        final long startDiscard = System.nanoTime();
+        pool.release(e1, false); // triggers async disposal
+
+        // Lease on another route must not be blocked by slow disposal
         final long t0 = System.nanoTime();
         final PoolEntry<String, FakeConnection> e2 = pool.lease("r2", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
         final long tLeaseMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - t0);
         assertTrue(tLeaseMs < 200, "Other route lease blocked by disposal: " + tLeaseMs + "ms");
 
         pool.release(e2, false);
-        final long discardMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startDiscard);
-        assertTrue(discardMs >= 600, "Discard should reflect slow close path");
+
+        // Wait for disposer to finish, then assert the slow path really took ~600ms
+        assertTrue(disposed.await(2, TimeUnit.SECONDS), "Disposal did not complete in time");
+        final long discardMs = TimeUnit.NANOSECONDS.toMillis(closedAt.get() - startDiscard);
+        assertTrue(discardMs >= 600, "Discard should reflect slow close path (took " + discardMs + "ms)");
 
         pool.close(CloseMode.IMMEDIATE);
     }
@@ -296,40 +319,43 @@ public class RouteSegmentedConnPoolTest {
 
         assertTrue(pool.getRoutes().isEmpty(), "Initially there should be no routes");
 
+        // Allocate on rA
         final PoolEntry<String, FakeConnection> a =
                 pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
         assertEquals(new HashSet<String>(Collections.singletonList("rA")), pool.getRoutes(),
                 "rA must be listed because it is leased (allocated > 0)");
 
+        // Make rA available
         a.assignConnection(new FakeConnection());
         a.updateExpiry(TimeValue.ofSeconds(30));
         pool.release(a, true);
         assertEquals(new HashSet<>(Collections.singletonList("rA")), pool.getRoutes(),
                 "rA must be listed because it has AVAILABLE entries");
 
+        // Enqueue waiter on rB (will time out)
         final Future<PoolEntry<String, FakeConnection>> waiterB =
-                pool.lease("rB", null, Timeout.ofMilliseconds(300), null); // enqueues immediately
+                pool.lease("rB", null, Timeout.ofMilliseconds(300), null);
         final Set<String> routesNow = pool.getRoutes();
         assertTrue(routesNow.contains("rA") && routesNow.contains("rB"),
                 "Both rA (available) and rB (waiter) must be listed");
 
-        final PoolEntry<String, FakeConnection> a2 =
-                pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        pool.release(a2, false); // discard
-        final Set<String> afterDropA = pool.getRoutes();
-        assertFalse(afterDropA.contains("rA"), "rA segment should be cleaned up");
-        assertTrue(afterDropA.contains("rB"), "rB (waiter) should remain listed");
-
+        // Let rB time out (do NOT free capacity before the timeout fires)
         final ExecutionException ex = assertThrows(
                 ExecutionException.class,
                 () -> waiterB.get(600, TimeUnit.MILLISECONDS));
         assertInstanceOf(TimeoutException.class, ex.getCause());
         assertEquals("Lease timed out", ex.getCause().getMessage());
 
-        // Final cleanup: after close everything is cleared
+        // Now drain rA by leasing and discarding to trigger segment cleanup
+        final PoolEntry<String, FakeConnection> a2 =
+                pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        pool.release(a2, false); // discard
+        final Set<String> afterDropA = pool.getRoutes();
+        assertFalse(afterDropA.contains("rA"), "rA segment should be cleaned up");
+        assertFalse(afterDropA.contains("rB"), "rB waiter timed out; should not remain listed");
+
+        // Final cleanup
         pool.close(CloseMode.IMMEDIATE);
         assertTrue(pool.getRoutes().isEmpty(), "All routes must be gone after close()");
     }
-
-
 }

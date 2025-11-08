@@ -27,6 +27,8 @@
 package org.apache.hc.core5.pool;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,8 +40,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,15 +62,15 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Lock-free, route-segmented connection pool.
+ * Lock-free, route-segmented connection pool with tiny, conditional round-robin assistance.
  *
- * <p>This implementation keeps per-route state in independent segments and avoids
- * holding a global lock while disposing of connections. Under slow closes
- * (for example TLS shutdown or OS-level socket stalls), threads leasing
- * connections on other routes are not blocked by disposal work.</p>
+ * <p>Per-route state is kept in independent segments. Disposal of connections is offloaded
+ * to a bounded executor so slow closes do not block threads leasing on other routes.
+ * A minimal round-robin drainer is engaged only when there are many pending routes and
+ * there is global headroom; it never scans all routes.</p>
  *
  * @param <R> route key type
- * @param <C> connection type (must be {@link org.apache.hc.core5.io.ModalCloseable})
+ * @param <C> connection type (must be {@link ModalCloseable})
  * @see ManagedConnPool
  * @see PoolReusePolicy
  * @see DisposalCallback
@@ -73,6 +79,10 @@ import org.apache.hc.core5.util.Timeout;
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 @Experimental
 public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implements ManagedConnPool<R, C> {
+
+    // Tiny RR assist: only engage when there are many distinct routes waiting and there is headroom.
+    private static final int RR_MIN_PENDING_ROUTES = 12;
+    private static final int RR_BUDGET = 64;
 
     private final PoolReusePolicy reusePolicy;
     private final TimeValue timeToLive;
@@ -88,6 +98,17 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final ScheduledExecutorService timeouts;
+
+    /**
+     * Dedicated executor for asynchronous, best-effort disposal.
+     * Bounded queue; on saturation we fall back to IMMEDIATE close on the caller thread.
+     */
+    private final ThreadPoolExecutor disposer;
+
+    // Minimal fair round-robin over routes with waiters (no global scans).
+    private final ConcurrentLinkedQueue<R> pendingQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicBoolean draining = new AtomicBoolean(false);
+    private final AtomicInteger pendingRouteCount = new AtomicInteger(0);
 
     public RouteSegmentedConnPool(
             final int defaultMaxPerRoute,
@@ -108,12 +129,29 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             return t;
         };
         this.timeouts = Executors.newSingleThreadScheduledExecutor(tf);
+
+        // Asynchronous disposer for slow GRACEFUL closes.
+        final int cores = Math.max(2, Runtime.getRuntime().availableProcessors());
+        final int nThreads = Math.min(8, Math.max(2, cores)); // allow up to 8 on bigger boxes
+        final int qsize = 1024;
+        final ThreadFactory df = r -> {
+            final Thread t = new Thread(r, "seg-pool-disposer");
+            t.setDaemon(true);
+            return t;
+        };
+        this.disposer = new ThreadPoolExecutor(
+                nThreads, nThreads,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(qsize),
+                df,
+                new ThreadPoolExecutor.AbortPolicy()); // but we preflight capacity to avoid exception storms
     }
 
     final class Segment {
         final ConcurrentLinkedDeque<PoolEntry<R, C>> available = new ConcurrentLinkedDeque<>();
-        final ConcurrentLinkedQueue<Waiter> waiters = new ConcurrentLinkedQueue<>();
+        final ConcurrentLinkedDeque<Waiter> waiters = new ConcurrentLinkedDeque<>();
         final AtomicInteger allocated = new AtomicInteger(0);
+        final AtomicBoolean enqueued = new AtomicBoolean(false);
 
         int limitPerRoute(final R route) {
             final Integer v = maxPerRoute.get(route);
@@ -122,13 +160,18 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     }
 
     final class Waiter extends CompletableFuture<PoolEntry<R, C>> {
+        final R route;
         final Timeout requestTimeout;
         final Object state;
         volatile boolean cancelled;
+        volatile ScheduledFuture<?> timeoutTask;
 
-        Waiter(final Timeout t, final Object s) {
+        Waiter(final R route, final Timeout t, final Object s) {
+            this.route = route;
             this.requestTimeout = t != null ? t : Timeout.DISABLED;
             this.state = s;
+            this.cancelled = false;
+            this.timeoutTask = null;
         }
     }
 
@@ -142,6 +185,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         ensureOpen();
         final Segment seg = segments.computeIfAbsent(route, r -> new Segment());
 
+        // 1) Try available
         PoolEntry<R, C> hit;
         for (; ; ) {
             hit = pollAvailable(seg, state);
@@ -162,40 +206,46 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             return CompletableFuture.completedFuture(hit);
         }
 
-        for (; ; ) {
-            final int tot = totalAllocated.get();
-            if (tot >= maxTotal.get()) {
-                break;
+        // 2) Try to allocate new within caps
+        if (tryAllocateOne(route, seg)) {
+            final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal);
+            if (callback != null) {
+                callback.completed(entry);
             }
-            if (totalAllocated.compareAndSet(tot, tot + 1)) {
-                for (; ; ) {
-                    final int per = seg.allocated.get();
-                    if (per >= seg.limitPerRoute(route)) {
-                        totalAllocated.decrementAndGet();
-                        break;
-                    }
-                    if (seg.allocated.compareAndSet(per, per + 1)) {
-                        final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal);
-                        if (callback != null) {
-                            callback.completed(entry);
-                        }
-                        return CompletableFuture.completedFuture(entry);
-                    }
-                }
-                break;
-            }
+            return CompletableFuture.completedFuture(entry);
         }
 
-        final Waiter w = new Waiter(requestTimeout, state);
-        seg.waiters.add(w);
+        // 3) Enqueue waiter with timeout
+        final Waiter w = new Waiter(route, requestTimeout, state);
+        seg.waiters.addLast(w);
+        enqueueIfNeeded(route, seg);
 
+        // Late hit after enqueuing
         final PoolEntry<R, C> late = pollAvailable(seg, state);
-        if (late != null && seg.waiters.remove(w)) {
-            if (callback != null) {
-                callback.completed(late);
+        if (late != null) {
+            if (seg.waiters.remove(w)) {
+                cancelTimeout(w);
+                if (callback != null) {
+                    callback.completed(late);
+                }
+                w.complete(late);
+                dequeueIfDrained(seg);
+                return w;
+            } else {
+                boolean handedOff = false;
+                for (Waiter other; (other = seg.waiters.pollFirst()) != null; ) {
+                    if (!other.cancelled && compatible(other.state, late.getState())) {
+                        cancelTimeout(other);
+                        handedOff = other.complete(late);
+                        if (handedOff) {
+                            break;
+                        }
+                    }
+                }
+                if (!handedOff) {
+                    offerAvailable(seg, late);
+                }
             }
-            w.complete(late);
-            return w;
         }
 
         scheduleTimeout(w, seg);
@@ -209,6 +259,8 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 }
             });
         }
+
+        triggerDrainIfMany();
         return w;
     }
 
@@ -220,7 +272,8 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         final R route = entry.getRoute();
         final Segment seg = segments.get(route);
         if (seg == null) {
-            entry.discardConnection(CloseMode.GRACEFUL);
+            // Segment got removed; dispose off-thread and bail.
+            discardEntry(entry, CloseMode.GRACEFUL);
             return;
         }
 
@@ -228,21 +281,11 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         final boolean stillValid = reusable && !isPastTtl(entry) && !entry.getExpiryDeadline().isBefore(now);
 
         if (stillValid) {
-            for (; ; ) {
-                final Waiter w = seg.waiters.poll();
-                if (w == null) {
-                    break;
-                }
-                if (w.cancelled) {
-                    continue;
-                }
-                if (compatible(w.state, entry.getState())) {
-                    if (w.complete(entry)) {
-                        return;
-                    }
-                }
+            if (!handOffToCompatibleWaiter(entry, seg)) {
+                offerAvailable(seg, entry);
+                enqueueIfNeeded(route, seg);
+                triggerDrainIfMany();
             }
-            offerAvailable(seg, entry);
         } else {
             discardAndDecr(entry, CloseMode.GRACEFUL);
         }
@@ -266,15 +309,19 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         for (final Map.Entry<R, Segment> e : segments.entrySet()) {
             final Segment seg = e.getValue();
 
-            // cancel waiters
             for (final Waiter w : seg.waiters) {
                 w.cancelled = true;
+                cancelTimeout(w);
                 w.completeExceptionally(new TimeoutException("Pool closed"));
             }
             seg.waiters.clear();
+            if (seg.enqueued.getAndSet(false)) {
+                pendingRouteCount.decrementAndGet();
+            }
 
+            // discard available
             for (final PoolEntry<R, C> p : seg.available) {
-                p.discardConnection(orImmediate(closeMode));
+                discardEntry(p, closeMode);
             }
             seg.available.clear();
 
@@ -284,6 +331,11 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             }
         }
         segments.clear();
+        pendingQueue.clear();
+        pendingRouteCount.set(0);
+
+        // Let in-flight graceful closes progress; no blocking here.
+        disposer.shutdown();
     }
 
     @Override
@@ -418,40 +470,38 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         if (timeToLive == null || timeToLive.getDuration() < 0) {
             return false;
         }
-        return (System.currentTimeMillis() - p.getCreated()) >= timeToLive.toMilliseconds();
+        return System.currentTimeMillis() - p.getCreated() >= timeToLive.toMilliseconds();
     }
 
-    private void scheduleTimeout(
-            final Waiter w,
-            final Segment seg) {
-
+    private void scheduleTimeout(final Waiter w, final Segment seg) {
         if (!TimeValue.isPositive(w.requestTimeout)) {
             return;
         }
-        timeouts.schedule(() -> {
+        w.timeoutTask = timeouts.schedule(() -> {
             if (w.isDone()) {
                 return;
             }
             w.cancelled = true;
-            final TimeoutException tex = new TimeoutException("Lease timed out");
-            w.completeExceptionally(tex);
+            seg.waiters.remove(w);
+            w.completeExceptionally(new TimeoutException("Lease timed out"));
+            dequeueIfDrained(seg);
+            maybeCleanupSegment(w.route, seg);
 
             final PoolEntry<R, C> p = pollAvailable(seg, w.state);
             if (p != null) {
-                boolean handedOff = false;
-                for (Waiter other; (other = seg.waiters.poll()) != null; ) {
-                    if (!other.cancelled && compatible(other.state, p.getState())) {
-                        handedOff = other.complete(p);
-                        if (handedOff) {
-                            break;
-                        }
-                    }
-                }
-                if (!handedOff) {
+                // Try to hand off that available entry to some other compatible waiter.
+                if (!handOffToCompatibleWaiter(p, seg)) {
                     offerAvailable(seg, p);
                 }
             }
         }, w.requestTimeout.toMilliseconds(), TimeUnit.MILLISECONDS);
+    }
+
+    private void cancelTimeout(final Waiter w) {
+        final ScheduledFuture<?> t = w.timeoutTask;
+        if (t != null) {
+            t.cancel(false);
+        }
     }
 
     private void offerAvailable(final Segment seg, final PoolEntry<R, C> p) {
@@ -463,6 +513,9 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     }
 
     private PoolEntry<R, C> pollAvailable(final Segment seg, final Object neededState) {
+        if (neededState == null) {
+            return seg.available.pollFirst();
+        }
         for (final Iterator<PoolEntry<R, C>> it = seg.available.iterator(); it.hasNext(); ) {
             final PoolEntry<R, C> p = it.next();
             if (compatible(neededState, p.getState())) {
@@ -477,13 +530,42 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         return needed == null || Objects.equals(needed, have);
     }
 
+    private boolean handOffToCompatibleWaiter(final PoolEntry<R, C> entry, final Segment seg) {
+        final Deque<Waiter> skipped = new ArrayDeque<>();
+        boolean handedOff = false;
+        for (; ; ) {
+            final Waiter w = seg.waiters.pollFirst();
+            if (w == null) {
+                break;
+            }
+            if (w.cancelled || w.isDone()) {
+                continue;
+            }
+            if (compatible(w.state, entry.getState())) {
+                cancelTimeout(w);
+                handedOff = w.complete(entry);
+                if (handedOff) {
+                    dequeueIfDrained(seg);
+                    break;
+                }
+            } else {
+                skipped.addLast(w);
+            }
+        }
+        // Restore non-compatible waiters to the head to preserve ordering.
+        while (!skipped.isEmpty()) {
+            seg.waiters.addFirst(skipped.pollLast());
+        }
+        return handedOff;
+    }
+
     private void discardAndDecr(final PoolEntry<R, C> p, final CloseMode mode) {
-        p.discardConnection(orImmediate(mode));
         totalAllocated.decrementAndGet();
         final Segment seg = segments.get(p.getRoute());
         if (seg != null) {
             seg.allocated.decrementAndGet();
         }
+        discardEntry(p, mode);
     }
 
     private CloseMode orImmediate(final CloseMode m) {
@@ -493,6 +575,143 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     private void maybeCleanupSegment(final R route, final Segment seg) {
         if (seg.allocated.get() == 0 && seg.available.isEmpty() && seg.waiters.isEmpty()) {
             segments.remove(route, seg);
+            if (seg.enqueued.getAndSet(false)) {
+                pendingRouteCount.decrementAndGet();
+            }
+        }
+    }
+
+    private boolean tryAllocateOne(final R route, final Segment seg) {
+        for (; ; ) {
+            final int tot = totalAllocated.get();
+            if (tot >= maxTotal.get()) {
+                return false;
+            }
+            if (!totalAllocated.compareAndSet(tot, tot + 1)) {
+                continue;
+            }
+            for (; ; ) {
+                final int per = seg.allocated.get();
+                if (per >= seg.limitPerRoute(route)) {
+                    totalAllocated.decrementAndGet();
+                    return false;
+                }
+                if (seg.allocated.compareAndSet(per, per + 1)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    private void enqueueIfNeeded(final R route, final Segment seg) {
+        if (seg.enqueued.compareAndSet(false, true)) {
+            pendingQueue.offer(route);
+            pendingRouteCount.incrementAndGet();
+        }
+    }
+
+    private void dequeueIfDrained(final Segment seg) {
+        if (seg.waiters.isEmpty() && seg.enqueued.getAndSet(false)) {
+            pendingRouteCount.decrementAndGet();
+        }
+    }
+
+    private void triggerDrainIfMany() {
+        // Engage RR only if there is global headroom and many distinct routes pending
+        if (pendingRouteCount.get() < RR_MIN_PENDING_ROUTES) {
+            return;
+        }
+        if (totalAllocated.get() >= maxTotal.get()) {
+            return;
+        }
+        if (!draining.compareAndSet(false, true)) {
+            return;
+        }
+        disposer.execute(() -> {
+            try {
+                serveRoundRobin(RR_BUDGET);
+            } finally {
+                draining.set(false);
+                if (pendingRouteCount.get() >= RR_MIN_PENDING_ROUTES
+                        && totalAllocated.get() < maxTotal.get()
+                        && !pendingQueue.isEmpty()) {
+                    triggerDrainIfMany();
+                }
+            }
+        });
+    }
+
+    private void serveRoundRobin(final int budget) {
+        int created = 0;
+        for (; created < budget; ) {
+            final R route = pendingQueue.poll();
+            if (route == null) {
+                break;
+            }
+            final Segment seg = segments.get(route);
+            if (seg == null) {
+                continue;
+            }
+            if (seg.waiters.isEmpty()) {
+                if (seg.enqueued.getAndSet(false)) {
+                    pendingRouteCount.decrementAndGet();
+                }
+                continue;
+            }
+
+            if (!tryAllocateOne(route, seg)) {
+                // No headroom or hit per-route cap. Re-queue for later.
+                pendingQueue.offer(route);
+                continue;
+            }
+
+            final Waiter w = seg.waiters.pollFirst();
+            if (w == null || w.cancelled) {
+                seg.allocated.decrementAndGet();
+                totalAllocated.decrementAndGet();
+            } else {
+                final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal);
+                cancelTimeout(w);
+                w.complete(entry);
+                created++;
+            }
+
+            if (!seg.waiters.isEmpty()) {
+                pendingQueue.offer(route);
+            } else {
+                if (seg.enqueued.getAndSet(false)) {
+                    pendingRouteCount.decrementAndGet();
+                }
+            }
+        }
+    }
+
+    /**
+     * Dispose a pool entry's connection asynchronously if possible; under pressure fall back to IMMEDIATE on caller.
+     */
+    private void discardEntry(final PoolEntry<R, C> p, final CloseMode preferred) {
+        final CloseMode mode = orImmediate(preferred);
+        // Pre-flight capacity to avoid exception storms under saturation
+        if (disposer.isShutdown()) {
+            p.discardConnection(CloseMode.IMMEDIATE);
+            return;
+        }
+        final LinkedBlockingQueue<Runnable> q = (LinkedBlockingQueue<Runnable>) disposer.getQueue();
+        if (q.remainingCapacity() == 0) {
+            p.discardConnection(CloseMode.IMMEDIATE);
+            return;
+        }
+        try {
+            disposer.execute(() -> {
+                try {
+                    p.discardConnection(mode);
+                } catch (final RuntimeException ignore) {
+                    // best-effort
+                }
+            });
+        } catch (final RejectedExecutionException saturated) {
+            // Saturated or shutting down: never block caller
+            p.discardConnection(CloseMode.IMMEDIATE);
         }
     }
 }
