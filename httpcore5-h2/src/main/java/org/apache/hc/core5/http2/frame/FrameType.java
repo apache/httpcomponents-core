@@ -43,7 +43,8 @@ public enum FrameType {
     GOAWAY(0x07),
     WINDOW_UPDATE(0x08),
     CONTINUATION(0x09),
-    PRIORITY_UPDATE(0x10); // 16
+    PRIORITY_UPDATE(0x10), // 16
+    ORIGIN(0x0c);          // RFC 8336
 
     final int value;
 
