@@ -50,7 +50,7 @@ import org.apache.hc.core5.util.Args;
  * greater than the requested capacity; however, their {@link ByteBuffer#limit(int)}
  * is set to the requested capacity.
  *
- * @since 5.7
+ * @since 5.4
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 public final class PooledByteBufferAllocator implements ByteBufferAllocator {
@@ -73,8 +73,10 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         final Deque<ByteBuffer>[] directBuckets;
 
         LocalCache(final int bucketCount) {
-            @SuppressWarnings("unchecked") final Deque<ByteBuffer>[] heap = new Deque[bucketCount];
-            @SuppressWarnings("unchecked") final Deque<ByteBuffer>[] direct = new Deque[bucketCount];
+            @SuppressWarnings("unchecked")
+            final Deque<ByteBuffer>[] heap = new Deque[bucketCount];
+            @SuppressWarnings("unchecked")
+            final Deque<ByteBuffer>[] direct = new Deque[bucketCount];
             for (int i = 0; i < bucketCount; i++) {
                 heap[i] = new ArrayDeque<>();
                 direct[i] = new ArrayDeque<>();
@@ -87,6 +89,7 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
 
     private final int minCapacity;
     private final int maxCapacity;
+    private final int minShift;
     private final int[] bucketCapacities;
     private final GlobalBucket[] heapBuckets;
     private final GlobalBucket[] directBuckets;
@@ -121,9 +124,11 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         this.maxGlobalPerBucket = maxGlobalPerBucket;
         this.maxLocalPerBucket = maxLocalPerBucket;
 
-        final int bucketCount = bucketCount(this.minCapacity, this.maxCapacity);
-        this.bucketCapacities = new int[bucketCount];
+        this.minShift = Integer.numberOfTrailingZeros(this.minCapacity);
+        final int maxShift = Integer.numberOfTrailingZeros(this.maxCapacity);
+        final int bucketCount = maxShift - this.minShift + 1;
 
+        this.bucketCapacities = new int[bucketCount];
         this.heapBuckets = new GlobalBucket[bucketCount];
         this.directBuckets = new GlobalBucket[bucketCount];
 
@@ -149,16 +154,13 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         return normalized;
     }
 
-    private static int bucketCount(final int minCapacity, final int maxCapacity) {
-        int count = 0;
-        int capacity = minCapacity;
-        while (capacity <= maxCapacity) {
-            count++;
-            capacity <<= 1;
-        }
-        return count;
-    }
-
+    /**
+     * Returns the bucket index for the given capacity, or {@code -1} if the
+     * capacity is greater than {@code maxCapacity}.
+     * <p>
+     * This implementation runs in O(1) using bit operations. It assumes
+     * {@code minCapacity} and {@code maxCapacity} are powers of two.
+     */
     private int bucketIndex(final int capacity) {
         if (capacity <= minCapacity) {
             return 0;
@@ -166,13 +168,10 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         if (capacity > maxCapacity) {
             return -1;
         }
-        int idx = 0;
-        int current = minCapacity;
-        while (current < capacity && current < maxCapacity) {
-            current <<= 1;
-            idx++;
-        }
-        if (idx >= bucketCapacities.length) {
+        // Ceil(log2(capacity)) using bit length of (capacity - 1).
+        final int neededShift = 32 - Integer.numberOfLeadingZeros(capacity - 1);
+        final int idx = neededShift - minShift;
+        if (idx < 0 || idx >= bucketCapacities.length) {
             return -1;
         }
         return idx;
@@ -187,8 +186,6 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
                     ? ByteBuffer.allocateDirect(requestedCapacity)
                     : ByteBuffer.allocate(requestedCapacity);
         }
-
-        final int bucketCapacity = bucketCapacities[idx];
 
         final LocalCache cache = localCache.get();
         final Deque<ByteBuffer>[] localBuckets = direct
@@ -214,6 +211,7 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
             return buf;
         }
 
+        final int bucketCapacity = bucketCapacities[idx];
         buf = direct
                 ? ByteBuffer.allocateDirect(bucketCapacity)
                 : ByteBuffer.allocate(bucketCapacity);
@@ -249,10 +247,15 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
                 : cache.heapBuckets;
         final Deque<ByteBuffer> local = localBuckets[idx];
 
+        buffer.clear();
+        buffer.limit(bucketCapacities[idx]);
+
         if (local.size() < maxLocalPerBucket) {
-            buffer.clear();
-            buffer.limit(bucketCapacities[idx]);
             local.addFirst(buffer);
+            return;
+        }
+
+        if (maxGlobalPerBucket == 0) {
             return;
         }
 
@@ -262,8 +265,6 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         if (current >= maxGlobalPerBucket) {
             return;
         }
-        buffer.clear();
-        buffer.limit(bucketCapacities[idx]);
         global.queue.offer(buffer);
         global.size.incrementAndGet();
     }
