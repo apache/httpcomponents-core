@@ -155,13 +155,13 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
     }
 
     /**
-     * Returns the bucket index for the given capacity, or {@code -1} if the
-     * capacity is greater than {@code maxCapacity}.
+     * Returns the bucket index for an arbitrary requested capacity, or {@code -1}
+     * if the capacity is greater than {@code maxCapacity}.
      * <p>
      * This implementation runs in O(1) using bit operations. It assumes
      * {@code minCapacity} and {@code maxCapacity} are powers of two.
      */
-    private int bucketIndex(final int capacity) {
+    private int bucketIndexForRequest(final int capacity) {
         if (capacity <= minCapacity) {
             return 0;
         }
@@ -177,9 +177,31 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         return idx;
     }
 
+    /**
+     * Returns the bucket index for a pooled buffer {@link ByteBuffer#capacity()}.
+     * <p>
+     * This assumes the capacity is a power of two in the configured range. If
+     * someone passes in an arbitrary foreign buffer, this returns {@code -1}
+     * and the buffer is ignored by the pool.
+     */
+    private int bucketIndexForPooledCapacity(final int capacity) {
+        if (capacity < minCapacity || capacity > maxCapacity) {
+            return -1;
+        }
+        // Must be a power of two.
+        if ((capacity & (capacity - 1)) != 0) {
+            return -1;
+        }
+        final int idx = Integer.numberOfTrailingZeros(capacity) - minShift;
+        if (idx < 0 || idx >= bucketCapacities.length) {
+            return -1;
+        }
+        return idx;
+    }
+
     private ByteBuffer allocateInternal(final int requestedCapacity, final boolean direct) {
         Args.notNegative(requestedCapacity, "Buffer capacity");
-        final int idx = bucketIndex(requestedCapacity);
+        final int idx = bucketIndexForRequest(requestedCapacity);
         if (idx < 0) {
             // Not pooled: allocate exact requested capacity.
             return direct
@@ -200,15 +222,17 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
             return buf;
         }
 
-        final GlobalBucket[] globalArray = direct ? directBuckets : heapBuckets;
-        final GlobalBucket global = globalArray[idx];
+        if (maxGlobalPerBucket > 0) {
+            final GlobalBucket[] globalArray = direct ? directBuckets : heapBuckets;
+            final GlobalBucket global = globalArray[idx];
 
-        buf = global.queue.poll();
-        if (buf != null) {
-            global.size.decrementAndGet();
-            buf.clear();
-            buf.limit(requestedCapacity);
-            return buf;
+            buf = global.queue.poll();
+            if (buf != null) {
+                global.size.decrementAndGet();
+                buf.clear();
+                buf.limit(requestedCapacity);
+                return buf;
+            }
         }
 
         final int bucketCapacity = bucketCapacities[idx];
@@ -235,8 +259,9 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
             return;
         }
         final int capacity = buffer.capacity();
-        final int idx = bucketIndex(capacity);
+        final int idx = bucketIndexForPooledCapacity(capacity);
         if (idx < 0) {
+            // Not a pooled buffer (or foreign capacity), drop it.
             return;
         }
 
@@ -261,12 +286,14 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
 
         final GlobalBucket[] globalArray = direct ? directBuckets : heapBuckets;
         final GlobalBucket global = globalArray[idx];
-        final int current = global.size.get();
-        if (current >= maxGlobalPerBucket) {
+
+        // One atomic on the hot success path instead of get() + increment().
+        final int newSize = global.size.incrementAndGet();
+        if (newSize > maxGlobalPerBucket) {
+            global.size.decrementAndGet();
             return;
         }
         global.queue.offer(buffer);
-        global.size.incrementAndGet();
     }
 
     @Override
