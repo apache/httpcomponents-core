@@ -171,6 +171,9 @@
                     <argument>-classpath</argument>
                     <classpath/>
                     <argument>org.openjdk.jmh.Main</argument>
+                    <!-- GC profiler -->
+                    <argument>-prof</argument>
+                    <argument>gc</argument>
                     <argument>-rf</argument>
                     <argument>json</argument>
                     <argument>-rff</argument>

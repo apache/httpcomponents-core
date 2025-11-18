@@ -42,7 +42,6 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
@@ -52,6 +51,11 @@ import org.openjdk.jmh.infra.Blackhole;
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(1)
 public class ByteBufferAllocatorBenchmark {
+
+    public enum BufferKind {
+        HEAP,
+        DIRECT
+    }
 
     /**
      * Per-thread state: each thread gets its own allocators.
@@ -66,6 +70,9 @@ public class ByteBufferAllocatorBenchmark {
 
         @Param({"100"})
         public int iterations;
+
+        @Param({"HEAP", "DIRECT"})
+        public BufferKind kind;
 
         public ByteBufferAllocator simpleAllocator;
         public ByteBufferAllocator pooledAllocator;
@@ -103,6 +110,9 @@ public class ByteBufferAllocatorBenchmark {
         @Param({"100"})
         public int iterations;
 
+        @Param({"HEAP", "DIRECT"})
+        public BufferKind kind;
+
         public ByteBufferAllocator simpleAllocator;
         public ByteBufferAllocator pooledAllocator;
 
@@ -125,7 +135,16 @@ public class ByteBufferAllocatorBenchmark {
 
     }
 
-    // --------- Per-thread allocators (your original semantics) ---------
+    private static ByteBuffer allocate(
+            final ByteBufferAllocator allocator,
+            final BufferKind kind,
+            final int bufferSize) {
+        if (kind == BufferKind.DIRECT) {
+            return allocator.allocateDirect(bufferSize);
+        }
+        return allocator.allocate(bufferSize);
+    }
+
 
     @Benchmark
     public void pooled_allocator_thread_local(final ThreadLocalState state, final Blackhole blackhole) {
@@ -133,9 +152,10 @@ public class ByteBufferAllocatorBenchmark {
         final int iterations = state.iterations;
         final ByteBufferAllocator allocator = state.pooledAllocator;
         final byte[] payload = state.payload;
+        final BufferKind kind = state.kind;
 
         for (int i = 0; i < iterations; i++) {
-            final ByteBuffer buf = allocator.allocate(bufferSize);
+            final ByteBuffer buf = allocate(allocator, kind, bufferSize);
             buf.put(payload);
             buf.flip();
             blackhole.consume(buf.get(0));
@@ -149,9 +169,10 @@ public class ByteBufferAllocatorBenchmark {
         final int iterations = state.iterations;
         final ByteBufferAllocator allocator = state.simpleAllocator;
         final byte[] payload = state.payload;
+        final BufferKind kind = state.kind;
 
         for (int i = 0; i < iterations; i++) {
-            final ByteBuffer buf = allocator.allocate(bufferSize);
+            final ByteBuffer buf = allocate(allocator, kind, bufferSize);
             buf.put(payload);
             buf.flip();
             blackhole.consume(buf.get(0));
@@ -159,22 +180,16 @@ public class ByteBufferAllocatorBenchmark {
         }
     }
 
-    // --------- Shared allocator, multi-threaded contention ---------
-
-    /**
-     * Run this with multiple threads, e.g.:
-     * -t 4 or -t 8 on the JMH command line.
-     */
     @Benchmark
-    @Threads(4) // Override from the command line if you want: -t 8, etc.
     public void pooled_allocator_shared(final SharedState state, final Blackhole blackhole) {
         final int bufferSize = state.bufferSize;
         final int iterations = state.iterations;
         final ByteBufferAllocator allocator = state.pooledAllocator;
         final byte[] payload = state.payload;
+        final BufferKind kind = state.kind;
 
         for (int i = 0; i < iterations; i++) {
-            final ByteBuffer buf = allocator.allocate(bufferSize);
+            final ByteBuffer buf = allocate(allocator, kind, bufferSize);
             buf.put(payload);
             buf.flip();
             blackhole.consume(buf.get(0));
@@ -183,15 +198,15 @@ public class ByteBufferAllocatorBenchmark {
     }
 
     @Benchmark
-    @Threads(4)
     public void simple_allocator_shared(final SharedState state, final Blackhole blackhole) {
         final int bufferSize = state.bufferSize;
         final int iterations = state.iterations;
         final ByteBufferAllocator allocator = state.simpleAllocator;
         final byte[] payload = state.payload;
+        final BufferKind kind = state.kind;
 
         for (int i = 0; i < iterations; i++) {
-            final ByteBuffer buf = allocator.allocate(bufferSize);
+            final ByteBuffer buf = allocate(allocator, kind, bufferSize);
             buf.put(payload);
             buf.flip();
             blackhole.consume(buf.get(0));
