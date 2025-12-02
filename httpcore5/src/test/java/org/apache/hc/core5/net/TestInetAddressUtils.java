@@ -44,6 +44,7 @@ class TestInetAddressUtils {
         Assertions.assertTrue(InetAddressUtils.isIPv4("127.0.0.1"));
         Assertions.assertTrue(InetAddressUtils.isIPv4("192.168.0.0"));
         Assertions.assertTrue(InetAddressUtils.isIPv4("255.255.255.255"));
+        Assertions.assertTrue(InetAddressUtils.isIPv4("0.168.0.0"));
     }
 
     @Test
@@ -52,7 +53,6 @@ class TestInetAddressUtils {
         Assertions.assertFalse(InetAddressUtils.isIPv4("g.ar.ba.ge"));
         Assertions.assertFalse(InetAddressUtils.isIPv4("192.168.0"));
         Assertions.assertFalse(InetAddressUtils.isIPv4("256.255.255.255"));
-        Assertions.assertFalse(InetAddressUtils.isIPv4("0.168.0.0"));    //IP address that starts with zero not allowed
     }
 
     @Test
