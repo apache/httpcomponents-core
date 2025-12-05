@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hc.core5.http.HttpHost;
@@ -44,6 +43,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
+import org.apache.hc.core5.net.uri.Rfc3986Uri;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
@@ -1118,57 +1118,15 @@ public class URIBuilder {
      * @since 5.3
      */
     public URIBuilder optimize() {
-        final String scheme = this.scheme;
-        if (scheme != null) {
-            this.scheme = TextUtils.toLowerCase(scheme);
-        }
-
-        if (this.pathRootless) {
+        final String raw = this.toString();
+        try {
+            final Rfc3986Uri u = Rfc3986Uri.parse(raw).optimize();
+            return new URIBuilder(u.toString());
+        } catch (final IllegalArgumentException | URISyntaxException ex) {
             return this;
         }
-
-        // Force Percent-Encoding re-encoding
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        this.encodedUserInfo = null;
-        this.encodedPath = null;
-        this.encodedQuery = null;
-        this.encodedFragment = null;
-
-        final String host = this.host;
-        if (host != null) {
-            this.host = TextUtils.toLowerCase(host);
-        }
-
-        if (this.pathSegments != null) {
-            final List<String> inputSegments = this.pathSegments;
-            if (!inputSegments.isEmpty()) {
-                final LinkedList<String> outputSegments = new LinkedList<>();
-                for (final String inputSegment : inputSegments) {
-                    if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
-                        if ("..".equals(inputSegment)) {
-                            if (!outputSegments.isEmpty()) {
-                                outputSegments.removeLast();
-                            }
-                        } else {
-                            outputSegments.addLast(inputSegment);
-                        }
-                    }
-                }
-                if (!inputSegments.isEmpty()) {
-                    final String lastSegment = inputSegments.get(inputSegments.size() - 1);
-                    if (lastSegment.isEmpty()) {
-                        outputSegments.addLast("");
-                    }
-                }
-                this.pathSegments = outputSegments;
-            } else {
-                this.pathSegments = Collections.singletonList("");
-            }
-        }
-
-        return this;
     }
+
 
     /**
      * Converts this instance to a URI string.
