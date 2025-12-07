@@ -61,6 +61,12 @@ class H2Stream implements StreamControl {
     private volatile boolean reserved;
     private volatile boolean remoteClosed;
 
+    private volatile long createdNanos;
+    private volatile long lastActivityNanos;
+
+    private volatile Timeout idleTimeout;
+    private volatile Timeout lifetimeTimeout;
+
     H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final Consumer<State> stateChangeCallback) {
         this.channel = channel;
         this.handler = handler;
@@ -69,6 +75,8 @@ class H2Stream implements StreamControl {
         this.transitionRef = new AtomicReference<>(State.RESERVED);
         this.released = new AtomicBoolean();
         this.cancelled = new AtomicBoolean();
+        this.createdNanos = 0L;
+        this.lastActivityNanos = 0L;
     }
 
     @Override
@@ -104,6 +112,7 @@ class H2Stream implements StreamControl {
 
     void activate() {
         reserved = false;
+        markCreatedAndActive();
         triggerOpen();
     }
 
@@ -146,6 +155,8 @@ class H2Stream implements StreamControl {
 
     void consumePromise(final List<Header> headers) throws HttpException, IOException {
         try {
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -165,6 +176,8 @@ class H2Stream implements StreamControl {
             if (endOfStream) {
                 remoteClosed = true;
             }
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -183,6 +196,8 @@ class H2Stream implements StreamControl {
             if (endOfStream) {
                 remoteClosed = true;
             }
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -204,6 +219,8 @@ class H2Stream implements StreamControl {
 
     void produceOutput() throws HttpException, IOException {
         try {
+            touch();
+
             handler.produceOutput();
         } catch (final ProtocolException ex) {
             localReset(ex, H2Error.PROTOCOL_ERROR);
@@ -211,6 +228,7 @@ class H2Stream implements StreamControl {
     }
 
     void produceInputCapacityUpdate() throws IOException {
+        touch();
         handler.updateInputCapacity();
     }
 
@@ -308,4 +326,37 @@ class H2Stream implements StreamControl {
         return buf.toString();
     }
 
+    private void markCreatedAndActive() {
+        final long now = System.nanoTime();
+        this.createdNanos = now;
+        this.lastActivityNanos = now;
+    }
+
+    private void touch() {
+        this.lastActivityNanos = System.nanoTime();
+    }
+
+    long getCreatedNanos() {
+        return createdNanos;
+    }
+
+    long getLastActivityNanos() {
+        return lastActivityNanos;
+    }
+
+    Timeout getIdleTimeout() {
+        return idleTimeout;
+    }
+
+    void setIdleTimeout(final Timeout idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
+    Timeout getLifetimeTimeout() {
+        return lifetimeTimeout;
+    }
+
+    void setLifetimeTimeout(final Timeout lifetimeTimeout) {
+        this.lifetimeTimeout = lifetimeTimeout;
+    }
 }
