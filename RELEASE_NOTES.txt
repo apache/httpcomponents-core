@@ -1,11 +1,9 @@
-Release 5.4-alpha1
+Release 5.4
 ------------------
 
-This is the first ALPHA release in the 5.4 release series that improves HTTP/2 protocol
+This is the first GA release in the 5.4 release series that improves HTTP/2 protocol
 support by ensuring conformance to the latest HTTP specification (RFC 9113) and adds
 support for Unix domain sockets.
-
-This release also includes all the fixes from the stable 5.3 branch.
 
 Notable changes and features included in the 5.4 series:
 
@@ -25,6 +23,35 @@ Notable changes and features included in the 5.4 series:
 
 * QUERY method support.
 
+* Improved idle connection validation in the async transport.
+
+
+Change Log
+-------------------
+
+* Fix validation of 0/8 IPv4 addresses.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Route-segmented pool: fix timeout race; add direct hand-off; enforce TTL on lease;
+  bound scans (#575).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Ensure connection is closed immediately upon socket timeout.
+  Contributed by Alexis Le Dantec <aledantec at palantir.com>
+
+* Accept leading zeros in IPv4-mapped IPv6 (#568).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
+
+Release 5.4-alpha1
+------------------
+
+This is the first ALPHA release in the 5.4 release series that improves HTTP/2 protocol
+support by ensuring conformance to the latest HTTP specification (RFC 9113) and adds
+support for Unix domain sockets.
+
+This release also includes all the fixes from the stable 5.3 branch.
 
 
 Change Log
