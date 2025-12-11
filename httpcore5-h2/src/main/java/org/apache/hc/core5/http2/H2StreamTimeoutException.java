@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.http2;
 
-import java.net.SocketTimeoutException;
+import java.io.InterruptedIOException;
 
 import org.apache.hc.core5.util.Timeout;
 
@@ -51,7 +51,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.4
  */
-public class H2StreamTimeoutException extends SocketTimeoutException {
+public class H2StreamTimeoutException extends InterruptedIOException {
 
     private static final long serialVersionUID = 1L;
 

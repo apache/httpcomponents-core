@@ -213,6 +213,13 @@ class H2Stream implements StreamControl {
 
     void produceOutput() throws HttpException, IOException {
         try {
+            if (channel.isLocalReset()) {
+                return;
+            }
+            if (cancelled.get()) {
+                localResetCancelled();
+                return;
+            }
             touch();
 
             handler.produceOutput();
@@ -222,6 +229,13 @@ class H2Stream implements StreamControl {
     }
 
     void produceInputCapacityUpdate() throws IOException {
+        if (channel.isLocalReset()) {
+            return;
+        }
+        if (cancelled.get()) {
+            localResetCancelled();
+            return;
+        }
         touch();
         handler.updateInputCapacity();
     }

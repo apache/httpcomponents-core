@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
+import java.nio.channels.CancelledKeyException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -48,7 +49,11 @@ final class CancellableExecution implements CancellableDependency {
         if (cancelled.get()) {
             final Cancellable dependency = dependencyRef.getAndSet(null);
             if (dependency != null) {
-                dependency.cancel();
+                try {
+                    dependency.cancel();
+                } catch (final CancelledKeyException ignore) {
+                    // Session already gone; cancellation is effectively complete.
+                }
             }
         }
     }
@@ -63,7 +68,11 @@ final class CancellableExecution implements CancellableDependency {
         if (cancelled.compareAndSet(false, true)) {
             final Cancellable dependency = dependencyRef.getAndSet(null);
             if (dependency != null) {
-                dependency.cancel();
+                try {
+                    dependency.cancel();
+                } catch (final CancelledKeyException ignore) {
+                    // Session already gone; treat as successfully cancelled.
+                }
             }
             return true;
         }

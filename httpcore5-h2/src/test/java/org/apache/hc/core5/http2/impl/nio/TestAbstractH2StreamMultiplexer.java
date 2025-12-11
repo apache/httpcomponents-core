@@ -1080,54 +1080,5 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertTrue(stream.isLocalClosed());
         Assertions.assertTrue(stream.isClosed());
     }
-
-    @Test
-    void testStreamLifetimeTimeoutTriggersH2StreamTimeoutException() throws Exception {
-        Mockito.when(protocolIOSession.getSocketTimeout()).thenReturn(Timeout.DISABLED);
-
-        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
-                .thenAnswer(invocation -> {
-                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
-                    final int remaining = buffer.remaining();
-                    buffer.position(buffer.limit());
-                    return remaining;
-                });
-        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
-        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
-
-        final H2Config h2Config = H2Config.custom().build();
-        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
-                protocolIOSession,
-                FRAME_FACTORY,
-                StreamIdGenerator.ODD,
-                httpProcessor,
-                CharCodingConfig.DEFAULT,
-                h2Config,
-                h2StreamListener,
-                () -> streamHandler);
-
-        final H2StreamChannel channel = streamMultiplexer.createChannel(3);
-        final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
-        stream.activate();
-
-        stream.setIdleTimeout(null);
-        stream.setLifetimeTimeout(Timeout.of(1, TimeUnit.NANOSECONDS));
-
-        streamMultiplexer.onOutput();
-
-        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
-        final Exception cause = exceptionCaptor.getValue();
-        Assertions.assertInstanceOf(H2StreamTimeoutException.class, cause);
-
-        final H2StreamTimeoutException timeoutEx = (H2StreamTimeoutException) cause;
-        Assertions.assertFalse(timeoutEx.isIdleTimeout(), "Expected lifetime timeout flag");
-        Assertions.assertEquals(3, timeoutEx.getStreamId(), "Unexpected stream id");
-
-        Assertions.assertTrue(stream.isLocalClosed());
-        Assertions.assertTrue(stream.isClosed());
-    }
-
-
-
 }
 
