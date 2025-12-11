@@ -144,6 +144,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private final Map<Integer, PriorityValue> priorities = new ConcurrentHashMap<>();
     private volatile boolean peerNoRfc7540Priorities;
 
+
+    private static final long STREAM_TIMEOUT_GRANULARITY_MILLIS = 1000;
+    private long lastStreamTimeoutCheckMillis;
+
+
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
             final FrameFactory frameFactory,
@@ -439,10 +444,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             for (;;) {
                 final RawFrame frame = inputBuffer.read(src, ioSession);
                 if (frame != null) {
-                    if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
-                        checkStreamTimeouts(System.nanoTime());
-                    }
-
                     if (streamListener != null) {
                         streamListener.onFrameInput(this, frame.getStreamId(), frame);
                     }
@@ -460,7 +461,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
             }
             if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
-                checkStreamTimeouts(System.nanoTime());
+                validateStreamTimeouts();
             }
         }
     }
@@ -541,7 +542,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
-            checkStreamTimeouts(System.nanoTime());
+            validateStreamTimeouts();
         }
 
         if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) == 0) {
@@ -655,7 +656,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 requestExecutionCommand.getExchangeHandler(),
                 requestExecutionCommand.getPushHandlerFactory(),
                 requestExecutionCommand.getContext()));
-        initializeStreamTimeouts(stream);
 
         if (streamListener != null) {
             final int initInputWindow = stream.getInputWindow().get();
@@ -774,12 +774,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     final H2StreamChannel channel = createChannel(streamId);
                     if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
                         stream = streams.createActive(channel, incomingRequest(channel));
-                        initializeStreamTimeouts(stream);
                         streams.resetIfExceedsMaxConcurrentLimit(stream, localConfig.getMaxConcurrentStreams());
                     } else {
                         channel.localReset(H2Error.REFUSED_STREAM);
                         stream = streams.createActive(channel, NoopH2StreamHandler.INSTANCE);
-                        initializeStreamTimeouts(stream);
                     }
                 } else if (stream.isLocalClosed() && stream.isRemoteClosed()) {
                     throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
@@ -970,7 +968,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     channel.localReset(H2Error.REFUSED_STREAM);
                     promisedStream = streams.createActive(channel, NoopH2StreamHandler.INSTANCE);
                 }
-                initializeStreamTimeouts(promisedStream);
                 try {
                     consumePushPromiseFrame(frame, payload, promisedStream);
                 } catch (final H2StreamResetException ex) {
@@ -1376,16 +1373,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return new H2StreamChannelImpl(streamId, initInputWinSize, initOutputWinSize);
     }
 
-    private void initializeStreamTimeouts(final H2Stream stream) {
-        final Timeout socketTimeout = ioSession.getSocketTimeout();
-        if (socketTimeout != null && socketTimeout.isEnabled()) {
-            stream.setIdleTimeout(socketTimeout);
-        }
-    }
-
     H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) {
         final H2Stream stream = streams.createActive(channel, streamHandler);
-        initializeStreamTimeouts(stream);
         return stream;
     }
 
@@ -1489,7 +1478,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 final int promisedStreamId = streams.generateStreamId();
                 final H2StreamChannel channel = createChannel(promisedStreamId);
                 final H2Stream stream = streams.createReserved(channel, outgoingPushPromise(channel, pushProducer));
-                initializeStreamTimeouts(stream);
 
                 commitPushPromise(id, promisedStreamId, headers);
                 stream.markRemoteClosed();
@@ -1614,42 +1602,28 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
 
             final Timeout idleTimeout = stream.getIdleTimeout();
-            final Timeout lifetimeTimeout = stream.getLifetimeTimeout();
-            if ((idleTimeout == null || !idleTimeout.isEnabled())
-                    && (lifetimeTimeout == null || !lifetimeTimeout.isEnabled())) {
+            if (idleTimeout == null || !idleTimeout.isEnabled()) {
                 continue;
             }
 
-            final long created = stream.getCreatedNanos();
             final long last = stream.getLastActivityNanos();
-
-            if (idleTimeout != null && idleTimeout.isEnabled()) {
-                final long idleNanos = idleTimeout.toNanoseconds();
-                if (idleNanos > 0 && nowNanos - last > idleNanos) {
-                    final int streamId = stream.getId();
-                    final H2StreamTimeoutException ex = new H2StreamTimeoutException(
-                            "HTTP/2 stream idle timeout (" + idleTimeout + ")",
-                            streamId,
-                            idleTimeout,
-                            true);
-                    stream.localReset(ex, H2Error.CANCEL);
-                    // Once reset due to idle timeout, we do not care about lifetime anymore
-                    continue;
-                }
+            final long idleNanos = idleTimeout.toNanoseconds();
+            if (idleNanos > 0 && nowNanos - last > idleNanos) {
+                final int streamId = stream.getId();
+                final H2StreamTimeoutException ex = new H2StreamTimeoutException(
+                        "HTTP/2 stream idle timeout (" + idleTimeout + ")",
+                        streamId,
+                        idleTimeout);
+                stream.localReset(ex, H2Error.CANCEL);
             }
+        }
+    }
 
-            if (lifetimeTimeout != null && lifetimeTimeout.isEnabled()) {
-                final long lifeNanos = lifetimeTimeout.toNanoseconds();
-                if (lifeNanos > 0 && nowNanos - created > lifeNanos) {
-                    final int streamId = stream.getId();
-                    final H2StreamTimeoutException ex = new H2StreamTimeoutException(
-                            "HTTP/2 stream lifetime timeout (" + lifetimeTimeout + ")",
-                            streamId,
-                            lifetimeTimeout,
-                            false);
-                    stream.localReset(ex, H2Error.CANCEL);
-                }
-            }
+    private void validateStreamTimeouts() throws IOException {
+        final long nowMillis = System.currentTimeMillis();
+        if ((nowMillis - lastStreamTimeoutCheckMillis) >= STREAM_TIMEOUT_GRANULARITY_MILLIS) {
+            lastStreamTimeoutCheckMillis = nowMillis;
+            checkStreamTimeouts(System.nanoTime());
         }
     }
 

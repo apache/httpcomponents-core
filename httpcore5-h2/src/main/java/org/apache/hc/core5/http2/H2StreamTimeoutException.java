@@ -26,44 +26,29 @@
  */
 package org.apache.hc.core5.http2;
 
-import java.net.SocketTimeoutException;
+import java.io.InterruptedIOException;
 
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * {@link java.net.SocketTimeoutException} raised by the HTTP/2 stream
- * multiplexer when a per-stream timeout elapses.
+ * {@link java.net.SocketTimeoutException} raised when an HTTP/2 stream exceeds its configured timeout.
  * <p>
- * This exception is used for timeouts that are scoped to a single HTTP/2
- * stream rather than the underlying TCP connection, for example:
- * </p>
- * <ul>
- *     <li>an idle timeout where no activity has been observed on the stream, or</li>
- *     <li>a lifetime timeout where the total age of the stream exceeds
- *     the configured limit.</li>
- * </ul>
- * <p>
- * The {@link #isIdleTimeout()} flag can be used to distinguish whether
- * the timeout was triggered by idleness or by the overall stream lifetime.
- * The affected stream id and the timeout value are exposed via
- * {@link #getStreamId()} and {@link #getTimeout()} respectively.
+ * This timeout is scoped to a single stream and is independent of the underlying connection socket timeout.
  * </p>
  *
- * @since 5.4
+ * @since 5.5
  */
-public class H2StreamTimeoutException extends SocketTimeoutException {
+public class H2StreamTimeoutException extends InterruptedIOException {
 
     private static final long serialVersionUID = 1L;
 
     private final int streamId;
     private final Timeout timeout;
-    private final boolean idleTimeout;
 
-    public H2StreamTimeoutException(final String message, final int streamId, final Timeout timeout, final boolean idleTimeout) {
+    public H2StreamTimeoutException(final String message, final int streamId, final Timeout timeout) {
         super(message);
         this.streamId = streamId;
         this.timeout = timeout;
-        this.idleTimeout = idleTimeout;
     }
 
     public int getStreamId() {
@@ -72,16 +57,6 @@ public class H2StreamTimeoutException extends SocketTimeoutException {
 
     public Timeout getTimeout() {
         return timeout;
-    }
-
-    /**
-     * Indicates whether this timeout was triggered by idle time (no activity)
-     * rather than by stream lifetime.
-     *
-     * @return {@code true} if this is an idle timeout, {@code false} if it is a lifetime timeout.
-     */
-    public boolean isIdleTimeout() {
-        return idleTimeout;
     }
 
 }
