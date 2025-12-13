@@ -96,6 +96,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.support.ParameterDeclarations;
 
 class TLSIntegrationTest {
 
@@ -398,7 +399,9 @@ class TLSIntegrationTest {
         int javaVere = ReflectionUtils.determineJRELevel();
 
         @Override
-        public Stream<? extends Arguments> provideArguments(final ExtensionContext context) {
+        public Stream<? extends Arguments> provideArguments(
+                final ParameterDeclarations parameters,
+                final ExtensionContext context) {
             if (javaVere >= 11) {
                 return Stream.of(Arguments.of(TLS.V_1_2), Arguments.of(TLS.V_1_3));
             } else {
