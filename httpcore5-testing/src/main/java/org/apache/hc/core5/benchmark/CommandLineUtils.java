@@ -27,13 +27,14 @@
 package org.apache.hc.core5.benchmark;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.help.HelpFormatter;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.util.TimeValue;
@@ -246,14 +247,23 @@ public class CommandLineUtils {
         return builder.build();
     }
 
-    static void showUsage(final Options options) {
-        final HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path?query", options);
+    static void showUsage(final Options options) throws IOException {
+        final HelpFormatter formatter = HelpFormatter.builder().get();
+        formatter.printHelp(
+                "HttpBenchmark [http://]hostname[:port]/path?query",
+                null,
+                options,
+                null,
+                true);
     }
 
     static void printError(final String msg) {
         System.err.println(msg);
-        showUsage(getOptions());
+        try {
+            showUsage(getOptions());
+        } catch (final IOException ex) {
+            System.err.println(ex.getMessage());
+        }
         System.exit(-1);
     }
 }
