@@ -186,7 +186,7 @@ public class H2MultiplexingRequester extends AsyncRequester {
 
                     @Override
                     public void completed(final IOSession ioSession) {
-                        ioSession.enqueue(new RequestExecutionCommand(new AsyncClientExchangeHandler() {
+                        final AsyncClientExchangeHandler handlerProxy = new AsyncClientExchangeHandler() {
 
                             @Override
                             public void releaseResources() {
@@ -244,7 +244,13 @@ public class H2MultiplexingRequester extends AsyncRequester {
                                 exchangeHandler.failed(cause);
                             }
 
-                        }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
+                        };
+                        ioSession.enqueue(new RequestExecutionCommand(
+                                        handlerProxy,
+                                        pushHandlerFactory,
+                                        context,
+                                        cancellableDependency::setDependency),
+                                Command.Priority.NORMAL);
                         if (!ioSession.isOpen()) {
                             exchangeHandler.failed(new ConnectionClosedException());
                         }

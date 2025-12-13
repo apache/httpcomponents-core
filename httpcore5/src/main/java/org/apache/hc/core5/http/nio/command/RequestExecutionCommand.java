@@ -31,7 +31,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.CancellableDependency;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.RequestNotExecutedException;
+import org.apache.hc.core5.http.StreamControl;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -50,8 +52,29 @@ public final class RequestExecutionCommand extends ExecutableCommand {
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final CancellableDependency cancellableDependency;
     private final HttpContext context;
+    private final Callback<StreamControl> initiationCallback;
     private final AtomicBoolean failed;
 
+    /**
+     * @since 5.5
+     */
+    public RequestExecutionCommand(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final HttpContext context,
+            final Callback<StreamControl> initiationCallback) {
+        this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
+        this.pushHandlerFactory = pushHandlerFactory;
+        this.initiationCallback = initiationCallback;
+        this.cancellableDependency = null;
+        this.context = context;
+        this.failed = new AtomicBoolean();
+    }
+
+    /**
+     * @deprecated Not used.
+     */
+    @Deprecated
     public RequestExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
@@ -59,6 +82,7 @@ public final class RequestExecutionCommand extends ExecutableCommand {
             final HttpContext context) {
         this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
         this.pushHandlerFactory = pushHandlerFactory;
+        this.initiationCallback = null;
         this.cancellableDependency = cancellableDependency;
         this.context = context;
         this.failed = new AtomicBoolean();
@@ -68,13 +92,13 @@ public final class RequestExecutionCommand extends ExecutableCommand {
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpContext context) {
-        this(exchangeHandler, pushHandlerFactory, null, context);
+        this(exchangeHandler, pushHandlerFactory, context, null);
     }
 
     public RequestExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpContext context) {
-        this(exchangeHandler, null, null, context);
+        this(exchangeHandler, null, context);
     }
 
     public AsyncClientExchangeHandler getExchangeHandler() {
@@ -85,6 +109,10 @@ public final class RequestExecutionCommand extends ExecutableCommand {
         return pushHandlerFactory;
     }
 
+    /**
+     * @deprecated no used.
+     */
+    @Deprecated
     @Override
     public CancellableDependency getCancellableDependency() {
         return cancellableDependency;
@@ -92,6 +120,19 @@ public final class RequestExecutionCommand extends ExecutableCommand {
 
     public HttpContext getContext() {
         return context;
+    }
+
+    /**
+     * @since 5.5
+     */
+    @SuppressWarnings("deprecated")
+    public void initiated(final StreamControl streamControl) {
+        if (initiationCallback != null) {
+            initiationCallback.execute(streamControl);
+        }
+        if (cancellableDependency != null) {
+            cancellableDependency.setDependency(streamControl);
+        }
     }
 
     @Override

@@ -39,14 +39,13 @@ import java.util.function.Consumer;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.StreamControl;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 
-class H2Stream {
-
-    enum State { RESERVED, OPEN, CLOSED }
+class H2Stream implements StreamControl {
 
     private static final long LINGER_TIME = 1000; // 1 second
 
@@ -70,8 +69,14 @@ class H2Stream {
         this.cancelled = new AtomicBoolean();
     }
 
-    int getId() {
+    @Override
+    public int getId() {
         return channel.getId();
+    }
+
+    @Override
+    public State getState() {
+        return transitionRef.get();
     }
 
     boolean isReserved() {
@@ -274,6 +279,11 @@ class H2Stream {
                 triggerClosed();
             }
         }
+    }
+
+    @Override
+    public boolean cancel() {
+        return abort();
     }
 
     @Override

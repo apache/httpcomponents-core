@@ -81,7 +81,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpContext context) {
         Asserts.check(!closed.get(), "Connection is already closed");
-        final Command executionCommand = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context);
+        final Command executionCommand = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, context);
         ioSession.enqueue(executionCommand, Command.Priority.NORMAL);
         if (!ioSession.isOpen()) {
             exchangeHandler.failed(new ConnectionClosedException());
