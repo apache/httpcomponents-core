@@ -25,27 +25,23 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.command;
+package org.apache.hc.core5.http;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.concurrent.CancellableDependency;
-import org.apache.hc.core5.reactor.Command;
+import org.apache.hc.core5.concurrent.Cancellable;
 
 /**
- * Abstract executable command that may need to do some cleaning up
- * in case of an failure.
+ * Represents a message stream control interface.
  *
- * @since 5.0
+ * @since 5.5
  */
 @Internal
-public abstract class ExecutableCommand implements Command {
+public interface StreamControl extends Cancellable {
 
-    /**
-     * @deprecated Not used.
-     */
-    @Deprecated
-    public abstract CancellableDependency getCancellableDependency();
+    enum State { RESERVED, OPEN, CLOSED }
 
-    public abstract void failed(Exception ex);
+    int getId();
+
+    State getState();
 
 }

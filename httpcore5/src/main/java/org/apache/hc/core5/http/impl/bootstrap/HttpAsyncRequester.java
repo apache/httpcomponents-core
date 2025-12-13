@@ -502,7 +502,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
                 final HttpContext context) {
             final IOSession ioSession = getIOSession();
-            ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
+            ioSession.enqueue(
+                    new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, context),
+                    Command.Priority.NORMAL);
             if (!ioSession.isOpen()) {
                 try {
                     exchangeHandler.failed(new ConnectionClosedException());

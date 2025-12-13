@@ -46,7 +46,6 @@ import java.util.function.Consumer;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
@@ -650,13 +649,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final int initOutputWindow = stream.getOutputWindow().get();
             streamListener.onOutputFlowControl(this, streamId, initOutputWindow, initOutputWindow);
         }
-
+        requestExecutionCommand.initiated(stream);
         if (stream.isOutputReady()) {
             stream.produceOutput();
-        }
-        final CancellableDependency cancellableDependency = requestExecutionCommand.getCancellableDependency();
-        if (cancellableDependency != null) {
-            cancellableDependency.setDependency(stream::abort);
         }
     }
 
