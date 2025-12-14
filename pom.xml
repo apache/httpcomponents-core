@@ -244,7 +244,6 @@
           <parameter>
             <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
             <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
-            <ignoreMissingClasses>true</ignoreMissingClasses>
             <overrideCompatibilityChangeParameters>
               <overrideCompatibilityChangeParameter>
                 <compatibilityChange>METHOD_NEW_DEFAULT</compatibilityChange>
@@ -380,6 +379,7 @@
             </file>
           </newVersion>
           <parameter>
+            <ignoreMissingClasses>true</ignoreMissingClasses>
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
             </excludes>
