@@ -29,6 +29,7 @@ package org.apache.hc.core5.pool;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
@@ -49,11 +50,7 @@ final class FakeConnection implements ModalCloseable {
     @Override
     public void close(final CloseMode closeMode) {
         if (closeSleepMs > 0) {
-            try {
-                Thread.sleep(closeSleepMs);
-            } catch (final InterruptedException ignore) {
-                Thread.currentThread().interrupt();
-            }
+            sleepAtLeastMillis(closeSleepMs);
         }
         closes.incrementAndGet();
         closedLatch.countDown();
@@ -70,5 +67,23 @@ final class FakeConnection implements ModalCloseable {
 
     boolean awaitClosed(final long ms) throws InterruptedException {
         return closedLatch.await(ms, TimeUnit.MILLISECONDS);
+    }
+
+    private static void sleepAtLeastMillis(final long millis) {
+        final long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(millis);
+        boolean interrupted = false;
+        for (; ; ) {
+            final long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                break;
+            }
+            LockSupport.parkNanos(remaining);
+            if (Thread.interrupted()) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
