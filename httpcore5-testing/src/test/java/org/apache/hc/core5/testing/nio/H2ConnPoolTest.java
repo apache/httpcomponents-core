@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
@@ -112,7 +113,7 @@ class H2ConnPoolTest {
         final int n = 200;
 
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpHost target = new HttpHost(URIScheme.HTTP.id, "localhost", address.getPort());

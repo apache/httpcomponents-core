@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -109,7 +110,7 @@ abstract class H2CoreTransportMultiplexingTest {
     @Test
     void testSequentialRequests() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();
@@ -152,7 +153,7 @@ abstract class H2CoreTransportMultiplexingTest {
     @Test
     void testLargeRequest() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();
@@ -173,7 +174,7 @@ abstract class H2CoreTransportMultiplexingTest {
     @Test
     void testMultiplexedRequests() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();
@@ -208,7 +209,7 @@ abstract class H2CoreTransportMultiplexingTest {
     @Test
     void testValidityCheck() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();
@@ -256,7 +257,7 @@ abstract class H2CoreTransportMultiplexingTest {
     @Test
     void testMultiplexedRequestCancellation() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();
