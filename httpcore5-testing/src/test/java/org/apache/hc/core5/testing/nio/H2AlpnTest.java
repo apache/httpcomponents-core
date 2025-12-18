@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -114,7 +115,7 @@ abstract class H2AlpnTest {
     @Test
     void testALPN() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final H2MultiplexingRequester requester = clientResource.start();

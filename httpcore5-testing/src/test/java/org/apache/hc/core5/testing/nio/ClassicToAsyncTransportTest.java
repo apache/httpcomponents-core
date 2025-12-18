@@ -32,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -151,7 +152,7 @@ abstract class ClassicToAsyncTransportTest {
         final HttpAsyncServer server = serverResource.start();
         registerHandler("/echo", () -> new EchoHandler(1024));
 
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();
@@ -228,7 +229,7 @@ abstract class ClassicToAsyncTransportTest {
         });
 
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();
@@ -324,7 +325,7 @@ abstract class ClassicToAsyncTransportTest {
         });
 
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();

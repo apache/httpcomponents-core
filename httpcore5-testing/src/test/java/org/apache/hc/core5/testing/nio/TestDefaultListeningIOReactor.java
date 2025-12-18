@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -73,10 +74,10 @@ class TestDefaultListeningIOReactor {
         Assertions.assertNotNull(endpoints);
         Assertions.assertEquals(0, endpoints.size());
 
-        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         final ListenerEndpoint endpoint1 = future1.get();
 
-        final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         final ListenerEndpoint endpoint2 = future2.get();
         final int port = ((InetSocketAddress) endpoint2.getAddress()).getPort();
 
@@ -103,7 +104,7 @@ class TestDefaultListeningIOReactor {
     void testEndpointAlreadyBound() throws Exception {
         ioReactor.start();
 
-        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         final ListenerEndpoint endpoint1 = future1.get();
         final int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 

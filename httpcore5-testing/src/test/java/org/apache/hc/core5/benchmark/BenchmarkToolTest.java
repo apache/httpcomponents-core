@@ -27,6 +27,7 @@
 package org.apache.hc.core5.benchmark;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
@@ -105,7 +106,7 @@ class BenchmarkToolTest {
                 .setVersionPolicy(versionPolicy)
                 .create();
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         address = (InetSocketAddress) listener.getAddress();
     }

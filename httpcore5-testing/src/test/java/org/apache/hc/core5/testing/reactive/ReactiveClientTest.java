@@ -31,6 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -279,7 +280,7 @@ abstract class ReactiveClientTest {
 
     private InetSocketAddress startServer() throws IOException, InterruptedException, ExecutionException {
         final HttpAsyncServer server = serverResource.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0), URIScheme.HTTP).get();
+        final ListenerEndpoint listener = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP).get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         return address;
     }

@@ -191,7 +191,7 @@ public class ClassicTestServer {
             final HttpServer server = new HttpServer(
                     0,
                     httpService,
-                    null,
+                    InetAddress.getLoopbackAddress(),
                     socketConfig,
                     null,
                     new LoggingBHttpServerConnectionFactory(

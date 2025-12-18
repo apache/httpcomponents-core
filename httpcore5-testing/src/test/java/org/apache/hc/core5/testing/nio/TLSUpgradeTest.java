@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 
@@ -101,7 +102,7 @@ class TLSUpgradeTest {
     @Test
     void testTLSUpgrade() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();

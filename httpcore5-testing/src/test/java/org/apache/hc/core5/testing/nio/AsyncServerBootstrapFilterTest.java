@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 
@@ -125,7 +126,7 @@ abstract class AsyncServerBootstrapFilterTest {
     @Test
     void testFilters() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();
