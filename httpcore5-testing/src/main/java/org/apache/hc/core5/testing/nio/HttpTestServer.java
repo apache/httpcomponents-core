@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +113,7 @@ public abstract class HttpTestServer extends AsyncServer {
 
     public InetSocketAddress startExecution(final IOEventHandlerFactory handlerFactory) throws Exception {
         execute(handlerFactory);
-        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         final ListenerEndpoint listener = future.get();
         return (InetSocketAddress) listener.getAddress();
     }

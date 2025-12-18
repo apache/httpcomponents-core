@@ -30,6 +30,7 @@ package org.apache.hc.core5.ssl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -318,7 +319,7 @@ class TestSSLContextBuilder {
                 .build();
         Assertions.assertNotNull(clientSslContext);
         final ServerSocket serverSocket = serverSslContext.getServerSocketFactory().createServerSocket();
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Boolean> future = this.executorService.submit(() -> {
@@ -359,7 +360,7 @@ class TestSSLContextBuilder {
                 .build();
         Assertions.assertNotNull(clientSslContext);
         final ServerSocket serverSocket = serverSslContext.getServerSocketFactory().createServerSocket();
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(() -> {
@@ -399,7 +400,7 @@ class TestSSLContextBuilder {
 
         Assertions.assertNotNull(clientSslContext);
         final ServerSocket serverSocket = serverSslContext.getServerSocketFactory().createServerSocket();
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Boolean> future = this.executorService.submit(() -> {
@@ -459,7 +460,7 @@ class TestSSLContextBuilder {
         Assertions.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
         serverSocket.setWantClientAuth(true);
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Principal> future = this.executorService.submit(() -> {
@@ -508,7 +509,7 @@ class TestSSLContextBuilder {
         Assertions.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
         serverSocket.setNeedClientAuth(true);
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(() -> {
@@ -548,7 +549,7 @@ class TestSSLContextBuilder {
         Assertions.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
         serverSocket.setNeedClientAuth(true);
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Principal> future = this.executorService.submit(() -> {
@@ -597,7 +598,7 @@ class TestSSLContextBuilder {
         Assertions.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
         serverSocket.setNeedClientAuth(true);
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Principal> future = this.executorService.submit(() -> {
@@ -645,7 +646,7 @@ class TestSSLContextBuilder {
         final Set<String> supportedServerProtocols = new LinkedHashSet<>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assertions.assertTrue(supportedServerProtocols.contains("TLSv1"));
         serverSocket.setEnabledProtocols(new String[] {"TLSv1"});
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(() -> {
@@ -688,7 +689,7 @@ class TestSSLContextBuilder {
         final Set<String> supportedServerProtocols = new LinkedHashSet<>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assertions.assertTrue(supportedServerProtocols.contains("SSLv3"));
         serverSocket.setEnabledProtocols(new String[] {"SSLv3"});
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(() -> {
@@ -729,7 +730,7 @@ class TestSSLContextBuilder {
                 .build();
         Assertions.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(() -> {

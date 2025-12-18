@@ -173,7 +173,7 @@ class TLSIntegrationTest {
     }
 
     Future<TlsDetails> executeTlsHandshake() throws Exception {
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
@@ -258,7 +258,7 @@ class TLSIntegrationTest {
         client = createClient(clientTlsStrategy);
         client.start();
 
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
@@ -368,7 +368,7 @@ class TLSIntegrationTest {
         client = createClient(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()));
         client.start();
 
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 

@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Random;
 import java.util.concurrent.Future;
@@ -62,7 +63,7 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
         final HttpAsyncServer server = serverResource.start();
         registerHandler("/echo", () -> new EchoHandler(1024));
 
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientResource.start();

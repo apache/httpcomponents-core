@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -76,7 +77,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testSequentialRequests() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
@@ -119,7 +120,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testLargeRequest() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
@@ -140,7 +141,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testSequentialRequestsNonPersistentConnection() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
@@ -183,7 +184,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testSequentialRequestsSameEndpoint() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
@@ -234,7 +235,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testPipelinedRequests() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
@@ -277,7 +278,7 @@ abstract class HttpCoreTransportTest {
     @Test
     void testNonPersistentHeads() throws Exception {
         final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpAsyncRequester requester = clientStart();
