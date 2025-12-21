@@ -107,6 +107,7 @@ class ClassicTLSIntegrationTest {
     @Test
     void testTLSSuccess() throws Exception {
         server = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -152,6 +153,7 @@ class ClassicTLSIntegrationTest {
     @Test
     void testTLSTrustFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -185,6 +187,7 @@ class ClassicTLSIntegrationTest {
     @Test
     void testTLSClientAuthFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
@@ -220,6 +223,7 @@ class ClassicTLSIntegrationTest {
     @Test
     void testSSLDisabledByDefault() throws Exception {
         server = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
                 .setRequestRouter((r, c) -> null)
@@ -277,6 +281,7 @@ class ClassicTLSIntegrationTest {
 
         for (final String cipherSuite : weakCiphersSuites) {
             server = ServerBootstrap.bootstrap()
+                    .setLocalAddress(InetAddress.getLoopbackAddress())
                     .setSslContext(SSLTestContexts.createServerSSLContext())
                     .setRequestRouter((r, c) -> null)
                     .setSslSetupHandler(sslParameters -> sslParameters.setCipherSuites(new String[]{cipherSuite}))
@@ -302,6 +307,7 @@ class ClassicTLSIntegrationTest {
     @Test
     void testHostNameVerification() throws Exception {
         server = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setRequestRouter((r, c) -> null)
                 .create();
