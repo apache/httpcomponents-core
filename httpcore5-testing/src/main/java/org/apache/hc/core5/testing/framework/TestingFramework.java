@@ -40,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -233,6 +234,7 @@ public class TestingFramework {
                                           .build();
 
         final ServerBootstrap serverBootstrap = ServerBootstrap.bootstrap()
+                                          .setLocalAddress(InetAddress.getLoopbackAddress())
                                           .setSocketConfig(socketConfig)
                                           .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
                                                 .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", requestHandler)

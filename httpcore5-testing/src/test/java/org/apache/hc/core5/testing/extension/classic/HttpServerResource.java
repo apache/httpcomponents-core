@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.extension.classic;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -50,6 +51,7 @@ public class HttpServerResource implements AfterEachCallback {
 
     public HttpServerResource() {
         this.bootstrap = ServerBootstrap.bootstrap()
+                .setLocalAddress(InetAddress.getLoopbackAddress())
                 .setCanonicalHostName("localhost")
                 .setExceptionListener(LoggingExceptionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE);
