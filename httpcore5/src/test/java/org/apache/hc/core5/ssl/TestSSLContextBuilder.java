@@ -66,10 +66,12 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 /**
  * Unit tests for {@link SSLContextBuilder}.
  */
+@Isolated
 class TestSSLContextBuilder {
 
     static final String PROVIDER_SUN_JSSE = "SunJSSE";
