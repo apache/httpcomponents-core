@@ -132,17 +132,21 @@ class H2Streams {
         streamMap.remove(streamId);
     }
 
-    public void shutdownAndReleaseAll() {
+    public void shutdownAndReleaseAll(final Exception cause) {
         for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
             final H2Stream stream = it.next();
             if (stream.isClosed()) {
                 stream.releaseResources();
             } else {
-                stream.fail(new ConnectionClosedException());
+                stream.fail(cause);
             }
         }
         streams.clear();
         streamMap.clear();
+    }
+
+    public void shutdownAndReleaseAll() {
+        shutdownAndReleaseAll(new ConnectionClosedException());
     }
 
     public H2Stream lookup(final int streamId) {
