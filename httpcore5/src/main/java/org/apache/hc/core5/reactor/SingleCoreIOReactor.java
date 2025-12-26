@@ -222,7 +222,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             } catch (final ClosedChannelException ex) {
                 return;
             }
-            final IOSessionImpl ioSession = new IOSessionImpl("a", key, socketChannel, closedSessions::add);
+            final IOSessionImpl ioSession = new IOSessionImpl("a", key, socketChannel, closedSessions::add, reactorConfig.getMaxCommandsPerSession());
             final InternalDataChannel dataChannel = new InternalDataChannel(
                     ioSession,
                     null,
@@ -391,7 +391,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         validateAddress(remoteAddress);
         final boolean connected = socketChannel.connect(remoteAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-        final IOSessionImpl ioSession = new IOSessionImpl("c", key, socketChannel, closedSessions::add);
+        final IOSessionImpl ioSession = new IOSessionImpl("c", key, socketChannel, closedSessions::add, reactorConfig.getMaxCommandsPerSession());
         final InternalDataChannel dataChannel = new InternalDataChannel(
                 ioSession,
                 sessionRequest.remoteEndpoint,

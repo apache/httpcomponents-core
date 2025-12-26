@@ -64,6 +64,7 @@ public final class IOReactorConfig {
     private final SocketAddress socksProxyAddress;
     private final String socksProxyUsername;
     private final String socksProxyPassword;
+    private final int maxCommandsPerSession;
 
     IOReactorConfig(
             final TimeValue selectInterval,
@@ -82,7 +83,8 @@ public final class IOReactorConfig {
             final int tcpKeepCount,
             final SocketAddress socksProxyAddress,
             final String socksProxyUsername,
-            final String socksProxyPassword) {
+            final String socksProxyPassword,
+            final int maxCommandsPerSession) {
         super();
         this.selectInterval = selectInterval;
         this.ioThreadCount = ioThreadCount;
@@ -101,6 +103,7 @@ public final class IOReactorConfig {
         this.socksProxyAddress = socksProxyAddress;
         this.socksProxyUsername = socksProxyUsername;
         this.socksProxyPassword = socksProxyPassword;
+        this.maxCommandsPerSession = maxCommandsPerSession;
     }
 
     /**
@@ -240,6 +243,16 @@ public final class IOReactorConfig {
         return this.socksProxyPassword;
     }
 
+    /**
+     * Maximum number of commands that can be enqueued per I/O session.
+     * A value of {@code 0} means unlimited.
+     *
+     * @since 5.5
+     */
+    public int getMaxCommandsPerSession() {
+        return this.maxCommandsPerSession;
+    }
+
     public static Builder custom() {
         return new Builder();
     }
@@ -262,7 +275,9 @@ public final class IOReactorConfig {
             .setTcpKeepCount(config.getTcpKeepCount())
             .setSocksProxyAddress(config.getSocksProxyAddress())
             .setSocksProxyUsername(config.getSocksProxyUsername())
-            .setSocksProxyPassword(config.getSocksProxyPassword());
+            .setSocksProxyPassword(config.getSocksProxyPassword())
+            .setMaxCommandsPerSession(config.getMaxCommandsPerSession());
+
     }
 
     public static class Builder {
@@ -311,6 +326,7 @@ public final class IOReactorConfig {
         private SocketAddress socksProxyAddress;
         private String socksProxyUsername;
         private String socksProxyPassword;
+        private int maxCommandsPerSession;
 
         Builder() {
             this.selectInterval = TimeValue.ofSeconds(1);
@@ -330,6 +346,7 @@ public final class IOReactorConfig {
             this.socksProxyAddress = null;
             this.socksProxyUsername = null;
             this.socksProxyPassword = null;
+            this.maxCommandsPerSession = 0;
         }
 
         /**
@@ -596,6 +613,17 @@ public final class IOReactorConfig {
             return this;
         }
 
+        /**
+         * Sets maximum number of commands enqueued per I/O session.
+         * A value of {@code 0} means unlimited.
+         *
+         * @since 5.5
+         */
+        public Builder setMaxCommandsPerSession(final int maxCommandsPerSession) {
+            this.maxCommandsPerSession = Args.notNegative(maxCommandsPerSession, "Max commands per session");
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval != null ? selectInterval : TimeValue.ofSeconds(1),
@@ -608,7 +636,7 @@ public final class IOReactorConfig {
                     trafficClass,
                     sndBufSize, rcvBufSize, backlogSize,
                     tcpKeepIdle, tcpKeepInterval, tcpKeepCount,
-                    socksProxyAddress, socksProxyUsername, socksProxyPassword);
+                    socksProxyAddress, socksProxyUsername, socksProxyPassword, maxCommandsPerSession);
         }
 
     }

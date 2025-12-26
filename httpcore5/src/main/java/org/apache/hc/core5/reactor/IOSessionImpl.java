@@ -36,6 +36,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -65,9 +67,11 @@ class IOSessionImpl implements IOSession {
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
     private volatile long lastEventTime;
+    private final int maxCommandsPerSession;
+    private final AtomicInteger queuedCommands;
 
     public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel,
-                         final Callback<IOSession> sessionClosedCallback) {
+                         final Callback<IOSession> sessionClosedCallback, final int maxCommandsPerSession) {
         super();
         this.key = Args.notNull(key, "Selection key");
         this.channel = Args.notNull(socketChannel, "Socket channel");
@@ -82,6 +86,8 @@ class IOSessionImpl implements IOSession {
         this.lastReadTime = currentTimeMillis;
         this.lastWriteTime = currentTimeMillis;
         this.lastEventTime = currentTimeMillis;
+        this.maxCommandsPerSession = maxCommandsPerSession;
+        this.queuedCommands = maxCommandsPerSession > 0 ? new AtomicInteger(0) : null;
     }
 
     @Override
@@ -104,17 +110,47 @@ class IOSessionImpl implements IOSession {
         return lock;
     }
 
+    private boolean tryIncrementQueuedCommands(final Command command) {
+        for (;;) {
+            final int q = queuedCommands.get();
+            if (q >= maxCommandsPerSession) {
+                command.cancel();
+                return false;
+            }
+            if (queuedCommands.compareAndSet(q, q + 1)) {
+                return true;
+            }
+        }
+    }
+
     @Override
     public void enqueue(final Command command, final Command.Priority priority) {
-        if (priority == Command.Priority.IMMEDIATE) {
-            commandQueue.addFirst(command);
-        } else {
-            commandQueue.add(command);
+        if (command == null) {
+            return;
         }
-        if (isOpen()) {
-            setEvent(SelectionKey.OP_WRITE);
-        } else {
+        if (maxCommandsPerSession > 0 && !tryIncrementQueuedCommands(command)) {
+            throw new RejectedExecutionException("I/O session command queue limit reached (max=" + maxCommandsPerSession + ")");
+        }
+        if (!isOpen()) {
             command.cancel();
+            if (maxCommandsPerSession > 0) {
+                queuedCommands.decrementAndGet();
+            }
+            return;
+        }
+        try {
+            if (priority == Command.Priority.IMMEDIATE) {
+                commandQueue.addFirst(command);
+            } else {
+                commandQueue.add(command);
+            }
+            setEvent(SelectionKey.OP_WRITE);
+        } catch (final RuntimeException ex) {
+            command.cancel();
+            if (maxCommandsPerSession > 0) {
+                queuedCommands.decrementAndGet();
+            }
+            throw ex;
         }
     }
 
@@ -125,7 +161,11 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public Command poll() {
-        return commandQueue.poll();
+        final Command command = commandQueue.poll();
+        if (command != null && maxCommandsPerSession > 0) {
+            queuedCommands.decrementAndGet();
+        }
+        return command;
     }
 
     @Override
@@ -211,7 +251,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-            return this.channel.read(dst);
+        return this.channel.read(dst);
     }
 
     @Override
