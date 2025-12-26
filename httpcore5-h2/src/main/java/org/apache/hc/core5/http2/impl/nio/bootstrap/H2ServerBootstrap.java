@@ -163,7 +163,7 @@ public class H2ServerBootstrap {
      * @return this instance.
      */
     public final H2ServerBootstrap setH2Config(final H2Config h2Config) {
-        Args.check(!h2Config.isPushEnabled(), "A server MUST NOT set enable_push according to RFC-9113 6.5.2.");
+        Args.check(!h2Config.isPushEnabled(), "A server MUST NOT set enable_push to true");
         this.h2Config = h2Config;
         return this;
     }
@@ -212,6 +212,7 @@ public class H2ServerBootstrap {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
+
 
     /**
      * Sets {@link IOReactorMetricsListener} instance.
@@ -274,7 +275,6 @@ public class H2ServerBootstrap {
         this.http1StreamListener = http1StreamListener;
         return this;
     }
-
     /**
      * @return this instance.
      * @deprecated Use {@link RequestRouter}.
@@ -554,4 +554,5 @@ public class H2ServerBootstrap {
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
                 sessionListener, threadPoolListener, null, actualCanonicalHostName);
     }
+
 }
