@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
+import org.apache.hc.core5.util.Timeout;
 
 class H2Stream implements StreamControl {
 
@@ -77,6 +78,11 @@ class H2Stream implements StreamControl {
     @Override
     public State getState() {
         return transitionRef.get();
+    }
+
+    @Override
+    public void setTimeout(final Timeout timeout) {
+        // not supported
     }
 
     boolean isReserved() {

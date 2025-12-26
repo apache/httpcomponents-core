@@ -245,11 +245,17 @@ public class H2MultiplexingRequester extends AsyncRequester {
                             }
 
                         };
+                        final Timeout socketTimeout = ioSession.getSocketTimeout();
                         ioSession.enqueue(new RequestExecutionCommand(
                                         handlerProxy,
                                         pushHandlerFactory,
                                         context,
-                                        cancellableDependency::setDependency),
+                                        streamControl -> {
+                                            cancellableDependency.setDependency(streamControl);
+                                            if (socketTimeout != null) {
+                                                streamControl.setTimeout(socketTimeout);
+                                            }
+                                        }),
                                 Command.Priority.NORMAL);
                         if (!ioSession.isOpen()) {
                             exchangeHandler.failed(new ConnectionClosedException());

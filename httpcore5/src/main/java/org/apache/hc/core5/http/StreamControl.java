@@ -29,6 +29,7 @@ package org.apache.hc.core5.http;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.Cancellable;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Represents a message stream control interface.
@@ -43,5 +44,7 @@ public interface StreamControl extends Cancellable {
     int getId();
 
     State getState();
+
+    void setTimeout(Timeout timeout);
 
 }
