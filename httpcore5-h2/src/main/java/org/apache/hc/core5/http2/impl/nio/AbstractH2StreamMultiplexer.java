@@ -689,7 +689,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
 
             CommandSupport.cancelCommands(ioSession);
-            streams.shutdownAndReleaseAll();
+            streams.shutdownAndReleaseAll(cause);
 
             if (!(cause instanceof ConnectionClosedException)) {
                 if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) <= 0) {
