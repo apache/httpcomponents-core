@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -55,12 +56,10 @@ import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout.ThreadMode;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
-
-    // Use a 16k buffer for consistent results across systems
-    private static final int BUFFER_SIZE = 16 * 1024;
     private static final Timeout TIMEOUT = Timeout.ofSeconds(3);
 
     private final URIScheme scheme;
@@ -78,14 +77,12 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                 .setSslContext(scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null)
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
-                        .setSndBufSize(BUFFER_SIZE)
-                        .setRcvBufSize(BUFFER_SIZE)
                         .setSoKeepAlive(false)
                         .build())
                 .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", (request, response, context) -> {
                             response.setCode(400);
-                            response.setEntity(new AllOnesHttpEntity(200000));
+                            response.setEntity(new StringEntity("stop"));
                         })
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build()));
@@ -95,8 +92,6 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                 .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
-                        .setRcvBufSize(BUFFER_SIZE)
-                        .setSndBufSize(BUFFER_SIZE)
                         .setSoKeepAlive(false)
                         .build())
                 .setConnectionFactory(DefaultBHttpClientConnectionFactory.builder()
@@ -105,7 +100,7 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Timeout(value = 1, unit = TimeUnit.MINUTES)// Failures may hang
+    @org.junit.jupiter.api.Timeout(value = 1, unit = TimeUnit.MINUTES, threadMode = ThreadMode.SEPARATE_THREAD)
     void testResponseOutOfOrderWithDefaultStrategy() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
@@ -114,16 +109,18 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", server.getLocalPort());
 
         final ClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
-        post.setEntity(new AllOnesHttpEntity(200000));
+        final AllOnesHttpEntity requestEntity = new AllOnesHttpEntity(20 * 1024 * 1024);
+        post.setEntity(requestEntity);
 
         try (final ClassicHttpResponse response = requester.execute(host, post, TIMEOUT, context)) {
             Assertions.assertEquals(400, response.getCode());
             EntityUtils.consumeQuietly(response.getEntity());
         }
+        Assertions.assertTrue(requestEntity.remaining > 0, "Client should have stopped sending data");
     }
 
     private static final class AllOnesHttpEntity extends AbstractHttpEntity {
-        private long remaining;
+        long remaining;
 
         protected AllOnesHttpEntity(final long length) {
             super(ContentType.APPLICATION_OCTET_STREAM, null, true);
