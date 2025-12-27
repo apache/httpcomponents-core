@@ -78,6 +78,7 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .setSoKeepAlive(false)
+                        .setTcpNoDelay(true)
                         .build())
                 .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", (request, response, context) -> {

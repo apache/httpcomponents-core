@@ -92,8 +92,7 @@ public final class MonitoringResponseOutOfOrderStrategy implements ResponseOutOf
             final long totalBytesSent,
             final long nextWriteSize) throws IOException {
         if (nextWriteStartsNewChunk(totalBytesSent, nextWriteSize)) {
-            final boolean ssl = connection.getSSLSession() != null;
-            return ssl ? connection.isDataAvailable(Timeout.ONE_MILLISECOND) : (inputStream.available() > 0);
+            return connection.isDataAvailable(Timeout.ONE_MILLISECOND);
         }
         return false;
     }
