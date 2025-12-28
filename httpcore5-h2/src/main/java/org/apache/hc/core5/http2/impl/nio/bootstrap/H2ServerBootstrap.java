@@ -86,6 +86,8 @@ import org.apache.hc.core5.util.Timeout;
 @SuppressWarnings("deprecation")
 public class H2ServerBootstrap {
 
+    private static final H2Config DEFAULT_H2_CONFIG = H2Config.custom().setPushEnabled(false).build();
+
     private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
     private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
@@ -163,6 +165,7 @@ public class H2ServerBootstrap {
      * @return this instance.
      */
     public final H2ServerBootstrap setH2Config(final H2Config h2Config) {
+        Args.check(!h2Config.isPushEnabled(), "A server MUST NOT set enable_push to true");
         this.h2Config = h2Config;
         return this;
     }
@@ -522,7 +525,7 @@ public class H2ServerBootstrap {
         final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.server(),
                 handlerFactory,
-                h2Config != null ? h2Config : H2Config.DEFAULT,
+                h2Config != null ? h2Config : DEFAULT_H2_CONFIG,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 h2StreamListener,
                 frameFactory);
