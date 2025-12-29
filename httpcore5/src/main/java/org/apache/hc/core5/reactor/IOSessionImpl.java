@@ -124,6 +124,11 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
+    public int getPendingCommandCount() {
+        return commandQueue.size();
+    }
+
+    @Override
     public Command poll() {
         return commandQueue.poll();
     }
