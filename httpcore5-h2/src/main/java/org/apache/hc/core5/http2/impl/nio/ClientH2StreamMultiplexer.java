@@ -131,7 +131,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         final HttpCoreContext coreContext = HttpCoreContext.castOrCreate(context);
         coreContext.setSSLSession(getSSLSession());
         coreContext.setEndpointDetails(getEndpointDetails());
-        return new ClientH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(), exchangeHandler,
+        return new ClientH2StreamHandler(this, channel, getHttpProcessor(), getConnMetrics(), exchangeHandler,
                 pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
                 coreContext);
     }
@@ -170,6 +170,5 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         buf.append("]");
         return buf.toString();
     }
-
 }
 
