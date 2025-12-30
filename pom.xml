@@ -269,28 +269,23 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.17</version>
         <executions>
           <execution>
             <phase>verify</phase>
+            <inherited>false</inherited>
             <goals>
               <goal>check</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <excludes>
-            <exclude>**/.checkstyle</exclude>
-            <exclude>**/.pmd</exclude>
-            <exclude>**/*.iml</exclude>
-            <exclude>**/.externalToolBuilders/**</exclude>
-            <exclude>maven-eclipse.xml</exclude>
-            <exclude>src/docbkx/resources/**</exclude>
-            <exclude>src/test/resources/*.truststore</exclude>
-            <exclude>src/test/resources/*.p12</exclude>
-            <exclude>**/.dockerignore</exclude>
-            <!-- Eclipse can leave some file in 'bin' when an imported project misconfigured. -->
-            <exclude>bin/**</exclude>
-          </excludes>
+        <configuration combine.self="override">
+          <excludeSubProjects>false</excludeSubProjects>
+          <inputExcludes>
+            <inputExclude>**/*.pem</inputExclude>
+            <inputExclude>**/.pmd</inputExclude>
+            <inputExclude>**/maven-eclipse.xml</inputExclude>
+          </inputExcludes>
         </configuration>
       </plugin>
     </plugins>
