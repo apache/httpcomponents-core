@@ -76,6 +76,9 @@ public class H2MultiplexingRequesterBootstrap {
 
     private IOReactorMetricsListener threadPoolListener;
 
+    private int maxRequestsPerConnection;
+    private RequestSubmissionPolicy requestSubmissionPolicy;
+
     private H2MultiplexingRequesterBootstrap() {
         this.routeEntries = new ArrayList<>();
     }
@@ -211,6 +214,16 @@ public class H2MultiplexingRequesterBootstrap {
         return this;
     }
 
+    public final H2MultiplexingRequesterBootstrap setMaxRequestsPerConnection(final int maxRequestsPerConnection) {
+        this.maxRequestsPerConnection = maxRequestsPerConnection;
+        return this;
+    }
+
+    public final H2MultiplexingRequesterBootstrap setRequestSubmissionPolicy(final RequestSubmissionPolicy requestSubmissionPolicy) {
+        this.requestSubmissionPolicy = requestSubmissionPolicy;
+        return this;
+    }
+
     /**
      * Registers the given {@link AsyncPushConsumer} {@link Supplier} as a default handler for URIs
      * matching the given pattern.
@@ -274,7 +287,9 @@ public class H2MultiplexingRequesterBootstrap {
                 DefaultAddressResolver.INSTANCE,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                 threadPoolListener,
-                null);
+                null,
+                maxRequestsPerConnection,
+                requestSubmissionPolicy != null ? requestSubmissionPolicy : RequestSubmissionPolicy.REJECT);
     }
 
 }
