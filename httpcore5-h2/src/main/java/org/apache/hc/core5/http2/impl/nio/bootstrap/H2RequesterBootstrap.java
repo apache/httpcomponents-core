@@ -104,6 +104,7 @@ public class H2RequesterBootstrap {
     private ConnPoolListener<HttpHost> connPoolListener;
     private IOReactorMetricsListener threadPoolListener;
     private FrameFactory frameFactory;
+    private int maxPendingCommandsPerConnection;
 
 
     private H2RequesterBootstrap() {
@@ -207,6 +208,11 @@ public class H2RequesterBootstrap {
     @Experimental
     public final H2RequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
         this.poolConcurrencyPolicy = poolConcurrencyPolicy;
+        return this;
+    }
+
+    public final H2RequesterBootstrap setMaxPendingCommandsPerConnection(final int maxPendingCommandsPerConnection) {
+        this.maxPendingCommandsPerConnection = maxPendingCommandsPerConnection;
         return this;
     }
 
@@ -433,7 +439,8 @@ public class H2RequesterBootstrap {
                 actualTlsStrategy,
                 handshakeTimeout,
                 threadPoolListener,
-                null);
+                null,
+                maxPendingCommandsPerConnection);
     }
 
 }

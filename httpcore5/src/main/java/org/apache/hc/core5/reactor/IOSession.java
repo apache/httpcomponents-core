@@ -238,4 +238,13 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
      */
     void updateWriteTime();
 
+    /**
+     * Returns the number of pending commands enqueued for execution, or {@code -1} if unknown.
+     *
+     * @since 5.5
+     */
+    default int getPendingCommandCount() {
+        return -1;
+    }
+
 }

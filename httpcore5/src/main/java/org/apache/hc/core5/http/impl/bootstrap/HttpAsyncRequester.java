@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -98,6 +99,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     private final ManagedConnPool<HttpHost, IOSession> connPool;
     private final TlsStrategy tlsStrategy;
     private final Timeout handshakeTimeout;
+    private final int maxPendingCommandsPerConnection;
 
     /**
      * Use {@link AsyncRequesterBootstrap} to create instances of this class.
@@ -115,13 +117,15 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout,
             final IOReactorMetricsListener threadPoolListener,
-            final IOWorkerSelector workerSelector) {
+            final IOWorkerSelector workerSelector,
+            final int maxPendingCommandsPerConnection) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                 ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE, threadPoolListener,
                 workerSelector);
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
+        this.maxPendingCommandsPerConnection = maxPendingCommandsPerConnection;
     }
 
     @Override
@@ -285,6 +289,21 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
                     @Override
                     public void completed(final AsyncClientEndpoint endpoint) {
+                        final int max = maxPendingCommandsPerConnection;
+                        if (max > 0) {
+                            final IOSession ioSession = ((InternalAsyncClientEndpoint) endpoint).getIOSession();
+                            final int pending = ioSession.getPendingCommandCount();
+                            if (pending >= 0 && pending >= max) {
+                                try {
+                                    endpoint.releaseAndReuse();
+                                    exchangeHandler.failed(new RejectedExecutionException(
+                                            "Maximum number of pending requests per connection reached (max=" + max + ")"));
+                                } finally {
+                                    exchangeHandler.releaseResources();
+                                }
+                                return;
+                            }
+                        }
                         endpoint.execute(new AsyncClientExchangeHandler() {
 
                             @Override

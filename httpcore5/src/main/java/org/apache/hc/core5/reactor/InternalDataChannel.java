@@ -409,4 +409,9 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         return Objects.toString(currentSession != null ? currentSession : ioSession, null);
     }
 
+    @Override
+    public int getPendingCommandCount() {
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.getPendingCommandCount();
+    }
 }

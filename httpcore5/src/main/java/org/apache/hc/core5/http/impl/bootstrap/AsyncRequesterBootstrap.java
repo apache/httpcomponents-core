@@ -80,6 +80,7 @@ public class AsyncRequesterBootstrap {
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
     private IOReactorMetricsListener threadPoolListener;
+    private int maxPendingCommandsPerConnection;
 
     private AsyncRequesterBootstrap() {
     }
@@ -173,6 +174,26 @@ public class AsyncRequesterBootstrap {
         this.poolConcurrencyPolicy = poolConcurrencyPolicy;
         return this;
     }
+
+    /**
+     * Sets the maximum number of pending request execution commands allowed per connection.
+     * <p>
+     * This is a fail-fast back-pressure mechanism based on the per-connection I/O session command queue depth.
+     * It does <b>not</b> cap the number of concurrent in-flight HTTP exchanges on the connection.
+     * </p>
+     * <p>
+     * A value {@code <= 0} disables the limit.
+     * When the limit is enabled and exceeded, request execution fails with {@link java.util.concurrent.RejectedExecutionException}.
+     * </p>
+     *
+     * @param maxPendingCommandsPerConnection maximum number of pending commands per connection, or {@code <= 0} to disable.
+     * @return this instance.
+     */
+    public final AsyncRequesterBootstrap setMaxPendingCommandsPerConnection(final int maxPendingCommandsPerConnection) {
+        this.maxPendingCommandsPerConnection = maxPendingCommandsPerConnection;
+        return this;
+    }
+
 
     /**
      * Sets {@link TlsStrategy} instance.
@@ -303,7 +324,8 @@ public class AsyncRequesterBootstrap {
                 tlsStrategyCopy,
                 handshakeTimeout,
                 threadPoolListener,
-                null);
+                null,
+                maxPendingCommandsPerConnection);
     }
 
 }

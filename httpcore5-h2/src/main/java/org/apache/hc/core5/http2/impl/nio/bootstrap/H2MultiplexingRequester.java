@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.Cancellable;
@@ -88,6 +89,12 @@ public class H2MultiplexingRequester extends AsyncRequester {
     private final H2ConnPool connPool;
 
     /**
+     * Hard cap on per-connection queued / in-flight commands.
+     * {@code <= 0} disables the cap.
+     */
+    private final int maxCommandsPerConnection;
+
+    /**
      * Use {@link H2MultiplexingRequesterBootstrap} to create instances of this class.
      */
     @Internal
@@ -100,11 +107,13 @@ public class H2MultiplexingRequester extends AsyncRequester {
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy,
             final IOReactorMetricsListener threadPoolListener,
-            final IOWorkerSelector workerSelector) {
+            final IOWorkerSelector workerSelector,
+            final int maxCommandsPerConnection) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                 ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE,
                 threadPoolListener, workerSelector);
         this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
+        this.maxCommandsPerConnection = maxCommandsPerConnection;
     }
 
     public void closeIdle(final TimeValue idleTime) {
@@ -245,6 +254,16 @@ public class H2MultiplexingRequester extends AsyncRequester {
                             }
 
                         };
+                        final int max = maxCommandsPerConnection;
+                        if (max > 0) {
+                            final int current = ioSession.getPendingCommandCount();
+                            if (current >= 0 && current >= max) {
+                                exchangeHandler.failed(new RejectedExecutionException(
+                                        "Maximum number of pending commands per connection reached (max=" + max + ")"));
+                                exchangeHandler.releaseResources();
+                                return;
+                            }
+                        }
                         final Timeout socketTimeout = ioSession.getSocketTimeout();
                         ioSession.enqueue(new RequestExecutionCommand(
                                         handlerProxy,
@@ -349,5 +368,4 @@ public class H2MultiplexingRequester extends AsyncRequester {
     public H2ConnPool getConnPool() {
         return connPool;
     }
-
 }

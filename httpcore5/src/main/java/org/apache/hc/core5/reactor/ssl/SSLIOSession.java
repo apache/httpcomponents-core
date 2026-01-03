@@ -932,4 +932,8 @@ public class SSLIOSession implements IOSession {
         }
     }
 
+    @Override
+    public int getPendingCommandCount() {
+        return this.session.getPendingCommandCount();
+    }
 }

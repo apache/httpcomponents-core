@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
@@ -75,6 +76,8 @@ public class H2MultiplexingRequesterBootstrap {
     private FrameFactory frameFactory;
 
     private IOReactorMetricsListener threadPoolListener;
+
+    private int maxCommandsPerConnection;
 
     private H2MultiplexingRequesterBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -181,6 +184,23 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * Sets a hard limit on the number of pending commands execution commands that can be queued per connection.
+     * When the limit is reached, new submissions fail fast with {@link java.util.concurrent.RejectedExecutionException}.
+     * A value {@code <= 0} disables the limit (default).
+     * Note: this limit applies to commands waiting in the connection's internal queue (backlog). HTTP/2 in-flight
+     * concurrency is governed separately by protocol settings (e.g. MAX_CONCURRENT_STREAMS).
+     *
+     * @param max maximum number of pending commands per connection; {@code <= 0} to disable the limit.
+     * @return this instance.
+     * @since 5.5
+     */
+    @Experimental
+    public final H2MultiplexingRequesterBootstrap setMaxCommandsPerConnection(final int max) {
+        this.maxCommandsPerConnection = max;
+        return this;
+    }
+
+    /**
      * Sets {@link H2StreamListener} instance.
      *
      * @return this instance.
@@ -274,7 +294,8 @@ public class H2MultiplexingRequesterBootstrap {
                 DefaultAddressResolver.INSTANCE,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                 threadPoolListener,
-                null);
+                null,
+                maxCommandsPerConnection);
     }
 
 }

@@ -77,9 +77,10 @@ public class H2AsyncRequester extends HttpAsyncRequester {
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout,
             final IOReactorMetricsListener threadPoolListener,
-            final IOWorkerSelector workerSelector) {
+            final IOWorkerSelector workerSelector,
+            final int maxPendingCommandsPerConnection) {
         super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                tlsStrategy, handshakeTimeout, threadPoolListener, workerSelector);
+                tlsStrategy, handshakeTimeout, threadPoolListener, workerSelector, maxPendingCommandsPerConnection);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 
