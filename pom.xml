@@ -227,6 +227,7 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
+        <version>0.25.4</version>
         <configuration>
           <oldVersion>
             <dependency>
@@ -370,8 +371,15 @@
               <type>jar</type>
             </dependency>
           </oldVersion>
+          <newVersion>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${project.version}</version>
+              <type>jar</type>
+            </dependency>
+          </newVersion>
           <parameter>
-            <ignoreMissingClasses>true</ignoreMissingClasses>
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
               <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
