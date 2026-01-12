@@ -98,4 +98,30 @@ class TestPercentCodec {
         assertThat(PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)), CoreMatchers.equalTo(s));
     }
 
+    @Test
+    void testRfc7639CanonicalAlpnTokenEncoding() {
+        // RFC 7639 requires protocol-id to be a token and applies additional canonical constraints:
+        // - Octets not allowed in tokens MUST be percent-encoded (RFC 3986).
+        // - '%' MUST be percent-encoded.
+        // - Octets that are valid token characters MUST NOT be percent-encoded (except '%').
+        // - Uppercase hex digits MUST be used.
+        assertEquals("h2", PercentCodec.HTTP_TOKEN.encode("h2"));
+        assertEquals("http%2F1.1", PercentCodec.HTTP_TOKEN.encode("http/1.1"));
+        assertEquals("%25", PercentCodec.HTTP_TOKEN.encode("%"));
+        assertEquals("foo+bar", PercentCodec.HTTP_TOKEN.encode("foo+bar"));
+        assertEquals("!#$&'*+-.^_`|~", PercentCodec.HTTP_TOKEN.encode("!#$&'*+-.^_`|~"));
+        assertEquals("foo bar", PercentCodec.HTTP_TOKEN.decode("foo%20bar"));
+        assertEquals("ws/é", PercentCodec.HTTP_TOKEN.decode("ws%2F%C3%A9"));
+    }
+
+    @Test
+    void testPercentCodecEncodeIsNotRfc7639Canonical() {
+        // PercentCodec.encode(..) uses RFC 3986 UNRESERVED as the safe set.
+        // This percent-encodes valid RFC 7230 tchar like '+', '*', '!', '|', which RFC 7639 forbids.
+        assertEquals("foo%2Bbar", PercentCodec.encode("foo+bar", StandardCharsets.UTF_8));
+        assertEquals("%2A", PercentCodec.encode("*", StandardCharsets.UTF_8));
+        assertEquals("%21", PercentCodec.encode("!", StandardCharsets.UTF_8));
+        assertEquals("%7C", PercentCodec.encode("|", StandardCharsets.UTF_8));
+    }
+
 }
