@@ -33,6 +33,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * Percent-encoding.
  *
@@ -111,6 +113,36 @@ public class PercentCodec {
         RFC5987_UNRESERVED.set('`');
         RFC5987_UNRESERVED.set('|');
         RFC5987_UNRESERVED.set('~');
+    }
+
+    static final BitSet HTTP_TOKEN_UNRESERVED = new BitSet(256);
+
+    static {
+        // HTTP token characters (tchar) minus '%' (percent-encoded per RFC 7639 canonical form)
+        for (int i = 'a'; i <= 'z'; i++) {
+            HTTP_TOKEN_UNRESERVED.set(i);
+        }
+        for (int i = 'A'; i <= 'Z'; i++) {
+            HTTP_TOKEN_UNRESERVED.set(i);
+        }
+        for (int i = '0'; i <= '9'; i++) {
+            HTTP_TOKEN_UNRESERVED.set(i);
+        }
+
+        HTTP_TOKEN_UNRESERVED.set('!');
+        HTTP_TOKEN_UNRESERVED.set('#');
+        HTTP_TOKEN_UNRESERVED.set('$');
+        HTTP_TOKEN_UNRESERVED.set('&');
+        HTTP_TOKEN_UNRESERVED.set('\'');
+        HTTP_TOKEN_UNRESERVED.set('*');
+        HTTP_TOKEN_UNRESERVED.set('+');
+        HTTP_TOKEN_UNRESERVED.set('-');
+        HTTP_TOKEN_UNRESERVED.set('.');
+        HTTP_TOKEN_UNRESERVED.set('^');
+        HTTP_TOKEN_UNRESERVED.set('_');
+        HTTP_TOKEN_UNRESERVED.set('`');
+        HTTP_TOKEN_UNRESERVED.set('|');
+        HTTP_TOKEN_UNRESERVED.set('~');
     }
 
     static final BitSet PCHAR = new BitSet(256);
@@ -217,10 +249,12 @@ public class PercentCodec {
 
     public static final PercentCodec RFC3986 = new PercentCodec(UNRESERVED);
     public static final PercentCodec RFC5987 = new PercentCodec(RFC5987_UNRESERVED);
+    public static final PercentCodec HTTP_TOKEN = new PercentCodec(HTTP_TOKEN_UNRESERVED);
 
     private final BitSet unreserved;
 
-    private PercentCodec(final BitSet unreserved) {
+    @Internal
+    public PercentCodec(final BitSet unreserved) {
         this.unreserved = unreserved;
     }
 
