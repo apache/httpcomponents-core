@@ -53,9 +53,11 @@ public final class ComplexCancellable implements CancellableDependency {
     @Override
     public void setDependency(final Cancellable dependency) {
         Args.notNull(dependency, "dependency");
-        final Cancellable actualDependency = dependencyRef.getReference();
-        if (!dependencyRef.compareAndSet(actualDependency, dependency, false, false)) {
-            dependency.cancel();
+        while (!dependencyRef.compareAndSet(dependencyRef.getReference(), dependency, false, false)) {
+            if (dependencyRef.isMarked()) {
+                dependency.cancel();
+                return;
+            }
         }
     }
 

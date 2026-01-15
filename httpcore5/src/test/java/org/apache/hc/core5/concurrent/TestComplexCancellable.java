@@ -27,10 +27,12 @@
 package org.apache.hc.core5.concurrent;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.CountDownLatch;
 
 class TestComplexCancellable {
 
@@ -41,7 +43,7 @@ class TestComplexCancellable {
         final BasicFuture<Object> dependency1 = new BasicFuture<>(null);
         cancellable.setDependency(dependency1);
 
-        Assertions.assertFalse(cancellable.isCancelled());
+        assertFalse(cancellable.isCancelled());
 
         cancellable.cancel();
         assertThat(cancellable.isCancelled(), CoreMatchers.is(true));
@@ -52,4 +54,25 @@ class TestComplexCancellable {
         assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
+    @Test
+    void testSetDependencyRace() throws InterruptedException {
+        final ComplexCancellable cancellable = new ComplexCancellable();
+        final BasicFuture<Object> dependency1 = new BasicFuture<>(null);
+        final BasicFuture<Object> dependency2 = new BasicFuture<>(null);
+        final CountDownLatch latch = new CountDownLatch(2);
+
+        for (int i = 0; i < 2; i++) {
+            new Thread(() -> {
+                for (int j = 0; j < 5_000; j++) {
+                    cancellable.setDependency(dependency1);
+                    cancellable.setDependency(dependency2);
+                }
+                latch.countDown();
+            }).start();
+        }
+        latch.await();
+
+        assertFalse(dependency1.isCancelled());
+        assertFalse(dependency2.isCancelled());
+    }
 }
