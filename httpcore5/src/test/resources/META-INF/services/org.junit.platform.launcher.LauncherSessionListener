@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-org.apache.hc.core5.testing.LoggingInitializationListener
+org.apache.hc.core5.LoggingInitializationListener
