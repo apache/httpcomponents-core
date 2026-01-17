@@ -28,6 +28,9 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -50,6 +53,8 @@ import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.FrameType;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HeaderListConstraintException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -169,6 +174,40 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         appendState(buf);
         buf.append("]");
         return buf.toString();
+    }
+
+
+    public void sendOrigin(final Collection<String> asciiOrigins) throws IOException {
+        if (asciiOrigins == null || asciiOrigins.isEmpty()) {
+            final ByteBuffer empty = ByteBuffer.allocate(0);
+            final RawFrame origin = new RawFrame(FrameType.ORIGIN.getValue(), 0, 0, empty);
+            commitConnFrame(origin);
+            return;
+        }
+        final ArrayList<byte[]> parts = new ArrayList<>();
+        int total = 0;
+        for (final String s : asciiOrigins) {
+            if (s == null) {
+                continue;
+            }
+            final byte[] b = s.getBytes(StandardCharsets.US_ASCII);
+            if (b.length > 0xFFFF) {
+                continue;
+            }
+            parts.add(b);
+            total += 2 + b.length;
+        }
+        if (total == 0) {
+            return;
+        }
+        final ByteBuffer pl = ByteBuffer.allocate(total);
+        for (final byte[] b : parts) {
+            pl.putShort((short)(b.length & 0xFFFF));
+            pl.put(b);
+        }
+        pl.flip();
+        final RawFrame origin = new RawFrame(FrameType.ORIGIN.getValue(), 0, 0, pl);
+        commitConnFrame(origin);
     }
 
 }
