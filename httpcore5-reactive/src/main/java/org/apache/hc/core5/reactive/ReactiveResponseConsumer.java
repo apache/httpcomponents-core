@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Future;
@@ -67,6 +68,12 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     private final CompletableFuture<Message<HttpResponse, Publisher<ByteBuffer>>> responseCompletableFuture;
     private final CompletableFuture<Void> responseCompletionFuture;
 
+    /**
+     * Completes with {@code null} on success and with the terminal {@link Throwable} on failure.
+     * This future never completes exceptionally.
+     */
+    private final CompletableFuture<Throwable> failureFuture;
+
     private volatile BasicFuture<Void> responseCompletion;
     private volatile HttpResponse informationResponse;
     private volatile EntityDetails entityDetails;
@@ -78,6 +85,7 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
         this.responseFuture = new BasicFuture<>(null);
         this.responseCompletableFuture = new CompletableFuture<>();
         this.responseCompletionFuture = new CompletableFuture<>();
+        this.failureFuture = new CompletableFuture<>();
     }
 
     /**
@@ -90,6 +98,7 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
         this.responseFuture = new BasicFuture<>(Args.notNull(responseCallback, "responseCallback"));
         this.responseCompletableFuture = new CompletableFuture<>();
         this.responseCompletionFuture = new CompletableFuture<>();
+        this.failureFuture = new CompletableFuture<>();
     }
 
     public Future<Message<HttpResponse, Publisher<ByteBuffer>>> getResponseFuture() {
@@ -137,6 +146,16 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     /**
+     * Completes with {@code null} on success and with the terminal {@link Throwable} on failure.
+     * This stage never completes exceptionally.
+     *
+     * @since 5.5
+     */
+    public CompletionStage<Throwable> getFailureStage() {
+        return failureFuture;
+    }
+
+    /**
      * Returns the intermediate (1xx) HTTP response if one was received.
      *
      * @return the information response, or {@code null} if none.
@@ -165,10 +184,10 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
 
     @Override
     public void consumeResponse(
-            final HttpResponse response,
-            final EntityDetails entityDetails,
-            final HttpContext httpContext,
-            final FutureCallback<Void> resultCallback
+        final HttpResponse response,
+        final EntityDetails entityDetails,
+        final HttpContext httpContext,
+        final FutureCallback<Void> resultCallback
     ) {
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
@@ -190,11 +209,12 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     @Override
     public void failed(final Exception cause) {
         reactiveDataConsumer.failed(cause);
-
-        // Complete stage/futures regardless of whether consumeResponse() has been invoked yet.
         responseFuture.failed(cause);
         responseCompletableFuture.completeExceptionally(cause);
         responseCompletionFuture.completeExceptionally(cause);
+
+        // Record failure as a normal completion value.
+        failureFuture.complete(cause);
 
         final BasicFuture<Void> completion = responseCompletion;
         if (completion != null) {
@@ -222,6 +242,9 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
         // Complete CF before BasicFuture.completed(...) (it may trigger releaseResources()).
         responseCompletionFuture.complete(null);
 
+        // Success => no failure.
+        failureFuture.complete(null);
+
         final BasicFuture<Void> completion = responseCompletion;
         if (completion != null) {
             completion.completed(null);
@@ -239,6 +262,10 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
         }
         if (!responseCompletionFuture.isDone()) {
             responseCompletionFuture.cancel(true);
+        }
+
+        if (!failureFuture.isDone()) {
+            failureFuture.complete(new CancellationException());
         }
 
         final BasicFuture<Void> completion = responseCompletion;

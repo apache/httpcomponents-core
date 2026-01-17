@@ -39,8 +39,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Observable;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -59,6 +57,9 @@ import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 import org.reactivestreams.Publisher;
+
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Client demo using CompletionStage accessors on ReactiveResponseConsumer (Java 8).
@@ -189,6 +190,14 @@ public final class ReactiveClientCompletionStageExample {
 
             final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
             requester.execute(requestProducer, consumer, Timeout.ofSeconds(30), null);
+
+            consumer.getFailureStage().whenComplete((t, ex) -> {
+                if (ex != null) {
+                    ex.printStackTrace();
+                } else if (t != null) {
+                    System.out.println("Request failed: " + t);
+                }
+            });
 
             final CompletableFuture<Void> printedAndDrained = new CompletableFuture<>();
 
