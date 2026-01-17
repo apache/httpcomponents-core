@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -62,6 +63,8 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     private final ReactiveDataConsumer reactiveDataConsumer = new ReactiveDataConsumer();
     private final List<Header> trailers = Collections.synchronizedList(new ArrayList<>());
     private final BasicFuture<Message<HttpResponse, Publisher<ByteBuffer>>> responseFuture;
+    private final CompletableFuture<Message<HttpResponse, Publisher<ByteBuffer>>> responseCompletableFuture;
+    private final CompletableFuture<Void> responseCompletionFuture;
 
     private volatile BasicFuture<Void> responseCompletion;
     private volatile HttpResponse informationResponse;
@@ -72,6 +75,8 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
      */
     public ReactiveResponseConsumer() {
         this.responseFuture = new BasicFuture<>(null);
+        this.responseCompletableFuture = new CompletableFuture<>();
+        this.responseCompletionFuture = new CompletableFuture<>();
     }
 
     /**
@@ -82,10 +87,32 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
      */
     public ReactiveResponseConsumer(final FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> responseCallback) {
         this.responseFuture = new BasicFuture<>(Args.notNull(responseCallback, "responseCallback"));
+        this.responseCompletableFuture = new CompletableFuture<>();
+        this.responseCompletionFuture = new CompletableFuture<>();
     }
 
     public Future<Message<HttpResponse, Publisher<ByteBuffer>>> getResponseFuture() {
         return responseFuture;
+    }
+
+    /**
+     * Returns a {@link CompletableFuture} that completes when the response head and body {@link Publisher}
+     * are available.
+     *
+     * @since 5.5
+     */
+    public CompletableFuture<Message<HttpResponse, Publisher<ByteBuffer>>> getResponseCompletableFuture() {
+        return responseCompletableFuture;
+    }
+
+    /**
+     * Returns a {@link CompletableFuture} that completes when the response exchange is complete
+     * (end-of-stream reached and trailers processed, if any).
+     *
+     * @since 5.5
+     */
+    public CompletableFuture<Void> getResponseCompletionFuture() {
+        return responseCompletionFuture;
     }
 
     /**
@@ -124,7 +151,11 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     ) {
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
-        this.responseFuture.completed(new Message<>(response, reactiveDataConsumer));
+
+        final Message<HttpResponse, Publisher<ByteBuffer>> message = new Message<>(response, reactiveDataConsumer);
+        this.responseFuture.completed(message);
+        this.responseCompletableFuture.complete(message);
+
         if (entityDetails == null) {
             streamEnd(null);
         }
@@ -139,8 +170,12 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     public void failed(final Exception cause) {
         reactiveDataConsumer.failed(cause);
         responseFuture.failed(cause);
-        if (responseCompletion != null) {
-            responseCompletion.failed(cause);
+        responseCompletableFuture.completeExceptionally(cause);
+        responseCompletionFuture.completeExceptionally(cause);
+
+        final BasicFuture<Void> completion = responseCompletion;
+        if (completion != null) {
+            completion.failed(cause);
         }
     }
 
@@ -160,15 +195,30 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
             this.trailers.addAll(trailers);
         }
         reactiveDataConsumer.streamEnd(trailers);
-        responseCompletion.completed(null);
+        responseCompletionFuture.complete(null);
+
+        final BasicFuture<Void> completion = responseCompletion;
+        if (completion != null) {
+            completion.completed(null);
+        }
     }
 
     @Override
     public void releaseResources() {
         reactiveDataConsumer.releaseResources();
+
         responseFuture.cancel();
-        if (responseCompletion != null) {
-            responseCompletion.cancel();
+
+        if (!responseCompletableFuture.isDone()) {
+            responseCompletableFuture.cancel(true);
+        }
+        if (!responseCompletionFuture.isDone()) {
+            responseCompletionFuture.cancel(true);
+        }
+
+        final BasicFuture<Void> completion = responseCompletion;
+        if (completion != null) {
+            completion.cancel();
         }
     }
 }
