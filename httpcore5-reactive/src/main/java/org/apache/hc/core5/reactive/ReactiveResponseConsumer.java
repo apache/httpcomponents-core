@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -116,6 +117,26 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     /**
+     * Returns a {@link CompletionStage} that completes when the response head and body {@link Publisher}
+     * are available.
+     *
+     * @since 5.5
+     */
+    public CompletionStage<Message<HttpResponse, Publisher<ByteBuffer>>> getResponseStage() {
+        return responseCompletableFuture;
+    }
+
+    /**
+     * Returns a {@link CompletionStage} that completes when the response exchange is complete
+     * (end-of-stream reached and trailers processed, if any).
+     *
+     * @since 5.5
+     */
+    public CompletionStage<Void> getResponseCompletionStage() {
+        return responseCompletionFuture;
+    }
+
+    /**
      * Returns the intermediate (1xx) HTTP response if one was received.
      *
      * @return the information response, or {@code null} if none.
@@ -144,10 +165,10 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
 
     @Override
     public void consumeResponse(
-        final HttpResponse response,
-        final EntityDetails entityDetails,
-        final HttpContext httpContext,
-        final FutureCallback<Void> resultCallback
+            final HttpResponse response,
+            final EntityDetails entityDetails,
+            final HttpContext httpContext,
+            final FutureCallback<Void> resultCallback
     ) {
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
@@ -169,6 +190,8 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     @Override
     public void failed(final Exception cause) {
         reactiveDataConsumer.failed(cause);
+
+        // Complete stage/futures regardless of whether consumeResponse() has been invoked yet.
         responseFuture.failed(cause);
         responseCompletableFuture.completeExceptionally(cause);
         responseCompletionFuture.completeExceptionally(cause);
@@ -195,6 +218,8 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
             this.trailers.addAll(trailers);
         }
         reactiveDataConsumer.streamEnd(trailers);
+
+        // Complete CF before BasicFuture.completed(...) (it may trigger releaseResources()).
         responseCompletionFuture.complete(null);
 
         final BasicFuture<Void> completion = responseCompletion;
