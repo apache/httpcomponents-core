@@ -72,14 +72,14 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <conscrypt.version>2.5.2</conscrypt.version>
-    <junit.version>5.14.1</junit.version>
+    <junit.version>5.14.2</junit.version>
     <hamcrest.version>3.0</hamcrest.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
-    <mockito.version>4.11.0</mockito.version>
-    <slf4j.version>1.7.36</slf4j.version>
-    <log4j.version>2.25.2</log4j.version>
+    <mockito.version>5.0.0</mockito.version>
+    <slf4j.version>2.0.0</slf4j.version>
+    <log4j.version>2.25.3</log4j.version>
     <rxjava3.version>3.1.12</rxjava3.version>
-    <testcontainers.version>1.21.3</testcontainers.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
     <api.comparison.version>5.4</api.comparison.version>
     <jmh.version>1.37</jmh.version>
     <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters,java.nio.ByteBuffer,java.nio.CharBuffer,jdk.net.ExtendedSocketOptions,jdk.net.Sockets</hc.animal-sniffer.signature.ignores>
