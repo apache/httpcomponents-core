@@ -27,8 +27,6 @@
 package org.apache.hc.core5.io;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,22 +65,51 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
 
     }
 
+    private static final class LocalStack {
+
+        private final ByteBuffer[] elements;
+        private int size;
+
+        LocalStack(final int capacity) {
+            this.elements = new ByteBuffer[capacity];
+        }
+
+        ByteBuffer pop() {
+            final int s = size;
+            if (s == 0) {
+                return null;
+            }
+            final int i = s - 1;
+            final ByteBuffer b = elements[i];
+            elements[i] = null;
+            size = i;
+            return b;
+        }
+
+        boolean push(final ByteBuffer b) {
+            final int s = size;
+            if (s >= elements.length) {
+                return false;
+            }
+            elements[s] = b;
+            size = s + 1;
+            return true;
+        }
+
+    }
+
     private static final class LocalCache {
 
-        final Deque<ByteBuffer>[] heapBuckets;
-        final Deque<ByteBuffer>[] directBuckets;
+        final LocalStack[] heapBuckets;
+        final LocalStack[] directBuckets;
 
-        LocalCache(final int bucketCount) {
-            @SuppressWarnings("unchecked")
-            final Deque<ByteBuffer>[] heap = new Deque[bucketCount];
-            @SuppressWarnings("unchecked")
-            final Deque<ByteBuffer>[] direct = new Deque[bucketCount];
+        LocalCache(final int bucketCount, final int maxLocalPerBucket) {
+            this.heapBuckets = new LocalStack[bucketCount];
+            this.directBuckets = new LocalStack[bucketCount];
             for (int i = 0; i < bucketCount; i++) {
-                heap[i] = new ArrayDeque<>();
-                direct[i] = new ArrayDeque<>();
+                heapBuckets[i] = new LocalStack(maxLocalPerBucket);
+                directBuckets[i] = new LocalStack(maxLocalPerBucket);
             }
-            this.heapBuckets = heap;
-            this.directBuckets = direct;
         }
 
     }
@@ -119,8 +146,13 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         Args.notNegative(maxLocalPerBucket, "Max local per bucket");
         Args.check(maxCapacity >= minCapacity, "Max capacity must be >= min capacity");
 
-        this.minCapacity = normalizeCapacity(minCapacity);
-        this.maxCapacity = normalizeCapacity(maxCapacity);
+        final int normalizedMin = normalizeCapacity(minCapacity);
+        final int normalizedMax = normalizeCapacity(maxCapacity);
+
+        Args.check(normalizedMax >= normalizedMin, "Max capacity must be >= min capacity");
+
+        this.minCapacity = normalizedMin;
+        this.maxCapacity = normalizedMax;
         this.maxGlobalPerBucket = maxGlobalPerBucket;
         this.maxLocalPerBucket = maxLocalPerBucket;
 
@@ -140,16 +172,17 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
             capacity <<= 1;
         }
 
-        this.localCache = ThreadLocal.withInitial(() -> new LocalCache(bucketCount));
+        this.localCache = ThreadLocal.withInitial(() -> new LocalCache(bucketCount, this.maxLocalPerBucket));
     }
 
     private static int normalizeCapacity(final int capacity) {
-        if (capacity <= 0) {
+        if (capacity <= 1) {
             return 1;
         }
-        int normalized = 1;
-        while (normalized < capacity) {
-            normalized <<= 1;
+        final int highest = Integer.highestOneBit(capacity - 1);
+        final int normalized = highest << 1;
+        if (normalized <= 0) {
+            throw new IllegalArgumentException("Capacity too large: " + capacity);
         }
         return normalized;
     }
@@ -158,8 +191,7 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
      * Returns the bucket index for an arbitrary requested capacity, or {@code -1}
      * if the capacity is greater than {@code maxCapacity}.
      * <p>
-     * This implementation runs in O(1) using bit operations. It assumes
-     * {@code minCapacity} and {@code maxCapacity} are powers of two.
+     * Assumes {@code minCapacity} and {@code maxCapacity} are powers of two.
      */
     private int bucketIndexForRequest(final int capacity) {
         if (capacity <= minCapacity) {
@@ -171,51 +203,51 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         // Ceil(log2(capacity)) using bit length of (capacity - 1).
         final int neededShift = 32 - Integer.numberOfLeadingZeros(capacity - 1);
         final int idx = neededShift - minShift;
-        if (idx < 0 || idx >= bucketCapacities.length) {
-            return -1;
-        }
-        return idx;
+        return (idx >= 0 && idx < bucketCapacities.length) ? idx : -1;
     }
 
     /**
      * Returns the bucket index for a pooled buffer {@link ByteBuffer#capacity()}.
-     * <p>
-     * This assumes the capacity is a power of two in the configured range. If
-     * someone passes in an arbitrary foreign buffer, this returns {@code -1}
-     * and the buffer is ignored by the pool.
+     * Returns {@code -1} for foreign / non power-of-two buffers.
      */
     private int bucketIndexForPooledCapacity(final int capacity) {
         if (capacity < minCapacity || capacity > maxCapacity) {
             return -1;
         }
-        // Must be a power of two.
         if ((capacity & (capacity - 1)) != 0) {
             return -1;
         }
         final int idx = Integer.numberOfTrailingZeros(capacity) - minShift;
-        if (idx < 0 || idx >= bucketCapacities.length) {
-            return -1;
+        return (idx >= 0 && idx < bucketCapacities.length) ? idx : -1;
+    }
+
+    private static boolean tryIncBelowMax(final AtomicInteger size, final int max) {
+        if (max <= 0) {
+            return false;
         }
-        return idx;
+        for (; ; ) {
+            final int s = size.get();
+            if (s >= max) {
+                return false;
+            }
+            if (size.compareAndSet(s, s + 1)) {
+                return true;
+            }
+        }
     }
 
     private ByteBuffer allocateInternal(final int requestedCapacity, final boolean direct) {
         Args.notNegative(requestedCapacity, "Buffer capacity");
+
         final int idx = bucketIndexForRequest(requestedCapacity);
         if (idx < 0) {
-            // Not pooled: allocate exact requested capacity.
-            return direct
-                    ? ByteBuffer.allocateDirect(requestedCapacity)
-                    : ByteBuffer.allocate(requestedCapacity);
+            return direct ? ByteBuffer.allocateDirect(requestedCapacity) : ByteBuffer.allocate(requestedCapacity);
         }
 
         final LocalCache cache = localCache.get();
-        final Deque<ByteBuffer>[] localBuckets = direct
-                ? cache.directBuckets
-                : cache.heapBuckets;
-        final Deque<ByteBuffer> local = localBuckets[idx];
+        final LocalStack local = direct ? cache.directBuckets[idx] : cache.heapBuckets[idx];
 
-        ByteBuffer buf = local.pollFirst();
+        ByteBuffer buf = local.pop();
         if (buf != null) {
             buf.clear();
             buf.limit(requestedCapacity);
@@ -223,9 +255,7 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         }
 
         if (maxGlobalPerBucket > 0) {
-            final GlobalBucket[] globalArray = direct ? directBuckets : heapBuckets;
-            final GlobalBucket global = globalArray[idx];
-
+            final GlobalBucket global = direct ? directBuckets[idx] : heapBuckets[idx];
             buf = global.queue.poll();
             if (buf != null) {
                 global.size.decrementAndGet();
@@ -236,9 +266,7 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         }
 
         final int bucketCapacity = bucketCapacities[idx];
-        buf = direct
-                ? ByteBuffer.allocateDirect(bucketCapacity)
-                : ByteBuffer.allocate(bucketCapacity);
+        buf = direct ? ByteBuffer.allocateDirect(bucketCapacity) : ByteBuffer.allocate(bucketCapacity);
         buf.limit(requestedCapacity);
         return buf;
     }
@@ -258,39 +286,27 @@ public final class PooledByteBufferAllocator implements ByteBufferAllocator {
         if (buffer == null) {
             return;
         }
-        final int capacity = buffer.capacity();
-        final int idx = bucketIndexForPooledCapacity(capacity);
+        final int idx = bucketIndexForPooledCapacity(buffer.capacity());
         if (idx < 0) {
-            // Not a pooled buffer (or foreign capacity), drop it.
             return;
         }
-
-        final boolean direct = buffer.isDirect();
-        final LocalCache cache = localCache.get();
-        final Deque<ByteBuffer>[] localBuckets = direct
-                ? cache.directBuckets
-                : cache.heapBuckets;
-        final Deque<ByteBuffer> local = localBuckets[idx];
 
         buffer.clear();
-        buffer.limit(bucketCapacities[idx]);
 
-        if (local.size() < maxLocalPerBucket) {
-            local.addFirst(buffer);
+        final LocalCache cache = localCache.get();
+        final boolean direct = buffer.isDirect();
+        final LocalStack local = direct ? cache.directBuckets[idx] : cache.heapBuckets[idx];
+
+        if (local.push(buffer)) {
             return;
         }
 
-        if (maxGlobalPerBucket == 0) {
+        if (maxGlobalPerBucket <= 0) {
             return;
         }
 
-        final GlobalBucket[] globalArray = direct ? directBuckets : heapBuckets;
-        final GlobalBucket global = globalArray[idx];
-
-        // One atomic on the hot success path instead of get() + increment().
-        final int newSize = global.size.incrementAndGet();
-        if (newSize > maxGlobalPerBucket) {
-            global.size.decrementAndGet();
+        final GlobalBucket global = direct ? directBuckets[idx] : heapBuckets[idx];
+        if (!tryIncBelowMax(global.size, maxGlobalPerBucket)) {
             return;
         }
         global.queue.offer(buffer);
