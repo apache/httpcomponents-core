@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.charset.CharacterCodingException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -260,11 +261,13 @@ class H2Stream implements StreamControl {
 
     boolean abort() {
         if (cancelled.compareAndSet(false, true)) {
-            channel.requestOutput();
-            return true;
-        } else {
-            return false;
+            try {
+                channel.requestOutput();
+                return true;
+            } catch (final CancelledKeyException ignore) {
+            }
         }
+        return false;
     }
 
     boolean abortGracefully() throws IOException {
