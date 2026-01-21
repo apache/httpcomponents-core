@@ -70,7 +70,6 @@ class TestSocksProxyProtocolHandler {
             }
         };
 
-        // This is the *target* address encoded into the SOCKS CONNECT command.
         final SocketAddress targetAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), 443);
 
         final IOSessionRequest sessionRequest = new IOSessionRequest(
@@ -118,13 +117,6 @@ class TestSocksProxyProtocolHandler {
         assertEquals(CloseMode.IMMEDIATE, session.getLastCloseMode(), "Session must be closed immediately");
     }
 
-    /**
-     * Minimal IOSession stub sufficient for SocksProxyProtocolHandler + CommandSupport.
-     * <p>
-     * - write() always succeeds and drains src buffer
-     * - read() always returns -1 (EOF)
-     * - command queue is empty (so CommandSupport.* is a no-op)
-     */
     private static final class TestIOSession implements IOSession {
 
         private final Lock lock;
