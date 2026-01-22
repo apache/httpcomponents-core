@@ -38,6 +38,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
@@ -350,7 +351,10 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private boolean fillBuffer(final ByteChannel channel) throws IOException {
         if (this.buffer.hasRemaining()) {
-            channel.read(this.buffer);
+            final int bytesRead = channel.read(this.buffer);
+            if (bytesRead < 0) {
+                throw new ConnectionClosedException("SOCKS proxy closed the connection");
+            }
         }
         return !this.buffer.hasRemaining();
     }
