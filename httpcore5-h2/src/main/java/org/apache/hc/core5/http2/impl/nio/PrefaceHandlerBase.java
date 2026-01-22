@@ -96,9 +96,6 @@ abstract class PrefaceHandlerBase implements HttpConnectionEventHandler {
                 protocolHandler.exception(session, cause);
             } else {
                 CommandSupport.failCommands(session, cause);
-                if (exceptionCallback != null) {
-                    exceptionCallback.execute(cause);
-                }
             }
         } catch (final Exception ex) {
             if (completed.compareAndSet(false, true) && resultCallback != null) {
