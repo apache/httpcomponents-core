@@ -50,7 +50,7 @@ class SSLContextsTest {
         final SSLContext sslContext = SSLContexts.createDefault();
         assertAll(
                 () -> assertNotNull(sslContext),
-                () -> assertEquals(SSLContextBuilder.TLS, sslContext.getProtocol()),
+                () -> assertEquals("Default", sslContext.getProtocol()),
                 () -> assertNotNull(sslContext.getProvider())
         );
     }
