@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -87,6 +88,7 @@ import org.apache.hc.core5.util.Timeout;
 public class H2MultiplexingRequester extends AsyncRequester {
 
     private final H2ConnPool connPool;
+    private final AtomicReference<TimeValue> validateAfterInactivityRef;
 
     /**
      * Hard cap on per-connection queued / in-flight commands.
@@ -108,11 +110,16 @@ public class H2MultiplexingRequester extends AsyncRequester {
             final TlsStrategy tlsStrategy,
             final IOReactorMetricsListener threadPoolListener,
             final IOWorkerSelector workerSelector,
+            final AtomicReference<TimeValue> validateAfterInactivityRef,
             final int maxCommandsPerConnection) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                 ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE,
                 threadPoolListener, workerSelector);
         this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
+        this.validateAfterInactivityRef = validateAfterInactivityRef;
+        if (this.validateAfterInactivityRef != null) {
+            this.validateAfterInactivityRef.set(this.connPool.getValidateAfterInactivity());
+        }
         this.maxCommandsPerConnection = maxCommandsPerConnection;
     }
 
@@ -130,6 +137,9 @@ public class H2MultiplexingRequester extends AsyncRequester {
 
     public void setValidateAfterInactivity(final TimeValue timeValue) {
         connPool.setValidateAfterInactivity(timeValue);
+        if (validateAfterInactivityRef != null) {
+            validateAfterInactivityRef.set(timeValue);
+        }
     }
 
     /**
