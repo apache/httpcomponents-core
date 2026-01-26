@@ -74,6 +74,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
+import org.apache.hc.core5.http2.H2StreamTimeoutException;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
@@ -142,6 +143,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private final Map<Integer, PriorityValue> priorities = new ConcurrentHashMap<>();
     private volatile boolean peerNoRfc7540Priorities;
+
+
+    private static final long STREAM_TIMEOUT_GRANULARITY_MILLIS = 1000;
+    private long lastStreamTimeoutCheckMillis;
+
 
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -454,6 +460,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     break;
                 }
             }
+            if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
+                validateStreamTimeouts();
+            }
         }
     }
 
@@ -531,6 +540,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
             }
         }
+
+        if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
+            validateStreamTimeouts();
+        }
+
         if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) == 0) {
             int liveStreams = 0;
             for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
@@ -1359,8 +1373,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return new H2StreamChannelImpl(streamId, initInputWinSize, initOutputWinSize);
     }
 
-    H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) throws H2ConnectionException {
-        return streams.createActive(channel, streamHandler);
+    H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) {
+        final H2Stream stream = streams.createActive(channel, streamHandler);
+        return stream;
     }
 
     private void recordPriorityFromHeaders(final int streamId, final List<? extends Header> headers) {
@@ -1577,6 +1592,39 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             return buf.toString();
         }
 
+    }
+
+    private void checkStreamTimeouts(final long nowNanos) throws IOException {
+        for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+            final H2Stream stream = it.next();
+            if (!stream.isActive()) {
+                continue;
+            }
+
+            final Timeout idleTimeout = stream.getIdleTimeout();
+            if (idleTimeout == null || !idleTimeout.isEnabled()) {
+                continue;
+            }
+
+            final long last = stream.getLastActivityNanos();
+            final long idleNanos = idleTimeout.toNanoseconds();
+            if (idleNanos > 0 && nowNanos - last > idleNanos) {
+                final int streamId = stream.getId();
+                final H2StreamTimeoutException ex = new H2StreamTimeoutException(
+                        "HTTP/2 stream idle timeout (" + idleTimeout + ")",
+                        streamId,
+                        idleTimeout);
+                stream.localReset(ex, H2Error.CANCEL);
+            }
+        }
+    }
+
+    private void validateStreamTimeouts() throws IOException {
+        final long nowMillis = System.currentTimeMillis();
+        if ((nowMillis - lastStreamTimeoutCheckMillis) >= STREAM_TIMEOUT_GRANULARITY_MILLIS) {
+            lastStreamTimeoutCheckMillis = nowMillis;
+            checkStreamTimeouts(System.nanoTime());
+        }
     }
 
 }

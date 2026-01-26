@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.IntStream;
 
@@ -52,6 +53,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
+import org.apache.hc.core5.http2.H2StreamTimeoutException;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
@@ -65,6 +67,7 @@ import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1034,5 +1037,51 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertTrue(idxPriUpd >= 0, "PRIORITY_UPDATE should be emitted when NO_RFC7540=1");
     }
 
+    @Test
+    void testStreamIdleTimeoutTriggersH2StreamTimeoutException() throws Exception {
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final int remaining = buffer.remaining();
+                    buffer.position(buffer.limit());
+                    return remaining;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel channel = streamMultiplexer.createChannel(1);
+        final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
+
+        stream.setTimeout(Timeout.of(1, TimeUnit.NANOSECONDS));
+        stream.activate();
+
+        streamMultiplexer.onOutput();
+
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        final Exception cause = exceptionCaptor.getValue();
+        Assertions.assertInstanceOf(H2StreamTimeoutException.class, cause);
+
+        final H2StreamTimeoutException timeoutEx = (H2StreamTimeoutException) cause;
+        Assertions.assertEquals(1, timeoutEx.getStreamId());
+
+        Assertions.assertTrue(stream.isLocalClosed());
+        Assertions.assertTrue(stream.isClosed());
+
+        Assertions.assertTrue(timeoutEx.getMessage().contains("idle timeout"));
+        Assertions.assertEquals(1L, timeoutEx.getTimeout().toNanoseconds());
+        Assertions.assertEquals(1, timeoutEx.getStreamId());
+
+    }
 }
 

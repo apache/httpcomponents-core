@@ -61,6 +61,10 @@ class H2Stream implements StreamControl {
     private volatile boolean reserved;
     private volatile boolean remoteClosed;
 
+    private volatile long lastActivityNanos;
+
+    private volatile Timeout idleTimeout;
+
     H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final Consumer<State> stateChangeCallback) {
         this.channel = channel;
         this.handler = handler;
@@ -69,6 +73,7 @@ class H2Stream implements StreamControl {
         this.transitionRef = new AtomicReference<>(State.RESERVED);
         this.released = new AtomicBoolean();
         this.cancelled = new AtomicBoolean();
+        this.lastActivityNanos = 0L;
     }
 
     @Override
@@ -83,7 +88,7 @@ class H2Stream implements StreamControl {
 
     @Override
     public void setTimeout(final Timeout timeout) {
-        // not supported
+        this.idleTimeout = timeout;
     }
 
     boolean isReserved() {
@@ -104,6 +109,7 @@ class H2Stream implements StreamControl {
 
     void activate() {
         reserved = false;
+        touch();
         triggerOpen();
     }
 
@@ -146,6 +152,8 @@ class H2Stream implements StreamControl {
 
     void consumePromise(final List<Header> headers) throws HttpException, IOException {
         try {
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -165,6 +173,8 @@ class H2Stream implements StreamControl {
             if (endOfStream) {
                 remoteClosed = true;
             }
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -183,6 +193,8 @@ class H2Stream implements StreamControl {
             if (endOfStream) {
                 remoteClosed = true;
             }
+            touch();
+
             if (channel.isLocalReset()) {
                 return;
             }
@@ -306,6 +318,18 @@ class H2Stream implements StreamControl {
                 .append(", localReset=").append(channel.isLocalReset())
                 .append("]");
         return buf.toString();
+    }
+
+    private void touch() {
+        this.lastActivityNanos = System.nanoTime();
+    }
+
+    long getLastActivityNanos() {
+        return lastActivityNanos;
+    }
+
+    Timeout getIdleTimeout() {
+        return idleTimeout;
     }
 
 }
