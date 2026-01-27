@@ -77,6 +77,7 @@ import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.H2StreamTimeoutException;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2PingPolicy;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFlag;
@@ -125,6 +126,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private final AtomicInteger connOutputWindow;
     private final AtomicInteger outputRequests;
     private final H2StreamListener streamListener;
+    private final KeepAlivePingSupport keepAlivePingSupport;
 
     private ConnectionHandshake connState = ConnectionHandshake.READY;
     private SettingsHandshake localSettingState = SettingsHandshake.READY;
@@ -183,6 +185,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
+
+        final H2PingPolicy pingPolicy = this.localConfig.getPingPolicy();
+        this.keepAlivePingSupport = pingPolicy != null && pingPolicy.isEnabled()
+                ? new KeepAlivePingSupport(pingPolicy)
+                : null;
     }
 
     @Override
@@ -444,6 +451,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             for (;;) {
                 final RawFrame frame = inputBuffer.read(src, ioSession);
                 if (frame != null) {
+                    if (keepAlivePingSupport != null) {
+                        keepAlivePingSupport.onFrameInput(frame);
+                    }
                     if (streamListener != null) {
                         streamListener.onFrameInput(this, frame.getStreamId(), frame);
                     }
@@ -485,6 +495,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
         } finally {
             ioSession.getLock().unlock();
+        }
+
+        if (keepAlivePingSupport != null) {
+            keepAlivePingSupport.activateIfReady();
         }
 
         if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
@@ -592,6 +606,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onTimeout(final Timeout timeout) throws HttpException, IOException {
+        if (keepAlivePingSupport != null
+                && connState.compareTo(ConnectionHandshake.ACTIVE) <= 0
+                && localSettingState == SettingsHandshake.ACKED
+                && remoteSettingState == SettingsHandshake.ACKED) {
+            if (keepAlivePingSupport.onTimeout(timeout)) {
+                return;
+            }
+        }
+
         connState = ConnectionHandshake.SHUTDOWN;
 
         final RawFrame goAway;
@@ -888,6 +911,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid PING frame payload");
                 }
                 if (frame.isFlagSet(FrameFlag.ACK)) {
+                    if (keepAlivePingSupport != null && keepAlivePingSupport.consumePingAck(ping)) {
+                        break;
+                    }
                     final AsyncPingHandler pingHandler = pingHandlers.poll();
                     if (pingHandler != null) {
                         pingHandler.consumeResponse(ping);
@@ -910,6 +936,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         localSettingState = SettingsHandshake.ACKED;
                         ioSession.setEvent(SelectionKey.OP_WRITE);
                         applyLocalSettings();
+                        if (keepAlivePingSupport != null) {
+                            keepAlivePingSupport.activateIfReady();
+                        }
                     }
                 } else {
                     final ByteBuffer payload = frame.getPayload();
@@ -923,6 +952,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     final RawFrame response = frameFactory.createSettingsAck();
                     commitFrame(response);
                     remoteSettingState = SettingsHandshake.ACKED;
+                    if (keepAlivePingSupport != null) {
+                        keepAlivePingSupport.activateIfReady();
+                    }
                 }
             }
             break;
@@ -1326,6 +1358,141 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 .append(", streams.remoteCount=").append(streams.getRemoteCount())
                 .append(", streams.lastLocal=").append(streams.getLastLocalId())
                 .append(", streams.lastRemote=").append(streams.getLastRemoteId());
+    }
+
+    private final class KeepAlivePingSupport {
+
+        private static final int PING_DATA_LEN = 8;
+
+        private final Timeout idleTime;
+        private final Timeout ackTimeout;
+
+        private boolean active;
+        private boolean awaitingAck;
+
+        private long lastActivityNanos;
+        private long pingSeq;
+        private long expectedAckSeq;
+
+        KeepAlivePingSupport(final H2PingPolicy policy) {
+            Args.notNull(policy, "PING policy");
+            this.idleTime = policy.getIdleTime();
+            this.ackTimeout = policy.getAckTimeout();
+            this.active = false;
+            this.awaitingAck = false;
+            this.lastActivityNanos = System.nanoTime();
+            this.pingSeq = 0L;
+            this.expectedAckSeq = 0L;
+        }
+
+        void activateIfReady() {
+            if (active) {
+                return;
+            }
+            if (localSettingState == SettingsHandshake.ACKED && remoteSettingState == SettingsHandshake.ACKED) {
+                active = true;
+                awaitingAck = false;
+                lastActivityNanos = System.nanoTime();
+                ioSession.setSocketTimeout(idleTime);
+            }
+        }
+
+        void onFrameInput(final RawFrame frame) {
+            if (!active) {
+                return;
+            }
+            lastActivityNanos = System.nanoTime();
+            if (awaitingAck) {
+                if (!(frame.getType() == FrameType.PING.getValue() && frame.isFlagSet(FrameFlag.ACK))) {
+                    awaitingAck = false;
+                }
+            }
+            ioSession.setSocketTimeout(idleTime);
+        }
+
+        void onActivity() {
+            if (!active) {
+                return;
+            }
+            lastActivityNanos = System.nanoTime();
+            if (awaitingAck) {
+                awaitingAck = false;
+            }
+            ioSession.setSocketTimeout(idleTime);
+        }
+
+        boolean consumePingAck(final ByteBuffer payload) {
+            if (!active || !awaitingAck) {
+                return false;
+            }
+            if (payload == null || payload.remaining() != PING_DATA_LEN) {
+                return false;
+            }
+            final long ack = payload.getLong(payload.position());
+            if (ack != expectedAckSeq) {
+                return false;
+            }
+            onActivity();
+            return true;
+        }
+
+        boolean onTimeout(final Timeout timeout) throws IOException {
+            activateIfReady();
+            if (!active) {
+                return false;
+            }
+
+            if (awaitingAck) {
+                shutdownKeepAlive(timeout);
+                return true;
+            }
+
+            final long idleNanos = idleTime.toMilliseconds() * 1_000_000L;
+            if (idleNanos > 0L) {
+                final long elapsed = System.nanoTime() - lastActivityNanos;
+                if (elapsed < idleNanos) {
+                    final long remainingMs = Math.max(1L, (idleNanos - elapsed) / 1_000_000L);
+                    ioSession.setSocketTimeout(Timeout.ofMilliseconds(remainingMs));
+                    return true;
+                }
+            }
+
+            awaitingAck = true;
+            sendPing();
+            ioSession.setSocketTimeout(ackTimeout);
+            return true;
+        }
+
+        private void sendPing() throws IOException {
+            final long v = ++pingSeq;
+            expectedAckSeq = v;
+
+            final ByteBuffer payload = ByteBuffer.allocate(PING_DATA_LEN);
+            payload.putLong(v);
+            payload.flip();
+
+            final RawFrame ping = frameFactory.createPing(payload);
+            commitFrame(ping);
+        }
+
+        private void shutdownKeepAlive(final Timeout timeout) throws IOException {
+            connState = ConnectionHandshake.SHUTDOWN;
+
+            final RawFrame goAway = frameFactory.createGoAway(
+                    streams.getLastRemoteId(),
+                    H2Error.NO_ERROR,
+                    "Ping response timeout (" + timeout + ")");
+            commitFrame(goAway);
+
+            for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+                final H2Stream stream = it.next();
+                stream.fail(new H2StreamResetException(
+                        H2Error.NO_ERROR,
+                        "Ping response timeout (" + timeout + ")"));
+            }
+            streams.shutdownAndReleaseAll();
+        }
+
     }
 
     private static class Continuation {
