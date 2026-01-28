@@ -150,7 +150,7 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public ConscryptServerTlsStrategy() {
-        this(SSLContexts.createSystemDefault(), (SSLBufferMode) null, null, null);
+        this(SSLContexts.createDefault(), (SSLBufferMode) null, null, null);
     }
 
     /**
@@ -160,7 +160,7 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public ConscryptServerTlsStrategy(final SSLSessionVerifier verifier) {
-        this(SSLContexts.createSystemDefault(), (SSLBufferMode) null, null, verifier);
+        this(SSLContexts.createDefault(), (SSLBufferMode) null, null, verifier);
     }
 
     private boolean isApplicable(final SocketAddress localAddress) {

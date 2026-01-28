@@ -90,7 +90,7 @@ public class H2ClientTlsStrategy implements TlsStrategy {
     }
 
     public H2ClientTlsStrategy() {
-        this(SSLContexts.createSystemDefault());
+        this(SSLContexts.createDefault());
     }
 
     /**
@@ -100,7 +100,7 @@ public class H2ClientTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public H2ClientTlsStrategy( final SSLSessionVerifier verifier) {
-        this(SSLContexts.createSystemDefault(), null, null, verifier);
+        this(SSLContexts.createDefault(), null, null, verifier);
     }
 
     @Override

@@ -93,7 +93,7 @@ public class ConscryptClientTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public ConscryptClientTlsStrategy() {
-        this(SSLContexts.createSystemDefault(), null, null, null);
+        this(SSLContexts.createDefault(), null, null, null);
     }
 
     /**
@@ -102,7 +102,7 @@ public class ConscryptClientTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public ConscryptClientTlsStrategy(final SSLSessionVerifier verifier) {
-        this(SSLContexts.createSystemDefault(), verifier);
+        this(SSLContexts.createDefault(), verifier);
     }
 
     @Override

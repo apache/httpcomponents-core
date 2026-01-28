@@ -145,7 +145,7 @@ public class HttpBenchmark {
             }
             sslContext = sslContextBuilder.build();
         } else {
-            sslContext = SSLContexts.createSystemDefault();
+            sslContext = SSLContexts.createDefault();
         }
 
         final HttpVersionPolicy versionPolicy;

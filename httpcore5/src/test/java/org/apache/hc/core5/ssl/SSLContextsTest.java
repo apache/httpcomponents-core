@@ -56,6 +56,7 @@ class SSLContextsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     void createSystemDefault() {
         final SSLContext sslContext = SSLContexts.createSystemDefault();
         assertAll(
