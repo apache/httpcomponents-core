@@ -116,7 +116,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
      */
     @Deprecated
     public BasicServerTlsStrategy(final SecurePortStrategy securePortStrategy) {
-        this(SSLContexts.createSystemDefault(), securePortStrategy);
+        this(SSLContexts.createDefault(), securePortStrategy);
     }
 
     /**
@@ -125,7 +125,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public BasicServerTlsStrategy(final SSLSessionVerifier verifier) {
-        this(SSLContexts.createSystemDefault(), verifier);
+        this(SSLContexts.createDefault(), verifier);
     }
 
     public BasicServerTlsStrategy(
@@ -158,7 +158,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
     }
 
     public BasicServerTlsStrategy() {
-        this(SSLContexts.createSystemDefault());
+        this(SSLContexts.createDefault());
     }
 
     private boolean isApplicable(final SocketAddress localAddress) {
