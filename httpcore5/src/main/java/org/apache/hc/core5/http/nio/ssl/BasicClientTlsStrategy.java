@@ -92,7 +92,7 @@ public class BasicClientTlsStrategy implements TlsStrategy {
     }
 
     public BasicClientTlsStrategy() {
-        this(SSLContexts.createSystemDefault());
+        this(SSLContexts.createDefault());
     }
 
     /**
@@ -102,7 +102,7 @@ public class BasicClientTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public BasicClientTlsStrategy(final SSLSessionVerifier verifier) {
-        this(SSLContexts.createSystemDefault(), verifier);
+        this(SSLContexts.createDefault(), verifier);
     }
 
     @Override

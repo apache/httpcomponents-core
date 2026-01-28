@@ -115,7 +115,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
      */
     @Deprecated
     public H2ServerTlsStrategy(final int... securePorts) {
-        this(SSLContexts.createSystemDefault(), new org.apache.hc.core5.http.nio.ssl.FixedPortStrategy(securePorts));
+        this(SSLContexts.createDefault(), new org.apache.hc.core5.http.nio.ssl.FixedPortStrategy(securePorts));
     }
 
     public H2ServerTlsStrategy(
@@ -146,7 +146,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     }
 
     public H2ServerTlsStrategy() {
-        this(SSLContexts.createSystemDefault());
+        this(SSLContexts.createDefault());
     }
 
     private boolean isApplicable(final SocketAddress localAddress) {
