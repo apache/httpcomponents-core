@@ -442,13 +442,11 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final PoolEntry<T, C> entry = ref.getReference();
                 if (ref.compareAndSet(entry, entry, false, true)) {
                     it.remove();
-                    if (entry.getExpiryDeadline().isExpired()) {
+                    if (entry.getExpiryDeadline().isExpired() || !Objects.equals(entry.getState(), state)) {
                         entry.discardConnection(CloseMode.GRACEFUL);
+                    } else {
+                        return entry;
                     }
-                    if (!Objects.equals(entry.getState(), state)) {
-                        entry.discardConnection(CloseMode.GRACEFUL);
-                    }
-                    return entry;
                 }
             }
             return null;
