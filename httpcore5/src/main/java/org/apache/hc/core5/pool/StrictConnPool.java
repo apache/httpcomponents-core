@@ -157,7 +157,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private PerRoutePool<T, C> getPool(final T route) {
-        return this.routeToPool.computeIfAbsent(route, r -> new PerRoutePool<>(route, this.disposalCallback));
+        return this.routeToPool.computeIfAbsent(route, r -> new PerRoutePool<>(route, this.disposalCallback, this.policy));
     }
 
     @Override
@@ -755,11 +755,13 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         private final Set<PoolEntry<T, C>> leased;
         private final LinkedList<PoolEntry<T, C>> available;
         private final DisposalCallback<C> disposalCallback;
+        private final PoolReusePolicy policy;
 
-        PerRoutePool(final T route, final DisposalCallback<C> disposalCallback) {
+        PerRoutePool(final T route, final DisposalCallback<C> disposalCallback, final PoolReusePolicy policy) {
             super();
             this.route = route;
             this.disposalCallback = disposalCallback;
+            this.policy = policy;
             this.leased = new HashSet<>();
             this.available = new LinkedList<>();
         }
@@ -818,7 +820,16 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final boolean found = this.leased.remove(entry);
             Asserts.check(found, "Entry %s has not been leased from this pool", entry);
             if (reusable) {
-                this.available.addFirst(entry);
+                switch (this.policy) {
+                    case LIFO:
+                        this.available.addFirst(entry);
+                        break;
+                    case FIFO:
+                        this.available.addLast(entry);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected ConnPoolPolicy value: " + policy);
+                }
             }
         }
 
