@@ -41,6 +41,7 @@ public final class Message<H extends MessageHeaders, B> {
 
     private final H head;
     private final B body;
+    private final Object error;
 
     /**
      * Constructs a new instance.
@@ -49,7 +50,7 @@ public final class Message<H extends MessageHeaders, B> {
      * @since 5.3
      */
     public Message(final H head) {
-        this(head, null);
+        this(head, null, null);
     }
 
     /**
@@ -59,8 +60,19 @@ public final class Message<H extends MessageHeaders, B> {
      * @param body The message body.
      */
     public Message(final H head, final B body) {
+        this(head, body, null);
+    }
+
+    /**
+     * Constructs a new instance.
+     *
+     * @param head The message head.
+     * @param body The message body.
+     */
+    public Message(final H head, final B body, final Object error) {
         this.head = Args.notNull(head, "Message head");
         this.body = body;
+        this.error = error;
     }
 
     /**
@@ -81,9 +93,16 @@ public final class Message<H extends MessageHeaders, B> {
         return body;
     }
 
+    /**
+     * @since 5.5
+     */
+    public Object error() {
+        return error;
+    }
+
     @Override
     public String toString() {
-        return "[head=" + head + ", body=" + body + ']';
+        return "[head=" + head + ", body=" + body + ", error=" + error + ']';
     }
 
 }
