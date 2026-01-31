@@ -51,10 +51,11 @@ public class H2Config {
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
+    private final H2PingPolicy pingPolicy;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled, final int maxContinuations) {
+             final boolean compressionEnabled, final int maxContinuations, final H2PingPolicy pingPolicy) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -64,6 +65,7 @@ public class H2Config {
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
         this.maxContinuations = maxContinuations;
+        this.pingPolicy = pingPolicy;
     }
 
     public int getHeaderTableSize() {
@@ -98,6 +100,15 @@ public class H2Config {
         return maxContinuations;
     }
 
+    /**
+     * Optional keep-alive PING policy.
+     *
+     * @since 5.5
+     */
+    public H2PingPolicy getPingPolicy() {
+        return pingPolicy;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -109,6 +120,7 @@ public class H2Config {
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
                 .append(", maxContinuations=").append(this.maxContinuations)
+                .append(", pingPolicy=").append(this.pingPolicy)
                 .append("]");
         return builder.toString();
     }
@@ -142,7 +154,9 @@ public class H2Config {
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setCompressionEnabled(config.isCompressionEnabled());
+                .setCompressionEnabled(config.isCompressionEnabled())
+                .setMaxContinuations(config.getMaxContinuations())
+                .setPingPolicy(config.getPingPolicy());
     }
 
     public static class Builder {
@@ -155,6 +169,7 @@ public class H2Config {
         private int maxHeaderListSize;
         private boolean compressionEnabled;
         private int maxContinuations;
+        private H2PingPolicy pingPolicy;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -165,6 +180,7 @@ public class H2Config {
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
             this.maxContinuations = 100;
+            this.pingPolicy = null;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -211,11 +227,21 @@ public class H2Config {
          * Sets max limit on number of continuations.
          * <p>value zero represents no limit</p>
          *
-         * @since 5,4
+         * @since 5.4
          */
         public Builder setMaxContinuations(final int maxContinuations) {
             Args.positive(maxContinuations, "Max continuations");
             this.maxContinuations = maxContinuations;
+            return this;
+        }
+
+        /**
+         * Sets optional keep-alive PING policy.
+         *
+         * @since 5.5
+         */
+        public Builder setPingPolicy(final H2PingPolicy pingPolicy) {
+            this.pingPolicy = pingPolicy;
             return this;
         }
 
@@ -228,7 +254,8 @@ public class H2Config {
                     maxFrameSize,
                     maxHeaderListSize,
                     compressionEnabled,
-                    maxContinuations);
+                    maxContinuations,
+                    pingPolicy);
         }
 
     }
