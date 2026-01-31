@@ -226,14 +226,14 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         int leasedTotal = 0;
         int pendingTotal = 0;
         int availableTotal = 0;
-        int maxTotal = 0;
+        long maxTotal = 0;
         for (final PerRoutePool<T, C> routePool : routeToPool.values()) {
             leasedTotal += routePool.getLeasedCount();
             pendingTotal += routePool.getPendingCount();
             availableTotal += routePool.getAvailableCount();
             maxTotal += routePool.getMax();
         }
-        return new PoolStats(leasedTotal, pendingTotal, availableTotal, maxTotal);
+        return new PoolStats(leasedTotal, pendingTotal, availableTotal, (int) Long.min(maxTotal, Integer.MAX_VALUE));
     }
 
     @Override
