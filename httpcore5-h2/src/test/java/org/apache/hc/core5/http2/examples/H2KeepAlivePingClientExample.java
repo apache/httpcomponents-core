@@ -26,232 +26,263 @@
  */
 package org.apache.hc.core5.http2.examples;
 
-import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.config.H2PingPolicy;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Minimal example demonstrating HTTP/2 connection keepalive using {@link H2PingPolicy}.
- * <p>
- * The client configures an idle timeout and an ACK timeout. When the underlying HTTP/2
- * connection becomes idle, the I/O reactor triggers a keepalive {@code PING}. If the
- * peer responds with {@code PING[ACK]} within the configured ACK timeout, the connection
- * remains usable; otherwise the connection is considered dead and is terminated by the
- * transport.
- * </p>
- * <p>
- * This example performs a single request to establish the connection and then waits
- * long enough for one keepalive round-trip. It prints:
- * </p>
- * <ul>
- *   <li>the remote endpoint once,</li>
- *   <li>{@code >> PING} when a keepalive PING is emitted,</li>
- *   <li>{@code << PING[ACK]} when the ACK is received,</li>
- *   <li>a final counter line {@code keepalive: pingsOut=..., pingAcksIn=...}.</li>
- * </ul>
- * <p>
- * Notes:
- * </p>
- * <ul>
- *   <li>This is intentionally not a unit test; it is a runnable sanity-check and usage example.</li>
- *   <li>Keepalive requires HTTP/2 settings negotiation to complete; PINGs may not be emitted
- *       immediately on startup.</li>
- *   <li>Timing is inherently environment-dependent; adjust {@code idleTime}/{@code ackTimeout}
- *       if running on a slow or heavily loaded machine.</li>
- * </ul>
+ * HTTP/2 keepalive sanity-check for HttpComponents Core (no HttpClient classes).
+ *
+ * This version enables keep-alive by setting validateAfterInactivity, which is what
+ * AbstractH2StreamMultiplexer currently uses to arm KeepAlivePingSupport.
+ *
  * @since 5.5
  */
+public final class H2KeepAlivePingClientExample {
 
-public class H2KeepAlivePingClientExample {
+    private static final URI TARGET = URI.create("https://nghttp2.org/httpbin/get");
+
+    private static final class Counters {
+        final AtomicInteger sessionsConnected = new AtomicInteger(0);
+        final AtomicInteger reactorTimeoutEvents = new AtomicInteger(0);
+        final AtomicInteger pingsOut = new AtomicInteger(0);
+        final AtomicInteger pingAcksIn = new AtomicInteger(0);
+        final AtomicInteger goAwayIn = new AtomicInteger(0);
+        final AtomicInteger rstStreamIn = new AtomicInteger(0);
+        final AtomicInteger exceptions = new AtomicInteger(0);
+    }
 
     public static void main(final String[] args) throws Exception {
 
-        final Timeout idleTime = Timeout.ofSeconds(1);
-        final Timeout ackTimeout = Timeout.ofSeconds(2);
-
+        // Base socket timeout BEFORE keepalive activates.
         final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setSoTimeout(5, TimeUnit.SECONDS)
+                .setSoTimeout(Timeout.ofSeconds(30))
                 .build();
 
-        final H2PingPolicy pingPolicy = H2PingPolicy.custom()
-                .setIdleTime(idleTime)
-                .setAckTimeout(ackTimeout)
-                .build();
+        // Keep-alive idle time (what your multiplexer currently wires via validateAfterInactivity).
+        final TimeValue validateAfterInactivity = TimeValue.ofSeconds(3);
 
         final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .setMaxConcurrentStreams(100)
-                .setPingPolicy(pingPolicy)
                 .build();
 
-        final AtomicBoolean remotePrinted = new AtomicBoolean(false);
-        final AtomicInteger pingsOut = new AtomicInteger(0);
-        final AtomicInteger pingAcksIn = new AtomicInteger(0);
-        final CountDownLatch pingAckLatch = new CountDownLatch(1);
+        final Counters counters = new Counters();
 
-        final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
+        final H2MultiplexingRequester requester = H2MultiplexingRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
                 .setH2Config(h2Config)
-                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
+                .setIOSessionListener(new IOSessionListener() {
+
+                    @Override
+                    public void connected(final IOSession session) {
+                        counters.sessionsConnected.incrementAndGet();
+                        log("session.connected id=" + safeId(session)
+                                + " remote=" + session.getRemoteAddress()
+                                + " soTimeout=" + session.getSocketTimeout());
+                    }
+
+                    @Override
+                    public void startTls(final IOSession session) {
+                        log("session.startTls id=" + safeId(session)
+                                + " soTimeout=" + session.getSocketTimeout());
+                    }
+
+                    @Override
+                    public void inputReady(final IOSession session) {
+                        // no-op
+                    }
+
+                    @Override
+                    public void outputReady(final IOSession session) {
+                        // no-op
+                    }
+
+                    @Override
+                    public void timeout(final IOSession session) {
+                        // Expected: keep-alive uses the reactor timer.
+                        counters.reactorTimeoutEvents.incrementAndGet();
+                        log("session.timeout (reactor) id=" + safeId(session)
+                                + " soTimeout=" + session.getSocketTimeout());
+                    }
+
+                    @Override
+                    public void exception(final IOSession session, final Exception ex) {
+                        counters.exceptions.incrementAndGet();
+                        log("session.exception id=" + safeId(session) + " ex=" + ex);
+                    }
+
+                    @Override
+                    public void disconnected(final IOSession session) {
+                        log("session.disconnected id=" + safeId(session));
+                    }
+
+                    private String safeId(final IOSession session) {
+                        try {
+                            return session.getId();
+                        } catch (final RuntimeException ignore) {
+                            return "n/a";
+                        }
+                    }
+
+                })
                 .setStreamListener(new H2StreamListener() {
 
-                    private void printRemoteOnce(final HttpConnection connection) {
-                        if (remotePrinted.compareAndSet(false, true)) {
-                            System.out.println("remote=" + connection.getRemoteAddress());
+                    @Override
+                    public void onHeaderInput(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final List<? extends Header> headers) {
+                        // no-op
+                    }
+
+                    @Override
+                    public void onHeaderOutput(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final List<? extends Header> headers) {
+                        // no-op
+                    }
+
+                    @Override
+                    public void onFrameInput(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final RawFrame frame) {
+
+                        final FrameType type = FrameType.valueOf(frame.getType());
+
+                        if (type == FrameType.PING && frame.isFlagSet(FrameFlag.ACK)) {
+                            counters.pingAcksIn.incrementAndGet();
+                            log("<< PING[ACK]");
+                        } else if (type == FrameType.GOAWAY) {
+                            counters.goAwayIn.incrementAndGet();
+                            log("<< GOAWAY");
+                        } else if (type == FrameType.RST_STREAM) {
+                            counters.rstStreamIn.incrementAndGet();
+                            log("<< RST_STREAM streamId=" + streamId);
                         }
                     }
 
                     @Override
-                    public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                    }
+                    public void onFrameOutput(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final RawFrame frame) {
 
-                    @Override
-                    public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                    }
+                        final FrameType type = FrameType.valueOf(frame.getType());
 
-                    @Override
-                    public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
-                        printRemoteOnce(connection);
-                        if (FrameType.valueOf(frame.getType()) == FrameType.PING && frame.isFlagSet(FrameFlag.ACK)) {
-                            System.out.println("<< PING[ACK]");
-                            pingAcksIn.incrementAndGet();
-                            pingAckLatch.countDown();
+                        if (type == FrameType.PING && !frame.isFlagSet(FrameFlag.ACK)) {
+                            counters.pingsOut.incrementAndGet();
+                            log(">> PING");
                         }
                     }
 
                     @Override
-                    public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
-                        printRemoteOnce(connection);
-                        if (FrameType.valueOf(frame.getType()) == FrameType.PING && !frame.isFlagSet(FrameFlag.ACK)) {
-                            System.out.println(">> PING");
-                            pingsOut.incrementAndGet();
-                        }
+                    public void onInputFlowControl(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final int delta,
+                            final int actualSize) {
+                        // no-op
                     }
 
                     @Override
-                    public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
-                    }
-
-                    @Override
-                    public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
+                    public void onOutputFlowControl(
+                            final org.apache.hc.core5.http.HttpConnection connection,
+                            final int streamId,
+                            final int delta,
+                            final int actualSize) {
+                        // no-op
                     }
 
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> requester.close(CloseMode.GRACEFUL)));
+        // IMPORTANT FIX: arm keep-alive before any connection is created.
+        requester.setValidateAfterInactivity(validateAfterInactivity);
 
         requester.start();
+        try {
+            log("requester.validateAfterInactivity=" + requester.getValidateAfterInactivity());
 
-        final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
-        final AsyncRequestProducer requestProducer = AsyncRequestBuilder.post(requestUri)
-                .setEntity("stuff")
-                .build();
-        final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(new StringAsyncEntityConsumer());
+            final Message<HttpResponse, String> m1 = executeSimpleGet(requester, TARGET);
+            log("response1=" + m1.getHead().getCode());
 
-        final CountDownLatch exchangeLatch = new CountDownLatch(1);
+            Thread.sleep(250);
 
-        requester.execute(new AsyncClientExchangeHandler() {
+            // Wait long enough to force keepalive activity.
+            final long waitMs = 13_000L;
+            log("waiting=" + waitMs + "ms for keepalive...");
+            Thread.sleep(waitMs);
 
-            @Override
-            public void releaseResources() {
-                requestProducer.releaseResources();
-                responseConsumer.releaseResources();
-                exchangeLatch.countDown();
-            }
+            final Message<HttpResponse, String> m2 = executeSimpleGet(requester, TARGET);
+            log("response2=" + m2.getHead().getCode());
 
-            @Override
-            public void cancel() {
-                exchangeLatch.countDown();
-            }
+            log("stats: sessionsConnected=" + counters.sessionsConnected.get()
+                    + ", pingsOut=" + counters.pingsOut.get()
+                    + ", pingAcksIn=" + counters.pingAcksIn.get()
+                    + ", goAwayIn=" + counters.goAwayIn.get()
+                    + ", rstStreamIn=" + counters.rstStreamIn.get()
+                    + ", reactorTimeoutEvents=" + counters.reactorTimeoutEvents.get()
+                    + ", exceptions=" + counters.exceptions.get());
 
-            @Override
-            public void failed(final Exception cause) {
-                exchangeLatch.countDown();
-            }
+        } finally {
+            requester.close(CloseMode.GRACEFUL);
+        }
+    }
 
-            @Override
-            public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
-                requestProducer.sendRequest(channel, httpContext);
-            }
+    private static Message<HttpResponse, String> executeSimpleGet(
+            final H2MultiplexingRequester requester,
+            final URI uri) throws Exception {
 
-            @Override
-            public int available() {
-                return requestProducer.available();
-            }
+        final Timeout timeout = Timeout.ofSeconds(30);
 
-            @Override
-            public void produce(final DataStreamChannel channel) throws IOException {
-                requestProducer.produce(channel);
-            }
+        final AsyncRequestProducer requestProducer = AsyncRequestBuilder.get(uri).build();
+        final BasicResponseConsumer<String> responseConsumer =
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer());
 
-            @Override
-            public void consumeInformation(final HttpResponse response, final HttpContext httpContext) {
-            }
+        try {
+            final Future<Message<HttpResponse, String>> f = requester.execute(
+                    requestProducer,
+                    responseConsumer,
+                    timeout,
+                    HttpCoreContext.create(),
+                    null);
+            return f.get(timeout.toMilliseconds(), TimeUnit.MILLISECONDS);
+        } finally {
+            requestProducer.releaseResources();
+            responseConsumer.releaseResources();
+        }
+    }
 
-            @Override
-            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                responseConsumer.consumeResponse(response, entityDetails, httpContext, null);
-            }
-
-            @Override
-            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                responseConsumer.updateCapacity(capacityChannel);
-            }
-
-            @Override
-            public void consume(final ByteBuffer src) throws IOException {
-                responseConsumer.consume(src);
-            }
-
-            @Override
-            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                responseConsumer.streamEnd(trailers);
-            }
-
-        }, Timeout.ofSeconds(30), HttpCoreContext.create());
-
-        exchangeLatch.await();
-
-        final long waitMs = idleTime.toMilliseconds() + ackTimeout.toMilliseconds() + 500L;
-        pingAckLatch.await(waitMs, TimeUnit.MILLISECONDS);
-
-        System.out.println("keepalive: pingsOut=" + pingsOut.get() + ", pingAcksIn=" + pingAcksIn.get());
-
-        requester.close(CloseMode.GRACEFUL);
+    private static void log(final String s) {
+        System.out.println(Instant.now() + " " + s);
     }
 
 }

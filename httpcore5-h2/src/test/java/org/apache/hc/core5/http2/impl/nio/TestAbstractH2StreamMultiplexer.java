@@ -57,7 +57,6 @@ import org.apache.hc.core5.http2.H2StreamTimeoutException;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
-import org.apache.hc.core5.http2.config.H2PingPolicy;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameConsts;
@@ -118,7 +117,22 @@ class TestAbstractH2StreamMultiplexer {
                 final H2Config h2Config,
                 final H2StreamListener streamListener,
                 final Supplier<H2StreamHandler> streamHandlerSupplier) {
-            super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener);
+            this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    streamHandlerSupplier, null);
+        }
+
+        public H2StreamMultiplexerImpl(
+                final ProtocolIOSession ioSession,
+                final FrameFactory frameFactory,
+                final StreamIdGenerator idGenerator,
+                final HttpProcessor httpProcessor,
+                final CharCodingConfig charCodingConfig,
+                final H2Config h2Config,
+                final H2StreamListener streamListener,
+                final Supplier<H2StreamHandler> streamHandlerSupplier,
+                final Timeout validateAfterInactivity) {
+            super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    validateAfterInactivity);
             this.streamHandlerSupplier = streamHandlerSupplier;
         }
 
@@ -1159,18 +1173,11 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
         final Timeout idleTime = Timeout.ofMilliseconds(5);
-        final Timeout ackTimeout = Timeout.ofMilliseconds(5);
-
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.custom()
-                        .setIdleTime(idleTime)
-                        .setAckTimeout(ackTimeout)
-                        .build())
-                .build();
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
 
         mux.onConnect();
         writes.clear();
@@ -1190,18 +1197,12 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class))).thenReturn(0);
 
         final Timeout idleTime = Timeout.ofMilliseconds(50);
-        final Timeout ackTimeout = Timeout.ofMilliseconds(20);
-
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.custom()
-                        .setIdleTime(idleTime)
-                        .setAckTimeout(ackTimeout)
-                        .build())
-                .build();
+        final Timeout ackTimeout = Timeout.ofSeconds(5);
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
 
         mux.onConnect();
         completeSettingsHandshake(mux);
@@ -1225,18 +1226,12 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
         final Timeout idleTime = Timeout.ofMilliseconds(5);
-        final Timeout ackTimeout = Timeout.ofMilliseconds(50);
-
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.custom()
-                        .setIdleTime(idleTime)
-                        .setAckTimeout(ackTimeout)
-                        .build())
-                .build();
+        final Timeout ackTimeout = Timeout.ofSeconds(5);
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
 
         mux.onConnect();
         completeSettingsHandshake(mux);
@@ -1268,18 +1263,11 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
         final Timeout idleTime = Timeout.ofMilliseconds(5);
-        final Timeout ackTimeout = Timeout.ofMilliseconds(50);
-
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.custom()
-                        .setIdleTime(idleTime)
-                        .setAckTimeout(ackTimeout)
-                        .build())
-                .build();
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
 
         mux.onConnect();
         completeSettingsHandshake(mux);
@@ -1315,18 +1303,12 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
         final Timeout idleTime = Timeout.ofMilliseconds(5);
-        final Timeout ackTimeout = Timeout.ofMilliseconds(20);
-
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.custom()
-                        .setIdleTime(idleTime)
-                        .setAckTimeout(ackTimeout)
-                        .build())
-                .build();
+        final Timeout ackTimeout = Timeout.ofSeconds(5);
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
 
         mux.onConnect();
         completeSettingsHandshake(mux);
@@ -1366,13 +1348,10 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
-        final H2Config h2Config = H2Config.custom()
-                .setPingPolicy(H2PingPolicy.disabled())
-                .build();
-
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
-                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                Timeout.DISABLED);
 
         mux.onConnect();
         writes.clear();
