@@ -27,14 +27,12 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -93,19 +91,18 @@ class TLSTest {
 
     @Test
     void testParseBasic() throws Exception {
-        assertThat(TLS.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.getVersion()));
-        assertThat(TLS.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.getVersion()));
-        assertThat(TLS.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
-        assertThat(TLS.parse("TLSv1.3  "), CoreMatchers.equalTo(TLS.V_1_3.getVersion()));
-        assertThat(TLS.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
+        Assertions.assertEquals(TLS.V_1_0.getVersion(), TLS.parse("TLSv1"));
+        Assertions.assertEquals(TLS.V_1_1.getVersion(), TLS.parse("TLSv1.1"));
+        Assertions.assertEquals(TLS.V_1_2.getVersion(), TLS.parse("TLSv1.2"));
+        Assertions.assertEquals(TLS.V_1_3.getVersion(), TLS.parse("TLSv1.3  "));
+        Assertions.assertEquals(new ProtocolVersion("TLS", 22, 356), TLS.parse("TLSv22.356"));
     }
 
     @Test
     void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        assertThat(TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')),
-                CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
-        assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
+        Assertions.assertEquals(TLS.V_1_2.getVersion(), TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')));
+        Assertions.assertEquals(8, cursor.getPos());
     }
 
     @Test

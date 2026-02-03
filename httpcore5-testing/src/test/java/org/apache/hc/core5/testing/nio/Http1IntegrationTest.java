@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -103,7 +102,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.Http1TestResources;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -654,9 +652,7 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
         final Exception exception = Assertions.assertThrows(Exception.class, () ->
                 future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        assertThat(exception, CoreMatchers.anyOf(
-                CoreMatchers.instanceOf(CancellationException.class),
-                CoreMatchers.instanceOf(ExecutionException.class)));
+        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
 
         final BasicHttpRequest request4 = BasicRequestBuilder.post()
                 .setHttpHost(target)
@@ -667,9 +663,7 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Exception exception2 = Assertions.assertThrows(Exception.class, () ->
                 future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        assertThat(exception2, CoreMatchers.anyOf(
-                CoreMatchers.instanceOf(CancellationException.class),
-                CoreMatchers.instanceOf(ExecutionException.class)));
+        Assertions.assertTrue(exception2 instanceof CancellationException || exception2 instanceof ExecutionException);
     }
 
     @Test
@@ -731,9 +725,7 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
         final Exception exception = Assertions.assertThrows(Exception.class, () ->
                 future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        assertThat(exception, CoreMatchers.anyOf(
-                CoreMatchers.instanceOf(CancellationException.class),
-                CoreMatchers.instanceOf(ExecutionException.class)));
+        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
     }
 
     private static final byte[] GARBAGE = "garbage".getBytes(StandardCharsets.US_ASCII);

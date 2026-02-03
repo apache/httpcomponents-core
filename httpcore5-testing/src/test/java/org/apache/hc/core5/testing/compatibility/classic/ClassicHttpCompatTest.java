@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.compatibility.classic;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -51,7 +50,6 @@ import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.apache.hc.core5.testing.compatibility.TLSTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -94,9 +92,9 @@ public abstract class ClassicHttpCompatTest {
                     .setHttpHost(target)
                     .build();
             requester.execute(target, request, TIMEOUT, context, response -> {
-                assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+                Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
                 final String body1 = EntityUtils.toString(response.getEntity());
-                assertThat(body1, CoreMatchers.equalTo(ContainerImages.AAA));
+                Assertions.assertEquals(ContainerImages.AAA, body1);
                 return null;
             });
         }

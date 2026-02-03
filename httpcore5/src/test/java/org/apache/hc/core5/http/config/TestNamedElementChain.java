@@ -27,13 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.CoreMatchers.is;
 
-import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -44,67 +39,67 @@ class TestNamedElementChain {
     @Test
     void testBasics() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
-        assertThat(list.getFirst(), CoreMatchers.nullValue());
-        assertThat(list.getLast(), CoreMatchers.nullValue());
+        Assertions.assertNull(list.getFirst());
+        Assertions.assertNull(list.getLast());
 
         final NamedElementChain<Character>.Node nodeA = list.addFirst('a', "a");
 
-        assertThat(list.getFirst(), CoreMatchers.sameInstance(nodeA));
-        assertThat(list.getLast(), CoreMatchers.sameInstance(nodeA));
+        Assertions.assertSame(nodeA, list.getFirst());
+        Assertions.assertSame(nodeA, list.getLast());
 
         final NamedElementChain<Character>.Node nodeB = list.addLast('b', "b");
 
-        assertThat(list.getFirst(), CoreMatchers.sameInstance(nodeA));
-        assertThat(list.getLast(), CoreMatchers.sameInstance(nodeB));
+        Assertions.assertSame(nodeA, list.getFirst());
+        Assertions.assertSame(nodeB, list.getLast());
 
         final NamedElementChain<Character>.Node nodeZ = list.addLast('z', "z");
 
-        assertThat(list.getFirst(), CoreMatchers.sameInstance(nodeA));
-        assertThat(list.getLast(), CoreMatchers.sameInstance(nodeZ));
+        Assertions.assertSame(nodeA, list.getFirst());
+        Assertions.assertSame(nodeZ, list.getLast());
 
-        assertThat(nodeA.getPrevious(), CoreMatchers.nullValue());
-        assertThat(nodeA.getNext(), CoreMatchers.sameInstance(nodeB));
-        assertThat(nodeB.getPrevious(), CoreMatchers.sameInstance(nodeA));
-        assertThat(nodeB.getNext(), CoreMatchers.sameInstance(nodeZ));
-        assertThat(nodeZ.getPrevious(), CoreMatchers.sameInstance(nodeB));
-        assertThat(nodeZ.getNext(), CoreMatchers.nullValue());
+        Assertions.assertNull(nodeA.getPrevious());
+        Assertions.assertSame(nodeB, nodeA.getNext());
+        Assertions.assertSame(nodeA, nodeB.getPrevious());
+        Assertions.assertSame(nodeZ, nodeB.getNext());
+        Assertions.assertSame(nodeB, nodeZ.getPrevious());
+        Assertions.assertNull(nodeZ.getNext());
 
         final NamedElementChain<Character>.Node nodeD = list.addAfter("b", 'd', "d");
-        assertThat(nodeD.getPrevious(), CoreMatchers.sameInstance(nodeB));
-        assertThat(nodeD.getNext(), CoreMatchers.sameInstance(nodeZ));
-        assertThat(nodeB.getNext(), CoreMatchers.sameInstance(nodeD));
-        assertThat(nodeZ.getPrevious(), CoreMatchers.sameInstance(nodeD));
+        Assertions.assertSame(nodeB, nodeD.getPrevious());
+        Assertions.assertSame(nodeZ, nodeD.getNext());
+        Assertions.assertSame(nodeD, nodeB.getNext());
+        Assertions.assertSame(nodeD, nodeZ.getPrevious());
 
         final NamedElementChain<Character>.Node nodeC = list.addBefore("d", 'c', "c");
-        assertThat(nodeC.getPrevious(), CoreMatchers.sameInstance(nodeB));
-        assertThat(nodeC.getNext(), CoreMatchers.sameInstance(nodeD));
-        assertThat(nodeB.getNext(), CoreMatchers.sameInstance(nodeC));
-        assertThat(nodeD.getPrevious(), CoreMatchers.sameInstance(nodeC));
-        assertThat(list.getSize(), CoreMatchers.equalTo(5));
+        Assertions.assertSame(nodeB, nodeC.getPrevious());
+        Assertions.assertSame(nodeD, nodeC.getNext());
+        Assertions.assertSame(nodeC, nodeB.getNext());
+        Assertions.assertSame(nodeC, nodeD.getPrevious());
+        Assertions.assertEquals(5, list.getSize());
 
-        assertThat(list.remove("a"), CoreMatchers.is(true));
-        assertThat(list.remove("z"), CoreMatchers.is(true));
-        assertThat(list.remove("c"), CoreMatchers.is(true));
-        assertThat(list.remove("c"), CoreMatchers.is(false));
-        assertThat(list.remove("blah"), CoreMatchers.is(false));
+        Assertions.assertTrue(list.remove("a"));
+        Assertions.assertTrue(list.remove("z"));
+        Assertions.assertTrue(list.remove("c"));
+        Assertions.assertFalse(list.remove("c"));
+        Assertions.assertFalse(list.remove("blah"));
 
-        assertThat(list.getFirst(), CoreMatchers.sameInstance(nodeB));
-        assertThat(list.getLast(), CoreMatchers.sameInstance(nodeD));
+        Assertions.assertSame(nodeB, list.getFirst());
+        Assertions.assertSame(nodeD, list.getLast());
 
-        assertThat(list.getSize(), CoreMatchers.equalTo(2));
-        assertThat(list.addBefore("blah", 'e', "e"), CoreMatchers.nullValue());
-        assertThat(list.getSize(), CoreMatchers.equalTo(2));
+        Assertions.assertEquals(2, list.getSize());
+        Assertions.assertNull(list.addBefore("blah", 'e', "e"));
+        Assertions.assertEquals(2, list.getSize());
 
-        assertThat(list.addAfter("yada", 'e', "e"), CoreMatchers.nullValue());
-        assertThat(list.getSize(), CoreMatchers.equalTo(2));
+        Assertions.assertNull(list.addAfter("yada", 'e', "e"));
+        Assertions.assertEquals(2, list.getSize());
     }
 
     @Test
     void testFind() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
-        assertThat(list.find("c"), notNullValue());
-        assertThat(list.find("a"), nullValue());
+        Assertions.assertNotNull(list.find("c"));
+        Assertions.assertNull(list.find("a"));
     }
 
     @Test
@@ -112,11 +107,11 @@ class TestNamedElementChain {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
         final boolean found = list.replace("c",'z' );
-        assertThat(found, is(true));
-        assertThat(list.find("c").getValue(), equalTo('z'));
-        assertThat(list.find("c").getName(), equalTo("c"));
+        Assertions.assertTrue(found);
+        Assertions.assertEquals('z', list.find("c").getValue());
+        Assertions.assertEquals("c", list.find("c").getName());
         final boolean notFound = list.replace("X",'z' );
-        assertThat(notFound, is(false));
+        Assertions.assertFalse(notFound);
 
     }
 }

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -63,7 +62,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -113,11 +111,11 @@ class TLSUpgradeTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        assertThat(message1, CoreMatchers.notNullValue());
+        Assertions.assertNotNull(message1);
         final HttpResponse response1 = message1.getHead();
-        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         final String body1 = message1.getBody();
-        assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        Assertions.assertEquals("some stuff", body1);
 
         // Connect using plain HTTP scheme
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(
@@ -139,11 +137,11 @@ class TLSUpgradeTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        assertThat(message2, CoreMatchers.notNullValue());
+        Assertions.assertNotNull(message2);
         final HttpResponse response2 = message2.getHead();
-        assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
         final String body2 = message2.getBody();
-        assertThat(body2, CoreMatchers.equalTo("some stuff"));
+        Assertions.assertEquals("some stuff", body2);
     }
 
 }

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -59,7 +58,6 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -138,16 +136,15 @@ class ClassicTLSIntegrationTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
             final String body1 = EntityUtils.toString(response1.getEntity());
-            assertThat(body1, CoreMatchers.equalTo("some stuff"));
+            Assertions.assertEquals("some stuff", body1);
         }
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        assertThat(tlsVersion.greaterEquals(TLS.V_1_2.getVersion()), CoreMatchers.equalTo(true));
-        assertThat(sslSession.getPeerPrincipal().getName(),
-                CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
+        Assertions.assertTrue(tlsVersion.greaterEquals(TLS.V_1_2.getVersion()));
+        Assertions.assertEquals("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation", sslSession.getPeerPrincipal().getName());
     }
 
     @Test

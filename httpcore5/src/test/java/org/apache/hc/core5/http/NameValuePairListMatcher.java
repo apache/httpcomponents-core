@@ -29,54 +29,37 @@ package org.apache.hc.core5.http;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Assertions;
 
-public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
+public final class NameValuePairListMatcher {
 
-    private final List<? extends NameValuePair> nvps;
-
-    public NameValuePairListMatcher(final List<? extends NameValuePair> nvps) {
-        this.nvps = nvps;
+    private NameValuePairListMatcher() {
     }
 
-    @Override
-    public boolean matches(final Object item) {
-        if (item instanceof List<?>) {
-            final List<?> objects = (List<?>) item;
-            if (objects.size() != nvps.size()) {
-                return false;
-            }
-            for (int i = 1; i < objects.size(); i++) {
-                final Object obj = objects.get(i);
-                if (obj instanceof NameValuePair) {
-                    final NameValuePair nvp = (NameValuePair) obj;
-                    final NameValuePair expected = nvps.get(i);
-                    if (!Objects.equals(nvp.getName(), expected.getName())
-                            || !Objects.equals(nvp.getValue(), expected.getValue())) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+    public static void assertEqualsTo(final List<NameValuePair> actual, final NameValuePair... expected) {
+        assertEqualsTo(actual, Arrays.asList(expected));
+    }
+
+    public static void assertEmpty(final List<NameValuePair> actual) {
+        assertEqualsTo(actual, Collections.emptyList());
+    }
+
+    private static void assertEqualsTo(final List<NameValuePair> actual,
+            final List<? extends NameValuePair> expected) {
+        Assertions.assertNotNull(actual, "name-value list should not be null");
+        Assertions.assertEquals(expected.size(), actual.size(),
+                "name-value list size mismatch: expected=" + expected.size() + ", actual=" + actual.size());
+        for (int i = 0; i < actual.size(); i++) {
+            final NameValuePair actualNvp = actual.get(i);
+            final NameValuePair expectedNvp = expected.get(i);
+            Assertions.assertNotNull(expectedNvp, "expected name-value pair at index " + i + " should not be null");
+            Assertions.assertNotNull(actualNvp, "actual name-value pair at index " + i + " should not be null");
+            Assertions.assertEquals(actualNvp.getName(), expectedNvp.getName(), "name mismatch at index " + i + ": expected=" + expectedNvp.getName()
+                    + ", actual=" + actualNvp.getName());
+            Assertions.assertEquals(actualNvp.getValue(), expectedNvp.getValue(), "value mismatch at index " + i + ": expected=" + expectedNvp.getValue()
+                    + ", actual=" + actualNvp.getValue());
         }
-        return false;
-    }
-
-    @Override
-    public void describeTo(final Description description) {
-        description.appendText("equals ").appendValueList("[", ";", "]", nvps);
-    }
-
-    public static Matcher<List<NameValuePair>> equalsTo(final NameValuePair... nvps) {
-        return new NameValuePairListMatcher(Arrays.asList(nvps));
-    }
-
-    public static Matcher<List<NameValuePair>> isEmpty() {
-        return new NameValuePairListMatcher(Collections.emptyList());
     }
 
 }

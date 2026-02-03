@@ -27,9 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestExpandableBuffer {
@@ -37,47 +36,47 @@ class TestExpandableBuffer {
     @Test
     void testBasics() {
         final ExpandableBuffer buffer = new ExpandableBuffer(16);
-        assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.INPUT));
-        assertThat(buffer.hasData(), CoreMatchers.equalTo(false));
+        Assertions.assertEquals(ExpandableBuffer.Mode.INPUT, buffer.mode());
+        Assertions.assertFalse(buffer.hasData());
 
         buffer.setInputMode();
         buffer.buffer().put(new byte[] { 0, 1, 2, 3, 4, 5});
-        assertThat(buffer.hasData(), CoreMatchers.equalTo(true));
-        assertThat(buffer.length(), CoreMatchers.equalTo(6));
-        assertThat(buffer.buffer().capacity(), CoreMatchers.equalTo(16));
-        assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.OUTPUT));
+        Assertions.assertTrue(buffer.hasData());
+        Assertions.assertEquals(6, buffer.length());
+        Assertions.assertEquals(16, buffer.buffer().capacity());
+        Assertions.assertEquals(ExpandableBuffer.Mode.OUTPUT, buffer.mode());
 
         buffer.setInputMode();
         buffer.buffer().put(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-        assertThat(buffer.length(), CoreMatchers.equalTo(16));
-        assertThat(buffer.buffer().capacity(), CoreMatchers.equalTo(16));
-        assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.OUTPUT));
+        Assertions.assertEquals(16, buffer.length());
+        Assertions.assertEquals(16, buffer.buffer().capacity());
+        Assertions.assertEquals(ExpandableBuffer.Mode.OUTPUT, buffer.mode());
 
         buffer.setInputMode();
         buffer.ensureCapacity(22);
         buffer.buffer().put(new byte[] { 0, 1, 2, 3, 4, 5});
-        assertThat(buffer.length(), CoreMatchers.equalTo(22));
-        assertThat(buffer.buffer().capacity(), CoreMatchers.equalTo(22));
-        assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.OUTPUT));
+        Assertions.assertEquals(22, buffer.length());
+        Assertions.assertEquals(22, buffer.buffer().capacity());
+        Assertions.assertEquals(ExpandableBuffer.Mode.OUTPUT, buffer.mode());
 
         buffer.clear();
-        assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.INPUT));
-        assertThat(buffer.hasData(), CoreMatchers.equalTo(false));
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(22));
+        Assertions.assertEquals(ExpandableBuffer.Mode.INPUT, buffer.mode());
+        Assertions.assertFalse(buffer.hasData());
+        Assertions.assertEquals(22, buffer.capacity());
     }
 
     @Test
     void testAdjustCapacity() {
         final ExpandableBuffer buffer = new ExpandableBuffer(16);
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(16));
+        Assertions.assertEquals(16, buffer.capacity());
 
         buffer.ensureCapacity(21);
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(21));
+        Assertions.assertEquals(21, buffer.capacity());
         buffer.ensureAdjustedCapacity(22);
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(1024));
+        Assertions.assertEquals(1024, buffer.capacity());
         buffer.ensureAdjustedCapacity(1024);
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(1024));
+        Assertions.assertEquals(1024, buffer.capacity());
         buffer.ensureAdjustedCapacity(1025);
-        assertThat(buffer.capacity(), CoreMatchers.equalTo(2048));
+        Assertions.assertEquals(2048, buffer.capacity());
     }
 }

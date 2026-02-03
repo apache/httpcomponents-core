@@ -27,7 +27,6 @@
 package org.apache.hc.core5.testing.reactive;
 
 import static java.lang.String.format;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -74,7 +73,6 @@ import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.reactive.Reactive3TestUtils.StreamDescription;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -269,9 +267,7 @@ abstract class ReactiveClientTest {
         Assertions.assertTrue(responsePublisherWasCancelled.get(), "The response subscription should have been cancelled");
         final Exception exception = Assertions.assertThrows(Exception.class, () ->
                 future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
-        assertThat(exception, CoreMatchers.anyOf(
-                CoreMatchers.instanceOf(CancellationException.class),
-                CoreMatchers.instanceOf(ExecutionException.class)));
+        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
         Assertions.assertInstanceOf(HttpStreamResetException.class, exception.getCause());
         Assertions.assertTrue(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
         Assertions.assertNull(requestStreamError.get());

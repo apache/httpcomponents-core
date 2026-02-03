@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.testing.compatibility.classic;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.jupiter.api.Assertions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,7 +45,6 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -112,7 +111,7 @@ public abstract class HttpBinClassicCompatTest {
         for (final ClassicHttpRequest request : requestMessages) {
             final HttpCoreContext context = HttpCoreContext.create();
             client.execute(target, request, TIMEOUT, context, response -> {
-                assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+                Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
                 return null;
             });
         }

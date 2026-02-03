@@ -28,38 +28,24 @@ package org.apache.hc.core5.http;
 
 import java.util.Objects;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Assertions;
 
-public class HeaderMatcher extends BaseMatcher<Header> {
+public final class HeaderMatcher {
 
-    private final String headerName;
-    private final Object headerValue;
-
-    public HeaderMatcher(final String headerName, final Object headerValue) {
-        this.headerName = headerName;
-        this.headerValue = headerValue;
+    private HeaderMatcher() {
     }
 
-    @Override
-    public boolean matches(final Object item) {
-        if (item instanceof Header) {
-            final Header header = (Header) item;
-            if (headerName.equalsIgnoreCase(header.getName()) && Objects.equals(headerValue, header.getValue())) {
-                return true;
-            }
-        }
-        return false;
+    public static void assertSame(final Header actual, final String headerName, final Object headerValue) {
+        Assertions.assertNotNull(actual, "header should not be null");
+        Assertions.assertTrue(headerName.equalsIgnoreCase(actual.getName()),
+                "header name mismatch: expected=" + headerName + ", actual=" + actual.getName());
+        Assertions.assertTrue(Objects.equals(headerValue, actual.getValue()),
+                "header value mismatch: expected=" + headerValue + ", actual=" + actual.getValue());
     }
 
-    @Override
-    public void describeTo(final Description description) {
-        description.appendText("same header as ").appendValue(headerValue).appendText(": ").appendValue(headerValue);
-    }
-
-    public static Matcher<Header> same(final String headerName, final Object headerValue) {
-        return new HeaderMatcher(headerName, headerValue);
+    public static void assertSame(final Header actual, final Header expected) {
+        Assertions.assertNotNull(expected, "expected header should not be null");
+        assertSame(actual, expected.getName(), expected.getValue());
     }
 
 }

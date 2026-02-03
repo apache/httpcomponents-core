@@ -37,7 +37,6 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.QUERY;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.REQUEST;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.RESPONSE;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.STATUS;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,9 +44,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.hc.core5.http.ContentType;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -157,7 +153,7 @@ class TestTestingFramework {
                                    final Map<String, Object> request,
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
-                assertThat(defaultURI, matchesDefaultURI());
+                assertMatchesDefaultURI(defaultURI);
 
                 Assertions.assertNotNull(request, "request should not be null");
 
@@ -191,22 +187,9 @@ class TestTestingFramework {
         Mockito.verify(mockRequestHandler).assertNothingThrown();
     }
 
-    private Matcher<String> matchesDefaultURI() {
-        final Matcher<String> matcher = new BaseMatcher<String>() {
-            private final String regex = "http://localhost:\\d+/";
-
-            @Override
-            public boolean matches(final Object o) {
-                return ((String) o).matches(regex);
-            }
-
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText("matches regex=" + regex);
-            }
-        };
-
-        return matcher;
+    private void assertMatchesDefaultURI(final String defaultURI) {
+        final String regex = "http://localhost:\\d+/";
+        Assertions.assertTrue(defaultURI.matches(regex), "Default URI should match regex=" + regex);
     }
 
     @Test

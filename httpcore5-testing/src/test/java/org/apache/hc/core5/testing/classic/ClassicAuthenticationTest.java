@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.jupiter.api.Assertions;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
@@ -61,7 +61,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -135,16 +134,16 @@ abstract class ClassicAuthenticationTest {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.GET, "/stuff");
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
             final String body1 = EntityUtils.toString(response1.getEntity());
-            assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+            Assertions.assertEquals("You shall not pass!!!", body1);
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.GET, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
             final String body1 = EntityUtils.toString(response2.getEntity());
-            assertThat(body1, CoreMatchers.equalTo(""));
+            Assertions.assertEquals("", body1);
         }
     }
 
@@ -163,17 +162,17 @@ abstract class ClassicAuthenticationTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
             final String body1 = EntityUtils.toString(response1.getEntity());
-            assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+            Assertions.assertEquals("You shall not pass!!!", body1);
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         request2.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
             final String body1 = EntityUtils.toString(response2.getEntity());
-            assertThat(body1, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
+            Assertions.assertEquals(new String(stuff, StandardCharsets.US_ASCII), body1);
         }
     }
 
@@ -193,18 +192,18 @@ abstract class ClassicAuthenticationTest {
         request1.setVersion(HttpVersion.HTTP_1_0);
         request1.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
             final String body1 = EntityUtils.toString(response1.getEntity());
-            assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+            Assertions.assertEquals("You shall not pass!!!", body1);
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         request2.setVersion(HttpVersion.HTTP_1_0);
         request2.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
             final String body1 = EntityUtils.toString(response2.getEntity());
-            assertThat(body1, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
+            Assertions.assertEquals(new String(stuff, StandardCharsets.US_ASCII), body1);
         }
     }
 
