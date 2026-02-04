@@ -39,11 +39,11 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.jackson2.JsonContentException;
 import org.apache.hc.core5.util.Args;
 
 abstract class AbstractJsonMessageConsumer<H extends HttpMessage, T> implements AsyncDataConsumer {
@@ -67,6 +67,11 @@ abstract class AbstractJsonMessageConsumer<H extends HttpMessage, T> implements 
                                   final EntityDetails entityDetails,
                                   final HttpContext context,
                                   final FutureCallback<T> resultCallback) throws HttpException, IOException {
+        if (entityDetails == null) {
+            resultCallback.completed(null);
+            return;
+        }
+
         final ContentType contentType = ContentType.parseLenient(entityDetails.getContentType());
         if (contentType == null || ContentType.APPLICATION_JSON.isSameMimeType(contentType)) {
             final AsyncEntityConsumer<T> entityConsumer = jsonConsumerSupplier.get();
@@ -86,7 +91,7 @@ abstract class AbstractJsonMessageConsumer<H extends HttpMessage, T> implements 
 
                 @Override
                 public void completed(final T ignore) {
-                    resultCallback.failed(new JsonContentException("Unexpected content type: " + contentType.getMimeType()));
+                    resultCallback.failed(new UnsupportedMediaTypeException(contentType));
                 }
 
             });

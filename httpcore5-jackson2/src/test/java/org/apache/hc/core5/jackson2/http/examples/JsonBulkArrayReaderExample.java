@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.jackson2.http.examles;
+package org.apache.hc.core5.jackson2.http.examples;
 
 import java.io.InputStream;
 import java.net.URL;

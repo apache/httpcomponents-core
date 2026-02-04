@@ -24,26 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.jackson2.http.examles;
+package org.apache.hc.core5.jackson2.http.examples;
 
 import java.net.URI;
-import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.jackson2.http.JsonResponseConsumers;
+import org.apache.hc.core5.jackson2.http.AsyncJsonClientPipeline;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
@@ -67,35 +64,42 @@ public class JsonNodeResponseExample {
 
         final URI uri = URI.create("http://httpbin.org/get");
 
-        final JsonFactory factory = new JsonFactory();
-        final ObjectMapper objectMapper = new ObjectMapper(factory);
-
         System.out.println("Executing GET " + uri);
-        final Future<?> future = requester.execute(
-                AsyncRequestBuilder.get(uri)
-                        .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString())
-                        .build(),
-                JsonResponseConsumers.create(objectMapper.getFactory()),
+
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        requester.execute(
+                AsyncJsonClientPipeline.assemble(objectMapper)
+                        .request()
+                        .get(uri)
+                        .response()
+                        .asJsonNode()
+                        .result(new FutureCallback<Message<HttpResponse, JsonNode>>() {
+
+                            @Override
+                            public void completed(final Message<HttpResponse, JsonNode> m) {
+                                System.out.println("Response status: " + m.head().getCode());
+                                System.out.println(m.body());
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                ex.printStackTrace(System.out);
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                latch.countDown();
+                            }
+
+                        })
+                        .create(),
                 Timeout.ofMinutes(1),
-                new FutureCallback<Message<HttpResponse, JsonNode>>() {
+                HttpCoreContext.create());
 
-                    @Override
-                    public void completed(final Message<HttpResponse, JsonNode> message) {
-                        System.out.println("Response status: " + message.head().getCode());
-                        System.out.println(message.body());
-                    }
-
-                    @Override
-                    public void failed(final Exception ex) {
-                        ex.printStackTrace(System.out);
-                    }
-
-                    @Override
-                    public void cancelled() {
-                    }
-
-                });
-        future.get();
+        latch.await();
 
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();

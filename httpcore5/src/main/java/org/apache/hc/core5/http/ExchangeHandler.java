@@ -24,23 +24,21 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.jackson2;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+package org.apache.hc.core5.http;
+
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * Signals a failure processing a malformed or unexpected JSON message
+ * Represents a generic request / response message exchange.
  *
+ * @param <I> request representation.
+ * @param <O> response representation.
  * @since 5.5
  */
-public class JsonContentException extends JsonProcessingException {
+@FunctionalInterface
+public interface ExchangeHandler<I, O> {
 
-    public JsonContentException(final String msg) {
-        super(msg);
-    }
-
-    public JsonContentException(final String msg, final Throwable rootCause) {
-        super(msg, rootCause);
-    }
+    O handle(I requestObject, HttpContext context) throws HttpException;
 
 }

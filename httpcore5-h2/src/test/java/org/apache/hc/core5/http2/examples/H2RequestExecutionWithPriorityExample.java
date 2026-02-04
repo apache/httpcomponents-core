@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.examples;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -40,19 +41,18 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.priority.PriorityFormatter;
 import org.apache.hc.core5.http2.priority.PriorityValue;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -63,45 +63,51 @@ public class H2RequestExecutionWithPriorityExample {
 
     public static void main(final String[] args) throws Exception {
 
-        // Force HTTP/2 and disable push for a cleaner demo
+        // Create and start requester
+        final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+                .setSoTimeout(5, TimeUnit.SECONDS)
+                .build();
+
         final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .build();
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
-                .setH2Config(h2Config)
+                .setIOReactorConfig(ioReactorConfig)
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
-                .setHttpProcessor(H2Processors.client()) // includes H2RequestPriority
+                .setH2Config(h2Config)
                 .setStreamListener(new H2StreamListener() {
+
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (final Header h : headers) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + h);
+                        for (int i = 0; i < headers.size(); i++) {
+                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
                         }
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (final Header h : headers) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + h);
+                        for (int i = 0; i < headers.size(); i++) {
+                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
                         }
                     }
 
                     @Override
-                    public void onFrameInput(final HttpConnection c, final int id, final RawFrame f) {
+                    public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
                     }
 
                     @Override
-                    public void onFrameOutput(final HttpConnection c, final int id, final RawFrame f) {
+                    public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
                     }
 
                     @Override
-                    public void onInputFlowControl(final HttpConnection c, final int id, final int d, final int s) {
+                    public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
                     }
 
                     @Override
-                    public void onOutputFlowControl(final HttpConnection c, final int id, final int d, final int s) {
+                    public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
                     }
+
                 })
                 .create();
 
@@ -123,6 +129,8 @@ public class H2RequestExecutionWithPriorityExample {
         // ---- Request 2: RFC defaults -> header MUST be omitted by the interceptor
         executeWithPriority(clientEndpoint, target, "/httpbin/user-agent", PriorityValue.defaults(), latch);
 
+        latch.await();
+
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();
     }
@@ -143,34 +151,41 @@ public class H2RequestExecutionWithPriorityExample {
         }
 
         clientEndpoint.execute(
-                new BasicRequestProducer(request, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                new FutureCallback<Message<HttpResponse, String>>() {
+                AsyncClientPipeline.assemble()
+                        .request(request)
+                        .noContent()
+                        .response()
+                        .asString()
+                        .result(new FutureCallback<Message<HttpResponse, String>>() {
 
-                    @Override
-                    public void completed(final Message<HttpResponse, String> message) {
-                        clientEndpoint.releaseAndReuse();
-                        final HttpResponse response = message.head();
-                        final String body = message.body();
-                        System.out.println(requestUri + "->" + response.getCode());
-                        System.out.println(body);
-                        latch.countDown();
-                    }
+                            @Override
+                            public void completed(final Message<HttpResponse, String> message) {
+                                clientEndpoint.releaseAndReuse();
+                                final HttpResponse response = message.head();
+                                final String body = message.body();
+                                System.out.println(requestUri + "->" + response.getCode());
+                                System.out.println(body);
+                                latch.countDown();
+                            }
 
-                    @Override
-                    public void failed(final Exception ex) {
-                        clientEndpoint.releaseAndDiscard();
-                        System.out.println(requestUri + "->" + ex);
-                        latch.countDown();
-                    }
+                            @Override
+                            public void failed(final Exception ex) {
+                                clientEndpoint.releaseAndDiscard();
+                                System.out.println(requestUri + "->" + ex);
+                                latch.countDown();
+                            }
 
-                    @Override
-                    public void cancelled() {
-                        clientEndpoint.releaseAndDiscard();
-                        System.out.println(requestUri + " cancelled");
-                        latch.countDown();
-                    }
+                            @Override
+                            public void cancelled() {
+                                clientEndpoint.releaseAndDiscard();
+                                System.out.println(requestUri + " cancelled");
+                                latch.countDown();
+                            }
 
-                });
+                        })
+                        .create(),
+                null,
+                HttpCoreContext.create());
+
     }
 }

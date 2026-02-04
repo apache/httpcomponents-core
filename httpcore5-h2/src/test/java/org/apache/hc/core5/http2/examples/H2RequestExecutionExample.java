@@ -38,9 +38,8 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
@@ -105,46 +104,48 @@ public class H2RequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("nghttp2.org");
-        final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
+        final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(30));
         final AsyncClientEndpoint clientEndpoint = future.get();
 
         final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
-
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
             clientEndpoint.execute(
-                    AsyncRequestBuilder.get()
-                            .setHttpHost(target)
-                            .setPath(requestUri)
-                            .build(),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    new FutureCallback<Message<HttpResponse, String>>() {
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .get(target, requestUri)
+                            .response()
+                            .asString()
+                            .result(new FutureCallback<Message<HttpResponse, String>>() {
 
-                        @Override
-                        public void completed(final Message<HttpResponse, String> message) {
-                            clientEndpoint.releaseAndReuse();
-                            final HttpResponse response = message.head();
-                            final String body = message.body();
-                            System.out.println(requestUri + "->" + response.getCode());
-                            System.out.println(body);
-                            latch.countDown();
-                        }
+                                @Override
+                                public void completed(final Message<HttpResponse, String> m) {
+                                    clientEndpoint.releaseAndReuse();
+                                    final HttpResponse response = m.head();
+                                    final String body = m.body();
+                                    System.out.println(requestUri + "->" + response.getCode());
+                                    System.out.println(body);
+                                    latch.countDown();
+                                }
 
-                        @Override
-                        public void failed(final Exception ex) {
-                            clientEndpoint.releaseAndDiscard();
-                            System.out.println(requestUri + "->" + ex);
-                            latch.countDown();
-                        }
+                                @Override
+                                public void failed(final Exception ex) {
+                                    clientEndpoint.releaseAndDiscard();
+                                    System.out.println(requestUri + "->" + ex);
+                                    latch.countDown();
+                                }
 
-                        @Override
-                        public void cancelled() {
-                            clientEndpoint.releaseAndDiscard();
-                            System.out.println(requestUri + " cancelled");
-                            latch.countDown();
-                        }
+                                @Override
+                                public void cancelled() {
+                                    clientEndpoint.releaseAndDiscard();
+                                    System.out.println(requestUri + " cancelled");
+                                    latch.countDown();
+                                }
 
-                    });
+                            })
+                            .create(),
+                    null,
+                    HttpCoreContext.create());
         }
 
         latch.await();

@@ -31,7 +31,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -41,17 +42,15 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
-import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
-import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
-import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncServerPipeline;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
@@ -144,29 +143,22 @@ public class AsyncServerFilterExample {
 
                 // Application request handler
 
-                .register("*", new AsyncServerRequestHandler<Message<HttpRequest, String>>() {
-
-                    @Override
-                    public AsyncRequestConsumer<Message<HttpRequest, String>> prepare(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
-                    }
-
-                    @Override
-                    public void handle(
-                            final Message<HttpRequest, String> requestMessage,
-                            final ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
-                        // do something useful
-                        responseTrigger.submitResponse(
-                                AsyncResponseBuilder.create(HttpStatus.SC_OK)
-                                        .setEntity("Hello")
-                                        .build(),
-                                context);
-                    }
-                })
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY,
+                                "*",
+                                AsyncServerPipeline.assemble()
+                                        // Represent request as string
+                                        .request()
+                                        .asString()
+                                        // Represent response as string
+                                        .response()
+                                        .asString(ContentType.TEXT_PLAIN)
+                                        // Generate a response to the request
+                                        .handle((r, c) ->
+                                                Message.of(new BasicHttpResponse(HttpStatus.SC_OK), "Hello"))
+                                        .supplier())
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .create();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

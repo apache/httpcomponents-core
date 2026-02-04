@@ -44,9 +44,7 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.io.CloseMode;
@@ -104,47 +102,52 @@ public class AsyncClientSNIExample {
         final HttpCoreContext context = HttpCoreContext.create();
 
         final CountDownLatch latch = new CountDownLatch(1);
-        final HttpRequest request = BasicRequestBuilder.get()
-                .setPath("/")
-                .build();
+        final String path = "/";
         requester.execute(
                 target,
-                new BasicRequestProducer(request, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                null,
-                Timeout.ofSeconds(5),
-                context,
-                new FutureCallback<Message<HttpResponse, String>>() {
+                AsyncClientPipeline.assemble()
+                        .request(BasicRequestBuilder.get()
+                                .setHttpHost(target)
+                                .setPath(path)
+                                .build())
+                        .noContent()
+                        .response()
+                        .asString()
+                        .result(new FutureCallback<Message<HttpResponse, String>>() {
 
-                    @Override
-                    public void completed(final Message<HttpResponse, String> message) {
-                        final HttpResponse response = message.head();
-                        System.out.println(request.getRequestUri() + "->" + response.getCode());
-                        final SSLSession sslSession = context.getSSLSession();
-                        if (sslSession != null) {
-                            try {
-                                System.out.println("Peer: " + sslSession.getPeerPrincipal());
-                                System.out.println("TLS protocol: " + sslSession.getProtocol());
-                                System.out.println("TLS cipher suite: " + sslSession.getCipherSuite());
-                            } catch (final SSLPeerUnverifiedException ignore) {
+                            @Override
+                            public void completed(final Message<HttpResponse, String> message) {
+                                final HttpResponse response = message.head();
+                                System.out.println(path + "->" + response.getCode());
+                                final SSLSession sslSession = context.getSSLSession();
+                                if (sslSession != null) {
+                                    try {
+                                        System.out.println("Peer: " + sslSession.getPeerPrincipal());
+                                        System.out.println("TLS protocol: " + sslSession.getProtocol());
+                                        System.out.println("TLS cipher suite: " + sslSession.getCipherSuite());
+                                    } catch (final SSLPeerUnverifiedException ignore) {
+                                    }
+                                }
+                                latch.countDown();
                             }
-                        }
-                        latch.countDown();
-                    }
 
-                    @Override
-                    public void failed(final Exception ex) {
-                        System.out.println(request.getRequestUri() + "->" + ex);
-                        latch.countDown();
-                    }
+                            @Override
+                            public void failed(final Exception ex) {
+                                System.out.println(path + "->" + ex);
+                                latch.countDown();
+                            }
 
-                    @Override
-                    public void cancelled() {
-                        System.out.println(request.getRequestUri() + " cancelled");
-                        latch.countDown();
-                    }
+                            @Override
+                            public void cancelled() {
+                                System.out.println(path + " cancelled");
+                                latch.countDown();
+                            }
 
-                });
+                        })
+                        .create(),
+                null,
+                Timeout.ofMinutes(1),
+                context);
 
         latch.await();
         System.out.println("Shutting down I/O reactor");

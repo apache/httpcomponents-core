@@ -24,10 +24,10 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.jackson2.http.examles;
+package org.apache.hc.core5.jackson2.http.examples;
 
 import java.net.URI;
-import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -42,10 +42,10 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.jackson2.http.JsonResponseConsumers;
-import org.apache.hc.core5.jackson2.http.JsonSequenceEntityProducer;
+import org.apache.hc.core5.jackson2.http.AsyncJsonClientPipeline;
 import org.apache.hc.core5.jackson2.http.RequestData;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
@@ -75,37 +75,47 @@ public class JsonSequenceRequestExample {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         System.out.println("Executing POST " + uri);
-        final Future<?> future = requester.execute(
-                AsyncRequestBuilder.post(uri)
-                        .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString())
-                        .setEntity(new JsonSequenceEntityProducer<>(objectMapper, channel -> {
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        requester.execute(
+                AsyncJsonClientPipeline.assemble(objectMapper)
+                        .request(BasicRequestBuilder.post(uri)
+                                .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString())
+                                .build())
+                        .asSequence(channel -> {
                             channel.write(new BasicNameValuePair("name1", "value1"));
                             channel.write(new BasicNameValuePair("name2", "value2"));
                             channel.write(new BasicNameValuePair("name3", "value3"));
                             channel.endStream();
-                        }))
-                        .build(),
-                JsonResponseConsumers.create(objectMapper, RequestData.class),
+                        })
+                        .response()
+                        .asObject(RequestData.class)
+                        .result(new FutureCallback<Message<HttpResponse, RequestData>>() {
+
+                            @Override
+                            public void completed(final Message<HttpResponse, RequestData> m) {
+                                System.out.println("Response status: " + m.head().getCode());
+                                System.out.println(m.body());
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                ex.printStackTrace(System.out);
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                latch.countDown();
+                            }
+
+                        })
+                        .create(),
                 Timeout.ofMinutes(1),
-                new FutureCallback<Message<HttpResponse, RequestData>>() {
+                HttpCoreContext.create());
 
-                    @Override
-                    public void completed(final Message<HttpResponse, RequestData> message) {
-                        System.out.println("Response status: " + message.head().getCode());
-                        System.out.println(message.body());
-                    }
-
-                    @Override
-                    public void failed(final Exception ex) {
-                        ex.printStackTrace(System.out);
-                    }
-
-                    @Override
-                    public void cancelled() {
-                    }
-
-                });
-        future.get();
+        latch.await();
 
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();

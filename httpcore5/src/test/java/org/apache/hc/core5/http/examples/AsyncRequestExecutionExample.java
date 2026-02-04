@@ -40,9 +40,8 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
@@ -92,41 +91,45 @@ public class AsyncRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("httpbin.org");
-        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final String[] requestUris = new String[]{ "/ip", "/user-agent", "/headers" };
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
-        for (final String requestUri: requestUris) {
+        for (final String requestUri : requestUris) {
             requester.execute(
-                    AsyncRequestBuilder.get()
-                            .setHttpHost(target)
-                            .setPath(requestUri)
-                            .build(),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    Timeout.ofSeconds(5),
-                    new FutureCallback<Message<HttpResponse, String>>() {
+                    target,
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .get(target, requestUri)
+                            .response()
+                            .asString()
+                            .result(new FutureCallback<Message<HttpResponse, String>>() {
 
-                        @Override
-                        public void completed(final Message<HttpResponse, String> message) {
-                            final HttpResponse response = message.head();
-                            final String body = message.body();
-                            System.out.println(requestUri + "->" + response.getCode());
-                            System.out.println(body);
-                            latch.countDown();
-                        }
+                                @Override
+                                public void completed(final Message<HttpResponse, String> message) {
+                                    final HttpResponse response = message.head();
+                                    final String body = message.body();
+                                    System.out.println(requestUri + "->" + response.getCode());
+                                    System.out.println(body);
+                                    latch.countDown();
+                                }
 
-                        @Override
-                        public void failed(final Exception ex) {
-                            System.out.println(requestUri + "->" + ex);
-                            latch.countDown();
-                        }
+                                @Override
+                                public void failed(final Exception ex) {
+                                    System.out.println(requestUri + "->" + ex);
+                                    latch.countDown();
+                                }
 
-                        @Override
-                        public void cancelled() {
-                            System.out.println(requestUri + " cancelled");
-                            latch.countDown();
-                        }
+                                @Override
+                                public void cancelled() {
+                                    System.out.println(requestUri + " cancelled");
+                                    latch.countDown();
+                                }
 
-                    });
+                            })
+                            .create(),
+                    null,
+                    Timeout.ofMinutes(1),
+                    HttpCoreContext.create());
         }
 
         latch.await();
