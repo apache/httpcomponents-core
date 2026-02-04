@@ -44,13 +44,13 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
-import org.apache.hc.core5.jackson2.JsonContentException;
 import org.apache.hc.core5.jackson2.JsonTokenConsumer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -144,7 +144,8 @@ public class JsonResponseConsumersTest {
         responseConsumer.consume(ByteBuffer.wrap("This is just plain text".getBytes(StandardCharsets.UTF_8)));
         responseConsumer.streamEnd(null);
 
-        Assertions.assertThat(resultRef.get()).isNotNull().isInstanceOf(JsonContentException.class).hasMessage("Unexpected content type: text/plain");
+        Assertions.assertThat(resultRef.get()).isNotNull().isInstanceOf(UnsupportedMediaTypeException.class)
+                .hasMessage("Unsupported media type: text/plain");
     }
 
     @Test
@@ -241,7 +242,8 @@ public class JsonResponseConsumersTest {
 
         Assertions.assertThat(messageRef.get()).isSameAs(response);
         Assertions.assertThat(resultList).isEmpty();
-        Assertions.assertThat(resultRef.get()).isNotNull().isInstanceOf(JsonContentException.class).hasMessage("Unexpected content type: text/plain");
+        Assertions.assertThat(resultRef.get()).isNotNull().isInstanceOf(UnsupportedMediaTypeException.class)
+                .hasMessage("Unsupported media type: text/plain");
     }
 
     @Test

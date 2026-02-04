@@ -24,23 +24,21 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.jackson2.http.examles;
+package org.apache.hc.core5.jackson2.http.examples;
 
 import java.net.URI;
-import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.jackson2.http.JsonResponseConsumers;
+import org.apache.hc.core5.jackson2.http.AsyncJsonClientPipeline;
 import org.apache.hc.core5.jackson2.http.RequestData;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
@@ -69,35 +67,43 @@ public class JsonSequenceResponseExample {
         final ObjectMapper objectMapper = new ObjectMapper(factory);
 
         System.out.println("Executing GET " + uri);
-        final Future<?> future = requester.execute(
-                AsyncRequestBuilder.get(uri)
-                        .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString())
-                        .build(),
-                JsonResponseConsumers.create(
-                        objectMapper,
-                        RequestData.class,
-                        messageHead -> System.out.println("Response status: " + messageHead.getCode()),
-                        error -> System.out.println("Error: " + error),
-                        requestData -> System.out.println(requestData)),
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        requester.execute(
+                AsyncJsonClientPipeline.assemble(objectMapper)
+                        .request()
+                        .get(uri)
+                        .response()
+                        .asSequence(
+                                RequestData.class,
+                                r -> System.out.println("Response status: " + r.getCode()),
+                                error -> System.out.println("Error: " + error),
+                                requestData -> System.out.println(requestData))
+                        .result(new FutureCallback<Long>() {
+
+                            @Override
+                            public void completed(final Long count) {
+                                System.out.println("Objects received: " + count);
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                ex.printStackTrace(System.out);
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                latch.countDown();
+                            }
+
+                        })
+                        .create(),
                 Timeout.ofMinutes(1),
-                new FutureCallback<Long>() {
+                HttpCoreContext.create());
 
-                    @Override
-                    public void completed(final Long count) {
-                        System.out.println("Objects received: " + count);
-                    }
-
-                    @Override
-                    public void failed(final Exception ex) {
-                        ex.printStackTrace(System.out);
-                    }
-
-                    @Override
-                    public void cancelled() {
-                    }
-
-                });
-        future.get();
+        latch.await();
 
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();

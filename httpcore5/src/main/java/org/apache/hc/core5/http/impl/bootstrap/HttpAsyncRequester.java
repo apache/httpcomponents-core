@@ -426,7 +426,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(
                 requestProducer,
                 responseConsumer,
-                new CompletingFutureContribution<T, T>(future));
+                new CompletingFutureContribution<>(future));
         execute(target, exchangeHandler, pushHandlerFactory, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }

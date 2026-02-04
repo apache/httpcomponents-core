@@ -26,43 +26,34 @@
  */
 package org.apache.hc.core5.http2.examples;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.nio.support.AsyncServerPipeline;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.WWWFormCodec;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -90,15 +81,57 @@ public class H2GreetingServer {
             port = Integer.parseInt(args[0]);
         }
 
+        final Supplier<AsyncServerExchangeHandler> exchangeHandlerSupplier = AsyncServerPipeline.assemble()
+                // Represent request as string
+                .request()
+                .consumeContent(contentType -> {
+                    if (contentType != null && contentType.isSameMimeType(ContentType.APPLICATION_FORM_URLENCODED)) {
+                        return StringAsyncEntityConsumer::new;
+                    } else {
+                        // Discard content that cannot be correctly processed
+                        return DiscardingEntityConsumer::new;
+                    }
+                })
+                // Represent response as string
+                .response()
+                .asString(ContentType.TEXT_PLAIN)
+                // Generate a response to the request
+                .handle((r, c) -> {
+                    final HttpCoreContext context = HttpCoreContext.cast(c);
+                    final EndpointDetails endpoint = context.getEndpointDetails();
+                    final HttpRequest req = r.head();
+                    final String httpEntity = r.body();
+
+                    // recording the request
+                    System.out.printf("[%s] %s %s %s%n", Instant.now(),
+                            endpoint != null ? endpoint.getRemoteAddress() : null,
+                            req.getMethod(),
+                            req.getPath());
+
+                    String name = "stranger";
+                    if (httpEntity != null) {
+                        // decoding the form entity into key/value pairs:
+                        final List<NameValuePair> params = WWWFormCodec.parse(httpEntity, StandardCharsets.UTF_8);
+                        if (!params.isEmpty()) {
+                            name = params.get(0).getValue();
+                        }
+                    }
+
+                    // composing greeting:
+                    final String greeting = String.format("Hello %s\n", name);
+                    return Message.of(new BasicHttpResponse(HttpStatus.SC_OK), greeting);
+
+                })
+                .supplier();
+
         final HttpAsyncServer server = H2ServerBootstrap.bootstrap()
-                .setH2Config(H2Config.DEFAULT)
-                .setIOReactorConfig(IOReactorConfig.DEFAULT)
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE) // fallback to HTTP/1 as needed
-
-                // wildcard path matcher:
-                .register("*", CustomServerExchangeHandler::new)
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        // wildcard path matcher:
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", exchangeHandlerSupplier)
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .create();
-
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("HTTP server shutting down");
@@ -110,71 +143,6 @@ public class H2GreetingServer {
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.println("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
-    }
-
-    static class CustomServerExchangeHandler extends AbstractServerExchangeHandler<Message<HttpRequest, String>> {
-
-
-        @Override
-        protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
-                final HttpRequest request,
-                final EntityDetails entityDetails,
-                final HttpContext context) {
-            // if there's no body don't try to parse entity:
-            AsyncEntityConsumer<String> entityConsumer = new DiscardingEntityConsumer<>();
-
-            if (entityDetails != null) {
-                entityConsumer = new StringAsyncEntityConsumer();
-            }
-            //noinspection unchecked
-            return new BasicRequestConsumer<>(entityConsumer);
-
-        }
-
-        @Override
-        protected void handle(final Message<HttpRequest, String> requestMessage,
-                              final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                              final HttpContext localContext) throws HttpException, IOException {
-
-            final HttpCoreContext context = HttpCoreContext.cast(localContext);
-            final EndpointDetails endpoint = context.getEndpointDetails();
-            final HttpRequest req = requestMessage.head();
-            final String httpEntity = requestMessage.body();
-
-            // generic success response:
-            final HttpResponse resp = new BasicHttpResponse(200);
-
-            // recording the request
-            System.out.printf("[%s] %s %s %s%n", Instant.now(),
-                    endpoint != null ? endpoint.getRemoteAddress() : null,
-                    req.getMethod(),
-                    req.getPath());
-
-            // Request without an entity - GET/HEAD/DELETE
-            if (httpEntity == null) {
-                responseTrigger.submitResponse(
-                        new BasicResponseProducer(resp), context);
-                return;
-            }
-
-            // Request with an entity - POST/PUT
-            final Header cth = req.getHeader(HttpHeaders.CONTENT_TYPE);
-            final ContentType contentType = cth != null ? ContentType.parse(cth.getValue()) : null;
-            String name = "stranger";
-            if (contentType != null && contentType.isSameMimeType(ContentType.APPLICATION_FORM_URLENCODED)) {
-
-                // decoding the form entity into key/value pairs:
-                final List<NameValuePair> args = WWWFormCodec.parse(httpEntity, contentType.getCharset());
-                if (!args.isEmpty()) {
-                    name = args.get(0).getValue();
-                }
-            }
-
-            // composing greeting:
-            final String greeting = String.format("Hello %s\n", name);
-            responseTrigger.submitResponse(
-                    new BasicResponseProducer(resp, AsyncEntityProducers.create(greeting)), context);
-        }
     }
 
 }

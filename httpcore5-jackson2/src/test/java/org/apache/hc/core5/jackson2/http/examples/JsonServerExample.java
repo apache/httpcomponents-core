@@ -24,21 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.examples;
+package org.apache.hc.core5.jackson2.http.examples;
 
-import java.io.File;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
@@ -49,35 +47,26 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.support.AsyncServerPipeline;
-import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpDateGenerator;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.jackson2.http.AsyncJsonServerPipeline;
+import org.apache.hc.core5.jackson2.http.RequestData;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Example of asynchronous embedded HTTP/1.1 file server.
+ * Example of asynchronous embedded JSON server.
  */
-public class AsyncFileServerExample {
+public class JsonServerExample {
 
     /**
-     * Example command line args: {@code "c:\temp" 8080}
+     * Example command line args: {@code 8080}
      */
     public static void main(final String[] args) throws Exception {
-        if (args.length < 1) {
-            System.err.println("Please specify document root directory");
-            System.exit(1);
-        }
-        // Document root directory
-        final File docRoot = new File(args[0]);
         int port = 8080;
-        if (args.length >= 2) {
+        if (args.length >= 1) {
             port = Integer.parseInt(args[1]);
         }
 
@@ -86,56 +75,37 @@ public class AsyncFileServerExample {
                 .setTcpNoDelay(true)
                 .build();
 
-        final Supplier<AsyncServerExchangeHandler> exchangeHandlerSupplier = AsyncServerPipeline.assemble()
-                // Read GET / HEAD requests ignoring their content body
-                .request(Method.GET, Method.HEAD)
-                .ignoreContent()
-                // Write out responses by streaming out content of a file
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        final Supplier<AsyncServerExchangeHandler> exchangeHandlerSupplier = AsyncJsonServerPipeline.assemble(objectMapper)
+                // Read GET / HEAD requests by consuming content stream as JSON nodes
+                .request(Method.GET, Method.HEAD, Method.POST, Method.PUT, Method.PATCH)
+                .asJsonNode()
+                // Write out responses by streaming out content of JSON object
                 .response()
-                .<Message<HttpResponse, File>>produce(m -> {
-                    if (m.error() == null) {
-                        final File file = m.getBody();
-                        final ContentType contentType;
-                        final String filename = TextUtils.toLowerCase(file.getName());
-                        if (filename.endsWith(".txt")) {
-                            contentType = ContentType.TEXT_PLAIN;
-                        } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
-                            contentType = ContentType.TEXT_HTML;
-                        } else if (filename.endsWith(".xml")) {
-                            contentType = ContentType.TEXT_XML;
-                        } else {
-                            contentType = ContentType.DEFAULT_BINARY;
-                        }
-                        return new BasicResponseProducer(new FileEntityProducer(file, contentType));
-                    } else {
-                        return new BasicResponseProducer(new StringAsyncEntityProducer(Objects.toString(m.error()), ContentType.TEXT_PLAIN));
-                    }
-                })
+                .asObject(RequestData.class)
                 // Map exceptions to a response message
                 .errorMessage(Throwable::getMessage)
-                // Generate a response to the request
+                // Generate a response to a request
                 .handle((m, context) -> {
                     final HttpRequest request = m.head();
-                    final URI requestUri;
+                    final RequestData rd = new RequestData();
                     try {
-                        requestUri = request.getUri();
+                        rd.setUrl(request.getUri());
                     } catch (final URISyntaxException ex) {
-                        throw new ProtocolException(ex.getMessage(), ex);
+                        throw new ProtocolException("Invalid request URI");
                     }
-                    final String path = requestUri.getPath();
-                    final File file = new File(docRoot, path);
-                    if (!file.exists()) {
-                        println("File " + file.getPath() + " not found");
-                        return Message.error(new BasicHttpResponse(HttpStatus.SC_NOT_FOUND), "File not found");
-                    } else if (!file.canRead() || file.isDirectory()) {
-                        println("Cannot read file " + file.getPath());
-                        return Message.error(new BasicHttpResponse(HttpStatus.SC_FORBIDDEN), "File cannot be accessed");
-                    } else {
-                        final HttpCoreContext coreContext = HttpCoreContext.cast(context);
-                        final EndpointDetails endpoint = coreContext.getEndpointDetails();
-                        println(endpoint + " | serving file " + file.getPath());
-                        return Message.of(new BasicHttpResponse(HttpStatus.SC_OK), file);
-                    }
+                    rd.generateHeaders(request.getHeaders());
+                    rd.setJson(m.body());
+                    rd.setData(Objects.toString(m.error()));
+
+                    final HttpCoreContext coreContext = HttpCoreContext.cast(context);
+                    final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
+
+                    final InetSocketAddress remoteAddress = (InetSocketAddress) endpointDetails.getRemoteAddress();
+                    rd.setOrigin(Objects.toString(remoteAddress.getAddress()));
+
+                    return Message.of(new BasicHttpResponse(HttpStatus.SC_OK), rd);
                 })
                 .supplier();
 

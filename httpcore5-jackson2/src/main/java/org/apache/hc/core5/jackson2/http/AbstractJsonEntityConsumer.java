@@ -39,10 +39,10 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.jackson2.JsonAsyncTokenizer;
-import org.apache.hc.core5.jackson2.JsonContentException;
 import org.apache.hc.core5.jackson2.JsonTokenConsumer;
 import org.apache.hc.core5.util.Args;
 
@@ -64,7 +64,7 @@ abstract class AbstractJsonEntityConsumer<T> implements AsyncEntityConsumer<T> {
     public final void streamStart(final EntityDetails entityDetails, final FutureCallback<T> resultCallback) throws HttpException, IOException {
         final ContentType contentType = ContentType.parseLenient(entityDetails.getContentType());
         if (contentType != null && !ContentType.APPLICATION_JSON.isSameMimeType(contentType)) {
-            throw new JsonContentException("Unexpected content type: " + contentType.getMimeType());
+            throw new UnsupportedMediaTypeException(contentType);
         }
         resultCallbackRef.set(resultCallback);
         jsonTokenizer.initialize(createJsonTokenConsumer(result -> {

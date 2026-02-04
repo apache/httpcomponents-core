@@ -48,9 +48,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.jackson2.JsonContentException;
 import org.apache.hc.core5.jackson2.JsonResultSink;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -119,8 +119,8 @@ public class JsonEntityConsumersTest {
         final JsonNodeEntityConsumer entityConsumer = new JsonNodeEntityConsumer(factory);
         Assertions.assertThatThrownBy(() -> entityConsumer.streamStart(
                         new BasicEntityDetails(-1, ContentType.TEXT_PLAIN),
-                        null)).isInstanceOf(JsonContentException.class)
-                .hasMessage("Unexpected content type: text/plain");
+                        null)).isInstanceOf(UnsupportedMediaTypeException.class)
+                .hasMessage("Unsupported media type: text/plain");
     }
 
     @Test

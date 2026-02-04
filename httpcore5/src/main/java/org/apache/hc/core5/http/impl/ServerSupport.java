@@ -28,12 +28,17 @@ package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.LengthRequiredException;
+import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.MethodNotAllowedException;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.NotImplementedException;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 
 /**
  * HTTP Server support methods.
@@ -54,18 +59,38 @@ public class ServerSupport {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
         } else if (ex instanceof UnsupportedHttpVersionException) {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
+        } else if (ex instanceof MethodNotAllowedException) {
+            code = HttpStatus.SC_METHOD_NOT_ALLOWED;
+        } else if (ex instanceof UnsupportedMediaTypeException) {
+            code = HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE;
         } else if (ex instanceof NotImplementedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
         } else if (ex instanceof RequestHeaderFieldsTooLargeException) {
             code = HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE;
         } else if (ex instanceof MisdirectedRequestException) {
             code = HttpStatus.SC_MISDIRECTED_REQUEST;
+        } else if (ex instanceof LengthRequiredException) {
+            code = HttpStatus.SC_LENGTH_REQUIRED;
+        } else if (ex instanceof ParseException) {
+            code = HttpStatus.SC_BAD_REQUEST;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         } else {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }
         return code;
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static boolean isMethodAllowed(final String method, final Method... allowedMethods) {
+        for (final Method allowedMethod : allowedMethods) {
+            if (allowedMethod.isSame(method)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

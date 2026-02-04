@@ -32,12 +32,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -104,7 +105,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
 
         final AsyncRequestConsumer<T> requestConsumer = supplyConsumer(request, entityDetails, context);
         if (requestConsumer == null) {
-            throw new HttpException("Unable to handle request");
+            throw new HttpException("Unable to process request");
         }
         requestConsumerRef.set(requestConsumer);
         final AsyncServerRequestHandler.ResponseTrigger responseTrigger = new AsyncServerRequestHandler.ResponseTrigger() {
@@ -136,22 +137,20 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
         };
         requestConsumer.consumeRequest(request, entityDetails, context, new FutureCallback<T>() {
 
+            void triggerResponse(final AsyncResponseProducer errorProducer) {
+                try {
+                    responseTrigger.submitResponse(errorProducer, context);
+                } catch (final HttpException | IOException ex) {
+                    failedInternal(ex);
+                }
+            }
+
             @Override
             public void completed(final T result) {
                 try {
                     handle(result, responseTrigger, context);
-                } catch (final HttpException ex) {
-                    try {
-                        responseTrigger.submitResponse(
-                                AsyncResponseBuilder.create(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                                        .setEntity(ex.getMessage())
-                                        .build(),
-                                context);
-                    } catch (final HttpException | IOException ex2) {
-                        failedInternal(ex2);
-                    }
-                } catch (final IOException ex) {
-                    failedInternal(ex);
+                } catch (final HttpException | IOException ex) {
+                    triggerResponse(handleError(ex));
                 } finally {
                     releaseRequestConsumer();
                 }
@@ -159,7 +158,11 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
 
             @Override
             public void failed(final Exception ex) {
-                failedInternal(ex);
+                if (ex instanceof HttpException || ex instanceof IOException) {
+                    triggerResponse(handleError(ex));
+                } else {
+                    failedInternal(ex);
+                }
             }
 
             @Override
@@ -203,6 +206,13 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
         final AsyncResponseProducer dataProducer = responseProducerRef.get();
         Asserts.notNull(dataProducer, "Data producer");
         dataProducer.produce(channel);
+    }
+
+    protected AsyncResponseProducer handleError(final Exception ex) {
+        return new BasicResponseProducer(
+                ServerSupport.toStatusCode(ex),
+                ServerSupport.toErrorMessage(ex),
+                ContentType.TEXT_PLAIN);
     }
 
     @Override
