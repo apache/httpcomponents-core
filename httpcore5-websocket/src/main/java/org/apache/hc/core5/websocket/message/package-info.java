@@ -25,22 +25,12 @@
  *
  */
 
-package org.apache.hc.core5.http2;
-
 /**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
+ * Message-level helpers and codecs.
  *
- * @since 5.0
+ * <p>Utilities for parsing and validating message semantics (e.g., CLOSE
+ * status code and reason handling).</p>
+ *
+ * @since 5.7
  */
-public final class H2PseudoRequestHeaders {
-
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
-
-}
+package org.apache.hc.core5.websocket.message;

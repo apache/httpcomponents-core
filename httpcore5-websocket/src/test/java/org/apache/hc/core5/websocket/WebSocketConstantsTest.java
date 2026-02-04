@@ -24,23 +24,21 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import org.junit.jupiter.api.Test;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+class WebSocketConstantsTest {
 
+    @Test
+    void exposesStandardHeaderNames() {
+        assertEquals("Sec-WebSocket-Key", WebSocketConstants.SEC_WEBSOCKET_KEY);
+        assertEquals("Sec-WebSocket-Version", WebSocketConstants.SEC_WEBSOCKET_VERSION);
+        assertEquals("Sec-WebSocket-Accept", WebSocketConstants.SEC_WEBSOCKET_ACCEPT);
+        assertEquals("Sec-WebSocket-Protocol", WebSocketConstants.SEC_WEBSOCKET_PROTOCOL);
+        assertEquals("Sec-WebSocket-Extensions", WebSocketConstants.SEC_WEBSOCKET_EXTENSIONS);
+        assertEquals("258EAFA5-E914-47DA-95CA-C5AB0DC85B11", WebSocketConstants.WEBSOCKET_GUID);
+    }
 }

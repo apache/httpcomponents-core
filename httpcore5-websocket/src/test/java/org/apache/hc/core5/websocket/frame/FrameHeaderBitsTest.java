@@ -24,23 +24,20 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.frame;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import org.junit.jupiter.api.Test;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+class FrameHeaderBitsTest {
 
+    @Test
+    void exposesHeaderBitConstants() {
+        assertEquals(0x80, FrameHeaderBits.FIN);
+        assertEquals(0x40, FrameHeaderBits.RSV1);
+        assertEquals(0x20, FrameHeaderBits.RSV2);
+        assertEquals(0x10, FrameHeaderBits.RSV3);
+        assertEquals(0x80, FrameHeaderBits.MASK_BIT);
+    }
 }

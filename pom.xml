@@ -64,6 +64,7 @@
     <module>httpcore5-h2</module>
     <module>httpcore5-reactive</module>
     <module>httpcore5-jackson2</module>
+    <module>httpcore5-websocket</module>
     <module>httpcore5-testing</module>
   </modules>
 
@@ -107,6 +108,11 @@
       <dependency>
         <groupId>org.apache.httpcomponents.core5</groupId>
         <artifactId>httpcore5-jackson2</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5-websocket</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

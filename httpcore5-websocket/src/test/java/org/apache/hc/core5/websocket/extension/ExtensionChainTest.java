@@ -24,23 +24,27 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.extension;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.nio.charset.StandardCharsets;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+final class ExtensionChainTest {
+
+    @Test
+    void addAndUsePmce_decodeRoundTrip() throws Exception {
+        final ExtensionChain chain = new ExtensionChain();
+        final PerMessageDeflate pmce = new PerMessageDeflate(true, true, true, null, null);
+        chain.add(pmce);
+
+        final byte[] data = "compress me please".getBytes(StandardCharsets.UTF_8);
+
+        final WebSocketExtensionChain.Encoded enc = pmce.newEncoder().encode(data, true, true);
+        final byte[] back = chain.newDecodeChain().decode(enc.payload);
+
+        assertArrayEquals(data, back);
+    }
 }

@@ -24,23 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.util.List;
+import java.util.Map;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.junit.jupiter.api.Test;
 
+class WebSocketExtensionsTest {
+
+    @Test
+    void parsesExtensionsHeader() {
+        final BasicHeader header = new BasicHeader(
+                WebSocketConstants.SEC_WEBSOCKET_EXTENSIONS,
+                "permessage-deflate; client_max_window_bits=12, foo; bar=1");
+        final List<WebSocketExtensionData> data = WebSocketExtensions.parse(header);
+        assertEquals(2, data.size());
+        assertEquals("permessage-deflate", data.get(0).getName());
+        assertEquals("12", data.get(0).getParameters().get("client_max_window_bits"));
+        assertEquals("foo", data.get(1).getName());
+        final Map<String, String> params = data.get(1).getParameters();
+        assertEquals("1", params.get("bar"));
+    }
 }

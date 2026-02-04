@@ -24,23 +24,31 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.util.Collections;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+class WebSocketExtensionNegotiationTest {
+
+    @Test
+    void formatsResponseHeader() {
+        final WebSocketExtensionData data = new WebSocketExtensionData(
+                "permessage-deflate", Collections.singletonMap("client_max_window_bits", "12"));
+        final WebSocketExtensionNegotiation negotiation = new WebSocketExtensionNegotiation(
+                Collections.emptyList(),
+                Collections.singletonList(data));
+        assertEquals("permessage-deflate; client_max_window_bits=12", negotiation.formatResponseHeader());
+    }
+
+    @Test
+    void formatsEmptyHeaderAsNull() {
+        final WebSocketExtensionNegotiation negotiation = new WebSocketExtensionNegotiation(
+                Collections.emptyList(), Collections.emptyList());
+        assertNull(negotiation.formatResponseHeader());
+    }
 }

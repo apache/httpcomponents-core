@@ -24,23 +24,27 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+class WebSocketExtensionDataTest {
+
+    @Test
+    void formatsParametersInOrder() {
+        final Map<String, String> params = new LinkedHashMap<>();
+        params.put("server_no_context_takeover", null);
+        params.put("client_max_window_bits", "12");
+        final WebSocketExtensionData data = new WebSocketExtensionData("permessage-deflate", params);
+
+        assertEquals("permessage-deflate", data.getName());
+        assertTrue(data.getParameters().containsKey("server_no_context_takeover"));
+        assertEquals("permessage-deflate; server_no_context_takeover; client_max_window_bits=12", data.format());
+    }
 }

@@ -24,23 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.server;
 
-package org.apache.hc.core5.http2;
+import java.io.IOException;
+import java.net.InetAddress;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+public final class WebSocketServer {
 
+    private final HttpServer httpServer;
+
+    WebSocketServer(final HttpServer httpServer) {
+        this.httpServer = httpServer;
+    }
+
+    public void start() throws IOException {
+        httpServer.start();
+    }
+
+    public void stop() {
+        httpServer.stop();
+    }
+
+    public void initiateShutdown() {
+        httpServer.initiateShutdown();
+    }
+
+    public InetAddress getInetAddress() {
+        return httpServer.getInetAddress();
+    }
+
+    public int getLocalPort() {
+        return httpServer.getLocalPort();
+    }
 }

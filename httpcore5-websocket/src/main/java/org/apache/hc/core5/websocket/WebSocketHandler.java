@@ -24,23 +24,35 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import java.nio.ByteBuffer;
+import java.util.List;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+public interface WebSocketHandler {
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+    default String selectSubprotocol(final List<String> offered) {
+        return null;
+    }
 
+    default void onOpen(final WebSocketSession session) {
+    }
+
+    default void onText(final WebSocketSession session, final String text) throws WebSocketException {
+    }
+
+    default void onBinary(final WebSocketSession session, final ByteBuffer data) throws WebSocketException {
+    }
+
+    default void onPing(final WebSocketSession session, final ByteBuffer data) throws WebSocketException {
+    }
+
+    default void onPong(final WebSocketSession session, final ByteBuffer data) throws WebSocketException {
+    }
+
+    default void onClose(final WebSocketSession session, final int statusCode, final String reason) {
+    }
+
+    default void onError(final WebSocketSession session, final Exception cause) {
+    }
 }

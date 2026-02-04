@@ -24,23 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.nio.ByteBuffer;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+class WebSocketFrameTest {
+
+    @Test
+    void exposesImmutablePayload() {
+        final ByteBuffer payload = ByteBuffer.wrap(new byte[] { 1, 2, 3 });
+        final WebSocketFrame frame = new WebSocketFrame(true, false, false, false, WebSocketFrameType.BINARY, payload);
+        final ByteBuffer got = frame.getPayload();
+
+        assertTrue(frame.isFin());
+        assertFalse(frame.isRsv1());
+        assertEquals(WebSocketFrameType.BINARY, frame.getType());
+        assertNotSame(payload, got);
+        assertEquals(3, got.remaining());
+    }
 }
