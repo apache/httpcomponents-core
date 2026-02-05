@@ -102,9 +102,6 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.testing.extension.ExecutorResource;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -1365,7 +1362,7 @@ abstract class HttpIntegrationTest {
             final HttpResponse response = result.getHead();
             Assertions.assertNotNull(response);
             Assertions.assertEquals(200, response.getCode());
-            MatcherAssert.assertThat(result.getBody(), Matchers.startsWith("All is well"));
+            Assertions.assertTrue(result.getBody().startsWith("All is well"));
         }
     }
 
@@ -1478,10 +1475,7 @@ abstract class HttpIntegrationTest {
         final HttpResponse response1 = result1.getHead();
         Assertions.assertNotNull(response1);
         Assertions.assertEquals(431, response1.getCode());
-        MatcherAssert.assertThat(result1.getBody(),
-                CoreMatchers.allOf(
-                        CoreMatchers.containsString("Maximum"),
-                        CoreMatchers.containsString("exceeded")));
+        Assertions.assertTrue(result1.getBody().contains("Maximum") && result1.getBody().contains("exceeded"));
     }
 
 }

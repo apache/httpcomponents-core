@@ -27,11 +27,9 @@
 
 package org.apache.hc.core5.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.util.Tokenizer;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,7 +82,7 @@ class TestProtocolVersionParser {
     void testParseVersionWithCursor() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(2, 13);
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO", "  1.20,0000,00000", cursor, Tokenizer.delimiters(',')));
-        assertThat(cursor.getPos(), CoreMatchers.equalTo(6));
+        Assertions.assertEquals(6, cursor.getPos());
     }
 
     @Test

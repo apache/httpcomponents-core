@@ -26,46 +26,32 @@
  */
 package org.apache.hc.core5.http;
 
-import java.util.Objects;
+import org.junit.jupiter.api.Assertions;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
+public final class HeadersMatcher {
 
-public class HeadersMatcher extends BaseMatcher<Header[]> {
-
-    private final Header[] expectedHeaders;
-
-    public HeadersMatcher(final Header... headers) {
-        this.expectedHeaders = headers;
+    private HeadersMatcher() {
     }
 
-    @Override
-    public boolean matches(final Object item) {
-        if (item instanceof Header[]) {
-            final Header[] headers = (Header[]) item;
-            if (headers.length == expectedHeaders.length) {
-                for (int i = 0; i < headers.length; i++) {
-                    final Header h1 = headers[i];
-                    final Header h2 = expectedHeaders[i];
-                    if (!h1.getName().equalsIgnoreCase(h2.getName())
-                            || !Objects.equals(h1.getValue(), h2.getValue())) {
-                        return false;
-                    }
-                }
-                return true;
-            }
+    public static void assertSame(final Header[] actual, final Header... expected) {
+        Assertions.assertNotNull(actual, "headers should not be null");
+        Assertions.assertEquals(expected.length, actual.length,
+                "header array length mismatch: expected=" + expected.length + ", actual=" + actual.length);
+        for (int i = 0; i < actual.length; i++) {
+            final Header actualHeader = actual[i];
+            final Header expectedHeader = expected[i];
+            Assertions.assertNotNull(expectedHeader, "expected header at index " + i + " should not be null");
+            Assertions.assertNotNull(actualHeader, "actual header at index " + i + " should not be null");
+            Assertions.assertTrue(expectedHeader.getName().equalsIgnoreCase(actualHeader.getName()),
+                    "header name mismatch at index " + i + ": expected=" + expectedHeader.getName()
+                            + ", actual=" + actualHeader.getName());
+            Assertions.assertEquals(expectedHeader.getValue(), actualHeader.getValue(), "header value mismatch at index " + i + ": expected=" + expectedHeader.getValue()
+                    + ", actual=" + actualHeader.getValue());
         }
-        return false;
     }
 
-    @Override
-    public void describeTo(final Description description) {
-        description.appendText("same headers as ").appendValueList("[", "; ", "]", expectedHeaders);
-    }
-
-    public static Matcher<Header[]> same(final Header... headers) {
-        return new HeadersMatcher(headers);
+    public static void assertSame(final Header[] actual) {
+        assertSame(actual, new Header[0]);
     }
 
 }

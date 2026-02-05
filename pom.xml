@@ -74,7 +74,6 @@
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <conscrypt.version>2.5.2</conscrypt.version>
     <junit.version>5.14.2</junit.version>
-    <hamcrest.version>3.0</hamcrest.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.11.0</mockito.version>
     <assertj.version>3.27.7</assertj.version>
@@ -131,12 +130,6 @@
         <version>${junit.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>

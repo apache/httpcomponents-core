@@ -26,10 +26,9 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -46,12 +45,12 @@ class TestComplexCancellable {
         assertFalse(cancellable.isCancelled());
 
         cancellable.cancel();
-        assertThat(cancellable.isCancelled(), CoreMatchers.is(true));
-        assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
+        assertTrue(cancellable.isCancelled());
+        assertTrue(dependency1.isCancelled());
 
         final BasicFuture<Object> dependency2 = new BasicFuture<>(null);
         cancellable.setDependency(dependency2);
-        assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
+        assertTrue(dependency2.isCancelled());
     }
 
     @Test

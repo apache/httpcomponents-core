@@ -26,14 +26,13 @@
  */
 package org.apache.hc.core5.benchmark;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.jupiter.api.Assertions;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.HttpVersion;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
 class ResultFormatterTest {
@@ -57,8 +56,7 @@ class ResultFormatterTest {
                 50000000);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         ResultFormatter.print(new PrintStream(buf, true, StandardCharsets.US_ASCII.name()), results);
-        assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"),
-                CoreMatchers.equalTo(
+        Assertions.assertEquals(
                 "Server Software:\t\tTestServer/1.1\n" +
                         "Protocol version:\t\tHTTP/1.1\n" +
                         "Server Hostname:\t\tlocalhost\n" +
@@ -77,7 +75,7 @@ class ResultFormatterTest {
                         "Time per request:\t\t0.850 [ms] (mean)\n" +
                         "Time per request:\t\t0.170 [ms] (mean, across all concurrent requests)\n" +
                         "Transfer rate:\t\t\t17,997.02 [Kbytes/sec] received\n"
-        ));
+        , new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"));
      }
 
 }

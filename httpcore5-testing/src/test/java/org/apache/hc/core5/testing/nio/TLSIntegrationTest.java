@@ -84,8 +84,6 @@ import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -222,9 +220,8 @@ class TLSIntegrationTest {
         Assertions.assertNotNull(tlsDetails);
         final SSLSession tlsSession = tlsDetails.getSSLSession();
         final ProtocolVersion tlsVersion = TLS.parse(tlsSession.getProtocol());
-        MatcherAssert.assertThat(tlsVersion.greaterEquals(tlsProtocol.version), CoreMatchers.equalTo(true));
-        MatcherAssert.assertThat(tlsSession.getPeerPrincipal().getName(),
-                CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
+        Assertions.assertTrue(tlsVersion.greaterEquals(tlsProtocol.version));
+        Assertions.assertEquals("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation", tlsSession.getPeerPrincipal().getName());
     }
 
     @Test

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.net;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -36,7 +35,7 @@ import java.util.List;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.NameValuePairListMatcher;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestWWWFormCodec {
@@ -50,43 +49,30 @@ class TestWWWFormCodec {
 
     @Test
     void testParse() {
-        assertThat(parse(""), NameValuePairListMatcher.isEmpty());
-        assertThat(parse("Name0"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name0", null)));
-        assertThat(parse("Name1=Value1"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name1", "Value1")));
-        assertThat(parse("Name2="),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name2", "")));
-        assertThat(parse(" Name3  "),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name3", null)));
-        assertThat(parse("Name4=Value%204%21"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4!")));
-        assertThat(parse("Name4=Value%2B4%21"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value+4!")));
-        assertThat(parse("Name4=Value%204%21%20%214"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4! !4")));
-        assertThat(parse("Name5=aaa&Name6=bbb"),
-                NameValuePairListMatcher.equalsTo(
-                        new BasicNameValuePair("Name5", "aaa"),
-                        new BasicNameValuePair("Name6", "bbb")));
-        assertThat(parse("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
-                NameValuePairListMatcher.equalsTo(
-                        new BasicNameValuePair("Name7", "aaa"),
-                        new BasicNameValuePair("Name7", "b,b"),
-                        new BasicNameValuePair("Name7", "ccc")));
-        assertThat(parse("Name8=xx%2C%20%20yy%20%20%2Czz"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name8", "xx,  yy  ,zz")));
-        assertThat(parse("price=10%20%E2%82%AC"),
-                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("price", "10 \u20AC")));
-        assertThat(parse("a=b\"c&d=e"),
-                NameValuePairListMatcher.equalsTo(
-                        new BasicNameValuePair("a", "b\"c"),
-                        new BasicNameValuePair("d", "e")));
-        assertThat(parse("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+        NameValuePairListMatcher.assertEmpty(parse(""));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name0"), new BasicNameValuePair("Name0", null));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name1=Value1"), new BasicNameValuePair("Name1", "Value1"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name2="), new BasicNameValuePair("Name2", ""));
+        NameValuePairListMatcher.assertEqualsTo(parse(" Name3  "), new BasicNameValuePair("Name3", null));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%204%21"), new BasicNameValuePair("Name4", "Value 4!"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%2B4%21"), new BasicNameValuePair("Name4", "Value+4!"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%204%21%20%214"), new BasicNameValuePair("Name4", "Value 4! !4"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name5=aaa&Name6=bbb"),
+                new BasicNameValuePair("Name5", "aaa"),
+                new BasicNameValuePair("Name6", "bbb"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
+                new BasicNameValuePair("Name7", "aaa"),
+                new BasicNameValuePair("Name7", "b,b"),
+                new BasicNameValuePair("Name7", "ccc"));
+        NameValuePairListMatcher.assertEqualsTo(parse("Name8=xx%2C%20%20yy%20%20%2Czz"), new BasicNameValuePair("Name8", "xx,  yy  ,zz"));
+        NameValuePairListMatcher.assertEqualsTo(parse("price=10%20%E2%82%AC"), new BasicNameValuePair("price", "10 \u20AC"));
+        NameValuePairListMatcher.assertEqualsTo(parse("a=b\"c&d=e"),
+                new BasicNameValuePair("a", "b\"c"),
+                new BasicNameValuePair("d", "e"));
+        NameValuePairListMatcher.assertEqualsTo(parse("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
                         "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)),
-                NameValuePairListMatcher.equalsTo(
-                        new BasicNameValuePair("russian", RU_HELLO),
-                        new BasicNameValuePair("swiss", CH_HELLO)));
+                new BasicNameValuePair("russian", RU_HELLO),
+                new BasicNameValuePair("swiss", CH_HELLO));
     }
 
     private static String format(final NameValuePair... nvps) {
@@ -95,30 +81,25 @@ class TestWWWFormCodec {
 
     @Test
     void testFormat() {
-        assertThat(format(new BasicNameValuePair("Name0", null)), CoreMatchers.equalTo("Name0"));
-        assertThat(format(new BasicNameValuePair("Name1", "Value1")), CoreMatchers.equalTo("Name1=Value1"));
-        assertThat(format(new BasicNameValuePair("Name2", "")), CoreMatchers.equalTo("Name2="));
-        assertThat(format(new BasicNameValuePair("Name4", "Value 4&")),
-                CoreMatchers.equalTo("Name4=Value+4%26"));
-        assertThat(format(new BasicNameValuePair("Name4", "Value+4&")),
-                CoreMatchers.equalTo("Name4=Value%2B4%26"));
-        assertThat(format(new BasicNameValuePair("Name4", "Value 4& =4")),
-                CoreMatchers.equalTo("Name4=Value+4%26+%3D4"));
-        assertThat(format(
+        Assertions.assertEquals("Name0", format(new BasicNameValuePair("Name0", null)));
+        Assertions.assertEquals("Name1=Value1", format(new BasicNameValuePair("Name1", "Value1")));
+        Assertions.assertEquals("Name2=", format(new BasicNameValuePair("Name2", "")));
+        Assertions.assertEquals("Name4=Value+4%26", format(new BasicNameValuePair("Name4", "Value 4&")));
+        Assertions.assertEquals("Name4=Value%2B4%26", format(new BasicNameValuePair("Name4", "Value+4&")));
+        Assertions.assertEquals("Name4=Value+4%26+%3D4", format(new BasicNameValuePair("Name4", "Value 4& =4")));
+        Assertions.assertEquals("Name5=aaa&Name6=bbb", format(
                 new BasicNameValuePair("Name5", "aaa"),
-                new BasicNameValuePair("Name6", "bbb")), CoreMatchers.equalTo("Name5=aaa&Name6=bbb"));
-        assertThat(format(
+                new BasicNameValuePair("Name6", "bbb")));
+        Assertions.assertEquals("Name7=aaa&Name7=b%2Cb&Name7=ccc", format(
                 new BasicNameValuePair("Name7", "aaa"),
                 new BasicNameValuePair("Name7", "b,b"),
                 new BasicNameValuePair("Name7", "ccc")
-        ), CoreMatchers.equalTo("Name7=aaa&Name7=b%2Cb&Name7=ccc"));
-        assertThat(format(new BasicNameValuePair("Name8", "xx,  yy  ,zz")),
-                CoreMatchers.equalTo("Name8=xx%2C++yy++%2Czz"));
-        assertThat(format(
+        ));
+        Assertions.assertEquals("Name8=xx%2C++yy++%2Czz", format(new BasicNameValuePair("Name8", "xx,  yy  ,zz")));
+        Assertions.assertEquals("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+                "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8), format(
                 new BasicNameValuePair("russian", RU_HELLO),
-                new BasicNameValuePair("swiss", CH_HELLO)),
-                CoreMatchers.equalTo("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
-                        "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)));
+                new BasicNameValuePair("swiss", CH_HELLO)));
     }
 
 }

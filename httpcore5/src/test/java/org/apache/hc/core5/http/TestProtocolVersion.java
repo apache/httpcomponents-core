@@ -27,10 +27,8 @@
 
 package org.apache.hc.core5.http;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.apache.hc.core5.util.Tokenizer;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -51,19 +49,19 @@ class TestProtocolVersion {
 
     @Test
     void testParseBasic() throws Exception {
-        assertThat(ProtocolVersion.parse("PROTO/1"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 0)));
-        assertThat(ProtocolVersion.parse("PROTO/1.1"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 1)));
-        assertThat(ProtocolVersion.parse("PROTO/1.2"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 2)));
-        assertThat(ProtocolVersion.parse("PROTO/1.3  "), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 3)));
-        assertThat(ProtocolVersion.parse("PROTO/000.0000  "), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 0, 0)));
-        assertThat(ProtocolVersion.parse("PROTO/22.356"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 22, 356)));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), ProtocolVersion.parse("PROTO/1"));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), ProtocolVersion.parse("PROTO/1.1"));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 2), ProtocolVersion.parse("PROTO/1.2"));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 3), ProtocolVersion.parse("PROTO/1.3  "));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 0, 0), ProtocolVersion.parse("PROTO/000.0000  "));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 22, 356), ProtocolVersion.parse("PROTO/22.356"));
     }
 
     @Test
     void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        assertThat(ProtocolVersion.parse(" PROTO/1.2,0000", cursor, Tokenizer.delimiters(',')), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 2)));
-        assertThat(cursor.getPos(), CoreMatchers.equalTo(10));
+        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 2), ProtocolVersion.parse(" PROTO/1.2,0000", cursor, Tokenizer.delimiters(',')));
+        Assertions.assertEquals(10, cursor.getPos());
     }
 
     @Test

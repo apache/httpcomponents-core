@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -65,7 +65,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -141,11 +140,11 @@ abstract class H2ServerBootstrapFiltersTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        assertThat(message, CoreMatchers.notNullValue());
+        Assertions.assertNotNull(message);
         final HttpResponse response = message.getHead();
-        assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
         final Header testFilterHeader = response.getHeader("X-Test-Filter");
-        assertThat(testFilterHeader, CoreMatchers.notNullValue());
+        Assertions.assertNotNull(testFilterHeader);
     }
 
 }

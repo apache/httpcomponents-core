@@ -27,13 +27,11 @@
 
 package org.apache.hc.core5.net;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,27 +47,21 @@ class TestPercentCodec {
         PercentCodec.encode(buf, "blah!", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, " ~ ", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, "huh?", StandardCharsets.UTF_8);
-        assertThat(buf.toString(), CoreMatchers.equalTo("blah%21%20~%20huh%3F"));
+        assertEquals("blah%21%20~%20huh%3F", buf.toString());
     }
 
     @Test
     void testDecoding() {
-        assertThat(PercentCodec.decode("blah%21%20~%20huh%3F", StandardCharsets.UTF_8),
-                CoreMatchers.equalTo("blah! ~ huh?"));
-        assertThat(PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8),
-                CoreMatchers.equalTo("blah!+~ huh?"));
-        assertThat(PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8, true),
-                CoreMatchers.equalTo("blah! ~ huh?"));
+        assertEquals("blah! ~ huh?", PercentCodec.decode("blah%21%20~%20huh%3F", StandardCharsets.UTF_8));
+        assertEquals("blah!+~ huh?", PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8));
+        assertEquals("blah! ~ huh?", PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8, true));
     }
 
     @Test
     void testDecodingPartialContent() {
-        assertThat(PercentCodec.decode("blah%21%20%", StandardCharsets.UTF_8),
-                CoreMatchers.equalTo("blah! %"));
-        assertThat(PercentCodec.decode("blah%21%20%a", StandardCharsets.UTF_8),
-                CoreMatchers.equalTo("blah! %a"));
-        assertThat(PercentCodec.decode("blah%21%20%wa", StandardCharsets.UTF_8),
-                CoreMatchers.equalTo("blah! %wa"));
+        assertEquals("blah! %", PercentCodec.decode("blah%21%20%", StandardCharsets.UTF_8));
+        assertEquals("blah! %a", PercentCodec.decode("blah%21%20%a", StandardCharsets.UTF_8));
+        assertEquals("blah! %wa", PercentCodec.decode("blah%21%20%wa", StandardCharsets.UTF_8));
     }
 
     @ParameterizedTest
@@ -95,7 +87,7 @@ class TestPercentCodec {
     @Test
     void verifyRfc5987EncodingandDecoding() {
         final String s = "!\"$£%^&*()_-+={[}]:@~;'#,./<>?\\|✓éèæðŃœ";
-        assertThat(PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)), CoreMatchers.equalTo(s));
+        assertEquals(s, PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)));
     }
 
     @Test

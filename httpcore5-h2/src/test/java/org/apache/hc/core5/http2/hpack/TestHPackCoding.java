@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -38,7 +37,6 @@ import java.util.List;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -1073,10 +1071,10 @@ class TestHPackCoding {
                                 "123456789012345678901234567890123456789012345678901234567890")),
                 false);
 
-        assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
+        Assertions.assertEquals(2, decoder.decodeHeaders(wrap(buf)).size());
 
         decoder.setMaxListSize(1000000);
-        assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
+        Assertions.assertEquals(2, decoder.decodeHeaders(wrap(buf)).size());
 
         decoder.setMaxListSize(200);
         Assertions.assertThrows(HeaderListConstraintException.class, () ->

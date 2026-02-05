@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -75,7 +74,6 @@ import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.extension.nio.H2TestResources;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -454,10 +452,10 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                         context, null);
             final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                     future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-            assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+            Assertions.assertInstanceOf(ProtocolException.class, exception.getCause());
 
             final EndpointDetails endpointDetails = context.getEndpointDetails();
-            assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+            Assertions.assertEquals(0L, endpointDetails.getRequestCount());
         }
     }
 
