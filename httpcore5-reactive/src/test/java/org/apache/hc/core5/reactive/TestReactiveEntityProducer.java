@@ -97,7 +97,7 @@ class TestReactiveEntityProducer {
 
         final HttpStreamResetException exception = Assertions.assertThrows(HttpStreamResetException.class, () ->
                 entityProducer.produce(streamChannel));
-        Assertions.assertTrue(exception.getCause() instanceof RuntimeException, "Expected published exception to be rethrown");
+        Assertions.assertInstanceOf(RuntimeException.class, exception.getCause(), "Expected published exception to be rethrown");
         Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
         entityProducer.failed(exception);
         Assertions.assertEquals(1, entityProducer.available());

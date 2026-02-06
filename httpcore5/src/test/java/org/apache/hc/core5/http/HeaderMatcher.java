@@ -26,8 +26,6 @@
  */
 package org.apache.hc.core5.http;
 
-import java.util.Objects;
-
 import org.junit.jupiter.api.Assertions;
 
 public final class HeaderMatcher {
@@ -39,8 +37,7 @@ public final class HeaderMatcher {
         Assertions.assertNotNull(actual, "header should not be null");
         Assertions.assertTrue(headerName.equalsIgnoreCase(actual.getName()),
                 "header name mismatch: expected=" + headerName + ", actual=" + actual.getName());
-        Assertions.assertTrue(Objects.equals(headerValue, actual.getValue()),
-                "header value mismatch: expected=" + headerValue + ", actual=" + actual.getValue());
+        Assertions.assertEquals(headerValue, actual.getValue(), "header value mismatch: expected=" + headerValue + ", actual=" + actual.getValue());
     }
 
     public static void assertSame(final Header actual, final Header expected) {

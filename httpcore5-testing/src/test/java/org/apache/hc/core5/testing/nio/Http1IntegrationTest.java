@@ -863,7 +863,7 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
-        Assertions.assertTrue(cause instanceof MalformedChunkCodingException);
+        Assertions.assertInstanceOf(MalformedChunkCodingException.class, cause);
         Assertions.assertEquals("garbage", entityConsumer.generateContent());
     }
 

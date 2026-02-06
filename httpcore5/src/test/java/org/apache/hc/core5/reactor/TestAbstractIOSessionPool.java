@@ -127,7 +127,7 @@ class TestAbstractIOSessionPool {
 
         Mockito.verify(impl, Mockito.times(3)).validateSession(ArgumentMatchers.any(), ArgumentMatchers.any());
 
-        Assertions.assertEquals(true, future3.isDone());
+        Assertions.assertTrue(future3.isDone());
         Assertions.assertSame(ioSession1, future3.get());
     }
 

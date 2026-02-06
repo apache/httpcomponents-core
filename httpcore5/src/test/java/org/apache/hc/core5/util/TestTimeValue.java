@@ -321,13 +321,13 @@ class TestTimeValue {
         final TimeValue tv5 = TimeValue.ofSeconds(60L);
         final TimeValue tv6 = TimeValue.ofMinutes(1L);
 
-        Assertions.assertEquals(true, tv1.compareTo(tv1) == 0);
-        Assertions.assertEquals(true, tv1.compareTo(tv2) < 0);
-        Assertions.assertEquals(true, tv1.compareTo(tv3) == 0);
-        Assertions.assertEquals(true, tv1.compareTo(tv4) == 0);
-        Assertions.assertEquals(true, tv1.compareTo(tv5) < 0);
-        Assertions.assertEquals(true, tv6.compareTo(tv5) == 0);
-        Assertions.assertEquals(true, tv6.compareTo(tv4) > 0);
+        Assertions.assertTrue(tv1.compareTo(tv1) == 0);
+        Assertions.assertTrue(tv1.compareTo(tv2) < 0);
+        Assertions.assertTrue(tv1.compareTo(tv3) == 0);
+        Assertions.assertTrue(tv1.compareTo(tv4) == 0);
+        Assertions.assertTrue(tv1.compareTo(tv5) < 0);
+        Assertions.assertTrue(tv6.compareTo(tv5) == 0);
+        Assertions.assertTrue(tv6.compareTo(tv4) > 0);
         Assertions.assertThrows(NullPointerException.class, () -> tv1.compareTo(null));
     }
 
