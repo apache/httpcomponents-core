@@ -1022,4 +1022,159 @@ class TestTestingFramework {
         framework.runTests();
     }
 
+    @Test
+    void deepcopyRejectsNonSerializable() {
+        Assertions.assertThrows(TestingFrameworkException.class, () -> TestingFramework.deepcopy(new Object()));
+    }
+
+    @Test
+    void addTestUsesDeepCopyAndLocksExpectations() throws Exception {
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> request = new HashMap<>();
+        request.put(METHOD, "POST");
+        request.put(PATH, "copy");
+        test.put(REQUEST, request);
+
+        final Map<String, Object> response = new HashMap<>();
+        response.put(STATUS, 200);
+        response.put(BODY, "ok");
+        response.put(CONTENT_TYPE, "text/plain");
+        final Map<String, String> headers = new HashMap<>();
+        headers.put("X-A", "v1");
+        response.put(HEADERS, headers);
+        test.put(RESPONSE, response);
+
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
+                    final TestingFrameworkRequestHandler requestHandler,
+                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
+                Assertions.assertEquals("POST", request.get(METHOD));
+                Assertions.assertEquals("copy", request.get(PATH));
+                Assertions.assertEquals(200, responseExpectations.get(STATUS));
+                Assertions.assertEquals("ok", responseExpectations.get(BODY));
+                Assertions.assertEquals("text/plain", responseExpectations.get(CONTENT_TYPE));
+                @SuppressWarnings("unchecked")
+                final Map<String, String> expectedHeaders = (Map<String, String>) responseExpectations.get(HEADERS);
+                Assertions.assertEquals("v1", expectedHeaders.get("X-A"));
+                Assertions.assertThrows(UnsupportedOperationException.class, () -> responseExpectations.put("x", "y"));
+
+                final Map<String, Object> actual = new HashMap<>();
+                actual.put(STATUS, responseExpectations.get(STATUS));
+                actual.put(BODY, responseExpectations.get(BODY));
+                actual.put(CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
+                actual.put(HEADERS, responseExpectations.get(HEADERS));
+                return actual;
+            }
+        };
+
+        final TestingFramework framework = newWebServerTestingFramework(adapter);
+        framework.addTest(test);
+
+        request.put(METHOD, "GET");
+        response.put(STATUS, 500);
+
+        framework.runTests();
+    }
+
+    @Test
+    void headSkipsBodyAndContentTypeChecks() throws Exception {
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> request = new HashMap<>();
+        request.put(METHOD, "HEAD");
+        request.put(PATH, "head");
+        test.put(REQUEST, request);
+
+        final Map<String, Object> response = new HashMap<>();
+        response.put(STATUS, 200);
+        response.put(BODY, "ignored");
+        response.put(CONTENT_TYPE, "text/plain");
+        final Map<String, String> headers = new HashMap<>();
+        headers.put("X-Ok", "yes");
+        response.put(HEADERS, headers);
+        test.put(RESPONSE, response);
+
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
+                    final TestingFrameworkRequestHandler requestHandler,
+                    final Map<String, Object> responseExpectations) {
+                final Map<String, Object> actual = new HashMap<>();
+                actual.put(STATUS, 200);
+                actual.put(HEADERS, responseExpectations.get(HEADERS));
+                return actual;
+            }
+        };
+
+        final TestingFramework framework = newWebServerTestingFramework(adapter);
+        framework.addTest(test);
+        framework.runTests();
+    }
+
+    @Test
+    void missingHeaderThrows() throws Exception {
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> request = new HashMap<>();
+        request.put(METHOD, "GET");
+        request.put(PATH, "header-check");
+        test.put(REQUEST, request);
+
+        final Map<String, Object> response = new HashMap<>();
+        response.put(STATUS, 200);
+        final Map<String, String> headers = new HashMap<>();
+        headers.put("X-Need", "value");
+        response.put(HEADERS, headers);
+        test.put(RESPONSE, response);
+
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
+                    final TestingFrameworkRequestHandler requestHandler,
+                    final Map<String, Object> responseExpectations) {
+                final Map<String, Object> actual = new HashMap<>();
+                actual.put(STATUS, 200);
+                actual.put(HEADERS, new HashMap<String, String>());
+                return actual;
+            }
+        };
+
+        final TestingFramework framework = newWebServerTestingFramework(adapter);
+        framework.addTest(test);
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
+    }
+
+    @Test
+    void nullResponseThrows() throws Exception {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
+                    final TestingFrameworkRequestHandler requestHandler,
+                    final Map<String, Object> responseExpectations) {
+                return null;
+            }
+        };
+
+        final TestingFramework framework = newWebServerTestingFramework(adapter);
+        framework.addTest();
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
+    }
+
+    @Test
+    void nullStatusThrows() throws Exception {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
+                    final TestingFrameworkRequestHandler requestHandler,
+                    final Map<String, Object> responseExpectations) {
+                final Map<String, Object> response = new HashMap<>();
+                response.put(STATUS, null);
+                return response;
+            }
+        };
+
+        final TestingFramework framework = newWebServerTestingFramework(adapter);
+        framework.addTest();
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
+    }
+
 }

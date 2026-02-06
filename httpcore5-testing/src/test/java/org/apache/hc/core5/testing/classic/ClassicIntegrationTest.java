@@ -730,6 +730,108 @@ abstract class ClassicIntegrationTest {
     }
 
     @Test
+    void testEchoNoEntityRequest() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.register("*", new EchoHandler());
+
+        server.start();
+        client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/echo");
+        post.setEntity(null);
+
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
+            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            if (response.getEntity() != null) {
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                Assertions.assertEquals(0, received.length);
+            }
+        }
+    }
+
+    @Test
+    void testEchoEmptyEntity() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.register("*", new EchoHandler());
+
+        server.start();
+        client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/echo");
+        post.setEntity(new ByteArrayEntity(new byte[0], ContentType.TEXT_PLAIN));
+
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
+            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            Assertions.assertEquals(0, received.length);
+        }
+    }
+
+    @Test
+    void testEchoLargeEntity() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.register("*", new EchoHandler());
+
+        server.start();
+        client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+
+        final byte[] data = new byte[128 * 1024];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (byte) (i % 256);
+        }
+
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/echo");
+        post.setEntity(new ByteArrayEntity(data, ContentType.APPLICATION_OCTET_STREAM));
+
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
+            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            Assertions.assertArrayEquals(data, received);
+        }
+    }
+
+    @Test
+    void testEchoManySmallRequests() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.register("*", new EchoHandler());
+
+        server.start();
+        client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+
+        for (int i = 0; i < 10; i++) {
+            final byte[] data = ("hi-" + i).getBytes(StandardCharsets.US_ASCII);
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/echo");
+            post.setEntity(new ByteArrayEntity(data, ContentType.TEXT_PLAIN));
+
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
+                Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                Assertions.assertArrayEquals(data, received);
+            }
+        }
+    }
+
+    @Test
     void testHeaderTooLarge() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
