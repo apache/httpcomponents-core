@@ -298,10 +298,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             socketChannel.setOption(StandardSocketOptions.SO_LINGER, linger);
         }
 
-        // None of the below options are applicable to Unix domain sockets.
-        if (!(socketChannel.getRemoteAddress() instanceof InetSocketAddress)) {
+        // None of the options below this point are applicable to Unix domain sockets.
+        if (!socketChannel.supportedOptions().contains(StandardSocketOptions.TCP_NODELAY)) {
             return;
         }
+
         socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, this.reactorConfig.isTcpNoDelay());
         socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, this.reactorConfig.isSoKeepAlive());
 
