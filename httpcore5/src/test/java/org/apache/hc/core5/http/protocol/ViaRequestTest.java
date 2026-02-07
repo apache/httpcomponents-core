@@ -111,7 +111,7 @@ class ViaRequestTest {
 
         assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
         assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals(request.getHeader(HttpHeaders.VIA).getValue(), viaValue);
+        assertEquals(viaValue, request.getHeader(HttpHeaders.VIA).getValue());
 
     }
 }

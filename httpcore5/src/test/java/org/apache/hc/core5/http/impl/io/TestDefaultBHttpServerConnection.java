@@ -125,7 +125,7 @@ class TestDefaultBHttpServerConnection {
         Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content instanceof ContentLengthInputStream);
+        Assertions.assertInstanceOf(ContentLengthInputStream.class, content);
     }
 
     @Test
@@ -157,7 +157,7 @@ class TestDefaultBHttpServerConnection {
         Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content instanceof ChunkedInputStream);
+        Assertions.assertInstanceOf(ChunkedInputStream.class, content);
     }
 
     @Test
