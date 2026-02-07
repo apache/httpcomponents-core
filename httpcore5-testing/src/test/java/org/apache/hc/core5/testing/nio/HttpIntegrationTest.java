@@ -384,6 +384,173 @@ abstract class HttpIntegrationTest {
     }
 
     @Test
+    void testEchoEmptyEntity() throws Exception {
+        final HttpTestServer server = server();
+        final HttpTestClient client = client();
+
+        server.register("*", () -> new EchoHandler(8));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final BasicHttpRequest request = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, AsyncEntityProducers.create("")),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(result);
+        final HttpResponse response = result.getHead();
+        final String entity = result.getBody();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertNotNull(entity);
+        Assertions.assertEquals("", entity);
+    }
+
+    @Test
+    void testEchoLargeEntitySmallBuffer() throws Exception {
+        final HttpTestServer server = server();
+        final HttpTestClient client = client();
+
+        server.register("*", () -> new EchoHandler(8));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 5000; i++) {
+            builder.append("0123456789abcdef");
+        }
+        final String content = builder.toString();
+
+        final BasicHttpRequest request = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, AsyncEntityProducers.create(content)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(result);
+        final HttpResponse response = result.getHead();
+        final String entity = result.getBody();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertEquals(content, entity);
+    }
+
+    @Test
+    void testEchoNoEntityRequest() throws Exception {
+        final HttpTestServer server = server();
+        final HttpTestClient client = client();
+
+        server.register("*", () -> new EchoHandler(8));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final BasicHttpRequest request = BasicRequestBuilder.post()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(result);
+        final HttpResponse response = result.getHead();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        final String body = result.getBody();
+        Assertions.assertTrue(body == null || body.isEmpty());
+    }
+
+    @Test
+    void testEchoHeadNoBody() throws Exception {
+        final HttpTestServer server = server();
+        final HttpTestClient client = client();
+
+        server.register("*", () -> new EchoHandler(8));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final BasicHttpRequest request = BasicRequestBuilder.head()
+                .setHttpHost(target)
+                .setPath("/echo")
+                .build();
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(result);
+        final HttpResponse response = result.getHead();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertNull(result.getBody());
+    }
+
+    @Test
+    void testEchoManySmallRequests() throws Exception {
+        final HttpTestServer server = server();
+        final HttpTestClient client = client();
+
+        server.register("*", () -> new EchoHandler(8));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final HttpHost target = target(serverEndpoint);
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < REQ_NUM; i++) {
+            final BasicHttpRequest request = BasicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .build();
+            queue.add(streamEndpoint.execute(
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("hi-" + i)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+        }
+
+        for (int i = 0; i < REQ_NUM; i++) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertEquals("hi-" + i, entity);
+        }
+    }
+
+    @Test
     void testNoEntityPost() throws Exception {
         final HttpTestServer server = server();
         final HttpTestClient client = client();

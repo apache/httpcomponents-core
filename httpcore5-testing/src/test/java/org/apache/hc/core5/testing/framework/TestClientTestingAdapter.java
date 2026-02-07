@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.testing.framework;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
@@ -49,5 +50,63 @@ class TestClientTestingAdapter {
         final Map<String, Object> request = null;
         Assertions.assertTrue(adapter.isRequestSupported(request), "isRequestSupported should return true");
 
+    }
+
+    @Test
+    void executeCallsAssertNothingThrownWhenEnabled() throws Exception {
+        final ClientPOJOAdapter pojoAdapter = new ClientPOJOAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request) {
+                return new HashMap<>();
+            }
+
+            @Override
+            public String getClientName() {
+                return "test";
+            }
+        };
+        final ClientTestingAdapter adapter = new ClientTestingAdapter(pojoAdapter) {
+            {
+                callAssertNothingThrown = true;
+            }
+        };
+
+        final TestingFrameworkRequestHandler requestHandler = new TestingFrameworkRequestHandler() {
+        };
+
+        adapter.execute("http://localhost", new HashMap<>(), requestHandler, new HashMap<>());
+
+        Assertions.assertDoesNotThrow(requestHandler::assertNothingThrown);
+    }
+
+    @Test
+    void executeThrowsWhenHandlerNullAndAssertEnabled() {
+        final ClientPOJOAdapter pojoAdapter = new ClientPOJOAdapter() {
+            @Override
+            public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request) {
+                return new HashMap<>();
+            }
+
+            @Override
+            public String getClientName() {
+                return "test";
+            }
+        };
+        final ClientTestingAdapter adapter = new ClientTestingAdapter(pojoAdapter) {
+            {
+                callAssertNothingThrown = true;
+            }
+        };
+
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute("http://localhost", new HashMap<>(), null, new HashMap<>()));
+    }
+
+    @Test
+    void executeThrowsWhenAdapterNull() {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter();
+
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute("http://localhost", new HashMap<>(), new TestingFrameworkRequestHandler(), new HashMap<>()));
     }
 }
