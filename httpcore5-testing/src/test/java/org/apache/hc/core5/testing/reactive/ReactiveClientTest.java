@@ -232,9 +232,9 @@ abstract class ReactiveClientTest {
         Assertions.assertTrue(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
         if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_1) {
-            Assertions.assertTrue(cause instanceof SocketTimeoutException, "Expected SocketTimeoutException, but got " + cause.getClass().getName());
+            Assertions.assertInstanceOf(SocketTimeoutException.class, cause, "Expected SocketTimeoutException, but got " + cause.getClass().getName());
         } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-            Assertions.assertTrue(cause instanceof HttpStreamResetException, format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()));
+            Assertions.assertInstanceOf(HttpStreamResetException.class, cause, format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()));
         } else {
             Assertions.fail("Unknown HttpVersionPolicy: " + versionPolicy);
         }

@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetAddress;
@@ -130,7 +131,7 @@ abstract class H2AlpnTest {
         } catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
             assertFalse(h2Allowed, "h2 negotiation was enabled, but h2 was not negotiated");
-            assertTrue(cause instanceof ProtocolNegotiationException);
+            assertInstanceOf(ProtocolNegotiationException.class, cause);
             assertEquals("ALPN: missing application protocol", cause.getMessage());
             assertTrue(strictALPN, "strict ALPN mode was not enabled, but the client negotiator still threw");
             return;

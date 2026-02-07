@@ -335,12 +335,12 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
 
         final Object result2 = pushResultQueue.poll();
         Assertions.assertNotNull(result2);
-        Assertions.assertTrue(result2 instanceof H2StreamResetException);
+        Assertions.assertInstanceOf(H2StreamResetException.class, result2);
         Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
 
         final Object result3 = pushResultQueue.poll();
         Assertions.assertNotNull(result3);
-        Assertions.assertTrue(result3 instanceof H2StreamResetException);
+        Assertions.assertInstanceOf(H2StreamResetException.class, result3);
         Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
     }
 

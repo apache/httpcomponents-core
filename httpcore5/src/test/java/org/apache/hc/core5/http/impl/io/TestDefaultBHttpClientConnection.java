@@ -149,7 +149,7 @@ class TestDefaultBHttpClientConnection {
         Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content instanceof ContentLengthInputStream);
+        Assertions.assertInstanceOf(ContentLengthInputStream.class, content);
     }
 
     @Test
@@ -179,7 +179,7 @@ class TestDefaultBHttpClientConnection {
         Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content instanceof ChunkedInputStream);
+        Assertions.assertInstanceOf(ChunkedInputStream.class, content);
     }
 
     @Test
@@ -226,7 +226,7 @@ class TestDefaultBHttpClientConnection {
         Assertions.assertNotNull(entity);
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content instanceof IdentityInputStream);
+        Assertions.assertInstanceOf(IdentityInputStream.class, content);
     }
 
     @Test

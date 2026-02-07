@@ -214,7 +214,7 @@ class TestSharedOutputBuffer {
         try {
             task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         } catch (final ExecutionException ex) {
-            Assertions.assertTrue(ex.getCause() instanceof InterruptedIOException);
+            Assertions.assertInstanceOf(InterruptedIOException.class, ex.getCause());
         }
     }
 

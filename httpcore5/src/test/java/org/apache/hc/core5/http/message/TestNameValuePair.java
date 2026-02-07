@@ -68,7 +68,7 @@ class TestNameValuePair {
     void testObjectNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
-        Assertions.assertNotEquals(NameValuePair, new Object());
+        Assertions.assertNotEquals(new Object(), NameValuePair);
     }
 
     @Test

@@ -595,7 +595,7 @@ class TestStrictConnPool {
 
         final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
                 future2.get());
-        Assertions.assertTrue(executionException.getCause() instanceof DeadlineTimeoutException);
+        Assertions.assertInstanceOf(DeadlineTimeoutException.class, executionException.getCause());
         holdInternalLock.interrupt(); // Cleanup
     }
 
