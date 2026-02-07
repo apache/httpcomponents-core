@@ -1,3 +1,55 @@
+Release 5.4.1
+------------------
+
+This maintenance release fixes a latency regression in the async transport
+caused by TCP_NODELAY failing to be set. Several other bugs have also been
+fixed affecting connection management, HTTP/2 exception handling and
+propagation, and so forth.
+
+
+Change Log
+-------------------
+
+* Regression: Ensure TCP-specific socket options are set correctly in the async
+  transport.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: Prevent integer overflow in LaxConnPool so that negative numbers are
+  not reported in the thread pool statistics.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: Loop over and close expired connections in LaxConnPool instead of
+  returning them.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: Respect the PoolReusePolicy.FIFO in StrictConnPool.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: Corrected exception propagation in protocol negotiators' exception
+  handling code.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fix SOCKS handshake to fail on EOF. (#604)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Bug fix: Handle CancelledKeyException thrown by abort method of the H2 stream.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fix race condition in ComplexCancellable.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: In MonitoringResponseOutOfOrderStrategy, always perform a blocking
+  read to check for data.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: Corrected exception propagation to individual H2 streams in case of
+  an unexpected error with the H2 connection.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Regression: Restored SocketSupport and marked it deprecated.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.4
 ------------------
 
