@@ -24,23 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.util;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.nio.ByteBuffer;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+class ByteBufferPoolTest {
+
+    @Test
+    void acquireAndReleaseBuffers() {
+        final ByteBufferPool pool = new ByteBufferPool(16, 2);
+        final ByteBuffer a = pool.acquire();
+        final ByteBuffer b = pool.acquire();
+        assertNotNull(a);
+        assertNotNull(b);
+        pool.release(a);
+        pool.release(b);
+        assertEquals(2, pool.pooledCount());
+        final ByteBuffer c = pool.acquire();
+        assertEquals(1, pool.pooledCount());
+        pool.release(c);
+        pool.clear();
+        assertEquals(0, pool.pooledCount());
+    }
+
+    @Test
+    void rejectsInvalidConfig() {
+        assertThrows(IllegalArgumentException.class, () -> new ByteBufferPool(0, 1));
+        assertThrows(IllegalArgumentException.class, () -> new ByteBufferPool(1, -1));
+    }
 }

@@ -24,23 +24,41 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import java.nio.ByteBuffer;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+public interface WebSocketExtension {
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+    String getName();
 
+    default boolean usesRsv1() {
+        return false;
+    }
+
+    default boolean usesRsv2() {
+        return false;
+    }
+
+    default boolean usesRsv3() {
+        return false;
+    }
+
+    default ByteBuffer decode(
+            final WebSocketFrameType type,
+            final boolean fin,
+            final ByteBuffer payload) throws WebSocketException {
+        return payload;
+    }
+
+    default ByteBuffer encode(
+            final WebSocketFrameType type,
+            final boolean fin,
+            final ByteBuffer payload) throws WebSocketException {
+        return payload;
+    }
+
+    default WebSocketExtensionData getResponseData() {
+        return new WebSocketExtensionData(getName(), null);
+    }
 }

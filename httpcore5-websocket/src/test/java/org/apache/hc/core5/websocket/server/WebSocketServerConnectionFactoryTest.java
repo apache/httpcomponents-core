@@ -24,23 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.server;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import java.net.ServerSocket;
+import java.net.Socket;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+import org.junit.jupiter.api.Test;
 
+class WebSocketServerConnectionFactoryTest {
+
+    @Test
+    void createsBoundConnection() throws Exception {
+        final ServerSocket server = new ServerSocket(0);
+        final Socket client = new Socket("127.0.0.1", server.getLocalPort());
+        final Socket socket = server.accept();
+        client.close();
+        server.close();
+
+        final WebSocketServerConnectionFactory factory = new WebSocketServerConnectionFactory("http", null, null);
+        final WebSocketServerConnection conn = factory.createConnection(socket);
+        assertNotNull(conn.getSocketInputStream());
+        assertNotNull(conn.getSocketOutputStream());
+        conn.close();
+    }
 }

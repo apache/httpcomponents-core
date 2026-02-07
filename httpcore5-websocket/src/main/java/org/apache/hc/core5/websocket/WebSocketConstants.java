@@ -24,23 +24,20 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+public final class WebSocketConstants {
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+    public static final String WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    public static final String SEC_WEBSOCKET_KEY = "Sec-WebSocket-Key";
+    public static final String SEC_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
+    public static final String SEC_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
+    public static final String SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
+    public static final String SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
+    public static final String SEC_WEBSOCKET_VERSION_LOWER = "sec-websocket-version";
+    public static final String SEC_WEBSOCKET_PROTOCOL_LOWER = "sec-websocket-protocol";
+    public static final String SEC_WEBSOCKET_EXTENSIONS_LOWER = "sec-websocket-extensions";
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
-
+    private WebSocketConstants() {
+    }
 }

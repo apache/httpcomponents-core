@@ -24,23 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringJoiner;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+public final class WebSocketExtensionNegotiation {
 
+    private final List<WebSocketExtension> extensions;
+    private final List<WebSocketExtensionData> responseData;
+
+    WebSocketExtensionNegotiation(
+            final List<WebSocketExtension> extensions,
+            final List<WebSocketExtensionData> responseData) {
+        this.extensions = extensions != null ? extensions : Collections.emptyList();
+        this.responseData = responseData != null ? responseData : Collections.emptyList();
+    }
+
+    public List<WebSocketExtension> getExtensions() {
+        return extensions;
+    }
+
+    public List<WebSocketExtensionData> getResponseData() {
+        return responseData;
+    }
+
+    public String formatResponseHeader() {
+        final StringJoiner joiner = new StringJoiner(", ");
+        for (final WebSocketExtensionData data : responseData) {
+            joiner.add(data.format());
+        }
+        return joiner.length() > 0 ? joiner.toString() : null;
+    }
 }

@@ -24,23 +24,37 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import org.junit.jupiter.api.Test;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+class WebSocketConfigTest {
 
+    @Test
+    void defaultsArePositive() {
+        final WebSocketConfig cfg = WebSocketConfig.DEFAULT;
+        assertEquals(16 * 1024 * 1024, cfg.getMaxFramePayloadSize());
+        assertEquals(64 * 1024 * 1024, cfg.getMaxMessageSize());
+    }
+
+    @Test
+    void customBuilderAppliesLimits() {
+        final WebSocketConfig cfg = WebSocketConfig.custom()
+                .setMaxFramePayloadSize(1024)
+                .setMaxMessageSize(2048)
+                .build();
+        assertEquals(1024, cfg.getMaxFramePayloadSize());
+        assertEquals(2048, cfg.getMaxMessageSize());
+    }
+
+    @Test
+    void invalidSizesThrow() {
+        assertThrows(IllegalArgumentException.class,
+                () -> WebSocketConfig.custom().setMaxFramePayloadSize(0));
+        assertThrows(IllegalArgumentException.class,
+                () -> WebSocketConfig.custom().setMaxMessageSize(0));
+    }
 }

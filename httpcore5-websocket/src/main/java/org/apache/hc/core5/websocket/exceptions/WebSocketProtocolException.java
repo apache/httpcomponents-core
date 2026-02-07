@@ -24,23 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.exceptions;
 
-package org.apache.hc.core5.http2;
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+import org.apache.hc.core5.annotation.Internal;
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+@Internal
+public final class WebSocketProtocolException extends RuntimeException {
 
+    public final int closeCode;
+
+    public WebSocketProtocolException(final int closeCode, final String message) {
+        super(message);
+        this.closeCode = closeCode;
+    }
 }

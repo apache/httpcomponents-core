@@ -24,23 +24,12 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.server;
 
-package org.apache.hc.core5.http2;
+public final class WebSocketContextKeys {
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+    public static final String CONNECTION = "httpcore.websocket.connection";
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
-
+    private WebSocketContextKeys() {
+    }
 }

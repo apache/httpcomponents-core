@@ -24,23 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket.frame;
 
-package org.apache.hc.core5.http2;
+import org.apache.hc.core5.annotation.Internal;
 
 /**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
+ * WebSocket frame header bit masks (RFC 6455 §5.2).
  */
-public final class H2PseudoRequestHeaders {
+@Internal
+public final class FrameHeaderBits {
+    private FrameHeaderBits() {
+    }
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+    // First header byte
+    public static final int FIN = 0x80;
+    public static final int RSV1 = 0x40;
+    public static final int RSV2 = 0x20;
+    public static final int RSV3 = 0x10;
+    // low 4 bits (0x0F) are opcode
 
+    // Second header byte
+    public static final int MASK_BIT = 0x80;  // client->server payload mask bit
+    // low 7 bits (0x7F) are payload len indicator
 }

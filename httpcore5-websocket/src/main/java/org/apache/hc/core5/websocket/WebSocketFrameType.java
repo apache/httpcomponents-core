@@ -24,23 +24,37 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.websocket;
 
-package org.apache.hc.core5.http2;
+public enum WebSocketFrameType {
 
-/**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
- *
- * @since 5.0
- */
-public final class H2PseudoRequestHeaders {
+    CONTINUATION(0x0),
+    TEXT(0x1),
+    BINARY(0x2),
+    CLOSE(0x8),
+    PING(0x9),
+    PONG(0xA);
 
-    public static final String METHOD = ":method";
-    public static final String SCHEME = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH = ":path";
-    /**
-     * RFC 8441 extended CONNECT pseudo-header.
-     */
-    public static final String PROTOCOL = ":protocol";
+    private final int opcode;
 
+    WebSocketFrameType(final int opcode) {
+        this.opcode = opcode;
+    }
+
+    public int getOpcode() {
+        return opcode;
+    }
+
+    public boolean isControl() {
+        return opcode >= 0x8;
+    }
+
+    public static WebSocketFrameType fromOpcode(final int opcode) {
+        for (final WebSocketFrameType type : values()) {
+            if (type.opcode == opcode) {
+                return type;
+            }
+        }
+        return null;
+    }
 }
