@@ -1225,8 +1225,8 @@ class TestAbstractH2StreamMultiplexer {
         Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
         Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
 
-        final Timeout idleTime = Timeout.ofMilliseconds(5);
-        final Timeout ackTimeout = Timeout.ofSeconds(5);
+        final Timeout idleTime = Timeout.ofMilliseconds(1);
+        final Timeout ackTimeout = Timeout.ofSeconds(1);
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
