@@ -139,7 +139,7 @@ public class H2FileServerExample {
                             final ResponseTrigger responseTrigger,
                             final HttpContext localContext) throws HttpException, IOException {
                         final HttpCoreContext context = HttpCoreContext.cast(localContext);
-                        final HttpRequest request = message.getHead();
+                        final HttpRequest request = message.head();
                         final URI requestUri;
                         try {
                             requestUri = request.getUri();

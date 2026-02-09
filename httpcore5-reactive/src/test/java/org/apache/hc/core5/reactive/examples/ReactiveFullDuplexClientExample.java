@@ -34,6 +34,8 @@ import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -53,9 +55,6 @@ import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 import org.reactivestreams.Publisher;
-
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Example of full-duplex HTTP/1.1 message exchanges using reactive streaming. This demo will stream randomly
@@ -117,13 +116,13 @@ public class ReactiveFullDuplexClientExample {
         final Future<Void> responseComplete = requester.execute(requestProducer, consumer, Timeout.ofSeconds(30), null);
         final Message<HttpResponse, Publisher<ByteBuffer>> streamingResponse = consumer.getResponseFuture().get();
 
-        System.out.println(streamingResponse.getHead());
-        for (final Header header : streamingResponse.getHead().getHeaders()) {
+        System.out.println(streamingResponse.head());
+        for (final Header header : streamingResponse.head().getHeaders()) {
             System.out.println(header);
         }
         System.out.println();
 
-        Observable.fromPublisher(streamingResponse.getBody())
+        Observable.fromPublisher(streamingResponse.body())
             .map(byteBuffer -> {
                 final byte[] string = new byte[byteBuffer.remaining()];
                 byteBuffer.get(string);

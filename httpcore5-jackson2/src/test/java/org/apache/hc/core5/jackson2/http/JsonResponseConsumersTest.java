@@ -107,8 +107,8 @@ public class JsonResponseConsumersTest {
         }
 
         Assertions.assertThat(resultRef.get()).isNotNull().satisfies(e -> {
-            Assertions.assertThat(e.getHead()).isSameAs(response);
-            Assertions.assertThat(e.getBody()).isNotNull();
+            Assertions.assertThat(e.head()).isSameAs(response);
+            Assertions.assertThat(e.body()).isNotNull();
             Assertions.assertThat(e.error()).isNull();
         });
     }
@@ -278,8 +278,8 @@ public class JsonResponseConsumersTest {
         responseConsumer.streamEnd(null);
 
         Assertions.assertThat(resultRef.get()).isNotNull().satisfies(e -> {
-            Assertions.assertThat(e.getHead()).isSameAs(response);
-            Assertions.assertThat(e.getBody()).isNull();
+            Assertions.assertThat(e.head()).isSameAs(response);
+            Assertions.assertThat(e.body()).isNull();
             Assertions.assertThat(e.error()).isEqualTo(errorBody);
         });
     }
@@ -318,8 +318,8 @@ public class JsonResponseConsumersTest {
         responseConsumer.streamEnd(null);
 
         Assertions.assertThat(resultRef.get()).isNotNull().satisfies(e -> {
-            Assertions.assertThat(e.getHead()).isSameAs(response);
-            Assertions.assertThat(e.getBody()).isNull();
+            Assertions.assertThat(e.head()).isSameAs(response);
+            Assertions.assertThat(e.body()).isNull();
             Assertions.assertThat(e.error()).isEqualTo(errorBody);
         });
     }

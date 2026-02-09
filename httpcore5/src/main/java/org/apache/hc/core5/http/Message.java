@@ -44,6 +44,30 @@ public final class Message<H extends MessageHeaders, B> {
     private final Object error;
 
     /**
+     * Create a new message with the given head and body, and no error.
+     *
+     * @param head The message head.
+     * @param body The message body.
+     *
+     * @since 5.5
+     */
+    public static <H extends MessageHeaders, B> Message<H, B> of(final H head, final B body) {
+        return new Message<>(head, body, null);
+    }
+
+    /**
+     * Create a new message with the given head and error.
+     *
+     * @param head The message head.
+     * @param error The untyped object containing error details.
+     *
+     * @since 5.5
+     */
+    public static <H extends MessageHeaders, B> Message<H, B> error(final H head, final Object error) {
+        return new Message<>(head, null, error);
+    }
+
+    /**
      * Constructs a new instance.
      *
      * @param head The message head.
@@ -63,13 +87,7 @@ public final class Message<H extends MessageHeaders, B> {
         this(head, body, null);
     }
 
-    /**
-     * Constructs a new instance.
-     *
-     * @param head The message head.
-     * @param body The message body.
-     */
-    public Message(final H head, final B body, final Object error) {
+    private Message(final H head, final B body, final Object error) {
         this.head = Args.notNull(head, "Message head");
         this.body = body;
         this.error = error;
@@ -79,9 +97,31 @@ public final class Message<H extends MessageHeaders, B> {
      * Gets the message head.
      *
      * @return the message head.
+     *
+     * @since 5.5
+     */
+    public H head() {
+        return head;
+    }
+
+    /**
+     * Gets the message head.
+     *
+     * @return the message head.
      */
     public H getHead() {
         return head;
+    }
+
+    /**
+     * Gets the message body.
+     *
+     * @return the message body.
+     *
+     * @since 5.5
+     */
+    public B body() {
+        return body;
     }
 
     /**

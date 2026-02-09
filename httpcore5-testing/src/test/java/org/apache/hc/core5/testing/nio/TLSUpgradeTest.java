@@ -112,9 +112,9 @@ class TLSUpgradeTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        final String body1 = message1.getBody();
+        final String body1 = message1.body();
         Assertions.assertEquals("some stuff", body1);
 
         // Connect using plain HTTP scheme
@@ -138,9 +138,9 @@ class TLSUpgradeTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message2);
-        final HttpResponse response2 = message2.getHead();
+        final HttpResponse response2 = message2.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
-        final String body2 = message2.getBody();
+        final String body2 = message2.body();
         Assertions.assertEquals("some stuff", body2);
     }
 

@@ -112,8 +112,8 @@ public abstract class AsyncHttp2CompatTest extends AsyncHttpCompatTest<H2AsyncRe
                                 protected void handleResponse(final HttpRequest promise, final Message<HttpResponse, String> responseMessage) {
                                     resultQueue.add(new Result<>(
                                             httpget,
-                                            responseMessage.getHead(),
-                                            responseMessage.getBody()));
+                                            responseMessage.head(),
+                                            responseMessage.body()));
                                     countDownLatch.countDown();
                                 }
 
@@ -131,8 +131,8 @@ public abstract class AsyncHttp2CompatTest extends AsyncHttpCompatTest<H2AsyncRe
                         public void completed(final Message<HttpResponse, String> responseMessage) {
                             resultQueue.add(new Result<>(
                                     httpget,
-                                    responseMessage.getHead(),
-                                    responseMessage.getBody()));
+                                    responseMessage.head(),
+                                    responseMessage.body()));
                             countDownLatch.countDown();
                         }
 

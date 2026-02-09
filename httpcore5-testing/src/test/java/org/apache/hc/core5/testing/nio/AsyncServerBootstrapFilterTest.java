@@ -137,7 +137,7 @@ abstract class AsyncServerBootstrapFilterTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message);
-        final HttpResponse response = message.getHead();
+        final HttpResponse response = message.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
         final Header testFilterHeader = response.getHeader("X-Test-Filter");
         Assertions.assertNotNull(testFilterHeader);

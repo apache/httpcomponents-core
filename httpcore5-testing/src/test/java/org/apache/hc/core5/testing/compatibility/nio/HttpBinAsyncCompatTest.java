@@ -96,27 +96,27 @@ public abstract class HttpBinAsyncCompatTest {
     void test_sequential_request_execution() throws Exception {
         final HttpAsyncRequester client = client();
         final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
-                new Message<>(new BasicHttpRequest(Method.GET, target, "/headers")),
-                new Message<>(
+                Message.of(new BasicHttpRequest(Method.GET, target, "/headers"), null),
+                Message.of(
                         new BasicHttpRequest(Method.POST, target, "/anything"),
                         new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                new Message<>(
+                Message.of(
                         new BasicHttpRequest(Method.PUT, target, "/anything"),
                         new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                new Message<>(new BasicHttpRequest(Method.GET, target, "/drip")),
-                new Message<>(new BasicHttpRequest(Method.GET, target, "/bytes/20000")),
-                new Message<>(new BasicHttpRequest(Method.GET, target, "/delay/2")),
-                new Message<>(
+                Message.of(new BasicHttpRequest(Method.GET, target, "/drip"), null),
+                Message.of(new BasicHttpRequest(Method.GET, target, "/bytes/20000"), null),
+                Message.of(new BasicHttpRequest(Method.GET, target, "/delay/2"), null),
+                Message.of(
                         new BasicHttpRequest(Method.POST, target, "/delay/2"),
                         new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                new Message<>(
+                Message.of(
                         new BasicHttpRequest(Method.PUT, target, "/delay/2"),
                         new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN))
         );
 
         for (final Message<HttpRequest, AsyncEntityProducer> message : requestMessages) {
-            final HttpRequest request = message.getHead();
-            final AsyncEntityProducer entityProducer = message.getBody();
+            final HttpRequest request = message.head();
+            final AsyncEntityProducer entityProducer = message.body();
             final Future<Message<HttpResponse, String>> messageFuture = client.execute(
                     new BasicRequestProducer(request, entityProducer),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer(CharCodingConfig.custom()
@@ -127,7 +127,7 @@ public abstract class HttpBinAsyncCompatTest {
                     TIMEOUT,
                     null);
             final Message<HttpResponse, String> response = messageFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getHead().getCode());
+            Assertions.assertEquals(HttpStatus.SC_OK, response.head().getCode());
         }
     }
 
@@ -165,8 +165,8 @@ public abstract class HttpBinAsyncCompatTest {
                             public void completed(final Message<HttpResponse, String> responseMessage) {
                                 resultQueue.add(new Result<>(
                                         request,
-                                        responseMessage.getHead(),
-                                        responseMessage.getBody()));
+                                        responseMessage.head(),
+                                        responseMessage.body()));
                                 countDownLatch.countDown();
                             }
 

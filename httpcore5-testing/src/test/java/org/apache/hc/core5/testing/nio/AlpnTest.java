@@ -143,7 +143,7 @@ abstract class AlpnTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         Assertions.assertEquals(HttpVersion.HTTP_1_1, response1.getVersion());
     }
@@ -168,7 +168,7 @@ abstract class AlpnTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         Assertions.assertEquals(HttpVersion.HTTP_1_1, response1.getVersion());
     }
@@ -191,7 +191,7 @@ abstract class AlpnTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
     }
@@ -216,7 +216,7 @@ abstract class AlpnTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
     }
@@ -239,7 +239,7 @@ abstract class AlpnTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
         Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
     }

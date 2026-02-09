@@ -55,7 +55,7 @@ final class JsonRequestConsumer<T> extends AbstractJsonMessageConsumer<HttpReque
 
             @Override
             public void completed(final T result) {
-                resultCallback.completed(new Message<>(request, result));
+                resultCallback.completed(Message.of(request, result));
             }
 
         });

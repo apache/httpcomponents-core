@@ -81,8 +81,8 @@ public class JsonNodeResponseExample {
 
                     @Override
                     public void completed(final Message<HttpResponse, JsonNode> message) {
-                        System.out.println("Response status: " + message.getHead().getCode());
-                        System.out.println(message.getBody());
+                        System.out.println("Response status: " + message.head().getCode());
+                        System.out.println(message.body());
                     }
 
                     @Override

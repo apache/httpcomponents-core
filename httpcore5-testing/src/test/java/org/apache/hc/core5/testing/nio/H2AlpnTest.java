@@ -139,9 +139,9 @@ abstract class H2AlpnTest {
 
         assertTrue(h2Allowed, "h2 negotiation was disabled, but h2 was negotiated");
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        final String body1 = message1.getBody();
+        final String body1 = message1.body();
         Assertions.assertEquals("some stuff", body1);
     }
 

@@ -107,8 +107,8 @@ public class AsyncRequestExecutionExample {
 
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
-                            final HttpResponse response = message.getHead();
-                            final String body = message.getBody();
+                            final HttpResponse response = message.head();
+                            final String body = message.body();
                             System.out.println(requestUri + "->" + response.getCode());
                             System.out.println(body);
                             latch.countDown();

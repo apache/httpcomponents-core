@@ -377,7 +377,7 @@ class TLSIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        Assertions.assertEquals(200, message1.getHead().getCode());
+        Assertions.assertEquals(200, message1.head().getCode());
 
         final HttpHost target2 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLoopbackAddress(), "some-other-host", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture2 = client.execute(

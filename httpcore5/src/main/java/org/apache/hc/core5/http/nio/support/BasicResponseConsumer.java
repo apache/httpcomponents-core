@@ -85,14 +85,14 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
                 @Override
                 public void completed(final T body) {
                     if (resultCallback != null) {
-                        resultCallback.completed(new Message<>(response, body));
+                        resultCallback.completed(Message.of(response, body));
                     }
                 }
 
             });
         } else {
             if (resultCallback != null) {
-                resultCallback.completed(new Message<>(response));
+                resultCallback.completed(Message.of(response, null));
             }
         }
     }

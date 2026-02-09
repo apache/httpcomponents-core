@@ -159,9 +159,9 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message1);
-        final HttpResponse response1 = message1.getHead();
+        final HttpResponse response1 = message1.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        final String body1 = message1.getBody();
+        final String body1 = message1.body();
         Assertions.assertEquals("some stuff", body1);
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
@@ -170,9 +170,9 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message2);
-        final HttpResponse response2 = message2.getHead();
+        final HttpResponse response2 = message2.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
-        final String body2 = message2.getBody();
+        final String body2 = message2.body();
         Assertions.assertEquals("some other stuff", body2);
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
@@ -181,9 +181,9 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(message3);
-        final HttpResponse response3 = message3.getHead();
+        final HttpResponse response3 = message3.head();
         Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
-        final String body3 = message3.getBody();
+        final String body3 = message3.body();
         Assertions.assertEquals("some more stuff", body3);
     }
 

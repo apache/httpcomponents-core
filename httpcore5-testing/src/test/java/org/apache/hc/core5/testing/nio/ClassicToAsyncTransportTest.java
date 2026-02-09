@@ -259,8 +259,8 @@ abstract class ClassicToAsyncTransportTest {
                         public void completed(final Message<HttpResponse, String> responseMessage) {
                             resultQueue.add(new Result<>(
                                     request1,
-                                    responseMessage.getHead(),
-                                    responseMessage.getBody()));
+                                    responseMessage.head(),
+                                    responseMessage.body()));
                             countDownLatch.countDown();
                         }
 
@@ -354,8 +354,8 @@ abstract class ClassicToAsyncTransportTest {
                         public void completed(final Message<HttpResponse, String> responseMessage) {
                             resultQueue.add(new Result<>(
                                     request1,
-                                    responseMessage.getHead(),
-                                    responseMessage.getBody()));
+                                    responseMessage.head(),
+                                    responseMessage.body()));
                             countDownLatch.countDown();
                         }
 

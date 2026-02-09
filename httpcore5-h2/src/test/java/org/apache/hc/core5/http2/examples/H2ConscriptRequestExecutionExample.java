@@ -142,8 +142,8 @@ public class H2ConscriptRequestExecutionExample {
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
                             clientEndpoint.releaseAndReuse();
-                            final HttpResponse response = message.getHead();
-                            final String body = message.getBody();
+                            final HttpResponse response = message.head();
+                            final String body = message.body();
                             System.out.println(requestUri + "->" + response.getCode() + " " + response.getVersion());
                             System.out.println(body);
                             latch.countDown();

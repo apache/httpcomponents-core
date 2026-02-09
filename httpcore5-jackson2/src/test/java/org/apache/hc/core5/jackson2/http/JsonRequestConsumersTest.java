@@ -93,8 +93,8 @@ public class JsonRequestConsumersTest {
         }
 
         Assertions.assertThat(resultRef.get()).isNotNull().satisfies(e -> {
-            Assertions.assertThat(e.getHead()).isSameAs(request);
-            Assertions.assertThat(e.getBody()).isNotNull();
+            Assertions.assertThat(e.head()).isSameAs(request);
+            Assertions.assertThat(e.body()).isNotNull();
             Assertions.assertThat(e.error()).isNull();
         });
     }

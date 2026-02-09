@@ -118,7 +118,7 @@ public class AsyncClientSNIExample {
 
                     @Override
                     public void completed(final Message<HttpResponse, String> message) {
-                        final HttpResponse response = message.getHead();
+                        final HttpResponse response = message.head();
                         System.out.println(request.getRequestUri() + "->" + response.getCode());
                         final SSLSession sslSession = context.getSSLSession();
                         if (sslSession != null) {

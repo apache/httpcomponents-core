@@ -68,7 +68,7 @@ class JsonResponseConsumer<T, E> extends AbstractJsonMessageConsumer<HttpRespons
 
                 @Override
                 public void completed(final E result) {
-                    resultCallback.completed(new Message<>(response, null, result));
+                    resultCallback.completed(Message.error(response, result));
                 }
 
             });
@@ -77,7 +77,7 @@ class JsonResponseConsumer<T, E> extends AbstractJsonMessageConsumer<HttpRespons
 
                 @Override
                 public void completed(final T result) {
-                    resultCallback.completed(new Message<>(response, result));
+                    resultCallback.completed(Message.of(response, result));
                 }
 
             });

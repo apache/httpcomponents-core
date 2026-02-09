@@ -308,7 +308,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     }
                     capacityWindow = new CapacityWindow(http1Config.getInitialWindowSize(), ioSession);
                     if (contentDecoder != null) {
-                        incomingMessage = new Message<>(messageHead, contentDecoder);
+                        incomingMessage = Message.of(messageHead, contentDecoder);
                     } else {
                         inputEnd();
                         if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
@@ -321,7 +321,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
 
             if (incomingMessage != null) {
-                final ContentDecoder contentDecoder = incomingMessage.getBody();
+                final ContentDecoder contentDecoder = incomingMessage.body();
 
                 // At present the consumer can be forced to consume data
                 // over its declared capacity in order to avoid having
@@ -454,7 +454,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     contentEncoder = null;
                 }
                 if (contentEncoder != null) {
-                    outgoingMessage = new Message<>(messageHead, contentEncoder);
+                    outgoingMessage = Message.of(messageHead, contentEncoder);
                 }
             }
             outgoingMessageWriter.reset();
@@ -513,7 +513,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (outgoingMessage == null) {
                 throw new ConnectionClosedException();
             }
-            final ContentEncoder contentEncoder = outgoingMessage.getBody();
+            final ContentEncoder contentEncoder = outgoingMessage.body();
             final int bytesWritten = contentEncoder.write(src);
             if (bytesWritten > 0) {
                 ioSession.setEvent(SelectionKey.OP_WRITE);
@@ -532,7 +532,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (outgoingMessage == null) {
                 return MessageDelineation.NONE;
             }
-            final ContentEncoder contentEncoder = outgoingMessage.getBody();
+            final ContentEncoder contentEncoder = outgoingMessage.body();
             contentEncoder.complete(trailers);
             ioSession.setEvent(SelectionKey.OP_WRITE);
             outgoingMessage = null;
@@ -550,7 +550,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (outgoingMessage == null) {
                 return true;
             }
-            final ContentEncoder contentEncoder = outgoingMessage.getBody();
+            final ContentEncoder contentEncoder = outgoingMessage.body();
             return contentEncoder.isCompleted();
         } finally {
             ioSession.getLock().unlock();

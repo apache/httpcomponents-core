@@ -135,7 +135,7 @@ abstract class ReactiveClientTest {
 
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final WritableByteChannel writableByteChannel = Channels.newChannel(byteArrayOutputStream);
-        for (final ByteBuffer byteBuffer : Observable.fromPublisher(response.getBody()).toList().blockingGet()) {
+        for (final ByteBuffer byteBuffer : Observable.fromPublisher(response.body()).toList().blockingGet()) {
             writableByteChannel.write(byteBuffer);
         }
         writableByteChannel.close();
@@ -161,7 +161,7 @@ abstract class ReactiveClientTest {
         requester.execute(request, consumer, SOCKET_TIMEOUT, null);
         final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-        final StreamDescription desc = Reactive3TestUtils.consumeStream(response.getBody()).blockingGet();
+        final StreamDescription desc = Reactive3TestUtils.consumeStream(response.body()).blockingGet();
 
         Assertions.assertEquals(expectedLength, desc.length);
         Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
@@ -187,7 +187,7 @@ abstract class ReactiveClientTest {
             requester.execute(request, consumer, SOCKET_TIMEOUT, null);
             final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                     .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-            final StreamDescription desc = Reactive3TestUtils.consumeStream(response.getBody()).blockingGet();
+            final StreamDescription desc = Reactive3TestUtils.consumeStream(response.body()).blockingGet();
 
             Assertions.assertEquals(expectedLength, desc.length);
             Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
@@ -258,7 +258,7 @@ abstract class ReactiveClientTest {
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
 
         final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean();
-        final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.getBody())
+        final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.body())
                 .doOnCancel(() -> responsePublisherWasCancelled.set(true))
                 .take(3)
                 .toList()

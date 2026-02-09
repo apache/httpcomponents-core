@@ -124,7 +124,7 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     ) {
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
-        this.responseFuture.completed(new Message<>(response, reactiveDataConsumer));
+        this.responseFuture.completed(Message.of(response, reactiveDataConsumer));
         if (entityDetails == null) {
             streamEnd(null);
         }

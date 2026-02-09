@@ -84,8 +84,8 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
                             public void completed(final Message<HttpResponse, String> responseMessage) {
                                 resultQueue.add(new Result<>(
                                         httpget,
-                                        responseMessage.getHead(),
-                                        responseMessage.getBody()));
+                                        responseMessage.head(),
+                                        responseMessage.body()));
                                 countDownLatch.countDown();
                             }
 
@@ -138,8 +138,8 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
                         public void completed(final Message<HttpResponse, String> responseMessage) {
                             resultQueue.add(new Result<>(
                                     httpget,
-                                    responseMessage.getHead(),
-                                    responseMessage.getBody()));
+                                    responseMessage.head(),
+                                    responseMessage.body()));
                             countDownLatch.countDown();
                         }
 
@@ -188,8 +188,8 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
                             public void completed(final Message<HttpResponse, String> responseMessage) {
                                 resultQueue.add(new Result<>(
                                         httpget,
-                                        responseMessage.getHead(),
-                                        responseMessage.getBody()));
+                                        responseMessage.head(),
+                                        responseMessage.body()));
                                 countDownLatch.countDown();
                             }
 

@@ -138,8 +138,8 @@ public class H2GreetingServer {
 
             final HttpCoreContext context = HttpCoreContext.cast(localContext);
             final EndpointDetails endpoint = context.getEndpointDetails();
-            final HttpRequest req = requestMessage.getHead();
-            final String httpEntity = requestMessage.getBody();
+            final HttpRequest req = requestMessage.head();
+            final String httpEntity = requestMessage.body();
 
             // generic success response:
             final HttpResponse resp = new BasicHttpResponse(200);
