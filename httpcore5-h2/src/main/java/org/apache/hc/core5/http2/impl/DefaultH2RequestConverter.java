@@ -61,6 +61,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         String scheme = null;
         String authority = null;
         String path = null;
+        String protocol = null;
         final List<Header> messageHeaders = new ArrayList<>();
 
         for (int i = 0; i < headers.size(); i++) {
@@ -98,6 +99,12 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                     case H2PseudoRequestHeaders.AUTHORITY:
                         authority = value;
                         break;
+                    case H2PseudoRequestHeaders.PROTOCOL:
+                        if (protocol != null) {
+                            throw new ProtocolException("Multiple '%s' request headers are illegal", name);
+                        }
+                        protocol = value;
+                        break;
                     default:
                         throw new ProtocolException("Unsupported request header '%s'", name);
                 }
@@ -118,13 +125,26 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             if (authority == null) {
                 throw new ProtocolException("Header '%s' is mandatory for CONNECT request", H2PseudoRequestHeaders.AUTHORITY);
             }
-            if (scheme != null) {
-                throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.SCHEME);
-            }
-            if (path != null) {
-                throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.PATH);
+            if (protocol != null) {
+                if (scheme == null) {
+                    throw new ProtocolException("Header '%s' is mandatory for extended CONNECT", H2PseudoRequestHeaders.SCHEME);
+                }
+                if (path == null) {
+                    throw new ProtocolException("Header '%s' is mandatory for extended CONNECT", H2PseudoRequestHeaders.PATH);
+                }
+                validatePathPseudoHeader(method, scheme, path);
+            } else {
+                if (scheme != null) {
+                    throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.SCHEME);
+                }
+                if (path != null) {
+                    throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.PATH);
+                }
             }
         } else {
+            if (protocol != null) {
+                throw new ProtocolException("Header '%s' must not be set for %s request", H2PseudoRequestHeaders.PROTOCOL, method);
+            }
             if (scheme == null) {
                 throw new ProtocolException("Mandatory request header '%s' not found", H2PseudoRequestHeaders.SCHEME);
             }
@@ -143,6 +163,9 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             throw new ProtocolException(ex.getMessage(), ex);
         }
         httpRequest.setPath(path);
+        if (protocol != null) {
+            httpRequest.addHeader(new BasicHeader(H2PseudoRequestHeaders.PROTOCOL, protocol));
+        }
         for (int i = 0; i < messageHeaders.size(); i++) {
             httpRequest.addHeader(messageHeaders.get(i));
         }
@@ -155,12 +178,26 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             throw new ProtocolException("Request method is empty");
         }
         final boolean optionMethod = Method.CONNECT.name().equalsIgnoreCase(message.getMethod());
+        final Header protocolHeader = message.getFirstHeader(H2PseudoRequestHeaders.PROTOCOL);
+        final String protocol = protocolHeader != null ? protocolHeader.getValue() : null;
+        if (protocol != null && !optionMethod) {
+            throw new ProtocolException("Header name '%s' is invalid", H2PseudoRequestHeaders.PROTOCOL);
+        }
         if (optionMethod) {
             if (message.getAuthority() == null) {
                 throw new ProtocolException("CONNECT request authority is not set");
             }
-            if (message.getPath() != null) {
-                throw new ProtocolException("CONNECT request path must be null");
+            if (protocol != null) {
+                if (TextUtils.isBlank(message.getScheme())) {
+                    throw new ProtocolException("CONNECT request scheme is not set");
+                }
+                if (TextUtils.isBlank(message.getPath())) {
+                    throw new ProtocolException("CONNECT request path is not set");
+                }
+            } else {
+                if (message.getPath() != null) {
+                    throw new ProtocolException("CONNECT request path must be null");
+                }
             }
         } else {
             if (TextUtils.isBlank(message.getScheme())) {
@@ -173,7 +210,14 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(H2PseudoRequestHeaders.METHOD, message.getMethod(), false));
         if (optionMethod) {
-            headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
+            if (protocol != null) {
+                headers.add(new BasicHeader(H2PseudoRequestHeaders.PROTOCOL, protocol, false));
+                headers.add(new BasicHeader(H2PseudoRequestHeaders.SCHEME, message.getScheme(), false));
+                headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
+                headers.add(new BasicHeader(H2PseudoRequestHeaders.PATH, message.getPath(), false));
+            } else {
+                headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
+            }
         } else {
             headers.add(new BasicHeader(H2PseudoRequestHeaders.SCHEME, message.getScheme(), false));
             if (message.getAuthority() != null) {
@@ -186,6 +230,12 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             final Header header = it.next();
             final String name = header.getName();
             final String value = header.getValue();
+            if (name.startsWith(":")) {
+                if (optionMethod && H2PseudoRequestHeaders.PROTOCOL.equals(name)) {
+                    continue;
+                }
+                throw new ProtocolException("Header name '%s' is invalid", name);
+            }
             if (!FieldValidationSupport.isNameValid(name)) {
                 throw new ProtocolException("Header name '%s' is invalid", name);
             }

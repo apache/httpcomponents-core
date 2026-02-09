@@ -38,5 +38,9 @@ public final class H2PseudoRequestHeaders {
     public static final String SCHEME = ":scheme";
     public static final String AUTHORITY = ":authority";
     public static final String PATH = ":path";
+    /**
+     * RFC 8441 extended CONNECT pseudo-header.
+     */
+    public static final String PROTOCOL = ":protocol";
 
 }

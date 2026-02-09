@@ -242,6 +242,64 @@ class TestDefaultH2RequestConverter {
     }
 
     @Test
+    void testConvertFromFieldsExtendedConnect() throws Exception {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "CONNECT"),
+                new BasicHeader(":protocol", "websocket"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "/chat"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final HttpRequest request = converter.convert(headers);
+
+        Assertions.assertEquals("CONNECT", request.getMethod());
+        Assertions.assertEquals("https", request.getScheme());
+        Assertions.assertEquals("/chat", request.getPath());
+        Assertions.assertEquals("websocket", request.getFirstHeader(":protocol").getValue());
+    }
+
+    @Test
+    void testConvertFromFieldsExtendedConnectMissingScheme() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "CONNECT"),
+                new BasicHeader(":protocol", "websocket"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "/chat"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header ':scheme' is mandatory for extended CONNECT");
+    }
+
+    @Test
+    void testConvertFromFieldsExtendedConnectMissingPath() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "CONNECT"),
+                new BasicHeader(":protocol", "websocket"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "www.example.com"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header ':path' is mandatory for extended CONNECT");
+    }
+
+    @Test
+    void testConvertFromFieldsProtocolWithNonConnect() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":protocol", "websocket"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "/"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header ':protocol' must not be set for GET request");
+    }
+
+    @Test
     void testConvertFromMessageBasic() throws Exception {
 
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
@@ -330,6 +388,53 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
                 "CONNECT request path must be null");
+    }
+
+    @Test
+    void testConvertFromMessageExtendedConnect() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("CONNECT", new HttpHost("host"), "/chat");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("host"));
+        request.addHeader(":protocol", "websocket");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final List<Header> headers = converter.convert(request);
+
+        Assertions.assertTrue(headers.stream().anyMatch(h -> ":protocol".equals(h.getName())));
+    }
+
+    @Test
+    void testConvertFromMessageExtendedConnectMissingScheme() {
+        final HttpRequest request = new BasicHttpRequest("CONNECT", new HttpHost("host"), "/chat");
+        request.setAuthority(new URIAuthority("host"));
+        request.setScheme(null);
+        request.addHeader(":protocol", "websocket");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
+                "CONNECT request scheme is not set");
+    }
+
+    @Test
+    void testConvertFromMessageExtendedConnectMissingPath() {
+        final HttpRequest request = new BasicHttpRequest("CONNECT", new HttpHost("host"), null);
+        request.setAuthority(new URIAuthority("host"));
+        request.setScheme("https");
+        request.addHeader(":protocol", "websocket");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
+                "CONNECT request path is not set");
+    }
+
+    @Test
+    void testConvertFromMessageProtocolWithNonConnect() {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader(":protocol", "websocket");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
+                "Header name ':protocol' is invalid");
     }
 
     @Test
