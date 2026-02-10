@@ -31,6 +31,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.http.Header;
@@ -56,10 +57,10 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * HTTP/2 keepalive sanity-check for HttpComponents Core (no HttpClient classes).
+ * HTTP/2 validate-after-inactivity sanity-check for HttpComponents Core (no HttpClient classes).
  *
- * This version enables keep-alive by setting validateAfterInactivity, which is what
- * AbstractH2StreamMultiplexer currently uses to arm KeepAlivePingSupport.
+ * This version uses validateAfterInactivity as an idle threshold. The multiplexer issues a single
+ * pre-flight PING only when there are pending commands and the session has been idle too long.
  *
  * @since 5.5
  */
@@ -79,12 +80,12 @@ public final class H2KeepAlivePingClientExample {
 
     public static void main(final String[] args) throws Exception {
 
-        // Base socket timeout BEFORE keepalive activates.
+        // Base socket timeout BEFORE any validate-after-inactivity logic.
         final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
                 .setSoTimeout(Timeout.ofSeconds(30))
                 .build();
 
-        // Keep-alive idle time (what your multiplexer currently wires via validateAfterInactivity).
+        // Idle threshold (used by the multiplexer to decide whether to pre-flight PING before executing commands).
         final TimeValue validateAfterInactivity = TimeValue.ofSeconds(3);
 
         final H2Config h2Config = H2Config.custom()
@@ -93,6 +94,9 @@ public final class H2KeepAlivePingClientExample {
                 .build();
 
         final Counters counters = new Counters();
+
+        // Suppress ping accounting / logs after we start shutting down, to keep the demo output clean.
+        final AtomicBoolean shuttingDown = new AtomicBoolean(false);
 
         final H2MultiplexingRequester requester = H2MultiplexingRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
@@ -125,7 +129,7 @@ public final class H2KeepAlivePingClientExample {
 
                     @Override
                     public void timeout(final IOSession session) {
-                        // Expected: keep-alive uses the reactor timer.
+                        // Expected: may be used by the reactor timer.
                         counters.reactorTimeoutEvents.incrementAndGet();
                         log("session.timeout (reactor) id=" + safeId(session)
                                 + " soTimeout=" + session.getSocketTimeout());
@@ -175,6 +179,10 @@ public final class H2KeepAlivePingClientExample {
                             final int streamId,
                             final RawFrame frame) {
 
+                        if (shuttingDown.get()) {
+                            return;
+                        }
+
                         final FrameType type = FrameType.valueOf(frame.getType());
 
                         if (type == FrameType.PING && frame.isFlagSet(FrameFlag.ACK)) {
@@ -194,6 +202,10 @@ public final class H2KeepAlivePingClientExample {
                             final org.apache.hc.core5.http.HttpConnection connection,
                             final int streamId,
                             final RawFrame frame) {
+
+                        if (shuttingDown.get()) {
+                            return;
+                        }
 
                         final FrameType type = FrameType.valueOf(frame.getType());
 
@@ -224,7 +236,7 @@ public final class H2KeepAlivePingClientExample {
                 })
                 .create();
 
-        // IMPORTANT FIX: arm keep-alive before any connection is created.
+        // Arm validate-after-inactivity before any connection is created.
         requester.setValidateAfterInactivity(validateAfterInactivity);
 
         requester.start();
@@ -236,13 +248,16 @@ public final class H2KeepAlivePingClientExample {
 
             Thread.sleep(250);
 
-            // Wait long enough to force keepalive activity.
-            final long waitMs = 13_000L;
-            log("waiting=" + waitMs + "ms for keepalive...");
+            // Wait long enough to exceed validateAfterInactivity, but ideally not long enough for the server to drop idle connections.
+            final long waitMs = 3_800L;
+            log("waiting=" + waitMs + "ms to exceed validateAfterInactivity...");
             Thread.sleep(waitMs);
 
             final Message<HttpResponse, String> m2 = executeSimpleGet(requester, TARGET);
             log("response2=" + m2.getHead().getCode());
+
+            // From this point on we want to keep output clean (shutdown may enqueue commands and generate frames).
+            shuttingDown.set(true);
 
             log("stats: sessionsConnected=" + counters.sessionsConnected.get()
                     + ", pingsOut=" + counters.pingsOut.get()
