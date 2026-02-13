@@ -27,60 +27,22 @@
 
 package org.apache.hc.core5.http.nio.entity;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.concurrent.CountingFutureCallback;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class TestAbstractCharAsyncEntityConsumer {
-
-    static private class StringBuilderAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<String> {
-
-        private final StringBuilder buffer;
-
-        public StringBuilderAsyncEntityConsumer() {
-            super();
-            this.buffer = new StringBuilder(1024);
-        }
-
-        @Override
-        protected void streamStart(final ContentType contentType) throws HttpException, IOException {
-        }
-
-        @Override
-        protected int capacityIncrement() {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        protected void data(final CharBuffer src, final boolean endOfStream) throws IOException {
-            buffer.append(src);
-        }
-
-        @Override
-        protected String generateContent() throws IOException {
-            return buffer.toString();
-        }
-
-        @Override
-        public void releaseResources() {
-            buffer.setLength(0);
-        }
-
-    }
+class TestCharSequenceAsyncEntityConsumer {
 
     @Test
     void testConsumeData() throws Exception {
-        final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
+        final AsyncEntityConsumer<String> consumer = new CharSequenceAsyncEntityConsumer<>(CharSequence::toString);
         final CountingFutureCallback<String> countingCallback = new CountingFutureCallback<>();
         consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN), countingCallback);
 
@@ -98,7 +60,7 @@ class TestAbstractCharAsyncEntityConsumer {
     @Test
     void testConsumeIncompleteData() throws Exception {
 
-        final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
+        final AsyncEntityConsumer<String> consumer = new CharSequenceAsyncEntityConsumer<>(CharSequence::toString);
 
         final CountingFutureCallback<String> countingCallback = new CountingFutureCallback<>();
         consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)), countingCallback);

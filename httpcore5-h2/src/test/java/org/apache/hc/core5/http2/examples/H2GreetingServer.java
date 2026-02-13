@@ -30,8 +30,10 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
@@ -39,14 +41,15 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.entity.CharSequenceAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.AsyncServerPipeline;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -65,7 +68,7 @@ import org.apache.hc.core5.util.TimeValue;
  * $ curl  -id name=bob localhost:8080
  * HTTP/1.1 200 OK
  * Date: Sat, 25 May 2019 03:44:49 GMT
- * Server: Apache-HttpCore/5.0-beta8-SNAPSHOT (Java/1.8.0_202)
+ * Server: Apache-HttpCore/xxxxx
  * Transfer-Encoding: chunked
  * Content-Type: text/plain; charset=UTF-8
  *
@@ -83,10 +86,11 @@ public class H2GreetingServer {
 
         final Supplier<AsyncServerExchangeHandler> exchangeHandlerSupplier = AsyncServerPipeline.assemble()
                 // Represent request as string
-                .request()
-                .consumeContent(contentType -> {
+                .request(Method.GET, Method.POST)
+                .<List<NameValuePair>>consumeContent(contentType -> {
                     if (contentType != null && contentType.isSameMimeType(ContentType.APPLICATION_FORM_URLENCODED)) {
-                        return StringAsyncEntityConsumer::new;
+                        return () -> new CharSequenceAsyncEntityConsumer<>(cs ->
+                                WWWFormCodec.parse(cs, StandardCharsets.UTF_8));
                     } else {
                         // Discard content that cannot be correctly processed
                         return DiscardingEntityConsumer::new;
@@ -100,7 +104,6 @@ public class H2GreetingServer {
                     final HttpCoreContext context = HttpCoreContext.cast(c);
                     final EndpointDetails endpoint = context.getEndpointDetails();
                     final HttpRequest req = r.head();
-                    final String httpEntity = r.body();
 
                     // recording the request
                     System.out.printf("[%s] %s %s %s%n", Instant.now(),
@@ -108,13 +111,15 @@ public class H2GreetingServer {
                             req.getMethod(),
                             req.getPath());
 
-                    String name = "stranger";
-                    if (httpEntity != null) {
-                        // decoding the form entity into key/value pairs:
-                        final List<NameValuePair> params = WWWFormCodec.parse(httpEntity, StandardCharsets.UTF_8);
-                        if (!params.isEmpty()) {
-                            name = params.get(0).getValue();
-                        }
+                    String name = null;
+                    final List<NameValuePair> params = r.body();
+                    if (params != null && !params.isEmpty()) {
+                        final Map<String, String> paramMap = params.stream()
+                                .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
+                        name = paramMap.get("name");
+                    }
+                    if (name == null) {
+                        name = "stranger";
                     }
 
                     // composing greeting:

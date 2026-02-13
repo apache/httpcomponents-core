@@ -26,14 +26,7 @@
  */
 package org.apache.hc.core5.http.nio.entity;
 
-import java.io.IOException;
-import java.nio.CharBuffer;
-
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Basic {@link org.apache.hc.core5.http.nio.AsyncEntityConsumer} implementation
@@ -41,56 +34,27 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 5.0
  */
-public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<String> {
-
-    private final int capacityIncrement;
-    private final CharArrayBuffer content;
+public class StringAsyncEntityConsumer extends CharSequenceAsyncEntityConsumer<String> {
 
     public StringAsyncEntityConsumer(final int bufSize, final int capacityIncrement, final CharCodingConfig charCodingConfig) {
-        super(bufSize, charCodingConfig);
-        this.capacityIncrement = Args.positive(capacityIncrement, "Capacity increment");
-        this.content = new CharArrayBuffer(1024);
+        super(bufSize, capacityIncrement, charCodingConfig, CharSequence::toString);
     }
 
     public StringAsyncEntityConsumer(final int capacityIncrement) {
-        this(DEF_BUF_SIZE, capacityIncrement, CharCodingConfig.DEFAULT);
+        super(DEF_BUF_SIZE, capacityIncrement, CharCodingConfig.DEFAULT, CharSequence::toString);
     }
 
     public StringAsyncEntityConsumer(final CharCodingConfig charCodingConfig) {
-        this(DEF_BUF_SIZE, Integer.MAX_VALUE, charCodingConfig);
+        super(DEF_BUF_SIZE, Integer.MAX_VALUE, charCodingConfig, CharSequence::toString);
     }
 
     public StringAsyncEntityConsumer() {
-        this(Integer.MAX_VALUE);
-    }
-
-    @Override
-    protected final void streamStart(final ContentType contentType) throws HttpException, IOException {
-    }
-
-    @Override
-    protected int capacityIncrement() {
-        final int available = content.capacity() - content.length();
-        return Math.max(capacityIncrement, available);
-    }
-
-    @Override
-    protected final void data(final CharBuffer src, final boolean endOfStream) {
-        Args.notNull(src, "CharBuffer");
-        final int chunk = src.remaining();
-        content.ensureCapacity(chunk);
-        src.get(content.array(), content.length(), chunk);
-        content.setLength(content.length() + chunk);
+        super(Integer.MAX_VALUE, CharSequence::toString);
     }
 
     @Override
     public String generateContent() {
-        return content.toString();
-    }
-
-    @Override
-    public void releaseResources() {
-        content.clear();
+        return super.generateContent();
     }
 
 }
