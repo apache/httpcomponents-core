@@ -29,6 +29,7 @@ package org.apache.hc.core5.http;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
@@ -375,7 +376,7 @@ public final class ContentType implements Serializable {
                     if (!TextUtils.isBlank(s)) {
                         try {
                             charset = Charset.forName(s);
-                        } catch (final UnsupportedCharsetException ex) {
+                        } catch (final UnsupportedCharsetException | IllegalCharsetNameException ex) {
                             if (strict) {
                                 throw ex;
                             }
