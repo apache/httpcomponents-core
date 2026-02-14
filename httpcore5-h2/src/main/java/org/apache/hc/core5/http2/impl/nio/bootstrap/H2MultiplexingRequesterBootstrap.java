@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.function.Callback;
@@ -53,6 +54,7 @@ import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * {@link H2MultiplexingRequester} bootstrap.
@@ -277,13 +279,15 @@ public class H2MultiplexingRequesterBootstrap {
     public H2MultiplexingRequester create() {
         final RequestRouter<Supplier<AsyncPushConsumer>> requestRouter = RequestRouter.create(
                 null, uriPatternType, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null);
+        final AtomicReference<TimeValue> validateAfterInactivityRef = new AtomicReference<>(TimeValue.NEG_ONE_MILLISECOND);
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(requestRouter),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener,
-                frameFactory);
+                frameFactory,
+                validateAfterInactivityRef::get);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
                 (ioSession, attachment) ->
@@ -295,6 +299,7 @@ public class H2MultiplexingRequesterBootstrap {
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                 threadPoolListener,
                 null,
+                validateAfterInactivityRef,
                 maxCommandsPerConnection);
     }
 
