@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
+import org.apache.hc.core5.http2.priority.PriorityValue;
 import org.apache.hc.core5.util.Timeout;
 
 class H2Stream implements StreamControl {
@@ -64,6 +65,7 @@ class H2Stream implements StreamControl {
     private volatile long lastActivityNanos;
 
     private volatile Timeout idleTimeout;
+    private volatile PriorityValue priorityValue;
 
     H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final Consumer<State> stateChangeCallback) {
         this.channel = channel;
@@ -313,7 +315,7 @@ class H2Stream implements StreamControl {
         buf.append("[")
                 .append("id=").append(channel.getId())
                 .append(", reserved=").append(reserved)
-                .append(", removeClosed=").append(remoteClosed)
+                .append(", remoteClosed=").append(remoteClosed)
                 .append(", localClosed=").append(channel.isLocalClosed())
                 .append(", localReset=").append(channel.isLocalReset())
                 .append("]");
@@ -330,6 +332,14 @@ class H2Stream implements StreamControl {
 
     Timeout getIdleTimeout() {
         return idleTimeout;
+    }
+
+    PriorityValue getPriorityValue() {
+        return priorityValue;
+    }
+
+    void setPriorityValue(final PriorityValue priorityValue) {
+        this.priorityValue = priorityValue;
     }
 
 }
