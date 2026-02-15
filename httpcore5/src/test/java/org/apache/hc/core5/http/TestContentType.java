@@ -191,4 +191,22 @@ class TestContentType {
         Assertions.assertEquals("text/blah; charset=ISO-8859-1; p=blah", contentType.toString());
     }
 
+    @Test
+    void testParseLenientIgnoresIllegalCharsetName() {
+        final ContentType contentType = ContentType.parseLenient("text/event-stream;charset=ISO-8859-1'");
+        Assertions.assertNotNull(contentType);
+        Assertions.assertEquals("text/event-stream", contentType.getMimeType());
+        Assertions.assertNull(contentType.getCharset());
+        Assertions.assertEquals("ISO-8859-1'", contentType.getParameter("charset"));
+    }
+
+    @Test
+    void testParseLenientIgnoresUnsupportedCharset() {
+        final ContentType contentType = ContentType.parseLenient("text/plain; charset=__no_such_charset__");
+        Assertions.assertNotNull(contentType);
+        Assertions.assertNull(contentType.getCharset());
+    }
+
+
+
 }
