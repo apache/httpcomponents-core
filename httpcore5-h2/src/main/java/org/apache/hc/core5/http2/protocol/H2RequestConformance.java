@@ -28,17 +28,18 @@
 package org.apache.hc.core5.http2.protocol;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -77,17 +78,29 @@ public class H2RequestConformance implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
         for (int i = 0; i < illegalHeaderNames.length; i++) {
             final String headerName = illegalHeaderNames[i];
-            final Header header = request.getFirstHeader(headerName);
-            if (header != null) {
-                if (headerName.equalsIgnoreCase(HttpHeaders.TE)) {
-                    final String value = header.getValue();
-                    if (!"trailers".equalsIgnoreCase(value)) {
-                        throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", HttpHeaders.TE, value);
-                    }
+            if (request.containsHeader(headerName)) {
+                if (HttpHeaders.TE.equalsIgnoreCase(headerName)) {
+                    validateTE(request);
                 } else {
                     throw new ProtocolException("Header '%s' is illegal for HTTP/2 messages", headerName);
                 }
             }
+        }
+    }
+
+    private static void validateTE(final HttpRequest request) throws ProtocolException {
+        boolean sawAnyToken = false;
+        boolean sawInvalidToken = false;
+        for (final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.TE); it.hasNext(); ) {
+            final String token = it.next();
+            sawAnyToken = true;
+            if (!"trailers".equalsIgnoreCase(token)) {
+                sawInvalidToken = true;
+                break;
+            }
+        }
+        if (sawInvalidToken || !sawAnyToken) {
+            throw new ProtocolException("Header '%s' is illegal for HTTP/2 messages", HttpHeaders.TE);
         }
     }
 
