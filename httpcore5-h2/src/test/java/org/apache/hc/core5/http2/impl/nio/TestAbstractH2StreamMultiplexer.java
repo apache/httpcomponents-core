@@ -1078,6 +1078,27 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(1, timeoutEx.getStreamId());
 
     }
+
+    @Test
+    void testOutboundTrailersWithPseudoHeaderRejected() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
+        final List<Header> trailers = Arrays.asList(
+                new BasicHeader(":status", "200"));
+
+        Assertions.assertThrows(H2ConnectionException.class, () -> channel.endStream(trailers));
+    }
     private static byte[] encodeFrame(final RawFrame frame) throws IOException {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
         final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);

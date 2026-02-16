@@ -27,15 +27,20 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -99,6 +104,29 @@ class TestClientH2StreamHandler {
         final String text = handler.toString();
         Assertions.assertTrue(text.contains("requestState"));
         Assertions.assertTrue(text.contains("responseState"));
+    }
+
+    @Test
+    void consumeTrailersWithPseudoHeaderRejected() throws Exception {
+        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
+        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
+        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
+                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
+        final AsyncClientExchangeHandler exchangeHandler = Mockito.mock(AsyncClientExchangeHandler.class);
+        @SuppressWarnings("unchecked") final HandlerFactory<AsyncPushConsumer> pushHandlerFactory =
+                (HandlerFactory<AsyncPushConsumer>) Mockito.mock(HandlerFactory.class);
+        final ClientH2StreamHandler handler = new ClientH2StreamHandler(
+                channel, httpProcessor, metrics, exchangeHandler, pushHandlerFactory, HttpCoreContext.create());
+
+        final List<Header> responseHeaders = Collections.singletonList(
+                new BasicHeader(":status", "200"));
+        handler.consumeHeader(responseHeaders, false);
+
+        final List<Header> trailers = Collections.singletonList(
+                new BasicHeader(":status", "200"));
+
+        Assertions.assertThrows(H2ConnectionException.class, () -> handler.consumeHeader(trailers, true));
+        Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
     }
 
 }
