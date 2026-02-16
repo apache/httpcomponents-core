@@ -26,12 +26,18 @@
  */
 package org.apache.hc.core5.http2.protocol;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class TestH2RequestValidateHost {
 
@@ -57,6 +63,60 @@ class TestH2RequestValidateHost {
         H2RequestValidateHost.INSTANCE.process(request, null, context);
 
         Assertions.assertNull(request.getAuthority());
+    }
+
+    @Test
+    void testHttp2HostMatchesAuthority() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("example.com"));
+        request.addHeader(HttpHeaders.HOST, "example.com");
+
+        final HttpContext context = Mockito.mock(HttpContext.class);
+        Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
+
+        H2RequestValidateHost.INSTANCE.process(request, (EntityDetails) null, context);
+    }
+
+    @Test
+    void testHttp2HostMismatchRejected() {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("example.com"));
+        request.addHeader(HttpHeaders.HOST, "evil.com");
+
+        final HttpContext context = Mockito.mock(HttpContext.class);
+        Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                H2RequestValidateHost.INSTANCE.process(request, null, context));
+    }
+
+    @Test
+    void testHttp2HostCaseInsensitiveMatch() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("example.com"));
+        request.addHeader(HttpHeaders.HOST, "EXAMPLE.COM");
+
+        final HttpContext context = Mockito.mock(HttpContext.class);
+        Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
+
+        H2RequestValidateHost.INSTANCE.process(request, null, context);
+    }
+
+    @Test
+    void testHttp2HostPortDiffersRejected() {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("example.com", 443));
+        request.addHeader(HttpHeaders.HOST, "example.com");
+
+        final HttpContext context = Mockito.mock(HttpContext.class);
+        Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                H2RequestValidateHost.INSTANCE.process(request, null, context));
     }
 
 }

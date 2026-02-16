@@ -32,12 +32,17 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * HTTP/2 compatible extension of {@link RequestValidateHost}.
@@ -64,9 +69,24 @@ public class H2RequestValidateHost extends RequestValidateHost {
             final EntityDetails entity,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(context, "HTTP context");
+        Args.notNull(request, "HTTP request");
+
         final ProtocolVersion ver = context.getProtocolVersion();
         if (ver.getMajor() < 2) {
             super.process(request, entity, context);
+            return;
+        }
+
+        final URIAuthority authority = request.getAuthority();
+        final Header hostHeader = request.getFirstHeader(HttpHeaders.HOST);
+        if (authority == null || hostHeader == null) {
+            return;
+        }
+
+        final String hostValue = hostHeader.getValue();
+        final String authorityValue = authority.toString();
+        if (TextUtils.isBlank(hostValue) || !hostValue.equalsIgnoreCase(authorityValue)) {
+            throw new ProtocolException("Host header does not match :authority");
         }
     }
 
