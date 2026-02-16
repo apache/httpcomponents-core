@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.UnsupportedMediaTypeException;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -85,7 +86,7 @@ abstract class AbstractJsonMessageConsumer<H extends HttpMessage, T> implements 
 
             });
         } else {
-            final AsyncEntityConsumer<T> entityConsumer = new NoopJsonEntityConsumer<>();
+            final AsyncEntityConsumer<T> entityConsumer = new DiscardingEntityConsumer<>();
             entityConsumerRef.set(entityConsumer);
             entityConsumer.streamStart(entityDetails, new CallbackContribution<T>(resultCallback) {
 
