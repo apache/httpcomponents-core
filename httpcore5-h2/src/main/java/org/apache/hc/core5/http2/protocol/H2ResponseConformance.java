@@ -65,6 +65,7 @@ public class H2ResponseConformance implements HttpResponseInterceptor {
         this(
                 HttpHeaders.CONNECTION,
                 HttpHeaders.KEEP_ALIVE,
+                HttpHeaders.PROXY_CONNECTION,
                 HttpHeaders.TRANSFER_ENCODING,
                 HttpHeaders.UPGRADE);
     }

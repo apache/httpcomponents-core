@@ -258,4 +258,20 @@ class TestH2Interceptors {
                 "Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
     }
 
+    @Test
+    void testProxyConnectionRejected() {
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        response.addHeader(HttpHeaders.PROXY_CONNECTION, "keep-alive");
+
+        Assertions.assertThrows(
+                ProtocolException.class,
+                () -> H2ResponseConformance.INSTANCE.process(response, null, HttpCoreContext.create()));
+    }
+
+    @Test
+    void testNoIllegalHeaders() throws Exception {
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        H2ResponseConformance.INSTANCE.process(response, null, HttpCoreContext.create());
+    }
+
 }
