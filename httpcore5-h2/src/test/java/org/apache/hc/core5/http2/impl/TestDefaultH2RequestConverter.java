@@ -563,6 +563,26 @@ class TestDefaultH2RequestConverter {
         Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
     }
 
+    @Test
+    void testConvertFromFieldsMultipleAuthority() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":authority", "www2.example.com"),
+                new BasicHeader(":path", "/"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+
+        final ProtocolException ex = Assertions.assertThrows(
+                ProtocolException.class,
+                () -> converter.convert(headers));
+
+        Assertions.assertTrue(
+                ex.getMessage().contains("Multiple ':authority' request headers are illegal"),
+                ex::getMessage);
+    }
+
 
 }
 

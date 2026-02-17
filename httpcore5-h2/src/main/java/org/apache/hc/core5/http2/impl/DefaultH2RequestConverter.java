@@ -97,6 +97,9 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                         path = value;
                         break;
                     case H2PseudoRequestHeaders.AUTHORITY:
+                        if (authority != null) {
+                            throw new ProtocolException("Multiple '%s' request headers are illegal", name);
+                        }
                         authority = value;
                         break;
                     case H2PseudoRequestHeaders.PROTOCOL:
