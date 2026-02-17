@@ -1574,5 +1574,36 @@ class TestAbstractH2StreamMultiplexer {
                 .failed(ArgumentMatchers.any(Exception.class));
     }
 
+
+    @Test
+    void testInputSettingsAckWithNonEmptyPayloadRejected() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        // SETTINGS (0x04), ACK (0x01), streamId=0, length=6 (INVALID for ACK)
+        // payload is one dummy setting (content irrelevant)
+        final byte[] bytes = new byte[] {
+                0x00, 0x00, 0x06,       // length = 6
+                0x04,                   // type = SETTINGS
+                0x01,                   // flags = ACK
+                0x00, 0x00, 0x00, 0x00, // stream id = 0
+                0x00, 0x01,             // setting id
+                0x00, 0x00, 0x00, 0x01  // setting value
+        };
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(bytes)));
+
+        Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
 }
 
