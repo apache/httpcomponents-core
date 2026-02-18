@@ -85,6 +85,8 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackDecoder;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
+import org.apache.hc.core5.http2.hpack.HPackException;
+import org.apache.hc.core5.http2.hpack.HeaderListConstraintException;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
@@ -1114,7 +1116,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     localConfig.getMaxContinuations());
         }
         if (continuation == null) {
-            final List<Header> headers = hPackDecoder.decodeHeaders(payload);
+            final List<Header> headers = decodeHeaders(payload);
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, promisedStreamId, headers);
             }
@@ -1124,8 +1126,23 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
-    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException {
-        return hPackDecoder.decodeHeaders(payload);
+    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException, IOException {
+        try {
+            return hPackDecoder.decodeHeaders(payload);
+        } catch (final HeaderListConstraintException ex) {
+            // Not a decoding failure; allow upper layers to map (server maps to 431).
+            throw ex;
+        } catch (final HPackException ex) {
+            final H2ConnectionException connEx =
+                    new H2ConnectionException(H2Error.COMPRESSION_ERROR, ex.getMessage());
+            connEx.initCause(ex);
+            throw connEx;
+        } catch (final IllegalArgumentException ex) {
+            // Decoder invariant violation during HPACK parsing -> treat as decoding failure.
+            final H2ConnectionException connEx = new H2ConnectionException(H2Error.COMPRESSION_ERROR, ex.getMessage());
+            connEx.initCause(ex);
+            throw connEx;
+        }
     }
 
     private void consumeHeaderFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {

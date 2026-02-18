@@ -67,6 +67,7 @@ import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
+import org.apache.hc.core5.http2.hpack.HPackException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Timeout;
@@ -1433,6 +1434,109 @@ class TestAbstractH2StreamMultiplexer {
         final long configuredMillis = validateAfterInactivity != null ? validateAfterInactivity.toMilliseconds() : 0;
         final long effectiveMillis = configuredMillis > 0 ? Math.max(configuredMillis, granularityMillis) : 0;
         setLastActivityTime(mux, System.currentTimeMillis() - effectiveMillis - 10);
+    }
+
+    @Test
+    void testHpackDecodeFailureInHeadersCausesConnectionCompressionError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD, // peer-initiated streams are EVEN (e.g. 2)
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        // Invalid HPACK: indexed header field representation with index = 0 (illegal).
+        final byte[] invalidHeaderBlock = new byte[] { (byte) 0x80 };
+
+        final RawFrame headersFrame = FRAME_FACTORY.createHeaders(
+                2,
+                ByteBuffer.wrap(invalidHeaderBlock),
+                true,   // END_HEADERS
+                false);
+
+        outBuffer.write(headersFrame, writableChannel);
+
+        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+                mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+
+        Assertions.assertEquals(H2Error.COMPRESSION_ERROR, H2Error.getByCode(exception.getCode()));
+
+        // Must not be delegated to stream-level handlers.
+        Mockito.verify(streamHandler, Mockito.never())
+                .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+        Mockito.verify(streamHandler, Mockito.never())
+                .handle(ArgumentMatchers.any(HttpException.class), ArgumentMatchers.anyBoolean());
+        Mockito.verify(streamHandler, Mockito.never())
+                .failed(ArgumentMatchers.any(Exception.class));
+    }
+
+    @Test
+    void testHpackDecodeFailureInPushPromiseCausesConnectionCompressionError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().setPushEnabled(true).build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Create an existing local stream (client-initiated, odd) that can receive PUSH_PROMISE.
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
+        final ByteBuffer payload = ByteBuffer.allocate(5);
+        payload.putInt(2);          // promised stream id (peer/server uses even)
+    }
+
+    @Test
+    void testHpackExceptionInHeadersMappedToConnectionCompressionError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        // HPACK: literal header field with incremental indexing (0x40), "new name".
+        // Next byte is the name string length (here: 10), but we provide no bytes -> truncated.
+        // This should throw HPackException.
+        final byte[] invalidHeaderBlock = new byte[] { (byte) 0x40, (byte) 0x0a };
+
+        final RawFrame headersFrame = FRAME_FACTORY.createHeaders(
+                2,
+                ByteBuffer.wrap(invalidHeaderBlock),
+                true,   // END_HEADERS
+                false);
+
+        outBuffer.write(headersFrame, writableChannel);
+
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
+                mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+
+        Assertions.assertEquals(H2Error.COMPRESSION_ERROR, H2Error.getByCode(ex.getCode()));
+        Assertions.assertInstanceOf(HPackException.class, ex.getCause());
+
+        // Must not be handled at stream level
+        Mockito.verify(streamHandler, Mockito.never())
+                .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+        Mockito.verify(streamHandler, Mockito.never())
+                .handle(ArgumentMatchers.any(HttpException.class), ArgumentMatchers.anyBoolean());
+        Mockito.verify(streamHandler, Mockito.never())
+                .failed(ArgumentMatchers.any(Exception.class));
     }
 
 }

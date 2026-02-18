@@ -154,7 +154,7 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
-    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException {
+    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException, IOException {
         try {
             return super.decodeHeaders(payload);
         } catch (final HeaderListConstraintException ex) {
