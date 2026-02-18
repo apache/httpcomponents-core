@@ -789,6 +789,10 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
+        // Make stream id=1 "seen" so lookupSeen(1) does not fail.
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
         final WritableByteChannelMock writable = new WritableByteChannelMock(1024);
         final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
 
@@ -802,15 +806,46 @@ class TestAbstractH2StreamMultiplexer {
         fob.write(priUpd, writable);
         final byte[] bytes = writable.toByteArray();
 
-        // Should NOT throw; server must accept PRIORITY_UPDATE from client
         Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(bytes)));
 
-        // Listener sees the incoming frame
         Mockito.verify(h2StreamListener).onFrameInput(
                 ArgumentMatchers.same(mux),
                 ArgumentMatchers.eq(0),
                 ArgumentMatchers.any());
     }
+
+    @Test
+    void testPriorityUpdateInputRejectedForUnseenStream() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().setMaxFrameSize(FrameConsts.MIN_FRAME_SIZE).build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final WritableByteChannelMock writable = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+
+        final byte[] ascii = "u=3,i".getBytes(StandardCharsets.US_ASCII);
+        final ByteBuffer payload = ByteBuffer.allocate(4 + ascii.length);
+        payload.putInt(1); // prioritized stream id = 1 (unseen)
+        payload.put(ascii);
+        payload.flip();
+
+        final RawFrame priUpd = new RawFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, payload);
+        fob.write(priUpd, writable);
+        final byte[] bytes = writable.toByteArray();
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(bytes)));
+
+        Assertions.assertEquals("Unexpected stream id: 1", ex.getMessage());
+    }
+
 
     // Helper: minimal stream handler that sends our headers once
     static final class PriorityHeaderSender implements H2StreamHandler {
