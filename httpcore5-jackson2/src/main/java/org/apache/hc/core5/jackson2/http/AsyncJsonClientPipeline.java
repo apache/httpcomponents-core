@@ -325,7 +325,7 @@ public final class AsyncJsonClientPipeline {
         public <T> ResultStage<Long> asSequence(
                 final JavaType javaType,
                 final JsonConsumer<HttpResponse> responseValidator,
-                final Callback<String> errorCallback,
+                final Callback<JsonNode> errorCallback,
                 final JsonResultSink<T> resultSink) {
             return consume((response, entityDetails, context) ->
                     JsonResponseConsumers.create(objectMapper, javaType, responseValidator, errorCallback, resultSink));
@@ -338,7 +338,7 @@ public final class AsyncJsonClientPipeline {
         public <T> ResultStage<Long> asSequence(
                 final Class<T> clazz,
                 final JsonConsumer<HttpResponse> responseValidator,
-                final Callback<String> errorCallback,
+                final Callback<JsonNode> errorCallback,
                 final JsonResultSink<T> resultSink) {
             return consume((response, entityDetails, context) ->
                     JsonResponseConsumers.create(objectMapper, clazz, responseValidator, errorCallback, resultSink));
@@ -351,7 +351,7 @@ public final class AsyncJsonClientPipeline {
         public <T> ResultStage<Long> asSequence(
                 final TypeReference<T> typeReference,
                 final JsonConsumer<HttpResponse> responseValidator,
-                final Callback<String> errorCallback,
+                final Callback<JsonNode> errorCallback,
                 final JsonResultSink<T> resultSink) {
             return consume((response, entityDetails, context) ->
                     JsonResponseConsumers.create(objectMapper, typeReference, responseValidator, errorCallback, resultSink));
@@ -362,7 +362,7 @@ public final class AsyncJsonClientPipeline {
          */
         public ResultStage<Void> asEvents(
                 final JsonConsumer<HttpResponse> responseValidator,
-                final Callback<String> errorCallback,
+                final Callback<JsonNode> errorCallback,
                 final JsonTokenEventHandler eventHandler) {
             return consume((response, entityDetails, context) ->
                     JsonResponseConsumers.create(objectMapper.getFactory(), responseValidator, errorCallback, eventHandler));

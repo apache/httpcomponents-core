@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -53,6 +54,7 @@ import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.jackson2.JsonResultSink;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 public class JsonEntityConsumersTest {
@@ -573,6 +575,79 @@ public class JsonEntityConsumersTest {
                 JsonTokenId.ID_END_OBJECT,
                 JsonTokenId.ID_NO_TOKEN
         );
+    }
+
+    @Test
+    void testJsonNodeWithFallbackCorrectlyProcessed() throws Exception {
+        final JsonFactory factory = new JsonFactory();
+
+        final URL resource = getClass().getResource("/sample1.json");
+        Assertions.assertThat(resource).isNotNull();
+
+        final JsonNodeEntityFallbackConsumer entityConsumer = new JsonNodeEntityFallbackConsumer(factory);
+        final AtomicReference<JsonNode> resultRef = new AtomicReference<>();
+        try (final InputStream inputStream = resource.openStream()) {
+            entityConsumer.streamStart(
+                    new BasicEntityDetails(-1, ContentType.APPLICATION_JSON),
+                    new FutureCallback<JsonNode>() {
+
+                        @Override
+                        public void completed(final JsonNode result) {
+                            resultRef.set(result);
+                        }
+
+                        @Override
+                        public void failed(final Exception ex) {
+                        }
+
+                        @Override
+                        public void cancelled() {
+                        }
+
+                    });
+            final byte[] bytebuf = new byte[1024];
+            int len;
+            while ((len = inputStream.read(bytebuf)) != -1) {
+                entityConsumer.consume(ByteBuffer.wrap(bytebuf, 0, len));
+            }
+            entityConsumer.streamEnd(null);
+        }
+
+        Assertions.assertThat(resultRef.get()).isInstanceOf(JsonNode.class);
+    }
+
+    @Test
+    void testJsonNodeWithFallbackUnexpectedContentProcessed() throws Exception {
+        final JsonFactory factory = new JsonFactory();
+
+        final JsonNodeEntityFallbackConsumer entityConsumer = new JsonNodeEntityFallbackConsumer(factory);
+        final AtomicReference<JsonNode> resultRef = new AtomicReference<>();
+        entityConsumer.streamStart(
+                new BasicEntityDetails(-1, ContentType.TEXT_PLAIN),
+                new FutureCallback<JsonNode>() {
+
+                    @Override
+                    public void completed(final JsonNode result) {
+                        resultRef.set(result);
+                    }
+
+                    @Override
+                    public void failed(final Exception ex) {
+                    }
+
+                    @Override
+                    public void cancelled() {
+                    }
+
+                });
+        entityConsumer.consume(ByteBuffer.wrap("Kaaaaaaa".getBytes(StandardCharsets.UTF_8)));
+        entityConsumer.consume(ByteBuffer.wrap("Boooooom".getBytes(StandardCharsets.UTF_8)));
+        entityConsumer.streamEnd(null);
+
+        AssertionsForClassTypes.assertThat(resultRef.get()).satisfies(e -> {
+            Assertions.assertThat(e.isTextual()).isTrue();
+            Assertions.assertThat(e.asText()).isEqualTo("KaaaaaaaBoooooom");
+        });
     }
 
 }

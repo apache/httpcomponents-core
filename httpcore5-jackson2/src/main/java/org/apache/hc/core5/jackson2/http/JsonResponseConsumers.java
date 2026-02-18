@@ -39,7 +39,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.jackson2.JsonConsumer;
 import org.apache.hc.core5.jackson2.JsonResultSink;
 import org.apache.hc.core5.jackson2.JsonTokenConsumer;
@@ -82,7 +81,7 @@ public final class JsonResponseConsumers {
     public static <T> AsyncResponseConsumer<Message<HttpResponse, T>> create(
             final ObjectMapper objectMapper,
             final JavaType javaType) {
-        return create(objectMapper, javaType, StringAsyncEntityConsumer::new);
+        return create(objectMapper, javaType, () -> new JsonNodeEntityFallbackConsumer(objectMapper));
     }
 
     /**
@@ -117,7 +116,7 @@ public final class JsonResponseConsumers {
     public static <T> AsyncResponseConsumer<Message<HttpResponse, T>> create(
             final ObjectMapper objectMapper,
             final Class<T> objectClazz) {
-        return create(objectMapper, objectClazz, StringAsyncEntityConsumer::new);
+        return create(objectMapper, objectClazz, () -> new JsonNodeEntityFallbackConsumer(objectMapper));
     }
 
     /**
@@ -152,7 +151,7 @@ public final class JsonResponseConsumers {
     public static <T> AsyncResponseConsumer<Message<HttpResponse, T>> create(
             final ObjectMapper objectMapper,
             final TypeReference<T> typeReference) {
-        return create(objectMapper, typeReference, StringAsyncEntityConsumer::new);
+        return create(objectMapper, typeReference, () -> new JsonNodeEntityFallbackConsumer(objectMapper));
     }
 
     /**
@@ -180,7 +179,7 @@ public final class JsonResponseConsumers {
      * @return the response consumer.
      */
     public static AsyncResponseConsumer<Message<HttpResponse, JsonNode>> create(final JsonFactory jsonFactory) {
-        return create(jsonFactory, StringAsyncEntityConsumer::new);
+        return create(jsonFactory, () -> new JsonNodeEntityFallbackConsumer(jsonFactory));
     }
 
     /**
@@ -229,11 +228,11 @@ public final class JsonResponseConsumers {
             final ObjectMapper objectMapper,
             final JavaType javaType,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonResultSink<T> resultSink) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonSequenceEntityConsumer<T>(objectMapper, javaType, resultSink),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(objectMapper),
                 responseValidator,
                 errorCallback);
     }
@@ -284,11 +283,11 @@ public final class JsonResponseConsumers {
             final ObjectMapper objectMapper,
             final Class<T> objectClazz,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonResultSink<T> resultSink) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonSequenceEntityConsumer<>(objectMapper, objectClazz, resultSink),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(objectMapper),
                 responseValidator,
                 errorCallback);
     }
@@ -339,11 +338,11 @@ public final class JsonResponseConsumers {
             final ObjectMapper objectMapper,
             final TypeReference<T> typeReference,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonResultSink<T> resultSink) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonSequenceEntityConsumer<>(objectMapper, typeReference, resultSink),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(objectMapper),
                 responseValidator,
                 errorCallback);
     }
@@ -386,11 +385,11 @@ public final class JsonResponseConsumers {
     public static AsyncResponseConsumer<Void> create(
             final JsonFactory jsonFactory,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonTokenEventHandler eventHandler) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonTokenEntityConsumer(jsonFactory, eventHandler),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(jsonFactory),
                 responseValidator,
                 errorCallback);
     }
@@ -435,11 +434,11 @@ public final class JsonResponseConsumers {
     public static AsyncResponseConsumer<Long> create(
             final ObjectMapper objectMapper,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonResultSink<JsonNode> resultSink) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonNodeSequenceEntityConsumer(objectMapper, resultSink),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(objectMapper),
                 responseValidator,
                 errorCallback);
     }
@@ -482,11 +481,11 @@ public final class JsonResponseConsumers {
     public static <E> AsyncResponseConsumer<Void> create(
             final JsonFactory jsonFactory,
             final JsonConsumer<HttpResponse> responseValidator,
-            final Callback<String> errorCallback,
+            final Callback<JsonNode> errorCallback,
             final JsonTokenConsumer tokenConsumer) {
         return new JsonSequenceResponseConsumer<>(
                 () -> new JsonTokenEntityConsumer(jsonFactory, tokenConsumer),
-                StringAsyncEntityConsumer::new,
+                () -> new JsonNodeEntityFallbackConsumer(jsonFactory),
                 responseValidator,
                 errorCallback);
     }
