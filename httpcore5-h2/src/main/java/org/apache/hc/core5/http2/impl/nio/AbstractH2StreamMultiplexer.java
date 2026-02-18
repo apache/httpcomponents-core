@@ -89,6 +89,7 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.command.PushResponseCommand;
+import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.http2.priority.PriorityParamsParser;
 import org.apache.hc.core5.http2.priority.PriorityValue;
 import org.apache.hc.core5.io.CloseMode;
@@ -98,6 +99,7 @@ import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Identifiable;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
@@ -148,6 +150,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private static final long STREAM_TIMEOUT_GRANULARITY_MILLIS = 1000;
     private long lastStreamTimeoutCheckMillis;
 
+    private static final long VALIDATE_AFTER_INACTIVITY_GRANULARITY_MILLIS = 1000;
+    private final Timeout validateAfterInactivity;
+    private volatile long lastActivityTime;
 
     AbstractH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -157,6 +162,18 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final H2StreamListener streamListener) {
+        this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener, null);
+    }
+
+    AbstractH2StreamMultiplexer(
+            final ProtocolIOSession ioSession,
+            final FrameFactory frameFactory,
+            final StreamIdGenerator idGenerator,
+            final HttpProcessor httpProcessor,
+            final CharCodingConfig charCodingConfig,
+            final H2Config h2Config,
+            final H2StreamListener streamListener,
+            final Timeout validateAfterInactivity) {
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -183,6 +200,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
+        this.lastActivityTime = System.currentTimeMillis();
+        this.validateAfterInactivity = validateAfterInactivity;
     }
 
     @Override
@@ -287,6 +306,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         } finally {
             ioSession.getLock().unlock();
         }
+        updateLastActivity();
     }
 
     private void commitHeaders(
@@ -519,6 +539,23 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0 && remoteSettingState == SettingsHandshake.ACKED) {
+            final long t = TimeValue.isPositive(validateAfterInactivity) ?
+                    Math.max(validateAfterInactivity.toMilliseconds(), VALIDATE_AFTER_INACTIVITY_GRANULARITY_MILLIS) : 0;
+            final boolean hasBeenIdleTooLong = t > 0 && System.currentTimeMillis() - lastActivityTime > t;
+            if (hasBeenIdleTooLong && ioSession.hasCommands() && pingHandlers.isEmpty()) {
+                final Timeout socketTimeout = ioSession.getSocketTimeout();
+                ioSession.setSocketTimeout(Timeout.ofSeconds(5));
+                executePing(new PingCommand(new BasicPingHandler(result -> {
+                    // restore timeout
+                    ioSession.setSocketTimeout(socketTimeout);
+                    if (result) {
+                        requestSessionOutput();
+                    } else {
+                        ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+                    }
+                })));
+                return;
+            }
             while (streams.getLocalCount() < remoteConfig.getMaxConcurrentStreams()) {
                 final Command command = ioSession.poll();
                 if (command == null) {
@@ -732,6 +769,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void consumeFrame(final RawFrame frame) throws HttpException, IOException {
+        updateLastActivity();
         final FrameType frameType = FrameType.valueOf(frame.getType());
         final int streamId = frame.getStreamId();
         if (continuation != null && frameType != FrameType.CONTINUATION) {
@@ -1627,4 +1665,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
+    private void updateLastActivity() {
+        this.lastActivityTime = System.currentTimeMillis();
+    }
 }

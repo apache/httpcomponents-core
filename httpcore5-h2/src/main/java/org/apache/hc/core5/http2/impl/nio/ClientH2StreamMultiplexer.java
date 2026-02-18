@@ -46,6 +46,7 @@ import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -66,9 +67,22 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
-            final H2StreamListener streamListener) {
-        super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener);
+            final H2StreamListener streamListener,
+            final Timeout validateAfterInactivity) {
+        super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener,
+                validateAfterInactivity);
         this.pushHandlerFactory = pushHandlerFactory;
+    }
+
+    public ClientH2StreamMultiplexer(
+            final ProtocolIOSession ioSession,
+            final FrameFactory frameFactory,
+            final HttpProcessor httpProcessor,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final H2Config h2Config,
+            final CharCodingConfig charCodingConfig,
+            final H2StreamListener streamListener) {
+        this(ioSession, frameFactory, httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, streamListener, null);
     }
 
     public ClientH2StreamMultiplexer(
@@ -77,7 +91,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, null, null);
     }
 
     public ClientH2StreamMultiplexer(

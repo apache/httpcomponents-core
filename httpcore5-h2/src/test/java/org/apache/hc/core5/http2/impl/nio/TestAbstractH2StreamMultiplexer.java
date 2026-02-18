@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -116,7 +118,22 @@ class TestAbstractH2StreamMultiplexer {
                 final H2Config h2Config,
                 final H2StreamListener streamListener,
                 final Supplier<H2StreamHandler> streamHandlerSupplier) {
-            super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener);
+            this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    streamHandlerSupplier, null);
+        }
+
+        public H2StreamMultiplexerImpl(
+                final ProtocolIOSession ioSession,
+                final FrameFactory frameFactory,
+                final StreamIdGenerator idGenerator,
+                final HttpProcessor httpProcessor,
+                final CharCodingConfig charCodingConfig,
+                final H2Config h2Config,
+                final H2StreamListener streamListener,
+                final Supplier<H2StreamHandler> streamHandlerSupplier,
+                final Timeout validateAfterInactivity) {
+            super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    validateAfterInactivity);
             this.streamHandlerSupplier = streamHandlerSupplier;
         }
 
@@ -846,28 +863,6 @@ class TestAbstractH2StreamMultiplexer {
         @Override public void releaseResources() { }
     }
 
-    // Small struct + parser to decode the frames we capture from writes
-    private static final class FrameStub {
-        final int type;
-        final int streamId;
-        FrameStub(final int type, final int streamId) { this.type = type; this.streamId = streamId; }
-    }
-    private static List<FrameStub> parseFrames(final byte[] all) {
-        final List<FrameStub> out = new ArrayList<>();
-        int p = 0;
-        while (p + 9 <= all.length) {
-            final int len = ((all[p] & 0xff) << 16) | ((all[p + 1] & 0xff) << 8) | (all[p + 2] & 0xff);
-            final int type = all[p + 3] & 0xff;
-            final int sid = ((all[p + 5] & 0x7f) << 24) | ((all[p + 6] & 0xff) << 16)
-                    | ((all[p + 7] & 0xff) << 8) | (all[p + 8] & 0xff);
-            p += 9;
-            if (p + len > all.length) break;
-            out.add(new FrameStub(type, sid));
-            p += len;
-        }
-        return out;
-    }
-
     // 2) Client emits PRIORITY_UPDATE BEFORE HEADERS when Priority header present
     @Test
     void testSubmitWithPriorityHeaderEmitsPriorityUpdateBeforeHeaders() throws Exception {
@@ -1083,5 +1078,319 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(1, timeoutEx.getStreamId());
 
     }
+    private static byte[] encodeFrame(final RawFrame frame) throws IOException {
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+        outBuffer.write(frame, writableChannel);
+        return writableChannel.toByteArray();
+    }
+
+    private static void feedFrame(final AbstractH2StreamMultiplexer mux, final RawFrame frame) throws Exception {
+        mux.onInput(ByteBuffer.wrap(encodeFrame(frame)));
+    }
+
+    private static void completeSettingsHandshake(final AbstractH2StreamMultiplexer mux) throws Exception {
+        // Remote SETTINGS (non-ACK) -> mux replies with SETTINGS ACK and marks remoteSettingState ACKED
+        final RawFrame remoteSettings = FRAME_FACTORY.createSettings(new H2Setting[] {
+                new H2Setting(H2Param.MAX_FRAME_SIZE, FrameConsts.MIN_FRAME_SIZE)
+        });
+        feedFrame(mux, remoteSettings);
+
+        // Remote ACK of our SETTINGS -> localSettingState ACKED
+        feedFrame(mux, new RawFrame(FrameType.SETTINGS.getValue(), FrameFlag.ACK.getValue(), 0, null));
+    }
+
+    private static final class FrameStub {
+        final int type;
+        final int flags;
+        final int streamId;
+        final byte[] payload;
+
+        FrameStub(final int type, final int flags, final int streamId, final byte[] payload) {
+            this.type = type;
+            this.flags = flags;
+            this.streamId = streamId;
+            this.payload = payload;
+        }
+
+        boolean isPing() {
+            return type == FrameType.PING.getValue();
+        }
+
+        boolean isGoAway() {
+            return type == FrameType.GOAWAY.getValue();
+        }
+
+        boolean isAck() {
+            return (flags & FrameFlag.ACK.getValue()) != 0;
+        }
+    }
+
+    private static List<FrameStub> parseFrames(final byte[] all) {
+        final List<FrameStub> out = new ArrayList<>();
+        int p = 0;
+        while (p + 9 <= all.length) {
+            final int len = ((all[p] & 0xff) << 16) | ((all[p + 1] & 0xff) << 8) | (all[p + 2] & 0xff);
+            final int type = all[p + 3] & 0xff;
+            final int flags = all[p + 4] & 0xff;
+            final int sid = ((all[p + 5] & 0x7f) << 24) | ((all[p + 6] & 0xff) << 16)
+                    | ((all[p + 7] & 0xff) << 8) | (all[p + 8] & 0xff);
+            p += 9;
+            if (p + len > all.length) {
+                break;
+            }
+            final byte[] payload = new byte[len];
+            System.arraycopy(all, p, payload, 0, len);
+            out.add(new FrameStub(type, flags, sid, payload));
+            p += len;
+        }
+        return out;
+    }
+
+    private static byte[] concat(final List<byte[]> writes) {
+        final int total = writes.stream().mapToInt(a -> a.length).sum();
+        final byte[] all = new byte[total];
+        int p = 0;
+        for (final byte[] a : writes) {
+            System.arraycopy(a, 0, all, p, a.length);
+            p += a.length;
+        }
+        return all;
+    }
+
+
+    @Test
+    void testKeepAliveNotActiveBeforeSettingsHandshake() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final Timeout idleTime = Timeout.ofMilliseconds(5);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
+
+        mux.onConnect();
+        writes.clear();
+
+        // BEFORE SETTINGS handshake is fully ACKed, keepalive must NOT run
+        mux.onTimeout(idleTime);
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().noneMatch(FrameStub::isPing), "Must not emit PING before handshake");
+        Assertions.assertTrue(frames.stream().anyMatch(FrameStub::isGoAway), "Default timeout path must emit GOAWAY");
+    }
+
+    @Test
+    void testValidateAfterInactivityDoesNotArmSocketTimeoutOnHandshake() throws Exception {
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class))).thenReturn(0);
+
+        final Timeout validateAfterInactivity = Timeout.ofMilliseconds(50);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                validateAfterInactivity);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        Mockito.verify(protocolIOSession, Mockito.never()).setSocketTimeout(ArgumentMatchers.eq(validateAfterInactivity));
+    }
+
+    @Test
+    void testValidateAfterInactivitySendsPingAndSetsAckTimeout() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        Mockito.when(protocolIOSession.hasCommands()).thenReturn(true);
+        Mockito.when(protocolIOSession.getSocketTimeout()).thenReturn(Timeout.ofSeconds(30));
+
+        final Timeout validateAfterInactivity = Timeout.ofMilliseconds(1);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                validateAfterInactivity);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        writes.clear();
+        makeMuxIdle(mux, validateAfterInactivity);
+
+        mux.onOutput(); // <-- TRIGGER
+
+        Mockito.verify(protocolIOSession, Mockito.atLeastOnce())
+                .setSocketTimeout(ArgumentMatchers.eq(Timeout.ofSeconds(5)));
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().anyMatch(f -> f.isPing() && !f.isAck()), "Must emit pre-flight PING");
+        Assertions.assertTrue(mux.isOpen());
+    }
+
+    @Test
+    void testValidateAfterInactivityPingAckRestoresPreviousTimeout() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        Mockito.when(protocolIOSession.hasCommands()).thenReturn(true);
+        final Timeout previousTimeout = Timeout.ofSeconds(30);
+        Mockito.when(protocolIOSession.getSocketTimeout()).thenReturn(previousTimeout);
+
+        final Timeout validateAfterInactivity = Timeout.ofMilliseconds(1);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                validateAfterInactivity);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        writes.clear();
+        makeMuxIdle(mux, validateAfterInactivity);
+
+        mux.onOutput(); // emits PING
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final FrameStub ping = frames.stream().filter(f -> f.isPing() && !f.isAck()).findFirst().orElse(null);
+        Assertions.assertNotNull(ping, "Expected a pre-flight PING frame");
+        Assertions.assertEquals(8, ping.payload.length);
+
+        final RawFrame pingAck = new RawFrame(
+                FrameType.PING.getValue(),
+                FrameFlag.ACK.getValue(),
+                0,
+                ByteBuffer.wrap(ping.payload));
+
+        feedFrame(mux, pingAck);
+
+        Mockito.verify(protocolIOSession, Mockito.atLeastOnce()).setSocketTimeout(ArgumentMatchers.eq(previousTimeout));
+    }
+
+    @Test
+    void testKeepAliveAckTimeoutShutsDownAndFailsStreams() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final Timeout idleTime = Timeout.ofMilliseconds(5);
+        final Timeout ackTimeout = Timeout.ofSeconds(5);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                idleTime);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        // Ensure at least one live stream to be failed
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
+        writes.clear();
+        Thread.sleep(idleTime.toMilliseconds() + 10);
+        mux.onTimeout(idleTime); // send PING, awaiting ACK
+        writes.clear();
+
+        // No ACK arrives -> next timeout closes via keepalive path (GOAWAY + fail streams)
+        mux.onTimeout(ackTimeout);
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().anyMatch(FrameStub::isGoAway), "Must emit GOAWAY on ping ACK timeout");
+
+        Mockito.verify(streamHandler, Mockito.atLeastOnce()).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamResetException.class, exceptionCaptor.getValue());
+
+        Assertions.assertFalse(mux.isOpen(), "Connection must not be open after keepalive shutdown");
+    }
+
+    @Test
+    void testKeepAliveDisabledNeverEmitsPing() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT, h2StreamListener, () -> streamHandler,
+                Timeout.DISABLED);
+
+        mux.onConnect();
+        writes.clear();
+
+        mux.onTimeout(Timeout.ofMilliseconds(1));
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().noneMatch(FrameStub::isPing), "Disabled policy must never emit PING");
+    }
+
+    private static long getValidateAfterInactivityGranularityMillis() throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("VALIDATE_AFTER_INACTIVITY_GRANULARITY_MILLIS");
+        field.setAccessible(true);
+        return field.getLong(null);
+    }
+
+    private static void setLastActivityTime(final AbstractH2StreamMultiplexer mux, final long millis) throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("lastActivityTime");
+        field.setAccessible(true);
+        field.setLong(mux, millis);
+    }
+
+    private static void makeMuxIdle(final AbstractH2StreamMultiplexer mux, final Timeout validateAfterInactivity) throws Exception {
+        final long granularityMillis = getValidateAfterInactivityGranularityMillis();
+        final long configuredMillis = validateAfterInactivity != null ? validateAfterInactivity.toMilliseconds() : 0;
+        final long effectiveMillis = configuredMillis > 0 ? Math.max(configuredMillis, granularityMillis) : 0;
+        setLastActivityTime(mux, System.currentTimeMillis() - effectiveMillis - 10);
+    }
+
 }
 
