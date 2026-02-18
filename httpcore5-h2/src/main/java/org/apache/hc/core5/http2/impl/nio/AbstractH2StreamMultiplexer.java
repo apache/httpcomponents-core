@@ -775,6 +775,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (continuation != null && frameType != FrameType.CONTINUATION) {
             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "CONTINUATION frame expected");
         }
+        if (frameType == null) {
+            return;
+        }
         switch (frameType) {
             case DATA: {
                 if (streamId == 0) {

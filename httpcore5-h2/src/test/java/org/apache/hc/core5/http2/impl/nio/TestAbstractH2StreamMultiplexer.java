@@ -1099,6 +1099,28 @@ class TestAbstractH2StreamMultiplexer {
 
         Assertions.assertThrows(H2ConnectionException.class, () -> channel.endStream(trailers));
     }
+
+    @Test
+    void testInputUnknownFrameTypeIgnored() throws Exception {
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        // 0x0a is not a defined HTTP/2 core frame type in FrameType enum (extension / unknown)
+        final RawFrame unknownFrame = new RawFrame(0x0a, 0, 0, ByteBuffer.allocate(0));
+        outBuffer.write(unknownFrame, writableChannel);
+
+        final AbstractH2StreamMultiplexer streamMultiplexer = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        Assertions.assertDoesNotThrow(() -> streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
+    }
     private static byte[] encodeFrame(final RawFrame frame) throws IOException {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
         final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
