@@ -1555,6 +1555,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 ensureNotClosed();
                 localClosed = true;
                 if (trailers != null && !trailers.isEmpty()) {
+                    TrailersValidationSupport.verify(trailers);
                     commitHeaders(id, trailers, true);
                 } else {
                     final RawFrame frame = frameFactory.createData(id, null, true);

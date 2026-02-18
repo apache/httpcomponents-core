@@ -216,6 +216,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 responseState.set(endStream ? MessageState.COMPLETE : MessageState.BODY);
                 break;
             case BODY:
+                TrailersValidationSupport.verify(headers);
                 responseState.set(MessageState.COMPLETE);
                 exchangeHandler.streamEnd(headers);
                 break;
