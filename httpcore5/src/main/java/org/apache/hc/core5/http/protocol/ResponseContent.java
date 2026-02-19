@@ -122,7 +122,7 @@ public class ResponseContent implements HttpResponseInterceptor {
             MessageSupport.addContentEncodingHeader(response, entity);
         } else {
             final int status = response.getCode();
-            if (status != HttpStatus.SC_NO_CONTENT && status != HttpStatus.SC_NOT_MODIFIED) {
+            if (status >= 200 && status != HttpStatus.SC_NO_CONTENT && status != HttpStatus.SC_NOT_MODIFIED) {
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
             }
         }
