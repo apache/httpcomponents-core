@@ -104,24 +104,28 @@ public final class HPackDecoder {
     static int decodeInt(final ByteBuffer src, final int n) throws HPackException {
 
         final int nbits = 0xff >>> (8 - n);
-        int value = readByte(src) & nbits;
+        long value = readByte(src) & nbits;
         if (value < nbits) {
-            return value;
+            return (int) value;
         }
         int m = 0;
         while (m < 32) {
             final int b = readByte(src);
-            if ((b & 0x80) != 0) {
-                value += (b & 0x7f) << m;
-                m += 7;
-            } else {
-                if (m == 28 && (b & 0xf8) != 0) {
-                    break;
-                }
-                value += b << m;
-                return value;
+
+            value += (long) (b & 0x7f) << m;
+
+            // HPACK integers are unsigned; reject values that exceed Integer.MAX_VALUE to avoid signed overflow
+            // and ensure malformed input is reported as HPackException (protocol error) rather than runtime failure.
+            if (value > Integer.MAX_VALUE) {
+                throw new HPackException(MAX_LIMIT_EXCEEDED);
             }
+
+            if ((b & 0x80) == 0) {
+                return (int) value;
+            }
+            m += 7;
         }
+
         throw new HPackException(MAX_LIMIT_EXCEEDED);
     }
 

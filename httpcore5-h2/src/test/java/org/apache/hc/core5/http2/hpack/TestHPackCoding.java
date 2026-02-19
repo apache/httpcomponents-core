@@ -1224,5 +1224,14 @@ class TestHPackCoding {
         Assertions.assertTrue(ex.getMessage().contains("beginning of a header block"));
     }
 
+    @Test
+    void testIntegerDecodingOverflow() {
+        // 7-bit prefix integer that mathematically decodes to Integer.MAX_VALUE + 127.
+        // Without an overflow guard this wraps to a negative int and leaks into higher-level decoding.
+        Assertions.assertThrows(HPackException.class, () ->
+                HPackDecoder.decodeInt(createByteBuffer(0x7f, 0xff, 0xff, 0xff, 0xff, 0x07), 7));
+    }
+
+
 }
 
