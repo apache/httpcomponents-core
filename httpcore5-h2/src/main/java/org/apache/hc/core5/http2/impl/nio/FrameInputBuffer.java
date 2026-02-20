@@ -133,13 +133,17 @@ public final class FrameInputBuffer {
                 case HEAD_EXPECTED:
                     if (buffer.remaining() >= FrameConsts.HEAD_LEN) {
                         final int lengthAndType = buffer.getInt();
-                        payloadLen = lengthAndType >> 8;
+                        // HTTP/2 Length field is 24-bit unsigned (RFC 9113, Section 4.1).
+                        // Use unsigned shift + mask to avoid negative lengths when the high bit is set.
+                        payloadLen = (lengthAndType >>> 8) & 0x00ffffff;
                         if (payloadLen > maxFramePayloadSize) {
                             throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
                         }
                         type = lengthAndType & 0xff;
-                        flags = buffer.get();
-                        streamId = Math.abs(buffer.getInt());
+                        // Flags are an octet on the wire; keep them in the 0..255 range.
+                        flags = buffer.get() & 0xff;
+                        // Stream Identifier is 31-bit; mask out the reserved (MSB) bit (RFC 9113, Section 4.1).
+                        streamId = buffer.getInt() & 0x7fffffff;
                         state = State.PAYLOAD_EXPECTED;
                     } else {
                         break;

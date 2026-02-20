@@ -103,11 +103,12 @@ public final class FrameInputBuffer {
         final int payloadLen = (buffer[off] & 0xff) << 16 | (buffer[off + 1] & 0xff) << 8 | (buffer[off + 2] & 0xff);
         final int type = buffer[off + 3] & 0xff;
         final int flags = buffer[off + 4] & 0xff;
-        final int streamId = Math.abs(buffer[off + 5] & 0xff) << 24 | (buffer[off + 6] & 0xff << 16) | (buffer[off + 7] & 0xff) << 8 | (buffer[off + 8] & 0xff);
+        // HTTP/2 stream id is 31-bit; ignore the reserved (MSB) bit.
+        // Note: mask before shift; `b & 0xff << 16` would drop the byte due to operator precedence.
+        final int streamId = ((buffer[off + 5] & 0x7f) << 24) | ((buffer[off + 6] & 0xff) << 16) | ((buffer[off + 7] & 0xff) << 8) | (buffer[off + 8] & 0xff);
         if (payloadLen > maxFramePayloadSize) {
             throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
         }
-
         final int frameLen = payloadOff + payloadLen;
         fillBuffer(inStream, frameLen);
 

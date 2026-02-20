@@ -946,6 +946,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id");
                 }
                 if (frame.isFlagSet(FrameFlag.ACK)) {
+                    // RFC 9113, Section 6.5: SETTINGS with ACK set MUST have an empty payload.
+                    final ByteBuffer payload = frame.getPayload();
+                    if (payload != null && payload.hasRemaining()) {
+                        throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS ACK payload");
+                    }
                     if (localSettingState == SettingsHandshake.TRANSMITTED) {
                         localSettingState = SettingsHandshake.ACKED;
                         ioSession.setEvent(SelectionKey.OP_WRITE);
