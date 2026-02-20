@@ -1159,5 +1159,28 @@ class TestStandardInterceptors {
         Assertions.assertNotEquals("Invalid Date", newDateHeader.getValue());
     }
 
+    @Test
+    void testResponseConformanceInformationalWithEntity() {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_CONTINUE, "Continue");
+        response.setEntity(new StringEntity("stuff", StandardCharsets.US_ASCII));
+
+        final ResponseConformance interceptor = new ResponseConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(response, response.getEntity(), context));
+    }
+
+    @Test
+    void testResponseConformanceResetContentWithEntity() {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_RESET_CONTENT, "Reset Content");
+        response.setEntity(new StringEntity("stuff", StandardCharsets.US_ASCII));
+
+        final ResponseConformance interceptor = new ResponseConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(response, response.getEntity(), context));
+    }
+
+
 
 }

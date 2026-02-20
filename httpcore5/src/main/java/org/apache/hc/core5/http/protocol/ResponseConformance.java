@@ -63,12 +63,13 @@ public class ResponseConformance implements HttpResponseInterceptor {
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         final int status = response.getCode();
-        switch (status) {
-            case HttpStatus.SC_NO_CONTENT:
-            case HttpStatus.SC_NOT_MODIFIED:
-                if (entity != null) {
-                    throw new ProtocolException("Response " + status + " must not enclose an entity");
-                }
+        if (status >= 100 && status < 200
+                || status == HttpStatus.SC_NO_CONTENT
+                || status == HttpStatus.SC_RESET_CONTENT
+                || status == HttpStatus.SC_NOT_MODIFIED) {
+            if (entity != null) {
+                throw new ProtocolException("Response " + status + " must not enclose an entity");
+            }
         }
     }
 
