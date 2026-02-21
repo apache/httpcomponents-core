@@ -179,14 +179,12 @@ public class H2Config {
         }
 
         public Builder setMaxConcurrentStreams(final int maxConcurrentStreams) {
-            Args.positive(maxConcurrentStreams, "Max concurrent streams");
-            this.maxConcurrentStreams = maxConcurrentStreams;
+            this.maxConcurrentStreams = Args.checkRange(maxConcurrentStreams, 0, Integer.MAX_VALUE, "Max concurrent streams");
             return this;
         }
 
         public Builder setInitialWindowSize(final int initialWindowSize) {
-            Args.positive(initialWindowSize, "Initial window size");
-            this.initialWindowSize = initialWindowSize;
+            this.initialWindowSize = Args.checkRange(initialWindowSize, 0, Integer.MAX_VALUE, "Initial window size");
             return this;
         }
 
@@ -197,8 +195,7 @@ public class H2Config {
         }
 
         public Builder setMaxHeaderListSize(final int maxHeaderListSize) {
-            Args.positive(maxHeaderListSize, "Max header list size");
-            this.maxHeaderListSize = maxHeaderListSize;
+            this.maxHeaderListSize = Args.checkRange(maxHeaderListSize, 0, Integer.MAX_VALUE, "Max header list size");
             return this;
         }
 
@@ -214,7 +211,7 @@ public class H2Config {
          * @since 5,4
          */
         public Builder setMaxContinuations(final int maxContinuations) {
-            Args.positive(maxContinuations, "Max continuations");
+            Args.notNegative(maxContinuations, "Max continuations");
             this.maxContinuations = maxContinuations;
             return this;
         }

@@ -60,10 +60,32 @@ class TestClientH2StreamMultiplexer {
     }
 
     @Test
-    void validateSettingRejectsEnablePush() {
+    void validateSettingRejectsEnablePush1OnClient() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
         final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
                 multiplexer.validateSetting(H2Param.ENABLE_PUSH, 1));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+    }
+
+    @Test
+    void validateSettingAcceptsEnablePush0OnClient() throws Exception {
+        final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
+        multiplexer.validateSetting(H2Param.ENABLE_PUSH, 0);
+    }
+
+    @Test
+    void validateSettingRejectsEnablePush2OnClient() {
+        final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 2));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+    }
+
+    @Test
+    void validateSettingRejectsEnablePushNegativeOnClient() {
+        final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, -1));
         Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
     }
 
@@ -95,7 +117,9 @@ class TestClientH2StreamMultiplexer {
     void outgoingPushPromiseRejected() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
         Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.outgoingPushPromise(Mockito.mock(H2StreamChannel.class), Mockito.mock(AsyncPushProducer.class)));
+                multiplexer.outgoingPushPromise(
+                        Mockito.mock(H2StreamChannel.class),
+                        Mockito.mock(AsyncPushProducer.class)));
     }
 
     @Test

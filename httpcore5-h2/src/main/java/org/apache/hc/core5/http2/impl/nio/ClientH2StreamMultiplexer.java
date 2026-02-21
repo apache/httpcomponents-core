@@ -104,8 +104,13 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
 
     @Override
     void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
-        if (param == H2Param.ENABLE_PUSH && value == 1) {
-            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal ENABLE_PUSH setting");
+        if (param == H2Param.ENABLE_PUSH) {
+            if (value != 0 && value != 1) {
+                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal ENABLE_PUSH setting: " + value);
+            }
+            if (value == 1) {
+                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal ENABLE_PUSH setting");
+            }
         }
     }
 
