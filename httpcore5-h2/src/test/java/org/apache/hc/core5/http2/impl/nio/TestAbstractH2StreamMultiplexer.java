@@ -386,6 +386,57 @@ class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
+    void testZeroIncrementConnectionWindowUpdate() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(4);
+            payload.putInt(0);
+            payload.flip();
+            final RawFrame incrementFrame = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 0, payload);
+
+            final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class,
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(incrementFrame))));
+            Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(exception.getCode()));
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testInvalidInitialWindowSizeSettingIsFlowControlError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.INITIAL_WINDOW_SIZE.getCode());
+            payload.putInt(-1);
+            payload.flip();
+            final RawFrame settingsFrame = new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+
+            final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class,
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
+            Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR, H2Error.getByCode(exception.getCode()));
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
     void testIncrementOverflow() throws Exception {
         final H2Config h2Config = H2Config.custom()
                 .build();
@@ -1605,5 +1656,158 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR, H2Error.getByCode(ex.getCode()));
     }
 
-}
+    @Test
+    void testWindowUpdateReservedBitIgnored() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
 
+        final ByteBuffer payload = ByteBuffer.allocate(4);
+        payload.putInt(0x80000001);
+        payload.flip();
+
+        final RawFrame windowUpdate = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 0, payload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(windowUpdate))));
+    }
+
+    @Test
+    void testPingReservedBitInStreamIdIgnored() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteBuffer payload = ByteBuffer.wrap(new byte[8]);
+        final RawFrame ping = new RawFrame(FrameType.PING.getValue(), 0, 0x80000000, payload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(ping))));
+    }
+
+    @Test
+    void testPushPromiseReservedBitInPromisedStreamIdIgnored() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setPushEnabled(true)
+                .build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel s1 = mux.createChannel(1);
+        mux.createStream(s1, streamHandler);
+
+        final ByteArrayBuffer hbuf = new ByteArrayBuffer(256);
+        final HPackEncoder encoder = new HPackEncoder(
+                H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> reqHeaders = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/pushed"));
+
+        encoder.encodeHeaders(hbuf, reqHeaders, h2Config.isCompressionEnabled());
+
+        final ByteBuffer payload = ByteBuffer.allocate(4 + hbuf.length());
+        payload.putInt(0x80000002);
+        payload.put(hbuf.array(), 0, hbuf.length());
+        payload.flip();
+
+        final RawFrame pp = new RawFrame(
+                FrameType.PUSH_PROMISE.getValue(),
+                FrameFlag.END_HEADERS.getValue(),
+                1,
+                payload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(pp))));
+
+        Mockito.verify(h2StreamListener).onHeaderInput(
+                ArgumentMatchers.same(mux),
+                ArgumentMatchers.eq(2),
+                ArgumentMatchers.anyList());
+
+        Mockito.verify(streamHandler).consumePromise(ArgumentMatchers.anyList());
+    }
+
+    @Test
+    void testGoAwayReservedBitInLastStreamIdAffectsStreamCulling() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD, // local=odd, remote=even
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Create 3 remote (even) streams by feeding inbound HEADERS on 2,4,6.
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(256);
+        final HPackEncoder encoder = new HPackEncoder(
+                H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final RawFrame h2 = FRAME_FACTORY.createHeaders(2,
+                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
+                true,  // END_HEADERS
+                false  // END_STREAM
+        );
+        final RawFrame h4 = FRAME_FACTORY.createHeaders(4,
+                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
+                true,
+                false
+        );
+        final RawFrame h6 = FRAME_FACTORY.createHeaders(6,
+                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
+                true,
+                false
+        );
+
+        feedFrame(mux, h2);
+        feedFrame(mux, h4);
+        feedFrame(mux, h6);
+
+        // GOAWAY last-stream-id = 4, but with reserved MSB set.
+        // Correct masking keeps streams <= 4 (2 and 4) and drops only stream 6.
+        final ByteBuffer goAwayPayload = ByteBuffer.allocate(8);
+        goAwayPayload.putInt(0x80000004); // reserved bit set, last-stream-id = 4
+        goAwayPayload.putInt(H2Error.NO_ERROR.getCode());
+        goAwayPayload.flip();
+
+        final RawFrame goAway = new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, goAwayPayload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(goAway))));
+
+        Mockito.verify(streamHandler, Mockito.times(1)).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(org.apache.hc.core5.http.RequestNotExecutedException.class, exceptionCaptor.getValue());
+    }
+
+}

@@ -134,7 +134,7 @@ public final class FramePrinter {
                     break;
                 case GOAWAY:
                     if (buf.remaining() >= 8) {
-                        final int lastStream = buf.getInt();
+                        final int lastStream = buf.getInt() & 0x7fffffff;
                         appendable.append("Last stream ").append(Integer.toString(lastStream)).append("\r\n");
                         appendable.append("Code ");
                         final int code2 = buf.getInt();
@@ -155,7 +155,7 @@ public final class FramePrinter {
                     break;
                 case WINDOW_UPDATE:
                     if (buf.remaining() == 4) {
-                        final int increment = buf.getInt();
+                        final int increment = buf.getInt() & 0x7fffffff;
                         appendable.append("Increment ").append(Integer.toString(increment)).append("\r\n");
                     } else {
                         appendable.append("Invalid\r\n");
