@@ -94,8 +94,11 @@ public class ClientHttpProtocolNegotiationStarter implements IOEventHandlerFacto
         ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ClientH2UpgradeHandler(http2StreamHandlerFactory, exceptionCallback));
 
         switch (endpointPolicy) {
-            case FORCE_HTTP_2:
-                return new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, false, exceptionCallback);
+            case FORCE_HTTP_2: {
+                // In forced HTTP/2 mode, require ALPN negotiation on TLS sessions.
+                final boolean strictAlpn = ioSession.getTlsDetails() != null;
+                return new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, strictAlpn, exceptionCallback);
+            }
             case FORCE_HTTP_1:
                 return new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession));
             default:
