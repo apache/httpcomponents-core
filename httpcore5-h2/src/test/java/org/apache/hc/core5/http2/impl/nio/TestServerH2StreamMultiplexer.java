@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.junit.jupiter.api.Assertions;
@@ -60,6 +61,34 @@ class TestServerH2StreamMultiplexer {
     }
 
     @Test
+    void validateSettingAcceptsEnablePush0OnServer() throws Exception {
+        final ServerH2StreamMultiplexer multiplexer = newMultiplexer();
+        multiplexer.validateSetting(H2Param.ENABLE_PUSH, 0);
+    }
+
+    @Test
+    void validateSettingAcceptsEnablePush1OnServer() throws Exception {
+        final ServerH2StreamMultiplexer multiplexer = newMultiplexer();
+        multiplexer.validateSetting(H2Param.ENABLE_PUSH, 1);
+    }
+
+    @Test
+    void validateSettingRejectsEnablePush2OnServer() {
+        final ServerH2StreamMultiplexer multiplexer = newMultiplexer();
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 2));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+    }
+
+    @Test
+    void validateSettingRejectsEnablePushNegativeOnServer() {
+        final ServerH2StreamMultiplexer multiplexer = newMultiplexer();
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, -1));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+    }
+
+    @Test
     void acceptPushFrameRejected() {
         final ServerH2StreamMultiplexer multiplexer = newMultiplexer();
         final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, multiplexer::acceptPushFrame);
@@ -73,7 +102,8 @@ class TestServerH2StreamMultiplexer {
         final HandlerFactory<AsyncPushConsumer> pushHandlerFactory =
                 (HandlerFactory<AsyncPushConsumer>) Mockito.mock(HandlerFactory.class);
         Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.outgoingRequest(Mockito.mock(H2StreamChannel.class),
+                multiplexer.outgoingRequest(
+                        Mockito.mock(H2StreamChannel.class),
                         Mockito.mock(AsyncClientExchangeHandler.class),
                         pushHandlerFactory,
                         null));
