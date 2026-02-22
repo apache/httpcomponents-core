@@ -464,7 +464,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 final RawFrame frame = inputBuffer.read(src, ioSession);
                 if (frame != null) {
                     if (streamListener != null) {
-                        streamListener.onFrameInput(this, frame.getStreamId(), frame);
+                        streamListener.onFrameInput(this, frame.getStreamId() & 0x7fffffff, frame);
                     }
                     consumeFrame(frame);
                 } else {
@@ -770,7 +770,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private void consumeFrame(final RawFrame frame) throws HttpException, IOException {
         updateLastActivity();
         final FrameType frameType = FrameType.valueOf(frame.getType());
-        final int streamId = frame.getStreamId();
+        final int streamId = frame.getStreamId() & 0x7fffffff;
+
         if (continuation != null && frameType != FrameType.CONTINUATION) {
             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "CONTINUATION frame expected");
         }
@@ -875,8 +876,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (payload == null || payload.remaining() != 4) {
                     throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid WINDOW_UPDATE frame payload");
                 }
-                final int delta = payload.getInt();
-                if (delta <= 0) {
+                final int delta = payload.getInt() & 0x7fffffff;
+                if (delta == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Invalid WINDOW_UPDATE delta");
                 }
                 if (streamId == 0) {
@@ -946,7 +947,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id");
                 }
                 if (frame.isFlagSet(FrameFlag.ACK)) {
-                    // RFC 9113, Section 6.5: SETTINGS with ACK set MUST have an empty payload.
                     final ByteBuffer payload = frame.getPayload();
                     if (payload != null && payload.hasRemaining()) {
                         throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS ACK payload");
@@ -997,7 +997,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (payload == null || payload.remaining() < 4) {
                     throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid PUSH_PROMISE payload");
                 }
-                final int promisedStreamId = payload.getInt();
+                final int promisedStreamId = payload.getInt() & 0x7fffffff;
                 if (promisedStreamId == 0 || streams.isSameSide(promisedStreamId)) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal promised stream id: " + promisedStreamId);
                 }
@@ -1030,7 +1030,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (payload == null || payload.remaining() < 8) {
                     throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid GOAWAY payload");
                 }
-                final int processedLocalStreamId = payload.getInt();
+                final int processedLocalStreamId = payload.getInt() & 0x7fffffff;
                 final int errorCode = payload.getInt();
                 goAwayReceived = true;
                 if (errorCode == H2Error.NO_ERROR.getCode()) {
@@ -1182,7 +1182,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (stream.isRemoteClosed()) {
             throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
         }
-        final int streamId = frame.getStreamId();
+        final int streamId = frame.getStreamId() & 0x7fffffff;
         final ByteBuffer payload = frame.getPayload();
         continuation.copyPayload(payload);
         if (frame.isFlagSet(FrameFlag.END_HEADERS)) {
@@ -1227,10 +1227,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         configBuilder.setPushEnabled(value == 1);
                         break;
                     case INITIAL_WINDOW_SIZE:
+                        if (value < 0) {
+                            throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR,
+                                    "Invalid initial window size: " + (value & 0xffffffffL));
+                        }
                         try {
                             configBuilder.setInitialWindowSize(value);
                         } catch (final IllegalArgumentException ex) {
-                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                            throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                         }
                         break;
                     case MAX_FRAME_SIZE:
