@@ -380,9 +380,8 @@ class TestAbstractH2StreamMultiplexer {
         final RawFrame incrementFrame = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 1, payload);
         outBuffer.write(incrementFrame, writableChannel);
 
-        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+        Assertions.assertDoesNotThrow(() ->
                 streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
-        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(exception.getCode()));
     }
 
     @Test
@@ -1808,6 +1807,60 @@ class TestAbstractH2StreamMultiplexer {
 
         Mockito.verify(streamHandler, Mockito.times(1)).failed(exceptionCaptor.capture());
         Assertions.assertInstanceOf(org.apache.hc.core5.http.RequestNotExecutedException.class, exceptionCaptor.getValue());
+    }
+
+    @Test
+    void testWindowUpdateZeroIncrementOnConnectionIsConnectionError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteBuffer payload = ByteBuffer.allocate(4);
+        payload.putInt(0);
+        payload.flip();
+
+        final RawFrame windowUpdate = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 0, payload);
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(windowUpdate))));
+
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
+    @Test
+    void testWindowUpdateZeroIncrementOnStreamIsStreamError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
+        final ByteBuffer payload = ByteBuffer.allocate(4);
+        payload.putInt(0);
+        payload.flip();
+
+        final RawFrame windowUpdate = new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, 1, payload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(windowUpdate))));
+
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        final Exception cause = exceptionCaptor.getValue();
+        Assertions.assertInstanceOf(H2StreamResetException.class, cause);
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(((H2StreamResetException) cause).getCode()));
     }
 
 }
