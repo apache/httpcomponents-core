@@ -40,6 +40,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -114,6 +115,40 @@ class TestClientHttpProtocolNegotiationStarter {
         final Object handler = starter.createHandler(ioSession, null);
 
         Assertions.assertTrue(handler instanceof HttpProtocolNegotiator);
+    }
+
+    @Test
+    void forceHttp2TlsMissingAlpnFailsStrictHandshake() throws Exception {
+        final ClientHttpProtocolNegotiationStarter starter = new ClientHttpProtocolNegotiationStarter(
+                http1Factory(),
+                http2Factory(),
+                HttpVersionPolicy.FORCE_HTTP_2,
+                null,
+                null,
+                null);
+
+        final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
+        Mockito.when(ioSession.getTlsDetails()).thenReturn(new TlsDetails(null, null));
+        final ClientH2PrefaceHandler handler = (ClientH2PrefaceHandler) starter.createHandler(ioSession, null);
+
+        Assertions.assertThrows(ProtocolNegotiationException.class, () -> handler.connected(ioSession));
+    }
+
+    @Test
+    void forceHttp2TlsUnexpectedAlpnFailsHandshake() throws Exception {
+        final ClientHttpProtocolNegotiationStarter starter = new ClientHttpProtocolNegotiationStarter(
+                http1Factory(),
+                http2Factory(),
+                HttpVersionPolicy.FORCE_HTTP_2,
+                null,
+                null,
+                null);
+
+        final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
+        Mockito.when(ioSession.getTlsDetails()).thenReturn(new TlsDetails(null, ApplicationProtocol.HTTP_1_1.id));
+        final ClientH2PrefaceHandler handler = (ClientH2PrefaceHandler) starter.createHandler(ioSession, null);
+
+        Assertions.assertThrows(ProtocolNegotiationException.class, () -> handler.connected(ioSession));
     }
 
 }
