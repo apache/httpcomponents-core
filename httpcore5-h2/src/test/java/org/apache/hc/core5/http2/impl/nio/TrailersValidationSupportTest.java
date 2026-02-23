@@ -29,8 +29,8 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http2.H2ConnectionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,7 @@ class TestTrailersValidationSupport {
 
     @Test
     void testVerifyInboundRejectsPseudoHeaders() {
-        Assertions.assertThrows(H2ConnectionException.class, () ->
+        Assertions.assertThrows(ProtocolException.class, () ->
                 TrailersValidationSupport.verify(Collections.singletonList(
                         new BasicHeader(":status", "200"))));
     }

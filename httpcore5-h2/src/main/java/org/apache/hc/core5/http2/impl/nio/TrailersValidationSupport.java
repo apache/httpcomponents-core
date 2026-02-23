@@ -30,25 +30,22 @@ import java.util.List;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-
+import org.apache.hc.core5.http.ProtocolException;
 
 @Internal
 final class TrailersValidationSupport {
 
-    static void verify(final List<? extends Header> trailers) throws H2ConnectionException {
+    static void verify(final List<? extends Header> trailers) throws ProtocolException {
         if (trailers == null || trailers.isEmpty()) {
             return;
         }
         for (int i = 0; i < trailers.size(); i++) {
             final String name = trailers.get(i).getName();
             if (name != null && !name.isEmpty() && name.charAt(0) == ':') {
-                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Pseudo-header '" + name + "' is not allowed in trailers");
+                throw new ProtocolException("Pseudo-header '" + name + "' is not allowed in trailers");
             }
         }
     }
-
 
     private TrailersValidationSupport() {
     }

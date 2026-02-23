@@ -40,7 +40,6 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -125,7 +124,7 @@ class TestClientH2StreamHandler {
         final List<Header> trailers = Collections.singletonList(
                 new BasicHeader(":status", "200"));
 
-        Assertions.assertThrows(H2ConnectionException.class, () -> handler.consumeHeader(trailers, true));
+        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(trailers, true));
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
     }
 
