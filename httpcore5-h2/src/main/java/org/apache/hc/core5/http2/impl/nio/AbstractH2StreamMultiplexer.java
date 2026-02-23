@@ -772,6 +772,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final FrameType frameType = FrameType.valueOf(frame.getType());
         final int streamId = frame.getStreamId() & 0x7fffffff;
 
+        // once the connection is active, the first frame from a peer after the preface MUST be SETTINGS.
+        if (connState == ConnectionHandshake.ACTIVE && remoteSettingState == SettingsHandshake.READY && frameType != FrameType.SETTINGS) {
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "SETTINGS frame expected as first peer frame");
+        }
         if (continuation != null && frameType != FrameType.CONTINUATION) {
             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "CONTINUATION frame expected");
         }
@@ -955,10 +959,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id");
                 }
                 if (frame.isFlagSet(FrameFlag.ACK)) {
-                    // RFC 9113, Section 6.5: SETTINGS with ACK set MUST have an empty payload.
+                    // SETTINGS with ACK set MUST have an empty payload.
                     final ByteBuffer payload = frame.getPayload();
                     if (payload != null && payload.hasRemaining()) {
                         throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS ACK payload");
+                    }
+                    // The first peer SETTINGS cannot be ACK.
+                    if (connState == ConnectionHandshake.ACTIVE && remoteSettingState == SettingsHandshake.READY) {
+                        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal SETTINGS ACK");
                     }
                     if (localSettingState == SettingsHandshake.TRANSMITTED) {
                         localSettingState = SettingsHandshake.ACKED;
