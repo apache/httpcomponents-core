@@ -27,16 +27,24 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2StreamResetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 class TestServerH2StreamHandler {
@@ -79,6 +87,65 @@ class TestServerH2StreamHandler {
         final String text = handler.toString();
         Assertions.assertTrue(text.contains("requestState"));
         Assertions.assertTrue(text.contains("responseState"));
+    }
+
+    @Test
+    void consumeTrailersWithPseudoHeaderRejected() throws Exception {
+        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
+        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
+        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
+                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
+        final AsyncServerExchangeHandler exchangeHandler = Mockito.mock(AsyncServerExchangeHandler.class);
+        @SuppressWarnings("unchecked")
+        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory =
+                (HandlerFactory<AsyncServerExchangeHandler>) Mockito.mock(HandlerFactory.class);
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+
+        final ServerH2StreamHandler handler = new ServerH2StreamHandler(
+                channel, httpProcessor, metrics, exchangeHandlerFactory, HttpCoreContext.create());
+
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"));
+        handler.consumeHeader(requestHeaders, false);
+
+        final List<Header> trailers = Collections.singletonList(new BasicHeader(":status", "200"));
+        Assertions.assertThrows(H2StreamResetException.class, () -> handler.consumeHeader(trailers, true));
+        Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(ArgumentMatchers.anyList());
+    }
+
+    @Test
+    void consumeTrailersWithoutEndStreamRejected() throws Exception {
+        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
+        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
+        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
+                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
+        final AsyncServerExchangeHandler exchangeHandler = Mockito.mock(AsyncServerExchangeHandler.class);
+        @SuppressWarnings("unchecked")
+        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory =
+                (HandlerFactory<AsyncServerExchangeHandler>) Mockito.mock(HandlerFactory.class);
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+
+        final ServerH2StreamHandler handler = new ServerH2StreamHandler(
+                channel, httpProcessor, metrics, exchangeHandlerFactory, HttpCoreContext.create());
+
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"));
+        handler.consumeHeader(requestHeaders, false);
+
+        final List<Header> trailers = Collections.singletonList(new BasicHeader("x-checksum", "abc123"));
+        final H2StreamResetException ex = Assertions.assertThrows(
+                H2StreamResetException.class,
+                () -> handler.consumeHeader(trailers, false));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
+        Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(ArgumentMatchers.anyList());
     }
 
 }
