@@ -1931,4 +1931,39 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
     }
 
+    @Test
+    void testInputRstStreamWithInvalidLengthOnUnseenStreamRejected() throws Exception {
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final int remaining = buffer.remaining();
+                    buffer.position(buffer.limit());
+                    return remaining;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        final RawFrame badRst = new RawFrame(FrameType.RST_STREAM.getValue(), 0, 1, null);
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(badRst))));
+
+        Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
+
 }
