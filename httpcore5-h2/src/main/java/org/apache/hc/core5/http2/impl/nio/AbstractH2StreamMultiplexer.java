@@ -878,7 +878,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
                 final int delta = payload.getInt() & 0x7fffffff;
                 if (delta == 0) {
-                    throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Invalid WINDOW_UPDATE delta");
+                    if (streamId == 0) {
+                        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Invalid WINDOW_UPDATE delta");
+                    }
+                    final H2Stream stream = streams.lookup(streamId);
+                    if (stream != null) {
+                        stream.localReset(new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Invalid WINDOW_UPDATE delta"));
+                        requestSessionOutput();
+                    }
+                    break;
                 }
                 if (streamId == 0) {
                     try {
@@ -947,6 +955,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id");
                 }
                 if (frame.isFlagSet(FrameFlag.ACK)) {
+                    // RFC 9113, Section 6.5: SETTINGS with ACK set MUST have an empty payload.
                     final ByteBuffer payload = frame.getPayload();
                     if (payload != null && payload.hasRemaining()) {
                         throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS ACK payload");
