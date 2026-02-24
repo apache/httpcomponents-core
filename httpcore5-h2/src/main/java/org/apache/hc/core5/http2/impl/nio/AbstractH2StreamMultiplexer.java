@@ -915,12 +915,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (streamId == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
                 }
+
+                final ByteBuffer payload = frame.getPayload();
+                if (payload == null || payload.remaining() != 4) {
+                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM frame payload");
+                }
+
                 final H2Stream stream = streams.lookupSeen(streamId);
                 if (stream != null) {
-                    final ByteBuffer payload = frame.getPayload();
-                    if (payload == null || payload.remaining() != 4) {
-                        throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM frame payload");
-                    }
                     final int errorCode = payload.getInt();
                     if (errorCode == H2Error.NO_ERROR.getCode() && allowGracefulAbort(stream)) {
                         stream.abortGracefully();
