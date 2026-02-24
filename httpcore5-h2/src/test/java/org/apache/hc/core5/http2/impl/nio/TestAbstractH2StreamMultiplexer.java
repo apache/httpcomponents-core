@@ -1863,4 +1863,30 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(((H2StreamResetException) cause).getCode()));
     }
 
+    @Test
+    void testHeadersWithPriorityFlagAndShortPayloadRejected() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        final RawFrame headers = new RawFrame(
+                FrameType.HEADERS.getValue(),
+                FrameFlag.PRIORITY.getValue() | FrameFlag.END_HEADERS.getValue(),
+                2,
+                ByteBuffer.allocate(0));
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(headers))));
+
+        Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
+
 }

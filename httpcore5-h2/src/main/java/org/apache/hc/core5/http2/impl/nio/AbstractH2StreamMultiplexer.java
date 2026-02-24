@@ -1172,6 +1172,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         final ByteBuffer payload = frame.getPayloadContent();
         if (frame.isFlagSet(FrameFlag.PRIORITY)) {
+            if (payload == null || payload.remaining() < 5) {
+                throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid HEADERS priority payload");
+            }
             payload.getInt();
             payload.get();
         }
