@@ -1889,4 +1889,46 @@ class TestAbstractH2StreamMultiplexer {
     }
 
 
+    @Test
+    void testFirstPeerFrameMustBeSettings() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        mux.onConnect();
+
+        final RawFrame ping = new RawFrame(FrameType.PING.getValue(), 0, 0, ByteBuffer.wrap(new byte[8]));
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(ping))));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
+    @Test
+    void testFirstPeerSettingsAckRejected() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        mux.onConnect();
+
+        final RawFrame settingsAck = new RawFrame(FrameType.SETTINGS.getValue(), FrameFlag.ACK.getValue(), 0, null);
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsAck))));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
+    }
+
 }
