@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
@@ -178,6 +179,26 @@ class TestDefaultH2ResponseConverter {
         Assertions.assertEquals("http://www.example.com/", allHeaders[0].getValue());
         Assertions.assertEquals("cookie", allHeaders[1].getName());
         Assertions.assertEquals("a=b; c=d; e=f", allHeaders[1].getValue());
+    }
+
+    @Test
+    void testConvertFromFieldsStatusCodeMustBeStrictThreeDigit() {
+        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+
+        // Demonstrate why Integer.parseInt(...) is insufficient (it accepts non-3-digit formats).
+        final int parsedPlus = Assertions.assertDoesNotThrow(() -> Integer.parseInt("+200"));
+        Assertions.assertEquals(200, parsedPlus);
+
+        final int parsedLeadingZero = Assertions.assertDoesNotThrow(() -> Integer.parseInt("0200"));
+        Assertions.assertEquals(200, parsedLeadingZero);
+
+        // Converter must be strict: :status is exactly 3 digits, in range 100..599.
+        Assertions.assertThrows(HttpException.class,
+                () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "+200"))));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "0200"))));
+
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "099"))));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "600"))));
     }
 
 }
