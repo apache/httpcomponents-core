@@ -38,6 +38,7 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
+import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.util.Args;
@@ -112,7 +113,7 @@ public final class FrameInputBuffer {
         final int frameLen = payloadOff + payloadLen;
         fillBuffer(inStream, frameLen);
 
-        if ((flags & FrameFlag.PADDED.getValue()) > 0) {
+        if ((flags & FrameFlag.PADDED.getValue()) > 0 && isPaddedFrameType(type)) {
             if (payloadLen == 0) {
                 throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
             }
@@ -135,6 +136,12 @@ public final class FrameInputBuffer {
 
     public H2TransportMetrics getMetrics() {
         return metrics;
+    }
+
+    private static boolean isPaddedFrameType(final int type) {
+        return FrameType.DATA.same(type)
+                || FrameType.HEADERS.same(type)
+                || FrameType.PUSH_PROMISE.same(type);
     }
 
 }

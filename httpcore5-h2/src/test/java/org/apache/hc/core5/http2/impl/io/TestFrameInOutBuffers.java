@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
+import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
@@ -242,6 +243,37 @@ class TestFrameInOutBuffers {
                 new byte[] {0,-128,-128,0,0,0,0,0,1});
 
         Assertions.assertThrows(H2ConnectionException.class, () -> inBuffer.read(inputStream));
+    }
+
+    @Test
+    void testPaddedBitOnUnknownFrameTypeIgnored() throws Exception {
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(
+                new byte[] {
+                        0, 0, 1, 10, 8, 0, 0, 0, 1, 42 // len=1,type=0x0a(flags=0x08),stream=1,payload=42
+                });
+
+        final RawFrame frame = inBuffer.read(inputStream);
+        Assertions.assertNotNull(frame);
+        Assertions.assertEquals(0x0a, frame.getType());
+        Assertions.assertEquals(0x08, frame.getFlags());
+        Assertions.assertEquals(1, frame.getStreamId());
+        Assertions.assertEquals(1, frame.getLength());
+        Assertions.assertNotNull(frame.getPayload());
+        Assertions.assertEquals(1, frame.getPayload().remaining());
+        Assertions.assertEquals(42, frame.getPayload().get() & 0xff);
+    }
+
+    @Test
+    void testPaddedValidationAppliedForDataFrame() {
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(
+                new byte[] {
+                        0, 0, 1, 0, 8, 0, 0, 0, 1, 42 // len=1,type=DATA(flags=0x08),stream=1,padLength=42 -> invalid
+                });
+
+        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () -> inBuffer.read(inputStream));
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
     }
 
 }
