@@ -67,11 +67,16 @@ public final class JsonTokenEventHandlerAdaptor implements JsonTokenConsumer {
                 break;
             case JsonTokenId.ID_NUMBER_INT:
                 final JsonParser.NumberType numberType = jsonParser.getNumberType();
-                final Number numberValue = jsonParser.getNumberValue();
                 if (numberType == JsonParser.NumberType.LONG) {
-                    eventHandler.value(numberValue.longValue());
+                    eventHandler.value(jsonParser.getLongValue());
+                } else if (numberType == JsonParser.NumberType.BIG_INTEGER) {
+                    try {
+                        eventHandler.value(jsonParser.getLongValue());
+                    } catch (final IOException ex) {
+                        throw new IOException("Integer value is out of range for 64-bit signed long: " + jsonParser.getText(), ex);
+                    }
                 } else {
-                    eventHandler.value(numberValue.intValue());
+                    eventHandler.value(jsonParser.getIntValue());
                 }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
