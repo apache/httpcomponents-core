@@ -81,6 +81,10 @@ class JsonSequenceResponseConsumer<T, E> extends AbstractJsonMessageConsumer<Htt
                     if (errorCallback != null) {
                         errorCallback.execute(result);
                     }
+                    if (resultCallback != null) {
+                        // Error content has been fully processed, signal exchange completion.
+                        resultCallback.completed(null);
+                    }
                 }
 
             });
