@@ -97,12 +97,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         if (statusText == null) {
             throw new ProtocolException("Mandatory response header '%s' not found", H2PseudoResponseHeaders.STATUS);
         }
-        final int statusCode;
-        try {
-            statusCode = Integer.parseInt(statusText);
-        } catch (final NumberFormatException ex) {
-            throw new ProtocolException("Invalid response status: " + statusText);
-        }
+        final int statusCode = parseStatusCode(statusText);
         final HttpResponse response = new BasicHttpResponse(statusCode, null);
         response.setVersion(HttpVersion.HTTP_2);
         for (int i = 0; i < messageHeaders.size(); i++) {
@@ -147,6 +142,22 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
             headers.add(new BasicHeader(TextUtils.toLowerCase(name), value));
         }
         return headers;
+    }
+
+    private static int parseStatusCode(final String statusText) throws ProtocolException {
+        if (statusText.length() != 3) {
+            throw new ProtocolException("Invalid response status: " + statusText);
+        }
+
+        final char c0 = statusText.charAt(0);
+        final char c1 = statusText.charAt(1);
+        final char c2 = statusText.charAt(2);
+
+        if (c0 < '1' || c0 > '5' || c1 < '0' || c1 > '9' || c2 < '0' || c2 > '9') {
+            throw new ProtocolException("Invalid response status: " + statusText);
+        }
+
+        return (c0 - '0') * 100 + (c1 - '0') * 10 + (c2 - '0');
     }
 
 }
