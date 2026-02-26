@@ -106,4 +106,44 @@ class TestFrameInputBuffer {
         assertNotNull(rawFrame);
         assertEquals(1, rawFrame.getStreamId());
     }
+
+    @Test
+    void paddedBitOnUnknownFrameTypeMustBeIgnored() throws Exception {
+        final byte[] frame = new byte[]{
+                0x00, 0x00, 0x01, 0x0a, // length=1 + type=0x0a (unknown)
+                0x08,                   // PADDED bit set (undefined for this type)
+                0x00, 0x00, 0x00, 0x01, // streamId = 1
+                0x2a                    // payload byte
+        };
+
+        final FrameInputBuffer inBuf = new FrameInputBuffer(16 * 1024);
+        final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
+
+        final RawFrame rawFrame = inBuf.read(ch);
+        assertNotNull(rawFrame);
+        assertEquals(0x0a, rawFrame.getType());
+        assertEquals(0x08, rawFrame.getFlags());
+        assertEquals(1, rawFrame.getStreamId());
+        assertEquals(1, rawFrame.getLength());
+        assertNotNull(rawFrame.getPayload());
+        assertEquals(1, rawFrame.getPayload().remaining());
+        assertEquals(0x2a, rawFrame.getPayload().get() & 0xff);
+    }
+
+    @Test
+    void paddedSemanticsStillApplyToDataFrames() throws Exception {
+        // DATA frame with PADDED flag and payloadLen=1, padding=0x2a -> invalid.
+        // This ensures the padded-validation branch is still entered for valid frame types.
+        final byte[] frame = new byte[]{
+                0x00, 0x00, 0x01, 0x00, // length=1 + type=DATA
+                0x08,                   // PADDED
+                0x00, 0x00, 0x00, 0x01, // streamId = 1
+                0x2a                    // pad length byte (invalid for payloadLen=1)
+        };
+
+        final FrameInputBuffer inBuf = new FrameInputBuffer(16 * 1024);
+        final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
+        final H2ConnectionException ex = assertThrows(H2ConnectionException.class, () -> inBuf.read(ch));
+        assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+    }
 }
