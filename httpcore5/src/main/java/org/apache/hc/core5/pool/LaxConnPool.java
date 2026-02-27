@@ -444,6 +444,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     it.remove();
                     if (entry.getExpiryDeadline().isExpired() || !Objects.equals(entry.getState(), state)) {
                         entry.discardConnection(CloseMode.GRACEFUL);
+                        deallocatePoolEntry();
                     } else {
                         return entry;
                     }
