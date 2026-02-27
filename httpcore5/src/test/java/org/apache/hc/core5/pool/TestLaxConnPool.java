@@ -475,4 +475,32 @@ class TestLaxConnPool {
             Assertions.assertEquals(max, pool.getMaxPerRoute(route));
         }
     }
+
+    @Test
+    void testExpiredEntryDeallocatesSlot() throws Exception {
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+
+        try (final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1)) {
+            // Lease, assign, expire, then release back to available
+            final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
+            final PoolEntry<String, HttpConnection> entry1 = future1.get();
+            entry1.assignConnection(conn1);
+            entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
+            pool.release(entry1, true);
+
+            Thread.sleep(10);
+
+            // Lease again — the expired entry should be discarded and the slot freed
+            final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
+            Assertions.assertTrue(future2.isDone());
+            final PoolEntry<String, HttpConnection> entry2 = future2.get();
+            Assertions.assertNotNull(entry2);
+
+            // The expired entry was discarded, so a new entry was allocated.
+            // With maxPerRoute=1, this only works if the expired entry's slot was deallocated.
+            final PoolStats stats = pool.getStats("somehost");
+            Assertions.assertEquals(1, stats.getLeased());
+            Assertions.assertEquals(0, stats.getAvailable());
+        }
+    }
 }
