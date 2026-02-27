@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hc.core5.http.HttpHost;
@@ -44,6 +43,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
+import org.apache.hc.core5.net.uri.Rfc3986Uri;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
@@ -1118,57 +1118,89 @@ public class URIBuilder {
      * @since 5.3
      */
     public URIBuilder optimize() {
-        final String scheme = this.scheme;
-        if (scheme != null) {
-            this.scheme = TextUtils.toLowerCase(scheme);
+        final String currentScheme = this.scheme;
+        if (currentScheme != null) {
+            this.scheme = TextUtils.toLowerCase(currentScheme);
         }
-
+        // Preserve historical behavior: do not canonicalize rootless / opaque references.
         if (this.pathRootless) {
             return this;
         }
-
-        // Force Percent-Encoding re-encoding
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        this.encodedUserInfo = null;
-        this.encodedPath = null;
-        this.encodedQuery = null;
-        this.encodedFragment = null;
-
-        final String host = this.host;
-        if (host != null) {
-            this.host = TextUtils.toLowerCase(host);
+        final String raw = this.toString();
+        try {
+            final Rfc3986Uri u = Rfc3986Uri.parse(raw).optimize();
+            digestRfc3986Uri(u);
+            return this;
+        } catch (final IllegalArgumentException ex) {
+            return this;
         }
-
-        if (this.pathSegments != null) {
-            final List<String> inputSegments = this.pathSegments;
-            if (!inputSegments.isEmpty()) {
-                final LinkedList<String> outputSegments = new LinkedList<>();
-                for (final String inputSegment : inputSegments) {
-                    if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
-                        if ("..".equals(inputSegment)) {
-                            if (!outputSegments.isEmpty()) {
-                                outputSegments.removeLast();
-                            }
-                        } else {
-                            outputSegments.addLast(inputSegment);
-                        }
-                    }
-                }
-                if (!inputSegments.isEmpty()) {
-                    final String lastSegment = inputSegments.get(inputSegments.size() - 1);
-                    if (lastSegment.isEmpty()) {
-                        outputSegments.addLast("");
-                    }
-                }
-                this.pathSegments = outputSegments;
-            } else {
-                this.pathSegments = Collections.singletonList("");
-            }
-        }
-
-        return this;
     }
+
+    private void digestRfc3986Uri(final Rfc3986Uri uri) {
+        this.scheme = uri.getScheme();
+        this.encodedUserInfo = uri.getUserInfo();
+        this.userInfo = PercentCodec.decode(uri.getUserInfo(), this.charset);
+
+        final String rawHost = uri.getHost();
+        this.host = toInternalHost(rawHost);
+        this.port = uri.getPort();
+        this.encodedAuthority = rawHost != null ? buildRawAuthority(uri.getUserInfo(), rawHost, uri.getPort()) : null;
+
+        this.encodedPath = uri.getPath();
+        this.pathSegments = parsePath(uri.getPath(), this.charset);
+        this.pathRootless = uri.getPath() == null || !uri.getPath().startsWith("/");
+
+        this.encodedQuery = uri.getQuery();
+        this.queryParams = parseQuery(uri.getQuery(), this.charset, this.plusAsBlank);
+        this.query = null;
+
+        this.encodedFragment = uri.getFragment();
+        this.fragment = PercentCodec.decode(uri.getFragment(), this.charset);
+
+        this.encodedSchemeSpecificPart = this.scheme != null
+                ? buildRawSchemeSpecificPart(this.encodedAuthority, this.encodedPath, this.encodedQuery)
+                : null;
+    }
+
+    private static String toInternalHost(final String rawHost) {
+        if (rawHost == null) {
+            return null;
+        }
+        if (!rawHost.isEmpty() && rawHost.charAt(0) == '[' && rawHost.charAt(rawHost.length() - 1) == ']') {
+            return ZoneIdSupport.decodeZoneId(rawHost.substring(1, rawHost.length() - 1));
+        }
+        return rawHost;
+    }
+
+    private static String buildRawAuthority(final String rawUserInfo, final String rawHost, final int port) {
+        final StringBuilder sb = new StringBuilder();
+        if (rawUserInfo != null) {
+            sb.append(rawUserInfo).append('@');
+        }
+        sb.append(rawHost);
+        if (port >= 0) {
+            sb.append(':').append(port);
+        }
+        return sb.toString();
+    }
+
+    private static String buildRawSchemeSpecificPart(
+            final String rawAuthority,
+            final String rawPath,
+            final String rawQuery) {
+        final StringBuilder sb = new StringBuilder();
+        if (rawAuthority != null) {
+            sb.append("//").append(rawAuthority);
+        }
+        if (rawPath != null) {
+            sb.append(rawPath);
+        }
+        if (rawQuery != null) {
+            sb.append('?').append(rawQuery);
+        }
+        return sb.toString();
+    }
+
 
     /**
      * Converts this instance to a URI string.
