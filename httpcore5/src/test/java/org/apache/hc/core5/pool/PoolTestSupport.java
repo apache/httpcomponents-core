@@ -27,6 +27,10 @@
 package org.apache.hc.core5.pool;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
@@ -108,5 +112,45 @@ final class PoolTestSupport {
         }
 
     }
+
+    @FunctionalInterface
+    interface PoolFactory<T, C extends ModalCloseable> {
+        ManagedConnPool<T, C> create(final Clock clock);
+    }
+    static final class TestClock extends Clock {
+
+        private final ZoneId zoneId;
+        private final AtomicLong millis;
+
+        TestClock(final long initialMillis) {
+            this.zoneId = ZoneId.of("UTC");
+            this.millis = new AtomicLong(initialMillis);
+        }
+
+        void advanceMillis(final long deltaMillis) {
+            this.millis.addAndGet(deltaMillis);
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return this.zoneId;
+        }
+
+        @Override
+        public Clock withZone(final ZoneId zone) {
+            return this;
+        }
+
+        @Override
+        public long millis() {
+            return this.millis.get();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(millis());
+        }
+    }
+
 
 }

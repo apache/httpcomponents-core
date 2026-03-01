@@ -26,6 +26,9 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
@@ -36,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.HttpConnection;
@@ -49,6 +53,55 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 class TestStrictConnPool {
+
+    static final class TestClock extends Clock {
+
+        private final ZoneId zoneId;
+        private final AtomicLong millis;
+
+        TestClock(final long initialMillis) {
+            this.zoneId = ZoneId.of("UTC");
+            this.millis = new AtomicLong(initialMillis);
+        }
+
+        void advanceMillis(final long deltaMillis) {
+            this.millis.addAndGet(deltaMillis);
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return this.zoneId;
+        }
+
+        @Override
+        public Clock withZone(final ZoneId zone) {
+            return this;
+        }
+
+        @Override
+        public long millis() {
+            return this.millis.get();
+        }
+
+        @Override
+        public Instant instant() {
+            return Instant.ofEpochMilli(millis());
+        }
+    }
+
+    private static StrictConnPool<String, HttpConnection> newPool(
+            final int defaultMaxPerRoute,
+            final int maxTotal,
+            final Clock clock) {
+        return new StrictConnPool<>(
+                defaultMaxPerRoute,
+                maxTotal,
+                TimeValue.NEG_ONE_MILLISECOND,
+                PoolReusePolicy.LIFO,
+                null,
+                null,
+                clock);
+    }
 
     @Test
     void testEmptyPool() {
@@ -128,9 +181,15 @@ class TestStrictConnPool {
                         try {
                             while (n.decrementAndGet() > 0) {
                                 try {
-                                    final Future<PoolEntry<String, HttpConnection>> future = pool.lease("somehost", null);
-                                    final PoolEntry<String, HttpConnection> poolEntry = future.get(1, TimeUnit.MINUTES);
-                                    Thread.sleep(rnd.nextInt(1));
+                                    final Future<PoolEntry<String, HttpConnection>> future =
+                                            pool.lease("somehost", null);
+                                    final PoolEntry<String, HttpConnection> poolEntry =
+                                            future.get(1, TimeUnit.MINUTES);
+                                    // No sleeping; just a tiny bit of jitter to vary interleavings.
+                                    if ((rnd.nextInt() & 0x3) == 0) {
+                                        Thread.yield();
+                                    }
+
                                     pool.release(poolEntry, false);
                                 } catch (final Exception ex) {
                                     Assertions.fail(ex.getMessage(), ex);
@@ -357,8 +416,8 @@ class TestStrictConnPool {
 
             Assertions.assertTrue(future1.isDone());
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            entry1.assignConnection(conn1);
             Assertions.assertNotNull(entry1);
+            entry1.assignConnection(conn1);
             Assertions.assertTrue(future2.isDone());
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
             Assertions.assertNotNull(entry2);
@@ -377,7 +436,7 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", "some-stuff");
             final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("somehost", "some-stuff");
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertTrue(future3.isDone());
             final PoolEntry<String, HttpConnection> entry3 = future3.get();
             Assertions.assertNotNull(entry3);
             Assertions.assertSame(conn2, entry3.getConnection());
@@ -394,7 +453,8 @@ class TestStrictConnPool {
             Assertions.assertEquals(0, totals.getLeased());
             Assertions.assertEquals(0, totals.getPending());
 
-            final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", "some-other-stuff");
+            final Future<PoolEntry<String, HttpConnection>> future5 =
+                    pool.lease("somehost", "some-other-stuff");
 
             Assertions.assertTrue(future5.isDone());
 
@@ -410,8 +470,9 @@ class TestStrictConnPool {
     @Test
     void testCreateNewIfExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final TestClock clock = new TestClock(0L);
 
-        try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
+        try (final StrictConnPool<String, HttpConnection> pool = newPool(2, 2, clock)) {
 
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
 
@@ -423,7 +484,7 @@ class TestStrictConnPool {
             entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
             pool.release(entry1, true);
 
-            Thread.sleep(200L);
+            clock.advanceMillis(200L);
 
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
 
@@ -445,8 +506,9 @@ class TestStrictConnPool {
     void testCloseExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final TestClock clock = new TestClock(0L);
 
-        try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
+        try (final StrictConnPool<String, HttpConnection> pool = newPool(2, 2, clock)) {
 
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -463,7 +525,7 @@ class TestStrictConnPool {
             entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
             pool.release(entry1, true);
 
-            Thread.sleep(200);
+            clock.advanceMillis(200L);
 
             entry2.updateExpiry(TimeValue.of(1000, TimeUnit.SECONDS));
             pool.release(entry2, true);
@@ -488,8 +550,9 @@ class TestStrictConnPool {
     void testCloseIdle() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final TestClock clock = new TestClock(0L);
 
-        try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
+        try (final StrictConnPool<String, HttpConnection> pool = newPool(2, 2, clock)) {
 
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -506,7 +569,7 @@ class TestStrictConnPool {
             entry1.updateState(null);
             pool.release(entry1, true);
 
-            Thread.sleep(200L);
+            clock.advanceMillis(200L);
 
             entry2.updateState(null);
             pool.release(entry2, true);
@@ -543,12 +606,16 @@ class TestStrictConnPool {
     @Test
     void testLeaseRequestTimeout() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final TestClock clock = new TestClock(0L);
 
-        try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1)) {
+        try (final StrictConnPool<String, HttpConnection> pool = newPool(1, 1, clock)) {
 
-            final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
-            final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
-            final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
+            final Future<PoolEntry<String, HttpConnection>> future1 =
+                    pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
+            final Future<PoolEntry<String, HttpConnection>> future2 =
+                    pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
+            final Future<PoolEntry<String, HttpConnection>> future3 =
+                    pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
             Assertions.assertTrue(future1.isDone());
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
@@ -557,7 +624,7 @@ class TestStrictConnPool {
             Assertions.assertFalse(future2.isDone());
             Assertions.assertFalse(future3.isDone());
 
-            Thread.sleep(100);
+            clock.advanceMillis(100L);
 
             pool.validatePendingRequests();
 
