@@ -27,6 +27,7 @@
 package org.apache.hc.core5.pool;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
@@ -104,6 +106,9 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     private final ScheduledThreadPoolExecutor timeouts;
 
+    private final Clock clock;
+    private final Supplier<Long> currentTimeSupplier;
+
     /**
      * Dedicated executor for asynchronous, best-effort disposal.
      * Bounded queue; on saturation we fall back to IMMEDIATE close on the caller thread.
@@ -131,6 +136,17 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             final PoolReusePolicy reusePolicy,
             final DisposalCallback<C> disposal,
             final ConnPoolListener<R> connPoolListener) {
+        this(defaultMaxPerRoute, maxTotal, timeToLive, reusePolicy, disposal, connPoolListener, Clock.systemUTC());
+    }
+
+    RouteSegmentedConnPool(
+            final int defaultMaxPerRoute,
+            final int maxTotal,
+            final TimeValue timeToLive,
+            final PoolReusePolicy reusePolicy,
+            final DisposalCallback<C> disposal,
+            final ConnPoolListener<R> connPoolListener,
+            final Clock clock) {
 
         this.defaultMaxPerRoute.set(defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 5);
         this.maxTotal.set(maxTotal > 0 ? maxTotal : 25);
@@ -147,6 +163,9 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         this.reusePolicy = reusePolicy != null ? reusePolicy : PoolReusePolicy.LIFO;
         this.disposal = Args.notNull(disposal, "disposal");
         this.connPoolListener = connPoolListener;
+
+        this.clock = Args.notNull(clock, "clock");
+        this.currentTimeSupplier = this.clock::millis;
 
         final ThreadFactory tf = r -> {
             final Thread t = new Thread(r, "seg-pool-timeouts");
@@ -231,7 +250,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             if (hit == null) {
                 break;
             }
-            final long now = System.currentTimeMillis();
+            final long now = clock.millis();
             if (hit.getExpiryDeadline().isBefore(now) || isPastTtl(hit, now)) {
                 discardAndDecr(hit, CloseMode.GRACEFUL);
                 continue;
@@ -248,7 +267,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
         // 2) Try to allocate new within caps
         if (tryAllocateOne(route, seg)) {
-            final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal);
+            final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal, currentTimeSupplier);
             fireOnLease(route);
             if (callback != null) {
                 callback.completed(entry);
@@ -326,7 +345,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             return;
         }
 
-        final long now = System.currentTimeMillis();
+        final long now = clock.millis();
         final boolean stillValid = reusable && !isPastTtl(entry, now) && !entry.getExpiryDeadline().isBefore(now);
 
         if (stillValid) {
@@ -391,7 +410,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     @Override
     public void closeIdle(final TimeValue idleTime) {
-        final long cutoff = System.currentTimeMillis()
+        final long cutoff = clock.millis()
                 - Math.max(0L, idleTime != null ? idleTime.toMilliseconds() : 0L);
 
         for (final Map.Entry<R, Segment> e : segments.entrySet()) {
@@ -417,7 +436,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     @Override
     public void closeExpired() {
-        final long now = System.currentTimeMillis();
+        final long now = clock.millis();
 
         for (final Map.Entry<R, Segment> e : segments.entrySet()) {
             final R route = e.getKey();
@@ -731,7 +750,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 seg.allocated.decrementAndGet();
                 totalAllocated.decrementAndGet();
             } else {
-                final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal);
+                final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal, currentTimeSupplier);
                 cancelTimeout(w);
                 w.complete(entry);
                 fireOnLease(w.route);
