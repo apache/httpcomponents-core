@@ -26,10 +26,12 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Deadline;
@@ -42,18 +44,42 @@ import org.mockito.Mockito;
 class TestPoolEntry {
 
     private AtomicLong count;
-    private Supplier<Long> currentTimeSupplier;
+    private Clock clock;
 
     @BeforeEach
     void setup() {
         count = new AtomicLong(1);
-        currentTimeSupplier = () -> count.addAndGet(1);
+        clock = new Clock() {
+
+            private final ZoneId zoneId = ZoneId.systemDefault();
+
+            @Override
+            public ZoneId getZone() {
+                return zoneId;
+            }
+
+            @Override
+            public Clock withZone(final ZoneId zone) {
+                return this;
+            }
+
+            @Override
+            public long millis() {
+                return count.addAndGet(1);
+            }
+
+            @Override
+            public Instant instant() {
+                return Instant.ofEpochMilli(millis());
+            }
+
+        };
     }
 
     @Test
     void testBasics() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
-                "route1", TimeValue.of(10L, TimeUnit.MILLISECONDS), currentTimeSupplier);
+                "route1", TimeValue.of(10L, TimeUnit.MILLISECONDS), clock);
 
         Assertions.assertEquals("route1", entry1.getRoute());
         Assertions.assertEquals(0, entry1.getUpdated());
@@ -80,7 +106,7 @@ class TestPoolEntry {
     @Test
     void testValidInfinitely() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
-                "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
+                "route1", TimeValue.ZERO_MILLISECONDS, clock);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getValidityDeadline());
         Assertions.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
@@ -89,7 +115,7 @@ class TestPoolEntry {
     @Test
     void testExpiry() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
-                "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
+                "route1", TimeValue.ZERO_MILLISECONDS, clock);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
         entry1.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
@@ -98,7 +124,7 @@ class TestPoolEntry {
         Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
 
         final PoolEntry<String, HttpConnection> entry2 = new PoolEntry<>(
-                "route1", TimeValue.of(100L, TimeUnit.MILLISECONDS), currentTimeSupplier);
+                "route1", TimeValue.of(100L, TimeUnit.MILLISECONDS), clock);
         entry2.assignConnection(Mockito.mock(HttpConnection.class));
         final Deadline validityDeadline = entry2.getValidityDeadline();
         Assertions.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiryDeadline().getValue());
@@ -111,7 +137,7 @@ class TestPoolEntry {
     @Test
     void testInvalidExpiry() {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
-                "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), currentTimeSupplier);
+                "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), clock);
         Assertions.assertThrows(NullPointerException.class, () ->
                 entry.updateExpiry(null));
     }
@@ -119,7 +145,7 @@ class TestPoolEntry {
     @Test
     void testExpiryDoesNotOverflow() {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
-                "route1", TimeValue.of(Long.MAX_VALUE, TimeUnit.MILLISECONDS), currentTimeSupplier);
+                "route1", TimeValue.of(Long.MAX_VALUE, TimeUnit.MILLISECONDS), clock);
         entry.assignConnection(Mockito.mock(HttpConnection.class));
         Assertions.assertEquals(Deadline.MAX_VALUE, entry.getValidityDeadline());
     }
