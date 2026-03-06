@@ -177,8 +177,10 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                 try {
                     return super.get(timeout, unit);
                 } catch (final TimeoutException ex) {
-                    cancel();
-                    throw ex;
+                    if (cancel()) {
+                        throw ex;
+                    }
+                    return super.get();
                 }
             }
 

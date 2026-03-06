@@ -212,6 +212,19 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             maybeCleanupSegment(this.route, this.seg);
             return super.cancel(mayInterruptIfRunning);
         }
+
+        @Override
+        public PoolEntry<R, C> get(final long timeout, final TimeUnit unit)
+                throws InterruptedException, java.util.concurrent.ExecutionException, TimeoutException {
+            try {
+                return super.get(timeout, unit);
+            } catch (final TimeoutException ex) {
+                if (cancel(true)) {
+                    throw ex;
+                }
+                return super.get();
+            }
+        }
     }
 
     @Override
