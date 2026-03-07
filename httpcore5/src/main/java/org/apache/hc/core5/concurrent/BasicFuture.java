@@ -79,7 +79,10 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return this.completed;
     }
 
-    private T getResult() throws ExecutionException {
+    /**
+     * @since 5.5
+     */
+    protected T getResult() throws ExecutionException {
         if (this.ex != null) {
             throw new ExecutionException(this.ex);
         }

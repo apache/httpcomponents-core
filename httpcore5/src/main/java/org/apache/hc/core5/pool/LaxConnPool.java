@@ -469,7 +469,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                         if (cancel()) {
                             throw ex;
                         }
-                        return super.get();
+                        return super.getResult();
                     }
                 }
 

@@ -180,7 +180,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                     if (cancel()) {
                         throw ex;
                     }
-                    return super.get();
+                    return super.getResult();
                 }
             }
 
