@@ -55,12 +55,14 @@ public final class HPackEncoder {
     private final CharsetEncoder charsetEncoder;
     private ByteBuffer tmpBuf;
     private int maxTableSize;
+    private int minTableSize;
 
     HPackEncoder(final OutboundDynamicTable dynamicTable, final CharsetEncoder charsetEncoder) {
         this.dynamicTable = Objects.requireNonNull(dynamicTable);
         this.huffmanBuf = new ByteArrayBuffer(128);
         this.charsetEncoder = charsetEncoder;
         this.maxTableSize = this.dynamicTable.getMaxSize();
+        this.minTableSize = -1;
     }
 
     HPackEncoder(final OutboundDynamicTable dynamicTable, final Charset charset) {
@@ -142,6 +144,19 @@ public final class HPackEncoder {
         if (requiredCapacity > this.tmpBuf.capacity()) {
             expandCapacity(requiredCapacity);
         }
+    }
+
+    private void encodeMaxTableSizeUpdates(final ByteArrayBuffer dst) {
+        if (this.minTableSize == -1) {
+            return;
+        }
+        encodeInt(dst, 5, this.minTableSize, 0x20);
+        this.dynamicTable.setMaxSize(this.minTableSize);
+        if (this.maxTableSize != this.minTableSize) {
+            encodeInt(dst, 5, this.maxTableSize, 0x20);
+            this.dynamicTable.setMaxSize(this.maxTableSize);
+        }
+        this.minTableSize = -1;
     }
 
     int encodeString(
@@ -262,11 +277,7 @@ public final class HPackEncoder {
     void encodeHeader(
             final ByteArrayBuffer dst, final String name, final String value, final boolean sensitive,
             final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
-        //send receiver the updated dynamic table size
-        if (maxTableSize != this.dynamicTable.getMaxSize()) {
-            encodeInt(dst, 5, maxTableSize, 0x20);
-            this.dynamicTable.setMaxSize(maxTableSize);
-        }
+        encodeMaxTableSizeUpdates(dst);
 
         final HPackRepresentation representation;
         if (sensitive) {
@@ -342,6 +353,13 @@ public final class HPackEncoder {
     public void setMaxTableSize(final int maxTableSize) {
         Args.notNegative(maxTableSize, "Max table size");
         this.maxTableSize = maxTableSize;
+        if (this.minTableSize == -1) {
+            if (maxTableSize != this.dynamicTable.getMaxSize()) {
+                this.minTableSize = maxTableSize;
+            }
+        } else if (maxTableSize < this.minTableSize) {
+            this.minTableSize = maxTableSize;
+        }
     }
 
 }
