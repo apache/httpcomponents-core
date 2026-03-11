@@ -1965,5 +1965,57 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR, H2Error.getByCode(ex.getCode()));
     }
 
+    @Test
+    void testHeadersWithPrioritySelfDependencyIsStreamProtocolError() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(128);
+        final HPackEncoder encoder = new HPackEncoder(
+                h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"));
+
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final ByteBuffer payload = ByteBuffer.allocate(5 + headerBuf.length());
+        payload.putInt(0x80000002); // exclusive bit set, dependency = stream 2 (self-dependency)
+        payload.put((byte) 16);     // weight
+        payload.put(headerBuf.array(), 0, headerBuf.length());
+        payload.flip();
+
+        final RawFrame headersFrame = new RawFrame(
+                FrameType.HEADERS.getValue(),
+                FrameFlag.PRIORITY.getValue() | FrameFlag.END_HEADERS.getValue(),
+                2,
+                payload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(headersFrame))));
+
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        final Exception cause = exceptionCaptor.getValue();
+        Assertions.assertInstanceOf(H2StreamResetException.class, cause);
+        Assertions.assertEquals(
+                H2Error.PROTOCOL_ERROR,
+                H2Error.getByCode(((H2StreamResetException) cause).getCode()));
+
+        Mockito.verify(streamHandler, Mockito.never())
+                .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+    }
+
 
 }
