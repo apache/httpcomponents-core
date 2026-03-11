@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Clock;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,6 +79,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     private final ConcurrentMap<T, PerRoutePool<T, C>> routeToPool;
     private final AtomicBoolean isShutDown;
 
+    private final Clock clock;
+
     private volatile int defaultMaxPerRoute;
 
     /**
@@ -89,6 +92,16 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             final PoolReusePolicy policy,
             final DisposalCallback<C> disposalCallback,
             final ConnPoolListener<T> connPoolListener) {
+        this(defaultMaxPerRoute, timeToLive, policy, disposalCallback, connPoolListener, Clock.systemUTC());
+    }
+
+    LaxConnPool(
+            final int defaultMaxPerRoute,
+            final TimeValue timeToLive,
+            final PoolReusePolicy policy,
+            final DisposalCallback<C> disposalCallback,
+            final ConnPoolListener<T> connPoolListener,
+            final Clock clock) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
@@ -98,6 +111,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         this.routeToPool = new ConcurrentHashMap<>();
         this.isShutDown = new AtomicBoolean();
         this.defaultMaxPerRoute = defaultMaxPerRoute;
+        this.clock = Args.notNull(clock, "clock");
     }
 
     /**
@@ -145,7 +159,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     policy,
                     this,
                     disposalCallback,
-                    connPoolListener);
+                    connPoolListener,
+                    clock);
             routePool = routeToPool.putIfAbsent(route, newRoutePool);
             if (routePool == null) {
                 routePool = newRoutePool;
@@ -266,7 +281,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
+        final long deadline = clock.millis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         enumAvailable(entry -> {
             if (entry.getUpdated() <= deadline) {
                 entry.discardConnection(CloseMode.GRACEFUL);
@@ -276,7 +291,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public void closeExpired() {
-        final long now = System.currentTimeMillis();
+        final long now = clock.millis();
         enumAvailable(entry -> {
             if (entry.getExpiryDeadline().isBefore(now)) {
                 entry.discardConnection(CloseMode.GRACEFUL);
@@ -306,11 +321,11 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         LeaseRequest(
                 final Object state,
-                final Timeout requestTimeout,
+                final Deadline deadline,
                 final BasicFuture<PoolEntry<T, C>> future) {
             super();
             this.state = state;
-            this.deadline = Deadline.calculate(requestTimeout);
+            this.deadline = deadline;
             this.future = future;
         }
 
@@ -362,6 +377,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private final AtomicInteger allocated;
         private final AtomicLong releaseSeqNum;
 
+        private final Clock clock;
+
         private volatile int max;
 
         PerRoutePool(
@@ -371,7 +388,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final PoolReusePolicy policy,
                 final ConnPoolStats<T> connPoolStats,
                 final DisposalCallback<C> disposalCallback,
-                final ConnPoolListener<T> connPoolListener) {
+                final ConnPoolListener<T> connPoolListener,
+                final Clock clock) {
             super();
             this.route = route;
             this.timeToLive = timeToLive;
@@ -386,6 +404,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             this.allocated = new AtomicInteger(0);
             this.releaseSeqNum = new AtomicLong(0);
             this.max = max;
+            this.clock = Args.notNull(clock, "clock");
         }
 
         public void shutdown(final CloseMode closeMode) {
@@ -412,7 +431,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 prev = allocated.get();
                 next = (prev < poolMax) ? prev + 1 : prev;
             } while (!allocated.compareAndSet(prev, next));
-            return prev < next ? new PoolEntry<>(route, timeToLive, disposalCallback) : null;
+            return prev < next ? new PoolEntry<>(route, timeToLive, disposalCallback, clock) : null;
         }
 
         private void deallocatePoolEntry() {
@@ -437,12 +456,13 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         }
 
         private PoolEntry<T, C> getAvailableEntry(final Object state) {
+            final long now = clock.millis();
             for (final Iterator<AtomicMarkableReference<PoolEntry<T, C>>> it = available.iterator(); it.hasNext(); ) {
                 final AtomicMarkableReference<PoolEntry<T, C>> ref = it.next();
                 final PoolEntry<T, C> entry = ref.getReference();
                 if (ref.compareAndSet(entry, entry, false, true)) {
                     it.remove();
-                    if (entry.getExpiryDeadline().isExpired() || !Objects.equals(entry.getState(), state)) {
+                    if (entry.getExpiryDeadline().isBefore(now) || !Objects.equals(entry.getState(), state)) {
                         entry.discardConnection(CloseMode.GRACEFUL);
                         deallocatePoolEntry();
                     } else {
@@ -486,7 +506,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 addLeased(entry);
                 future.completed(entry);
             } else {
-                pending.add(new LeaseRequest<>(state, requestTimeout, future));
+                pending.add(new LeaseRequest<>(state, Deadline.calculate(clock.millis(), requestTimeout), future));
                 if (releaseState != releaseSeqNum.get()) {
                     servicePendingRequest();
                 }
@@ -496,7 +516,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public void release(final PoolEntry<T, C> releasedEntry, final boolean reusable) {
             removeLeased(releasedEntry);
-            if (!reusable || releasedEntry.getExpiryDeadline().isExpired()) {
+            final long now = clock.millis();
+            if (!reusable || releasedEntry.getExpiryDeadline().isBefore(now)) {
                 releasedEntry.discardConnection(CloseMode.GRACEFUL);
             }
             if (releasedEntry.hasConnection()) {
@@ -531,8 +552,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 }
                 final Object state = leaseRequest.getState();
                 final Deadline deadline = leaseRequest.getDeadline();
+                final long now = clock.millis();
 
-                if (deadline.isExpired()) {
+                if (deadline.isBefore(now)) {
                     leaseRequest.failed(DeadlineTimeoutException.from(deadline));
                 } else {
                     final long releaseState = releaseSeqNum.get();
@@ -560,6 +582,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         }
 
         public void validatePendingRequests() {
+            final long now = clock.millis();
             final Iterator<LeaseRequest<T, C>> it = pending.iterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
@@ -568,7 +591,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     it.remove();
                 } else {
                     final Deadline deadline = request.getDeadline();
-                    if (deadline.isExpired()) {
+                    if (deadline.isBefore(now)) {
                         request.failed(DeadlineTimeoutException.from(deadline));
                     }
                     if (request.isDone()) {

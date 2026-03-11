@@ -26,9 +26,9 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Clock;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
@@ -53,7 +53,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private final TimeValue timeToLive;
     private final AtomicReference<C> connRef;
     private final DisposalCallback<C> disposalCallback;
-    private final Supplier<Long> currentTimeSupplier;
+    private final Clock clock;
 
     private volatile Object state;
     private volatile long created;
@@ -62,17 +62,17 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private volatile Deadline validityDeadline = Deadline.MIN_VALUE;
 
     PoolEntry(final T route, final TimeValue timeToLive, final DisposalCallback<C> disposalCallback,
-              final Supplier<Long> currentTimeSupplier) {
+              final Clock clock) {
         super();
         this.route = Args.notNull(route, "Route");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connRef = new AtomicReference<>();
         this.disposalCallback = disposalCallback;
-        this.currentTimeSupplier = currentTimeSupplier;
+        this.clock = clock;
     }
 
-    PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
-        this(route, timeToLive, null, currentTimeSupplier);
+    PoolEntry(final T route, final TimeValue timeToLive, final Clock clock) {
+        this(route, timeToLive, null, clock);
     }
 
     /**
@@ -103,7 +103,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     }
 
     long getCurrentTime() {
-        return currentTimeSupplier != null ? currentTimeSupplier.get() : System.currentTimeMillis();
+        return clock != null ? clock.millis() : System.currentTimeMillis();
     }
 
     public T getRoute() {

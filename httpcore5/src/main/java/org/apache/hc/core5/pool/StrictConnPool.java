@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -80,6 +81,8 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private final ReentrantLock lock;
     private final AtomicBoolean isShutDown;
 
+    private final Clock clock;
+
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
 
@@ -93,6 +96,17 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final PoolReusePolicy policy,
             final DisposalCallback<C> disposalCallback,
             final ConnPoolListener<T> connPoolListener) {
+        this(defaultMaxPerRoute, maxTotal, timeToLive, policy, disposalCallback, connPoolListener, Clock.systemUTC());
+    }
+
+    StrictConnPool(
+            final int defaultMaxPerRoute,
+            final int maxTotal,
+            final TimeValue timeToLive,
+            final PoolReusePolicy policy,
+            final DisposalCallback<C> disposalCallback,
+            final ConnPoolListener<T> connPoolListener,
+            final Clock clock) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
@@ -110,6 +124,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.isShutDown = new AtomicBoolean();
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
+        this.clock = Args.notNull(clock, "clock");
     }
 
     /**
@@ -138,7 +153,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             fireCallbacks();
             this.lock.lock();
             try {
-                for (final PerRoutePool<T, C> pool: this.routeToPool.values()) {
+                for (final PerRoutePool<T, C> pool : this.routeToPool.values()) {
                     pool.shutdown(closeMode);
                 }
                 this.routeToPool.clear();
@@ -157,18 +172,21 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private PerRoutePool<T, C> getPool(final T route) {
-        return this.routeToPool.computeIfAbsent(route, r -> new PerRoutePool<>(route, this.disposalCallback, this.policy));
+        return this.routeToPool.computeIfAbsent(
+                route,
+                r -> new PerRoutePool<>(r, this.disposalCallback, this.policy, this.clock));
     }
 
     @Override
     public Future<PoolEntry<T, C>> lease(
-            final T route, final Object state,
+            final T route,
+            final Object state,
             final Timeout requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
         Args.notNull(route, "Route");
         Args.notNull(requestTimeout, "Request timeout");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
-        final Deadline deadline = Deadline.calculate(requestTimeout);
+        final Deadline deadline = Deadline.calculate(this.clock.millis(), requestTimeout);
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<PoolEntry<T, C>>(callback) {
 
             @Override
@@ -202,7 +220,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
         if (acquiredLock) {
             try {
-                final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, requestTimeout, future);
+                final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, deadline, future);
                 final boolean completed = processPendingRequest(request);
                 if (!request.isDone() && !completed) {
                     this.pendingRequests.add(request);
@@ -314,8 +332,9 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         final T route = request.getRoute();
         final Object state = request.getState();
         final Deadline deadline = request.getDeadline();
+        final long now = this.clock.millis();
 
-        if (deadline.isExpired()) {
+        if (deadline.isBefore(now)) {
             request.failed(DeadlineTimeoutException.from(deadline));
             return false;
         }
@@ -327,7 +346,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             if (entry == null) {
                 break;
             }
-            if (entry.getExpiryDeadline().isExpired()) {
+            if (entry.getExpiryDeadline().isBefore(now)) {
                 entry.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
@@ -410,7 +429,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public void validatePendingRequests() {
         this.lock.lock();
         try {
-            final long now = System.currentTimeMillis();
+            final long now = this.clock.millis();
             final ListIterator<LeaseRequest<T, C>> it = this.pendingRequests.listIterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
@@ -514,11 +533,12 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public PoolStats getTotalStats() {
         this.lock.lock();
         try {
+            final long now = this.clock.millis();
             int pendingCount = 0;
-            for (final LeaseRequest<T, C> request: pendingRequests) {
+            for (final LeaseRequest<T, C> request : pendingRequests) {
                 if (!request.isDone()) {
                     final Deadline deadline = request.getDeadline();
-                    if (!deadline.isExpired()) {
+                    if (!deadline.isBefore(now)) {
                         pendingCount++;
                     }
                 }
@@ -538,12 +558,13 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         Args.notNull(route, "Route");
         this.lock.lock();
         try {
+            final long now = this.clock.millis();
             final PerRoutePool<T, C> pool = getPool(route);
             int pendingCount = 0;
-            for (final LeaseRequest<T, C> request: pendingRequests) {
+            for (final LeaseRequest<T, C> request : pendingRequests) {
                 if (!request.isDone() && Objects.equals(route, request.getRoute())) {
                     final Deadline deadline = request.getDeadline();
-                    if (!deadline.isExpired()) {
+                    if (!deadline.isBefore(now)) {
                         pendingCount++;
                     }
                 }
@@ -630,7 +651,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
+        final long deadline = this.clock.millis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         enumAvailable(entry -> {
             if (entry.getUpdated() <= deadline) {
                 entry.discardConnection(CloseMode.GRACEFUL);
@@ -640,7 +661,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public void closeExpired() {
-        final long now = System.currentTimeMillis();
+        final long now = this.clock.millis();
         enumAvailable(entry -> {
             if (entry.getExpiryDeadline().isBefore(now)) {
                 entry.discardConnection(CloseMode.GRACEFUL);
@@ -679,18 +700,17 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
          *
          * @param route route
          * @param state state
-         * @param requestTimeout timeout to wait in a request queue until kicked off
          * @param future future callback
          */
         public LeaseRequest(
                 final T route,
                 final Object state,
-                final Timeout requestTimeout,
+                final Deadline deadline,
                 final BasicFuture<PoolEntry<T, C>> future) {
             super();
             this.route = route;
             this.state = state;
-            this.deadline = Deadline.calculate(requestTimeout);
+            this.deadline = deadline;
             this.future = future;
             this.completed = new AtomicBoolean();
         }
@@ -758,12 +778,18 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         private final LinkedList<PoolEntry<T, C>> available;
         private final DisposalCallback<C> disposalCallback;
         private final PoolReusePolicy policy;
+        private final Clock clock;
 
-        PerRoutePool(final T route, final DisposalCallback<C> disposalCallback, final PoolReusePolicy policy) {
+        PerRoutePool(
+                final T route,
+                final DisposalCallback<C> disposalCallback,
+                final PoolReusePolicy policy,
+                final Clock clock) {
             super();
             this.route = route;
             this.disposalCallback = disposalCallback;
             this.policy = policy;
+            this.clock = Args.notNull(clock, "clock");
             this.leased = new HashSet<>();
             this.available = new LinkedList<>();
         }
@@ -836,7 +862,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         }
 
         public PoolEntry<T, C> createEntry(final TimeValue timeToLive) {
-            final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive, disposalCallback);
+            final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive, disposalCallback, clock);
             this.leased.add(entry);
             return entry;
         }
@@ -846,7 +872,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             while ((availableEntry = available.poll()) != null) {
                 availableEntry.discardConnection(closeMode);
             }
-            for (final PoolEntry<T, C> entry: this.leased) {
+            for (final PoolEntry<T, C> entry : this.leased) {
                 entry.discardConnection(closeMode);
             }
             this.leased.clear();
