@@ -31,12 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
@@ -46,46 +42,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 final class TestConnPoolClockInjection {
 
-    static final class TestClock extends Clock {
-
-        private final ZoneId zoneId;
-        private final AtomicLong millis;
-
-        TestClock(final long initialMillis) {
-            this.zoneId = ZoneId.of("UTC");
-            this.millis = new AtomicLong(initialMillis);
-        }
-
-        void advanceMillis(final long deltaMillis) {
-            this.millis.addAndGet(deltaMillis);
-        }
-
-        @Override
-        public ZoneId getZone() {
-            return zoneId;
-        }
-
-        @Override
-        public Clock withZone(final ZoneId zone) {
-            return this;
-        }
-
-        @Override
-        public long millis() {
-            return millis.get();
-        }
-
-        @Override
-        public Instant instant() {
-            return Instant.ofEpochMilli(millis());
-        }
-
-    }
-
     @ParameterizedTest
     @EnumSource(PoolConcurrencyPolicy.class)
     void closeIdleUsesInjectedClock(final PoolConcurrencyPolicy policy) throws Exception {
-        final TestClock clock = new TestClock(0L);
+        final TestingClock clock = new TestingClock(0L);
         final ManagedConnPool<String, PoolTestSupport.DummyConn> pool =
                 PoolTestSupport.createPool(policy, 1, 1, clock);
 
