@@ -1,3 +1,207 @@
+Release 5.5-alpha1
+------------------
+
+This is the first ALPHA release in the 5.5 release series that improves
+performance and robustness of connection pool implementations, further
+improves HTTP/2 specification conformance and introduces Jackson 2 JSON
+message bindings.
+
+This release also includes all the fixes from the stable 5.4 branch.
+
+
+Notable changes and features included in the 5.5 series:
+
+* Connection pool implementation improvements.
+
+* HTTP message stream APIs and support for HTTP/2 message stream timeout.
+
+* SSLContexts to respect system properties by default.
+
+* Cap pending HTTP/2 request commands per connection.
+
+* HPACK RFC 7540 / RFC 7541 / HTTP/2 RFC 9113 conformance improvements.
+
+
+Compatibility notes:
+
+* HTTP requesters and servers take into account SSL/TLS system properties
+  by default.
+
+
+Change Log
+-------------------
+
+* Validate HEADERS priority self-dependency (#652).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HPACK: Fix HPACK table size update sequencing (#651).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Fix lease timeout race to prevent pool entry leak (#649).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* LaxConnPool: Deallocate pool entry upon discarding expired connection.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTP/2 RFC 9113 conformance2: ignore unused PADDED flag on non-padded
+  frames (#640).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: enforce strict 3-digit :status pseudo-header (#639).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 RFC 9113 conformance: Enforce RST_STREAM payload length regardless
+  of stream existence (#638).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: validate pseudo-headers in inbound request trailers (#637).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 RFC 9113 conformance: require peer SETTINGS as first frame (#636).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: validate HEADERS PRIORITY payload length (#635).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 RFC 9113 conformance: handle zero WINDOW_UPDATE increment (#634).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: ignore reserved MSB in 31-bit fields (#633).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: tighten SETTINGS validation (#632).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Enforce ALPN when forcing HTTP/2 over TLS (#631).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: fix frame header parsing and validate SETTINGS ACK length (#628).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HPACK: reject integer decoding overflow (#627).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HPACK RFC 7541 conformance: enforce table size update sequencing (#626).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HPACK RFC 7540 / RFC 9113 conformance: HPACK decode failures must be treated
+  as connection errors (COMPRESSION_ERROR) (#625).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Handle unknown HTTP/2 frame types gracefully (#624)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Reject pseudo-headers in inbound and outbound trailers (#623)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Validate all TE header instances for HTTP/2 request conformance. (#620)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: validate Host vs `:authority` strictly (#622)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 RFC 9113 conformance: Reject Proxy-Connection header in HTTP/2 response
+  conformance (#621).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 RFC 9113 conformance: Reject duplicate :authority pseudo-header in HTTP/2
+  request conversion (#619).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-794: Fix parseLenient to ignore illegal charset names (#618).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Provide a more flexible CharSequenceAsyncEntityConsumer in addition to
+  StringAsyncEntityConsumer.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Server and client-side async execution pipeline assemblers.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Handle `:protocol` for extended CONNECT (#613).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* `Message` class to use Java record naming convention.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Jackson 2 based JSON message bindings.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* LaxConnPool: Prevent integer overflow in #getTotalStats.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* LaxConnPool: Loop over expired connections and discard expired ones as they
+  are discovered, instead of returning them.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* StrictConnPool: Fix FIFO implementation.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* SSLContexts: Respect system properties by default.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTP/2: per-stream idle timeout (#581).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Bug fix: Corrected exception propagation in protocol negotiators' exception
+  handling code.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Fix SOCKS handshake to fail on EOF (#604).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Bug fix: Handle CancelledKeyException thrown by the abort method of the H2 stream.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* ComplexCancellable: Fix race condition.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Add RFC 7639 canonical percent codec for ALPN protocol identifiers (#596).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Cap pending HTTP/2 request commands per connection (#592).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Disable settings_push_enable on the H2Config for H2ServerBootstrap (#591).
+  Contributed by CoolTomatos <24667806+CoolTomatos at users.noreply.github.com>
+
+* MonitoringResponseOutOfOrderStrategy: Always perform a blocking read to check
+  for data.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug fix: corrected exception propagation to individual H2 streams in case of
+  an unexpected error with the H2 connection.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Added timeout setter to `StreamControl`.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Add ConnPoolListener support to RouteSegmentedConnPool (#586).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Deflake RouteSegmentedConnPool slow disposal timing (#584).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Improved HTTP message stream control API.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+* Fix validation of 0/8 IPv4 addresses.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Ensure the connection is closed immediately on socket timeout.
+  Contributed by Alexis Le Dantec <aledantec at palantir.com>
+
+* RFC6874 zone IDs with minimal parsing Bracket/encode only.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Accept leading zeros in IPv4-mapped IPv6 (#568).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Relax pattern for mapped IPv4 octets (≤255); standalone IPv4 rules unchanged.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
+
 Release 5.4-alpha1
 ------------------
 
