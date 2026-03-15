@@ -266,11 +266,14 @@ public class H2MultiplexingRequester extends AsyncRequester {
                         };
                         final int max = maxCommandsPerConnection;
                         if (max > 0) {
-                            final int current = ioSession.getPendingCommandCount();
-                            if (current >= 0 && current >= max) {
-                                exchangeHandler.failed(new RejectedExecutionException(
-                                        "Maximum number of pending commands per connection reached (max=" + max + ")"));
-                                exchangeHandler.releaseResources();
+                            final int pending = ioSession.getPendingCommandCount();
+                            if (pending >= 0 && pending >= max) {
+                                try {
+                                    exchangeHandler.failed(new RejectedExecutionException(
+                                            "Maximum number of pending commands per connection reached (max=" + max + ")"));
+                                } finally {
+                                    exchangeHandler.releaseResources();
+                                }
                                 return;
                             }
                         }

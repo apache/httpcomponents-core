@@ -289,21 +289,6 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
                     @Override
                     public void completed(final AsyncClientEndpoint endpoint) {
-                        final int max = maxPendingCommandsPerConnection;
-                        if (max > 0) {
-                            final IOSession ioSession = ((InternalAsyncClientEndpoint) endpoint).getIOSession();
-                            final int pending = ioSession.getPendingCommandCount();
-                            if (pending >= 0 && pending >= max) {
-                                try {
-                                    endpoint.releaseAndReuse();
-                                    exchangeHandler.failed(new RejectedExecutionException(
-                                            "Maximum number of pending requests per connection reached (max=" + max + ")"));
-                                } finally {
-                                    exchangeHandler.releaseResources();
-                                }
-                                return;
-                            }
-                        }
                         endpoint.execute(new AsyncClientExchangeHandler() {
 
                             @Override
@@ -521,6 +506,19 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
                 final HttpContext context) {
             final IOSession ioSession = getIOSession();
+            final int max = maxPendingCommandsPerConnection;
+            if (max > 0) {
+                final int pending = ioSession.getPendingCommandCount();
+                if (pending >= 0 && pending >= max) {
+                    try {
+                        exchangeHandler.failed(new RejectedExecutionException(
+                                "Maximum number of pending commands per connection reached (max=" + max + ")"));
+                    } finally {
+                        exchangeHandler.releaseResources();
+                    }
+                    return;
+                }
+            }
             ioSession.enqueue(
                     new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, context),
                     Command.Priority.NORMAL);
