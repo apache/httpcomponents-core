@@ -28,12 +28,14 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
+import org.apache.hc.core5.http.RequestNotExecutedException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -50,10 +52,14 @@ import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HeaderListConstraintException;
+import org.apache.hc.core5.http2.nio.AsyncPingHandler;
+import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -66,6 +72,10 @@ import org.apache.hc.core5.util.Args;
 public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
 
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
+
+    private int shutdownLastStreamId;
+    private int lastProcessedRemoteStreamId;
+    private boolean drainPingSent;
 
     public ServerH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -156,6 +166,128 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     @Override
     boolean allowGracefulAbort(final H2Stream stream) {
         return false;
+    }
+
+    @Override
+    boolean canAcceptNewRemoteStream() {
+        return connState.compareTo(ConnectionHandshake.ACTIVE) <= 0
+                || connState == ConnectionHandshake.DRAINING;
+    }
+
+    @Override
+    void onRemoteStreamAccepted(final int streamId) {
+        if (streamId > lastProcessedRemoteStreamId) {
+            lastProcessedRemoteStreamId = streamId;
+        }
+    }
+
+    @Override
+    void initiateGracefulShutdown() throws IOException {
+        shutdownLastStreamId = Integer.MAX_VALUE;
+        drainPingSent = false;
+        final RawFrame goAway = frameFactory.createGoAway(
+                shutdownLastStreamId, H2Error.NO_ERROR, "Graceful shutdown");
+        commitFrame(goAway);
+        connState = ConnectionHandshake.DRAINING;
+        requestSessionOutput();
+    }
+
+    @Override
+    boolean onShutdownTimeout(final Timeout timeout) throws HttpException, IOException {
+        if (connState == ConnectionHandshake.DRAINING) {
+            completeGracefulShutdown();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    boolean beforeOutputProcessing() throws HttpException, IOException {
+        if (connState == ConnectionHandshake.DRAINING && !drainPingSent && !hasPendingOutput()) {
+            drainPingSent = true;
+            executePing(new PingCommand(createDrainPingHandler()));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    void applyRemoteGracefulGoAway(final int processedLocalStreamId) {
+        for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+            final H2Stream stream = it.next();
+            final int activeStreamId = stream.getId();
+            if (!streams.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
+                stream.fail(new RequestNotExecutedException());
+                it.remove();
+            }
+        }
+        if (connState != ConnectionHandshake.DRAINING) {
+            shutdownLastStreamId = processedLocalStreamId;
+            connState = streams.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
+        }
+    }
+
+    @Override
+    void maybeTransitionFromGracefulShutdown() {
+        if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) != 0) {
+            return;
+        }
+        int liveStreams = 0;
+        for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+            final H2Stream stream = it.next();
+            if (stream.isClosedPastLingerDeadline()) {
+                streams.dropStreamId(stream.getId());
+                it.remove();
+            } else {
+                if (streams.isSameSide(stream.getId())
+                        || shutdownLastStreamId == 0
+                        || stream.getId() <= shutdownLastStreamId) {
+                    liveStreams++;
+                }
+            }
+        }
+        if (shutdownLastStreamId != Integer.MAX_VALUE && liveStreams == 0) {
+            connState = ConnectionHandshake.SHUTDOWN;
+        }
+    }
+
+    private void completeGracefulShutdown() throws IOException {
+        if (connState != ConnectionHandshake.DRAINING) {
+            return;
+        }
+        shutdownLastStreamId = lastProcessedRemoteStreamId;
+        final RawFrame goAway = frameFactory.createGoAway(shutdownLastStreamId, H2Error.NO_ERROR, "Graceful shutdown");
+        commitFrame(goAway);
+        connState = ConnectionHandshake.GRACEFUL_SHUTDOWN;
+    }
+
+    private AsyncPingHandler createDrainPingHandler() {
+        final ByteBuffer data = ByteBuffer.allocate(8);
+        data.putLong(System.nanoTime());
+        data.flip();
+        return new AsyncPingHandler() {
+
+            @Override
+            public ByteBuffer getData() {
+                return data.asReadOnlyBuffer();
+            }
+
+            @Override
+            public void consumeResponse(final ByteBuffer feedback) throws IOException {
+                if (connState == ConnectionHandshake.DRAINING) {
+                    completeGracefulShutdown();
+                }
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void cancel() {
+            }
+
+        };
     }
 
     @Override
