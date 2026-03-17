@@ -106,7 +106,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
-    enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
+    enum ConnectionHandshake { READY, ACTIVE, DRAINING, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
     private final ProtocolIOSession ioSession;
@@ -127,6 +127,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private final AtomicInteger connOutputWindow;
     private final AtomicInteger outputRequests;
     private final H2StreamListener streamListener;
+    private final boolean serverSide;
 
     private ConnectionHandshake connState = ConnectionHandshake.READY;
     private SettingsHandshake localSettingState = SettingsHandshake.READY;
@@ -142,6 +143,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private EndpointDetails endpointDetails;
     private boolean goAwayReceived;
+    private int shutdownLastStreamId;
+    private int lastProcessedRemoteStreamId;
+    private boolean drainPingSent;
 
     private volatile boolean peerNoRfc7540Priorities;
 
@@ -201,6 +205,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.streamListener = streamListener;
         this.lastActivityTime = System.currentTimeMillis();
         this.validateAfterInactivity = validateAfterInactivity;
+        this.shutdownLastStreamId = 0;
+        this.lastProcessedRemoteStreamId = 0;
+        this.drainPingSent = false;
+        this.serverSide = this.streams.isSameSide(2);
     }
 
     @Override
@@ -435,6 +443,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
+    private boolean isAcceptingNewRemoteStreams() {
+        return connState.compareTo(ConnectionHandshake.ACTIVE) <= 0
+                || serverSide && connState == ConnectionHandshake.DRAINING;
+    }
+
     void requestSessionOutput() {
         outputRequests.incrementAndGet();
         ioSession.setEvent(SelectionKey.OP_WRITE);
@@ -504,6 +517,16 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
         } finally {
             ioSession.getLock().unlock();
+        }
+
+        if (serverSide
+                && connState == ConnectionHandshake.DRAINING
+                && !drainPingSent
+                && outputBuffer.isEmpty()
+                && outputQueue.isEmpty()) {
+            drainPingSent = true;
+            executePing(new PingCommand(createGracefulShutdownPingHandler()));
+            return;
         }
 
         if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
@@ -589,16 +612,16 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     streams.dropStreamId(stream.getId());
                     it.remove();
                 } else {
-                    if (streams.isSameSide(stream.getId()) || stream.getId() <= streams.getLastRemoteId()) {
+                    if (streams.isSameSide(stream.getId()) || shutdownLastStreamId == 0 || stream.getId() <= shutdownLastStreamId) {
                         liveStreams++;
                     }
                 }
             }
-            if (liveStreams == 0) {
+            if (shutdownLastStreamId != Integer.MAX_VALUE && liveStreams == 0) {
                 connState = ConnectionHandshake.SHUTDOWN;
             }
         }
-        if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) >= 0) {
+        if (connState.compareTo(ConnectionHandshake.DRAINING) >= 0) {
             for (;;) {
                 final Command command = ioSession.poll();
                 if (command == null) {
@@ -628,6 +651,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onTimeout(final Timeout timeout) throws HttpException, IOException {
+        if (serverSide && connState == ConnectionHandshake.DRAINING) {
+            completeGracefulShutdown();
+            return;
+        }
+
         connState = ConnectionHandshake.SHUTDOWN;
 
         final RawFrame goAway;
@@ -663,13 +691,67 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (shutdownCommand.getType() == CloseMode.IMMEDIATE) {
             streams.shutdownAndReleaseAll();
             connState = ConnectionHandshake.SHUTDOWN;
-        } else {
-            if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
-                final RawFrame goAway = frameFactory.createGoAway(streams.getLastRemoteId(), H2Error.NO_ERROR, "Graceful shutdown");
+            return;
+        }
+        if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
+            if (serverSide) {
+                shutdownLastStreamId = Integer.MAX_VALUE;
+                drainPingSent = false;
+                final RawFrame goAway = frameFactory.createGoAway(
+                        shutdownLastStreamId,
+                        H2Error.NO_ERROR,
+                        "Graceful shutdown");
+                commitFrame(goAway);
+                connState = ConnectionHandshake.DRAINING;
+                requestSessionOutput();
+            } else {
+                final RawFrame goAway = frameFactory.createGoAway(
+                        streams.getLastRemoteId(),
+                        H2Error.NO_ERROR,
+                        "Graceful shutdown");
                 commitFrame(goAway);
                 connState = streams.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
             }
         }
+    }
+
+    private void completeGracefulShutdown() throws IOException {
+        if (!serverSide || connState != ConnectionHandshake.DRAINING) {
+            return;
+        }
+        shutdownLastStreamId = lastProcessedRemoteStreamId;
+        final RawFrame goAway = frameFactory.createGoAway(shutdownLastStreamId, H2Error.NO_ERROR, "Graceful shutdown");
+        commitFrame(goAway);
+        connState = ConnectionHandshake.GRACEFUL_SHUTDOWN;
+    }
+
+    private AsyncPingHandler createGracefulShutdownPingHandler() {
+        final ByteBuffer data = ByteBuffer.allocate(8);
+        data.putLong(System.nanoTime());
+        data.flip();
+        return new AsyncPingHandler() {
+
+            @Override
+            public ByteBuffer getData() {
+                return data.asReadOnlyBuffer();
+            }
+
+            @Override
+            public void consumeResponse(final ByteBuffer feedback) throws IOException {
+                if (connState == ConnectionHandshake.DRAINING) {
+                    completeGracefulShutdown();
+                }
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void cancel() {
+            }
+
+        };
     }
 
     private void executePing(final PingCommand pingCommand) throws IOException {
@@ -817,8 +899,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     }
 
                     final H2StreamChannel channel = createChannel(streamId);
-                    if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
+                    if (isAcceptingNewRemoteStreams()) {
                         stream = streams.createActive(channel, incomingRequest(channel));
+                        if (serverSide) {
+                            lastProcessedRemoteStreamId = Math.max(lastProcessedRemoteStreamId, streamId);
+                        }
                         streams.resetIfExceedsMaxConcurrentLimit(stream, localConfig.getMaxConcurrentStreams());
                     } else {
                         channel.localReset(H2Error.REFUSED_STREAM);
@@ -1026,8 +1111,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
                 final H2StreamChannel channel = createChannel(promisedStreamId);
                 final H2Stream promisedStream;
-                if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
+                if (isAcceptingNewRemoteStreams()) {
                     promisedStream = streams.createReserved(channel, incomingPushPromise(channel, stream.getPushHandlerFactory()));
+                    if (serverSide) {
+                        lastProcessedRemoteStreamId = Math.max(lastProcessedRemoteStreamId, promisedStreamId);
+                    }
                 } else {
                     channel.localReset(H2Error.REFUSED_STREAM);
                     promisedStream = streams.createActive(channel, NoopH2StreamHandler.INSTANCE);
@@ -1053,17 +1141,18 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 final int errorCode = payload.getInt();
                 goAwayReceived = true;
                 if (errorCode == H2Error.NO_ERROR.getCode()) {
-                    if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
-                        for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
-                            final H2Stream stream = it.next();
-                            final int activeStreamId = stream.getId();
-                            if (!streams.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
-                                stream.fail(new RequestNotExecutedException());
-                                it.remove();
-                            }
+                    for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+                        final H2Stream stream = it.next();
+                        final int activeStreamId = stream.getId();
+                        if (!streams.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
+                            stream.fail(new RequestNotExecutedException());
+                            it.remove();
                         }
                     }
-                    connState = streams.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
+                    if (connState != ConnectionHandshake.DRAINING) {
+                        shutdownLastStreamId = processedLocalStreamId;
+                        connState = ConnectionHandshake.GRACEFUL_SHUTDOWN;
+                    }
                 } else {
                     for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
                         final H2Stream stream = it.next();

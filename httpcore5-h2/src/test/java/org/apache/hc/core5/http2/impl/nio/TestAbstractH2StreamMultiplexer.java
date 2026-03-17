@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -68,6 +69,7 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.hpack.HPackException;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Timeout;
@@ -2017,5 +2019,176 @@ class TestAbstractH2StreamMultiplexer {
                 .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
     }
 
+    @Test
+    void testGracefulShutdownUsesTwoPhaseGoAwayWithPingBarrier() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        Mockito.when(protocolIOSession.poll()).thenReturn(null);
+
+        final H2Config h2Config = H2Config.custom().build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        mux.onConnect();
+        mux.onOutput();
+        completeSettingsHandshake(mux);
+        mux.onOutput();
+
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(128);
+        final HPackEncoder encoder = new HPackEncoder(
+                h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"));
+
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final RawFrame headersFrame = FRAME_FACTORY.createHeaders(
+                1,
+                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
+                true,
+                true);
+        feedFrame(mux, headersFrame);
+
+        writes.clear();
+
+        Mockito.when(protocolIOSession.poll()).thenReturn(ShutdownCommand.GRACEFUL, (Command) null);
+
+        // 1st pass: consume shutdown command, queue initial GOAWAY
+        mux.onOutput();
+
+        // 2nd pass: flush initial GOAWAY, queue drain PING
+        mux.onOutput();
+
+        // 3rd pass: flush drain PING
+        mux.onOutput();
+
+        List<FrameStub> frames = parseFrames(concat(writes));
+
+        final FrameStub initialGoAway = frames.stream()
+                .filter(FrameStub::isGoAway)
+                .findFirst()
+                .orElse(null);
+        Assertions.assertNotNull(initialGoAway, "Initial GOAWAY not emitted");
+        Assertions.assertEquals(Integer.MAX_VALUE, goAwayLastStreamId(initialGoAway));
+
+        final FrameStub ping = frames.stream()
+                .filter(f -> f.isPing() && !f.isAck())
+                .findFirst()
+                .orElse(null);
+        Assertions.assertNotNull(ping, "Drain PING not emitted");
+
+        final RawFrame pingAck = new RawFrame(
+                FrameType.PING.getValue(),
+                FrameFlag.ACK.getValue(),
+                0,
+                ByteBuffer.wrap(ping.payload));
+
+        writes.clear();
+
+        feedFrame(mux, pingAck);
+
+        // final GOAWAY gets queued by consumeResponse -> completeGracefulShutdown()
+        mux.onOutput();
+
+        frames = parseFrames(concat(writes));
+
+        final FrameStub finalGoAway = frames.stream()
+                .filter(FrameStub::isGoAway)
+                .findFirst()
+                .orElse(null);
+        Assertions.assertNotNull(finalGoAway, "Final GOAWAY not emitted");
+        Assertions.assertEquals(1, goAwayLastStreamId(finalGoAway));
+    }
+
+    @Test
+    void testPeerInitialGracefulGoAwayDoesNotPreventPingAck() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+
+        mux.onConnect();
+        mux.onOutput();
+        completeSettingsHandshake(mux);
+        mux.onOutput();
+        writes.clear();
+
+        final ByteBuffer goAwayPayload = ByteBuffer.allocate(8);
+        goAwayPayload.putInt(Integer.MAX_VALUE);
+        goAwayPayload.putInt(H2Error.NO_ERROR.getCode());
+        goAwayPayload.flip();
+
+        final RawFrame goAway = new RawFrame(
+                FrameType.GOAWAY.getValue(),
+                0,
+                0,
+                goAwayPayload);
+
+        feedFrame(mux, goAway);
+
+        final byte[] pingPayload = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+        final RawFrame ping = new RawFrame(
+                FrameType.PING.getValue(),
+                0,
+                0,
+                ByteBuffer.wrap(pingPayload));
+
+        feedFrame(mux, ping);
+        mux.onOutput();
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final FrameStub pingAck = frames.stream()
+                .filter(f -> f.isPing() && f.isAck())
+                .findFirst()
+                .orElse(null);
+
+        Assertions.assertNotNull(pingAck, "PING ACK must still be emitted after initial graceful GOAWAY");
+        Assertions.assertArrayEquals(pingPayload, pingAck.payload);
+    }
+
+    private static int goAwayLastStreamId(final FrameStub frame) {
+        final ByteBuffer buffer = ByteBuffer.wrap(frame.payload);
+        return buffer.getInt() & 0x7fffffff;
+    }
 
 }
