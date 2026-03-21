@@ -72,6 +72,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+    <!-- Maven itself runs on Java 17+, but compilation and tests can still use an older toolchain JDK. -->
+    <hc.build.toolchain.version>${maven.compiler.source}</hc.build.toolchain.version>
     <conscrypt.version>2.5.2</conscrypt.version>
     <junit.version>5.14.3</junit.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
@@ -230,6 +232,27 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce-java-runtime</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[17,)</version>
+                  <message>Apache HttpComponents Core requires Java 17 or newer to run Maven. Use toolchains to compile and test with older JDKs.</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
         <version>0.25.4</version>
@@ -294,6 +317,40 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>use-toolchains</id>
+      <activation>
+        <file>
+          <exists>${user.home}/.m2/toolchains.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-toolchains-plugin</artifactId>
+            <version>3.2.0</version>
+            <configuration combine.self="override">
+              <toolchains>
+                <jdk>
+                  <version>${hc.build.toolchain.version}</version>
+                </jdk>
+              </toolchains>
+            </configuration>
+            <executions combine.self="override">
+              <execution>
+                <goals>
+                  <goal>toolchain</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <reporting>
     <plugins>
