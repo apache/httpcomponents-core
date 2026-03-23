@@ -147,17 +147,28 @@ public abstract class AbstractClientExchangeHandler<T> implements AsyncClientExc
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        responseConsumerRef.get().updateCapacity(capacityChannel);
+        final AsyncResponseConsumer<T> responseConsumer = responseConsumerRef.get();
+        if (responseConsumer != null) {
+            responseConsumer.updateCapacity(capacityChannel);
+        } else {
+            capacityChannel.update(Integer.MAX_VALUE);
+        }
     }
 
     @Override
     public void consume(final ByteBuffer src) throws IOException {
-        responseConsumerRef.get().consume(src);
+        final AsyncResponseConsumer<T> responseConsumer = responseConsumerRef.get();
+        if (responseConsumer != null) {
+            responseConsumer.consume(src);
+        }
     }
 
     @Override
     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-        responseConsumerRef.get().streamEnd(trailers);
+        final AsyncResponseConsumer<T> responseConsumer = responseConsumerRef.get();
+        if (responseConsumer != null) {
+            responseConsumer.streamEnd(trailers);
+        }
     }
 
     @Override

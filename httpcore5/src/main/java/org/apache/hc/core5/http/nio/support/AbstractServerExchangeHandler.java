@@ -177,22 +177,27 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
-        Asserts.notNull(requestConsumer, "Data consumer");
-        requestConsumer.updateCapacity(capacityChannel);
+        if (requestConsumer != null) {
+            requestConsumer.updateCapacity(capacityChannel);
+        } else {
+            capacityChannel.update(Integer.MAX_VALUE);
+        }
     }
 
     @Override
     public final void consume(final ByteBuffer src) throws IOException {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
-        Asserts.notNull(requestConsumer, "Data consumer");
-        requestConsumer.consume(src);
+        if (requestConsumer != null) {
+            requestConsumer.consume(src);
+        }
     }
 
     @Override
     public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
-        Asserts.notNull(requestConsumer, "Data consumer");
-        requestConsumer.streamEnd(trailers);
+        if (requestConsumer != null) {
+            requestConsumer.streamEnd(trailers);
+        }
     }
 
     @Override
