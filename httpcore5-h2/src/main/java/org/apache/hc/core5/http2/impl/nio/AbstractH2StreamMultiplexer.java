@@ -782,12 +782,16 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (frameType == null) {
             return;
         }
+        final long nowNanos = System.nanoTime();
         switch (frameType) {
             case DATA: {
                 if (streamId == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
                 }
                 final H2Stream stream = streams.lookupValid(streamId);
+                if (resetIfExpired(stream, nowNanos)) {
+                    break;
+                }
                 try {
                     consumeDataFrame(frame, stream);
                 } catch (final H2StreamResetException ex) {
@@ -861,6 +865,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
 
                 final H2Stream stream = streams.lookupValid(streamId);
+                if (resetIfExpired(stream, nowNanos)) {
+                    break;
+                }
                 try {
                     consumeContinuationFrame(frame, stream);
                 } catch (final H2StreamResetException ex) {
@@ -1007,6 +1014,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
 
                 final H2Stream stream = streams.lookupValid(streamId);
+                if (resetIfExpired(stream, nowNanos)) {
+                    break;
+                }
                 if (stream.isRemoteClosed()) {
                     stream.localReset(new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream closed"));
                     break;
@@ -1705,28 +1715,30 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     }
 
+    boolean resetIfExpired(final H2Stream stream, final long nowNanos) throws IOException {
+        if (!stream.isActive()) {
+            return false;
+        }
+        final Timeout idleTimeout = stream.getIdleTimeout();
+        if (idleTimeout == null || !idleTimeout.isEnabled()) {
+            return false;
+        }
+        final long last = stream.getLastActivityNanos();
+        final long idleNanos = idleTimeout.toNanoseconds();
+        if (idleNanos > 0 && nowNanos - last > idleNanos) {
+            stream.localReset(new H2StreamTimeoutException(
+                    "HTTP/2 stream idle timeout (" + idleTimeout + ")",
+                    stream.getId(),
+                    idleTimeout), H2Error.CANCEL);
+            return true;
+        }
+        return false;
+    }
+
     private void checkStreamTimeouts(final long nowNanos) throws IOException {
         for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
             final H2Stream stream = it.next();
-            if (!stream.isActive()) {
-                continue;
-            }
-
-            final Timeout idleTimeout = stream.getIdleTimeout();
-            if (idleTimeout == null || !idleTimeout.isEnabled()) {
-                continue;
-            }
-
-            final long last = stream.getLastActivityNanos();
-            final long idleNanos = idleTimeout.toNanoseconds();
-            if (idleNanos > 0 && nowNanos - last > idleNanos) {
-                final int streamId = stream.getId();
-                final H2StreamTimeoutException ex = new H2StreamTimeoutException(
-                        "HTTP/2 stream idle timeout (" + idleTimeout + ")",
-                        streamId,
-                        idleTimeout);
-                stream.localReset(ex, H2Error.CANCEL);
-            }
+            resetIfExpired(stream, nowNanos);
         }
     }
 
