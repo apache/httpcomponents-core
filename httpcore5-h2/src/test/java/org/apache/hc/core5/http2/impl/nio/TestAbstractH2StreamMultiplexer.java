@@ -1166,6 +1166,210 @@ class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
+    void testResetIfExpiredResetsStreamPastDeadline() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel channel = mux.createChannel(1);
+        final H2Stream stream = mux.createStream(channel, streamHandler);
+
+        stream.setTimeout(Timeout.ofMilliseconds(50));
+        stream.activate();
+
+        // Push last activity into the past so the timeout is definitely expired
+        final Field lastActivityField = H2Stream.class.getDeclaredField("lastActivityNanos");
+        lastActivityField.setAccessible(true);
+        lastActivityField.set(stream, System.nanoTime() - TimeUnit.MILLISECONDS.toNanos(100));
+
+        Assertions.assertTrue(mux.resetIfExpired(stream, System.nanoTime()));
+
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamTimeoutException.class, exceptionCaptor.getValue());
+        Assertions.assertTrue(stream.isLocalClosed());
+        Assertions.assertTrue(stream.isClosed());
+    }
+
+    @Test
+    void testResetIfExpiredIgnoresStreamBeforeDeadline() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final H2StreamChannel channel = mux.createChannel(1);
+        final H2Stream stream = mux.createStream(channel, streamHandler);
+
+        stream.setTimeout(Timeout.ofMinutes(1));
+        stream.activate();
+
+        Assertions.assertFalse(mux.resetIfExpired(stream, System.nanoTime()));
+        Assertions.assertFalse(stream.isLocalClosed());
+
+        Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
+    }
+
+    @Test
+    void testExpiredStreamResetOnInboundData() throws Exception {
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final int remaining = buffer.remaining();
+                    buffer.position(buffer.limit());
+                    return remaining;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Encode request headers
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        // Send HEADERS (endHeaders=true, endStream=false) to create stream 1
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1,
+                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()), true, false);
+        outBuffer.write(headerFrame, writableChannel);
+        mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        Mockito.verify(streamHandler).consumeHeader(headersCaptor.capture(), ArgumentMatchers.eq(false));
+        Assertions.assertFalse(headersCaptor.getValue().isEmpty());
+
+        // Retrieve the stream and set a short timeout
+        final Field streamsField = AbstractH2StreamMultiplexer.class.getDeclaredField("streams");
+        streamsField.setAccessible(true);
+        final H2Streams h2Streams = (H2Streams) streamsField.get(mux);
+        final H2Stream stream = h2Streams.lookupValid(1);
+        stream.setTimeout(Timeout.ofMilliseconds(50));
+
+        // Push last activity into the past so the timeout is expired
+        final Field lastActivityField = H2Stream.class.getDeclaredField("lastActivityNanos");
+        lastActivityField.setAccessible(true);
+        lastActivityField.set(stream, System.nanoTime() - TimeUnit.MILLISECONDS.toNanos(100));
+
+        // Send DATA frame for the expired stream
+        writableChannel.reset();
+        final RawFrame dataFrame = FRAME_FACTORY.createData(1,
+                ByteBuffer.wrap("hello".getBytes(StandardCharsets.US_ASCII)), true);
+        outBuffer.write(dataFrame, writableChannel);
+        mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        // The handler must receive a timeout failure, not data
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamTimeoutException.class, exceptionCaptor.getValue());
+        Mockito.verify(streamHandler, Mockito.never()).consumeData(
+                ArgumentMatchers.any(ByteBuffer.class), ArgumentMatchers.anyBoolean());
+    }
+
+    @Test
+    void testExpiredStreamResetOnInboundContinuation() throws Exception {
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(invocation -> {
+                    final ByteBuffer buffer = invocation.getArgument(0, ByteBuffer.class);
+                    final int remaining = buffer.remaining();
+                    buffer.position(buffer.limit());
+                    return remaining;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Encode request headers
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
+        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "www.example.com"));
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        // Split encoded headers: first part in HEADERS, remainder in CONTINUATION
+        final int split = headerBuf.length() / 2;
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+
+        // Send HEADERS (endHeaders=false, endStream=false) to create stream 1
+        final RawFrame headerFrame = FRAME_FACTORY.createHeaders(1,
+                ByteBuffer.wrap(headerBuf.array(), 0, split), false, false);
+        outBuffer.write(headerFrame, writableChannel);
+        mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        // Stream created but consumeHeader not yet called (waiting for CONTINUATION)
+        Mockito.verify(streamHandler, Mockito.never()).consumeHeader(
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+
+        // Retrieve the stream and set a short timeout
+        final Field streamsField = AbstractH2StreamMultiplexer.class.getDeclaredField("streams");
+        streamsField.setAccessible(true);
+        final H2Streams h2Streams = (H2Streams) streamsField.get(mux);
+        final H2Stream stream = h2Streams.lookupValid(1);
+        stream.setTimeout(Timeout.ofMilliseconds(50));
+
+        // Push last activity into the past so the timeout is expired
+        final Field lastActivityField = H2Stream.class.getDeclaredField("lastActivityNanos");
+        lastActivityField.setAccessible(true);
+        lastActivityField.set(stream, System.nanoTime() - TimeUnit.MILLISECONDS.toNanos(100));
+
+        // Send CONTINUATION (endHeaders=true) for the expired stream
+        writableChannel.reset();
+        final RawFrame continuationFrame = FRAME_FACTORY.createContinuation(1,
+                ByteBuffer.wrap(headerBuf.array(), split, headerBuf.length() - split), true);
+        outBuffer.write(continuationFrame, writableChannel);
+        mux.onInput(ByteBuffer.wrap(writableChannel.toByteArray()));
+
+        // The handler must receive a timeout failure, not header consumption
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(H2StreamTimeoutException.class, exceptionCaptor.getValue());
+        Mockito.verify(streamHandler, Mockito.never()).consumeHeader(
+                ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+    }
+
+    @Test
     void testOutboundTrailersWithPseudoHeaderRejected() throws Exception {
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession,
