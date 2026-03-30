@@ -28,6 +28,8 @@ package org.apache.hc.core5.testing.compatibility;
 
 import java.util.Random;
 
+import com.github.dockerjava.api.model.Ulimit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
@@ -116,7 +118,8 @@ public final class ContainerImages {
                 .withNetwork(network)
                 .withNetworkAliases(APACHE_HTTPD)
                 .withLogConsumer(new Slf4jLogConsumer(LOG))
-                .withExposedPorts(HTTP_PORT, H2C_PORT, HTTPS_PORT);
+                .withExposedPorts(HTTP_PORT, H2C_PORT, HTTPS_PORT)
+                .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig().withUlimits(new Ulimit[]{new Ulimit("nofile", 65536L, 65536L)}));
     }
 
     public static GenericContainer<?> nginx(final Network network) {
