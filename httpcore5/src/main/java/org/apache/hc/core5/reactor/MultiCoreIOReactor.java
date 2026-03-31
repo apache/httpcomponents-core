@@ -88,23 +88,25 @@ class MultiCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
-        long remaining = waitTime.toMilliseconds();
+        final long deadlineNanos = System.nanoTime() + waitTime.toNanoseconds();
+        long remainingNanos = waitTime.toNanoseconds();
         for (int i = 0; i < this.ioReactors.length; i++) {
             final IOReactor ioReactor = this.ioReactors[i];
             if (ioReactor.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
-                ioReactor.awaitShutdown(TimeValue.of(remaining, TimeUnit.MILLISECONDS));
-                remaining = deadline - System.currentTimeMillis();
-                if (remaining <= 0) {
+                ioReactor.awaitShutdown(TimeValue.of(remainingNanos, TimeUnit.NANOSECONDS));
+                remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
                     return;
                 }
             }
         }
         for (int i = 0; i < this.threads.length; i++) {
             final Thread thread = this.threads[i];
-            thread.join(remaining);
-            remaining = deadline - System.currentTimeMillis();
-            if (remaining <= 0) {
+            final long millis = TimeUnit.NANOSECONDS.toMillis(remainingNanos);
+            final int nanos = (int) (remainingNanos - TimeUnit.MILLISECONDS.toNanos(millis));
+            thread.join(millis, nanos);
+            remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos <= 0) {
                 return;
             }
         }

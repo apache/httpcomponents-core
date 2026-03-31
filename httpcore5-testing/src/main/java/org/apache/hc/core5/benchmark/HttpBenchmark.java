@@ -473,7 +473,7 @@ public class HttpBenchmark {
 
         final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMilliseconds() : Long.MAX_VALUE;
 
-        final long startTime = System.currentTimeMillis();
+        final long startNanos = System.nanoTime();
 
         for (int i = 0; i < workers.length; i++) {
             workers[i].execute();
@@ -485,7 +485,7 @@ public class HttpBenchmark {
             System.out.println("...done");
         }
 
-        final long endTime = System.currentTimeMillis();
+        final long endNanos = System.nanoTime();
 
         for (int i = 0; i < workers.length; i++) {
             workers[i].releaseResources();
@@ -499,7 +499,7 @@ public class HttpBenchmark {
                 requestUri.toASCIIString(),
                 stats.getContentLength(),
                 config.getConcurrencyLevel(),
-                endTime - startTime,
+                TimeUnit.NANOSECONDS.toMillis(endNanos - startNanos),
                 stats.getSuccessCount(),
                 stats.getFailureCount(),
                 stats.getKeepAliveCount(),

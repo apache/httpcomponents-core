@@ -136,7 +136,7 @@ class TestSocksProxyProtocolHandler {
             this.open = true;
             this.eventMask = 0;
             this.socketTimeout = Timeout.DISABLED;
-            this.lastReadTime = System.currentTimeMillis();
+            this.lastReadTime = System.nanoTime();
             this.lastWriteTime = this.lastReadTime;
             this.lastEventTime = this.lastReadTime;
         }
@@ -153,7 +153,7 @@ class TestSocksProxyProtocolHandler {
         @Override
         public void setEventMask(final int ops) {
             this.eventMask = ops;
-            this.lastEventTime = System.currentTimeMillis();
+            this.lastEventTime = System.nanoTime();
         }
 
         @Override
@@ -220,7 +220,7 @@ class TestSocksProxyProtocolHandler {
         @Override
         public void setSocketTimeout(final Timeout timeout) {
             this.socketTimeout = timeout;
-            this.lastEventTime = System.currentTimeMillis();
+            this.lastEventTime = System.nanoTime();
         }
 
         @Override
@@ -240,13 +240,13 @@ class TestSocksProxyProtocolHandler {
 
         @Override
         public void updateReadTime() {
-            this.lastReadTime = System.currentTimeMillis();
+            this.lastReadTime = System.nanoTime();
             this.lastEventTime = this.lastReadTime;
         }
 
         @Override
         public void updateWriteTime() {
-            this.lastWriteTime = System.currentTimeMillis();
+            this.lastWriteTime = System.nanoTime();
             this.lastEventTime = this.lastWriteTime;
         }
 
