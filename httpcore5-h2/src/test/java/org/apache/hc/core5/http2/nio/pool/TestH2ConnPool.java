@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.nio.pool;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -97,8 +98,9 @@ class TestH2ConnPool {
 
             final IOSession session = Mockito.mock(IOSession.class);
             Mockito.when(session.isOpen()).thenReturn(true);
-            Mockito.when(session.getLastReadTime()).thenReturn(0L);
-            Mockito.when(session.getLastWriteTime()).thenReturn(0L);
+            final long farPastNanos = System.nanoTime() - TimeUnit.DAYS.toNanos(1);
+            Mockito.when(session.getLastReadTime()).thenReturn(farPastNanos);
+            Mockito.when(session.getLastWriteTime()).thenReturn(farPastNanos);
 
             @SuppressWarnings("unchecked")
             final Callback<Boolean> callback = (Callback<Boolean>) Mockito.mock(Callback.class);

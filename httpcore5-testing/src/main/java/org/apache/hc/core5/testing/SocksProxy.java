@@ -37,6 +37,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.net.InetAddressUtils;
@@ -254,7 +255,7 @@ public class SocksProxy {
     }
 
     public void shutdown(final TimeValue timeout) throws InterruptedException {
-        final long waitUntil = System.currentTimeMillis() + timeout.toMilliseconds();
+        final long deadlineNanos = System.nanoTime() + timeout.toNanoseconds();
         Thread t = null;
         lock.lock();
         try {
@@ -272,18 +273,18 @@ public class SocksProxy {
                 handler.shutdown();
             }
             while (!this.handlers.isEmpty()) {
-                final long waitTime = waitUntil - System.currentTimeMillis();
-                if (waitTime > 0) {
-                    wait(waitTime);
+                final long remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos > 0) {
+                    wait(TimeUnit.NANOSECONDS.toMillis(remainingNanos));
                 }
             }
         } finally {
             lock.unlock();
         }
         if (t != null) {
-            final long waitTime = waitUntil - System.currentTimeMillis();
-            if (waitTime > 0) {
-                t.join(waitTime);
+            final long remainingNanos = deadlineNanos - System.nanoTime();
+            if (remainingNanos > 0) {
+                t.join(TimeUnit.NANOSECONDS.toMillis(remainingNanos));
             }
         }
     }

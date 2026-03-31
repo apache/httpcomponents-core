@@ -73,7 +73,7 @@ final class IOSessionRequest implements Future<IOSession> {
         this.closeableRef = new AtomicReference<>();
 
         // Set the time when this request is created
-        this.enqueueTime = System.currentTimeMillis();
+        this.enqueueTime = System.nanoTime();
     }
 
     public void completed(final ProtocolIOSession ioSession) {
@@ -136,7 +136,7 @@ final class IOSessionRequest implements Future<IOSession> {
 
     // Getter for enqueueTime
     @Internal
-    public long getEnqueueTime() {
+    public long getEnqueueNanos() {
         return enqueueTime;
     }
 
