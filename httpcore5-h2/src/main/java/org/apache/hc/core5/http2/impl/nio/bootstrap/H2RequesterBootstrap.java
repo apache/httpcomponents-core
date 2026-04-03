@@ -105,6 +105,7 @@ public class H2RequesterBootstrap {
     private IOReactorMetricsListener threadPoolListener;
     private FrameFactory frameFactory;
     private int maxPendingCommandsPerConnection;
+    private Timeout pingAckTimeout;
 
 
     private H2RequesterBootstrap() {
@@ -213,6 +214,18 @@ public class H2RequesterBootstrap {
 
     public final H2RequesterBootstrap setMaxPendingCommandsPerConnection(final int maxPendingCommandsPerConnection) {
         this.maxPendingCommandsPerConnection = maxPendingCommandsPerConnection;
+        return this;
+    }
+
+    /**
+     * Sets the timeout applied while waiting for the HTTP/2 PING ACK emitted during
+     * pre-flight connection validation. When unset, the default of 5 seconds is used.
+     *
+     * @return this instance.
+     * @since 5.5
+     */
+    public final H2RequesterBootstrap setPingAckTimeout(final Timeout pingAckTimeout) {
+        this.pingAckTimeout = pingAckTimeout;
         return this;
     }
 
@@ -405,7 +418,9 @@ public class H2RequesterBootstrap {
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener,
-                frameFactory);
+                frameFactory,
+                null,
+                pingAckTimeout);
 
         final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy();
 

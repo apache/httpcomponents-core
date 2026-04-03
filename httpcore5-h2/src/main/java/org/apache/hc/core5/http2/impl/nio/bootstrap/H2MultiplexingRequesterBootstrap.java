@@ -55,6 +55,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link H2MultiplexingRequester} bootstrap.
@@ -80,6 +81,8 @@ public class H2MultiplexingRequesterBootstrap {
     private IOReactorMetricsListener threadPoolListener;
 
     private int maxCommandsPerConnection;
+
+    private Timeout pingAckTimeout;
 
     private H2MultiplexingRequesterBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -203,6 +206,18 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * Sets the timeout applied while waiting for the HTTP/2 PING ACK emitted during
+     * pre-flight connection validation. When unset, the default of 5 seconds is used.
+     *
+     * @return this instance.
+     * @since 5.5
+     */
+    public final H2MultiplexingRequesterBootstrap setPingAckTimeout(final Timeout pingAckTimeout) {
+        this.pingAckTimeout = pingAckTimeout;
+        return this;
+    }
+
+    /**
      * Sets {@link H2StreamListener} instance.
      *
      * @return this instance.
@@ -287,7 +302,8 @@ public class H2MultiplexingRequesterBootstrap {
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener,
                 frameFactory,
-                validateAfterInactivityRef::get);
+                validateAfterInactivityRef::get,
+                pingAckTimeout);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
                 (ioSession, attachment) ->

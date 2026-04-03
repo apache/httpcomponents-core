@@ -59,6 +59,29 @@ public final class ClientH2StreamMultiplexerFactory {
     private final H2StreamListener streamListener;
     private final FrameFactory frameFactory;
     private final Supplier<TimeValue> validateAfterInactivitySupplier;
+    private final Timeout pingAckTimeout;
+
+    /**
+     * @since 5.5
+     */
+    public ClientH2StreamMultiplexerFactory(
+            final HttpProcessor httpProcessor,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final H2Config h2Config,
+            final CharCodingConfig charCodingConfig,
+            final H2StreamListener streamListener,
+            final FrameFactory frameFactory,
+            final Supplier<TimeValue> validateAfterInactivitySupplier,
+            final Timeout pingAckTimeout) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.pushHandlerFactory = pushHandlerFactory;
+        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.streamListener = streamListener;
+        this.frameFactory = frameFactory != null ? frameFactory : DefaultFrameFactory.INSTANCE;
+        this.validateAfterInactivitySupplier = validateAfterInactivitySupplier;
+        this.pingAckTimeout = pingAckTimeout;
+    }
 
     public ClientH2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
@@ -68,13 +91,8 @@ public final class ClientH2StreamMultiplexerFactory {
             final H2StreamListener streamListener,
             final FrameFactory frameFactory,
             final Supplier<TimeValue> validateAfterInactivitySupplier) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.pushHandlerFactory = pushHandlerFactory;
-        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.streamListener = streamListener;
-        this.frameFactory = frameFactory != null ? frameFactory : DefaultFrameFactory.INSTANCE;
-        this.validateAfterInactivitySupplier = validateAfterInactivitySupplier;
+        this(httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, streamListener, frameFactory,
+                validateAfterInactivitySupplier, null);
     }
 
     public ClientH2StreamMultiplexerFactory(
@@ -84,7 +102,7 @@ public final class ClientH2StreamMultiplexerFactory {
             final CharCodingConfig charCodingConfig,
             final H2StreamListener streamListener,
             final FrameFactory frameFactory) {
-        this(httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, streamListener, frameFactory, null);
+        this(httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, streamListener, frameFactory, null, null);
     }
 
     public ClientH2StreamMultiplexerFactory(
@@ -111,8 +129,14 @@ public final class ClientH2StreamMultiplexerFactory {
     }
 
     public ClientH2StreamMultiplexer create(final ProtocolIOSession ioSession) {
+        final Timeout validateAfterInactivity = resolveValidateAfterInactivity();
+        if (pingAckTimeout != null) {
+            return new ClientH2StreamMultiplexer(ioSession, frameFactory, httpProcessor,
+                    pushHandlerFactory, h2Config, charCodingConfig, streamListener,
+                    validateAfterInactivity, pingAckTimeout);
+        }
         return new ClientH2StreamMultiplexer(ioSession, frameFactory, httpProcessor,
-                pushHandlerFactory, h2Config, charCodingConfig, streamListener, resolveValidateAfterInactivity());
+                pushHandlerFactory, h2Config, charCodingConfig, streamListener, validateAfterInactivity);
     }
 
     private Timeout resolveValidateAfterInactivity() {
