@@ -104,7 +104,7 @@ import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
 
-    private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
+    private static final int DEFAULT_CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
@@ -132,6 +132,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private SettingsHandshake localSettingState = SettingsHandshake.READY;
     private SettingsHandshake remoteSettingState = SettingsHandshake.READY;
 
+    private final int connWindowSize;
+    private final long connWindowLowMark;
     private int initInputWinSize;
     private int initOutputWinSize;
     private int lowMark;
@@ -178,6 +180,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.streams = new H2Streams(idGenerator);
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
+        this.connWindowSize = this.localConfig.getConnectionWindowSize();
+        this.connWindowLowMark = this.connWindowSize == Integer.MAX_VALUE
+                ? DEFAULT_CONNECTION_WINDOW_LOW_MARK
+                : this.connWindowSize / 2;
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
         this.connMetrics = new BasicHttpConnectionMetrics(this.inputMetrics, this.outputMetrics);
@@ -258,11 +264,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
-    private int updateWindowMax(final AtomicInteger window) throws ArithmeticException {
+    private int updateWindowTo(final AtomicInteger window, final int target) throws ArithmeticException {
         for (;;) {
             final int current = window.get();
-            if (window.compareAndSet(current, Integer.MAX_VALUE)) {
-                return Integer.MAX_VALUE - current;
+            final int delta = target - current;
+            if (delta <= 0) {
+                return 0;
+            }
+            if (window.compareAndSet(current, target)) {
+                return delta;
             }
         }
     }
@@ -446,7 +456,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
-        maximizeWindow(0, connInputWindow);
+        replenishWindow(0, connInputWindow, connWindowSize);
 
         if (streamListener != null) {
             final int initInputWindow = connInputWindow.get();
@@ -1119,15 +1129,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 stream.produceInputCapacityUpdate();
             }
             final int connWinSize = updateInputWindow(0, connInputWindow, -frameLength);
-            if (connWinSize < CONNECTION_WINDOW_LOW_MARK) {
-                maximizeWindow(0, connInputWindow);
+            if (connWinSize < connWindowLowMark) {
+                replenishWindow(0, connInputWindow, connWindowSize);
             }
         }
         stream.consumeData(payload, frame.isFlagSet(FrameFlag.END_STREAM));
     }
 
-    private void maximizeWindow(final int streamId, final AtomicInteger window) throws IOException {
-        final int delta = updateWindowMax(window);
+    private void replenishWindow(final int streamId, final AtomicInteger window, final int target) throws IOException {
+        final int delta = updateWindowTo(window, target);
         if (delta > 0) {
             final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, delta);
             commitFrame(windowUpdateFrame);
@@ -1594,7 +1604,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         @Override
         public void update(final int increment) throws IOException {
-            incrementInputCapacity(0, connInputWindow, increment);
+            final int connCeiling = connWindowSize - connInputWindow.get();
+            if (connCeiling > 0) {
+                incrementInputCapacity(0, connInputWindow, Math.min(increment, connCeiling));
+            }
             incrementInputCapacity(id, inputWindow, increment);
         }
 

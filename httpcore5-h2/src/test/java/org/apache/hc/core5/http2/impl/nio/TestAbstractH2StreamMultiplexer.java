@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.IntStream;
 
@@ -2015,6 +2016,133 @@ class TestAbstractH2StreamMultiplexer {
 
         Mockito.verify(streamHandler, Mockito.never())
                 .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+    }
+
+    @Test
+    void testConnectionWindowSizeOnConnect() throws Exception {
+        final int configuredWindowSize = 1048576; // 1 MB
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT,
+                H2Config.custom()
+                        .setConnectionWindowSize(configuredWindowSize)
+                        .build(),
+                h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final int expectedDelta = configuredWindowSize - 65535;
+        final boolean found = frames.stream().anyMatch(f ->
+                f.type == FrameType.WINDOW_UPDATE.getValue()
+                        && f.streamId == 0
+                        && f.payload.length == 4
+                        && ((f.payload[0] & 0xff) << 24
+                            | (f.payload[1] & 0xff) << 16
+                            | (f.payload[2] & 0xff) << 8
+                            | (f.payload[3] & 0xff)) == expectedDelta);
+        Assertions.assertTrue(found,
+                "onConnect must send WINDOW_UPDATE(stream=0, delta=" + expectedDelta + ")");
+
+        final Field connInputWindowField =
+                AbstractH2StreamMultiplexer.class.getDeclaredField("connInputWindow");
+        connInputWindowField.setAccessible(true);
+        final AtomicInteger connInputWindow = (AtomicInteger) connInputWindowField.get(mux);
+        Assertions.assertEquals(configuredWindowSize, connInputWindow.get());
+    }
+
+    @Test
+    void testDefaultConnectionWindowSizeMaximizesOnConnect() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+
+        final Field connInputWindowField =
+                AbstractH2StreamMultiplexer.class.getDeclaredField("connInputWindow");
+        connInputWindowField.setAccessible(true);
+        final AtomicInteger connInputWindow = (AtomicInteger) connInputWindowField.get(mux);
+        Assertions.assertEquals(Integer.MAX_VALUE, connInputWindow.get(),
+                "Default config must maximize connection input window");
+    }
+
+    @Test
+    void testConnectionWindowSizeDoesNotAffectSettingsInitialWindowSize() throws Exception {
+        final int streamWindowSize = 32768;
+        final int connWindowSize = 1048576;
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT,
+                H2Config.custom()
+                        .setInitialWindowSize(streamWindowSize)
+                        .setConnectionWindowSize(connWindowSize)
+                        .build(),
+                h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final FrameStub settingsFrame = frames.stream()
+                .filter(f -> f.type == FrameType.SETTINGS.getValue()
+                        && f.streamId == 0
+                        && !f.isAck())
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No SETTINGS frame found"));
+
+        final int initialWindowSizeParamCode = 0x4;
+        int advertisedWindowSize = -1;
+        for (int i = 0; i + 5 < settingsFrame.payload.length; i += 6) {
+            final int id = ((settingsFrame.payload[i] & 0xff) << 8)
+                    | (settingsFrame.payload[i + 1] & 0xff);
+            final int val = ((settingsFrame.payload[i + 2] & 0xff) << 24)
+                    | ((settingsFrame.payload[i + 3] & 0xff) << 16)
+                    | ((settingsFrame.payload[i + 4] & 0xff) << 8)
+                    | (settingsFrame.payload[i + 5] & 0xff);
+            if (id == initialWindowSizeParamCode) {
+                advertisedWindowSize = val;
+            }
+        }
+
+        Assertions.assertEquals(streamWindowSize, advertisedWindowSize,
+                "SETTINGS INITIAL_WINDOW_SIZE must reflect initialWindowSize, not connectionWindowSize");
     }
 
 
