@@ -152,6 +152,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private static final long VALIDATE_AFTER_INACTIVITY_GRANULARITY_NANOS = TimeUnit.SECONDS.toNanos(1);
     private final Timeout validateAfterInactivity;
+    private final Timeout pingAckTimeout;
     private volatile long lastActivityNanos;
 
     AbstractH2StreamMultiplexer(
@@ -174,6 +175,20 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final H2Config h2Config,
             final H2StreamListener streamListener,
             final Timeout validateAfterInactivity) {
+        this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                validateAfterInactivity, Timeout.ofSeconds(5));
+    }
+
+    AbstractH2StreamMultiplexer(
+            final ProtocolIOSession ioSession,
+            final FrameFactory frameFactory,
+            final StreamIdGenerator idGenerator,
+            final HttpProcessor httpProcessor,
+            final CharCodingConfig charCodingConfig,
+            final H2Config h2Config,
+            final H2StreamListener streamListener,
+            final Timeout validateAfterInactivity,
+            final Timeout pingAckTimeout) {
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -202,6 +217,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.streamListener = streamListener;
         this.lastActivityNanos = System.nanoTime();
         this.validateAfterInactivity = validateAfterInactivity;
+        this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
     }
 
     @Override
@@ -544,7 +560,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final boolean hasBeenIdleTooLong = t > 0 && System.nanoTime() - lastActivityNanos > t;
             if (hasBeenIdleTooLong && ioSession.hasCommands() && pingHandlers.isEmpty()) {
                 final Timeout socketTimeout = ioSession.getSocketTimeout();
-                ioSession.setSocketTimeout(Timeout.ofSeconds(5));
+                ioSession.setSocketTimeout(pingAckTimeout);
                 executePing(new PingCommand(new BasicPingHandler(result -> {
                     // restore timeout
                     ioSession.setSocketTimeout(socketTimeout);

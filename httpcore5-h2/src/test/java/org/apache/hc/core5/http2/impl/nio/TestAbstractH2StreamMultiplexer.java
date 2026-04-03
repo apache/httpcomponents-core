@@ -120,7 +120,7 @@ class TestAbstractH2StreamMultiplexer {
                 final H2StreamListener streamListener,
                 final Supplier<H2StreamHandler> streamHandlerSupplier) {
             this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
-                    streamHandlerSupplier, null);
+                    streamHandlerSupplier, null, Timeout.ofSeconds(5));
         }
 
         public H2StreamMultiplexerImpl(
@@ -133,8 +133,23 @@ class TestAbstractH2StreamMultiplexer {
                 final H2StreamListener streamListener,
                 final Supplier<H2StreamHandler> streamHandlerSupplier,
                 final Timeout validateAfterInactivity) {
+            this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    streamHandlerSupplier, validateAfterInactivity, Timeout.ofSeconds(5));
+        }
+
+        public H2StreamMultiplexerImpl(
+                final ProtocolIOSession ioSession,
+                final FrameFactory frameFactory,
+                final StreamIdGenerator idGenerator,
+                final HttpProcessor httpProcessor,
+                final CharCodingConfig charCodingConfig,
+                final H2Config h2Config,
+                final H2StreamListener streamListener,
+                final Supplier<H2StreamHandler> streamHandlerSupplier,
+                final Timeout validateAfterInactivity,
+                final Timeout pingAckTimeout) {
             super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
-                    validateAfterInactivity);
+                    validateAfterInactivity, pingAckTimeout);
             this.streamHandlerSupplier = streamHandlerSupplier;
         }
 
@@ -1630,6 +1645,49 @@ class TestAbstractH2StreamMultiplexer {
         feedFrame(mux, pingAck);
 
         Mockito.verify(protocolIOSession, Mockito.atLeastOnce()).setSocketTimeout(ArgumentMatchers.eq(previousTimeout));
+    }
+
+    @Test
+    void testValidateAfterInactivityUsesConfiguredPingAckTimeout() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        Mockito.when(protocolIOSession.hasCommands()).thenReturn(true);
+        Mockito.when(protocolIOSession.getSocketTimeout()).thenReturn(Timeout.ofSeconds(30));
+
+        final Timeout customPingAckTimeout = Timeout.ofSeconds(15);
+        final H2Config h2Config = H2Config.custom()
+                .build();
+        final Timeout validateAfterInactivity = Timeout.ofMilliseconds(1);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler,
+                validateAfterInactivity, customPingAckTimeout);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        writes.clear();
+        makeMuxIdle(mux, validateAfterInactivity);
+
+        mux.onOutput();
+
+        Mockito.verify(protocolIOSession, Mockito.atLeastOnce())
+                .setSocketTimeout(ArgumentMatchers.eq(customPingAckTimeout));
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().anyMatch(f -> f.isPing() && !f.isAck()),
+                "Must emit pre-flight PING");
     }
 
     @Test
