@@ -47,19 +47,21 @@ public class H2Config {
     private final boolean pushEnabled;
     private final int maxConcurrentStreams;
     private final int initialWindowSize;
+    private final int connectionWindowSize;
     private final int maxFrameSize;
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
-             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled, final int maxContinuations) {
+             final int initialWindowSize, final int connectionWindowSize, final int maxFrameSize,
+             final int maxHeaderListSize, final boolean compressionEnabled, final int maxContinuations) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
         this.maxConcurrentStreams = maxConcurrentStreams;
         this.initialWindowSize = initialWindowSize;
+        this.connectionWindowSize = connectionWindowSize;
         this.maxFrameSize = maxFrameSize;
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
@@ -80,6 +82,16 @@ public class H2Config {
 
     public int getInitialWindowSize() {
         return initialWindowSize;
+    }
+
+    /**
+     * Returns the connection-level receive window size. This controls the flow-control
+     * window for the entire connection as opposed to individual streams.
+     *
+     * @since 5.5
+     */
+    public int getConnectionWindowSize() {
+        return connectionWindowSize;
     }
 
     public int getMaxFrameSize() {
@@ -105,6 +117,7 @@ public class H2Config {
                 .append(", pushEnabled=").append(this.pushEnabled)
                 .append(", maxConcurrentStreams=").append(this.maxConcurrentStreams)
                 .append(", initialWindowSize=").append(this.initialWindowSize)
+                .append(", connectionWindowSize=").append(this.connectionWindowSize)
                 .append(", maxFrameSize=").append(this.maxFrameSize)
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
@@ -130,6 +143,7 @@ public class H2Config {
                 .setMaxConcurrentStreams(Integer.MAX_VALUE) // no limit
                 .setMaxFrameSize(INIT_MAX_FRAME_SIZE)
                 .setInitialWindowSize(INIT_WINDOW_SIZE)
+                .setConnectionWindowSize(INIT_WINDOW_SIZE)
                 .setMaxHeaderListSize(Integer.MAX_VALUE); // unlimited
     }
 
@@ -140,6 +154,7 @@ public class H2Config {
                 .setPushEnabled(config.isPushEnabled())
                 .setMaxConcurrentStreams(config.getMaxConcurrentStreams())
                 .setInitialWindowSize(config.getInitialWindowSize())
+                .setConnectionWindowSize(config.getConnectionWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
                 .setCompressionEnabled(config.isCompressionEnabled());
@@ -151,6 +166,7 @@ public class H2Config {
         private boolean pushEnabled;
         private int maxConcurrentStreams;
         private int initialWindowSize;
+        private int connectionWindowSize;
         private int maxFrameSize;
         private int maxHeaderListSize;
         private boolean compressionEnabled;
@@ -161,6 +177,7 @@ public class H2Config {
             this.pushEnabled = INIT_ENABLE_PUSH;
             this.maxConcurrentStreams = INIT_CONCURRENT_STREAM;
             this.initialWindowSize = INIT_WINDOW_SIZE;
+            this.connectionWindowSize = Integer.MAX_VALUE;
             this.maxFrameSize = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
@@ -185,6 +202,19 @@ public class H2Config {
 
         public Builder setInitialWindowSize(final int initialWindowSize) {
             this.initialWindowSize = Args.checkRange(initialWindowSize, 0, Integer.MAX_VALUE, "Initial window size");
+            return this;
+        }
+
+        /**
+         * Sets the connection-level receive window size. This controls the flow-control
+         * window for the entire connection as opposed to individual streams governed by
+         * {@link #setInitialWindowSize(int)}.
+         *
+         * @since 5.5
+         */
+        public Builder setConnectionWindowSize(final int connectionWindowSize) {
+            this.connectionWindowSize = Args.checkRange(connectionWindowSize, INIT_WINDOW_SIZE,
+                    Integer.MAX_VALUE, "Connection window size");
             return this;
         }
 
@@ -222,6 +252,7 @@ public class H2Config {
                     pushEnabled,
                     maxConcurrentStreams,
                     initialWindowSize,
+                    connectionWindowSize,
                     maxFrameSize,
                     maxHeaderListSize,
                     compressionEnabled,

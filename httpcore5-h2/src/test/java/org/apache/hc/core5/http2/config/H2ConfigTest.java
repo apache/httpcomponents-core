@@ -37,28 +37,32 @@ import org.junit.jupiter.api.Test;
 class H2ConfigTest {
 
     @Test
-    void builder() {
-        // Create and start requester
-        final H2Config h2Config = H2Config.custom()
-                .setPushEnabled(false)
-                .build();
+    void defaults() {
+        final H2Config h2Config = H2Config.custom().build();
         assertNotNull(h2Config);
+        assertEquals(65535, h2Config.getInitialWindowSize());
+        assertEquals(Integer.MAX_VALUE, h2Config.getConnectionWindowSize());
     }
 
     @Test
     void checkValues() {
-        // Create and start requester
         final H2Config h2Config = H2Config.custom()
                 .setHeaderTableSize(1)
                 .setMaxConcurrentStreams(1)
+                .setInitialWindowSize(131072)
+                .setConnectionWindowSize(1048576)
                 .setMaxFrameSize(16384)
+                .setMaxHeaderListSize(4096)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
                 .build();
 
         assertEquals(1, h2Config.getHeaderTableSize());
         assertEquals(1, h2Config.getMaxConcurrentStreams());
+        assertEquals(131072, h2Config.getInitialWindowSize());
+        assertEquals(1048576, h2Config.getConnectionWindowSize());
         assertEquals(16384, h2Config.getMaxFrameSize());
+        assertEquals(4096, h2Config.getMaxHeaderListSize());
         assertTrue(h2Config.isPushEnabled());
         assertTrue(h2Config.isCompressionEnabled());
     }
@@ -70,6 +74,7 @@ class H2ConfigTest {
                 .setHeaderTableSize(1)
                 .setMaxConcurrentStreams(1)
                 .setMaxFrameSize(16384)
+                .setConnectionWindowSize(2097152)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
                 .build();
@@ -80,6 +85,7 @@ class H2ConfigTest {
         assertAll(
                 () -> assertEquals(h2Config.getHeaderTableSize(), h2Config2.getHeaderTableSize()),
                 () -> assertEquals(h2Config.getInitialWindowSize(), h2Config2.getInitialWindowSize()),
+                () -> assertEquals(h2Config.getConnectionWindowSize(), h2Config2.getConnectionWindowSize()),
                 () -> assertEquals(h2Config.getMaxConcurrentStreams(), h2Config2.getMaxConcurrentStreams()),
                 () -> assertEquals(h2Config.getMaxFrameSize(), h2Config2.getMaxFrameSize()),
                 () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize())
