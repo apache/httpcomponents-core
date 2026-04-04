@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -44,7 +45,9 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -328,6 +331,88 @@ class TestMessageSupport {
         Assertions.assertEquals("stuff", params.get(3).getValue());
         Assertions.assertEquals(s.length() - 4, cursor.getPos());
         Assertions.assertFalse(cursor.atEnd());
+    }
+
+    static String copyHeader(final CharSequence charSequence, final ParserCursor cursor) {
+        final CharArrayBuffer buf = new CharArrayBuffer(10);
+        int pos = cursor.getPos();
+        while (pos < cursor.getUpperBound()) {
+            final char ch = charSequence.charAt(pos);
+            buf.append(ch);
+            pos++;
+        }
+        cursor.updatePos(pos);
+        return buf.toString();
+    }
+
+    static String copyToken(final CharSequence charSequence, final ParserCursor cursor) {
+        final CharArrayBuffer buf = new CharArrayBuffer(10);
+        int pos = cursor.getPos();
+        while (pos < cursor.getUpperBound()) {
+            final char ch = charSequence.charAt(pos);
+            if (ch == ',') {
+                break;
+            }
+            buf.append(ch);
+            pos++;
+        }
+        cursor.updatePos(pos);
+        return buf.substringTrimmed(0, buf.length());
+    }
+
+    @Test
+    void testParseHeaders() {
+        final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
+        message.addHeader("Some-Header", "this");
+        message.addHeader("Some-Header", "that");
+        message.addHeader("Some-Header", " this, that,  what not");
+
+        final List<String> headerValues = new LinkedList<>();
+        MessageSupport.parseHeaders(message, "Some-header", (charSequence, cursor) -> {
+            final String headerValue = copyHeader(charSequence, cursor);
+            headerValues.add(headerValue);
+        });
+        Assertions.assertEquals(Arrays.asList("this", "that", " this, that,  what not"), headerValues);
+
+        final List<String> tokens = new LinkedList<>();
+        MessageSupport.parseElementList(message, "Some-header", (charSequence, cursor) -> {
+            final String token = copyToken(charSequence, cursor);
+            tokens.add(token);
+        });
+        Assertions.assertEquals(Arrays.asList("this", "that", "this", "that", "what not"), tokens);
+    }
+
+    @Test
+    void testParseHeadersStrict() throws Exception {
+        final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
+        message.addHeader("Some-Header", "this");
+        message.addHeader("Some-Header", "that");
+        message.addHeader("Some-Header", " this, that,  what not");
+
+        final List<String> headerValues = new LinkedList<>();
+        MessageSupport.parseHeadersStrict(message, "Some-header", (charSequence, cursor) -> {
+            final String headerValue = copyHeader(charSequence, cursor);
+            headerValues.add(headerValue);
+        });
+        Assertions.assertEquals(Arrays.asList("this", "that", " this, that,  what not"), headerValues);
+
+        final List<String> tokens = new LinkedList<>();
+        MessageSupport.parseElementListStrict(message, "Some-header", (charSequence, cursor) -> {
+            final String token = copyToken(charSequence, cursor);
+            tokens.add(token);
+        });
+        Assertions.assertEquals(Arrays.asList("this", "that", "this", "that", "what not"), tokens);
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.parseElementListStrict(
+                        message,
+                        "Some-header",
+                        (charSequence, cursor) -> {
+                    final String token = copyToken(charSequence, cursor);
+                    if (token.equalsIgnoreCase("what not")) {
+                        throw new ProtocolException("How awful!");
+                    }
+                }));
     }
 
     @Test

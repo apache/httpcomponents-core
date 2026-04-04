@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.Tokenizer;
@@ -231,6 +232,78 @@ public class MessageSupport {
                 }
             }
         }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static void parseElementList(final MessageHeaders headers,
+                                        final String name,
+                                        final BiConsumer<CharSequence, ParserCursor> consumer) {
+        parseHeaders(headers, name, (charSequence, cursor) ->
+                parseElementList(charSequence, cursor, consumer));
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static void parseHeaderStrict(final Header header,
+                                         final HeaderElementConsumer consumer) throws ProtocolException {
+        Args.notNull(header, "Header");
+        if (header instanceof FormattedHeader) {
+            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
+            final ParserCursor cursor = new ParserCursor(0, buf.length());
+            cursor.updatePos(((FormattedHeader) header).getValuePos());
+            consumer.accept(buf, cursor);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            consumer.accept(value, cursor);
+        }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static void parseHeadersStrict(final MessageHeaders headers,
+                                          final String name,
+                                          final HeaderElementConsumer consumer) throws ProtocolException {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        final Iterator<Header> it = headers.headerIterator(name);
+        while (it.hasNext()) {
+            parseHeaderStrict(it.next(), consumer);
+        }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static void parseElementListStrict(final CharSequence src,
+                                              final ParserCursor cursor,
+                                              final HeaderElementConsumer consumer) throws ProtocolException {
+        Args.notNull(src, "Source");
+        Args.notNull(cursor, "Cursor");
+        Args.notNull(consumer, "Consumer");
+        while (!cursor.atEnd()) {
+            consumer.accept(src, cursor);
+            if (!cursor.atEnd()) {
+                final char ch = src.charAt(cursor.getPos());
+                if (ch == ',') {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static void parseElementListStrict(final MessageHeaders headers,
+                                              final String name,
+                                              final HeaderElementConsumer consumer) throws ProtocolException {
+        parseHeadersStrict(headers, name, (charSequence, cursor) ->
+                parseElementListStrict(charSequence, cursor, consumer));
     }
 
     /**
