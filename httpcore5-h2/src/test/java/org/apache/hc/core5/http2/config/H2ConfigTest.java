@@ -32,28 +32,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Test;
 
 class H2ConfigTest {
 
     @Test
     void builder() {
-        // Create and start requester
         final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .build();
         assertNotNull(h2Config);
+        assertEquals(Timeout.ofSeconds(5), h2Config.getPingAckTimeout());
     }
 
     @Test
     void checkValues() {
-        // Create and start requester
         final H2Config h2Config = H2Config.custom()
                 .setHeaderTableSize(1)
                 .setMaxConcurrentStreams(1)
                 .setMaxFrameSize(16384)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
+                .setPingAckTimeout(Timeout.ofSeconds(10))
                 .build();
 
         assertEquals(1, h2Config.getHeaderTableSize());
@@ -61,17 +62,18 @@ class H2ConfigTest {
         assertEquals(16384, h2Config.getMaxFrameSize());
         assertTrue(h2Config.isPushEnabled());
         assertTrue(h2Config.isCompressionEnabled());
+        assertEquals(Timeout.ofSeconds(10), h2Config.getPingAckTimeout());
     }
 
     @Test
     void copy() {
-        // Create and start requester
         final H2Config h2Config = H2Config.custom()
                 .setHeaderTableSize(1)
                 .setMaxConcurrentStreams(1)
                 .setMaxFrameSize(16384)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
+                .setPingAckTimeout(Timeout.ofSeconds(15))
                 .build();
 
         final H2Config.Builder builder = H2Config.copy(h2Config);
@@ -82,7 +84,8 @@ class H2ConfigTest {
                 () -> assertEquals(h2Config.getInitialWindowSize(), h2Config2.getInitialWindowSize()),
                 () -> assertEquals(h2Config.getMaxConcurrentStreams(), h2Config2.getMaxConcurrentStreams()),
                 () -> assertEquals(h2Config.getMaxFrameSize(), h2Config2.getMaxFrameSize()),
-                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize())
+                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize()),
+                () -> assertEquals(h2Config.getPingAckTimeout(), h2Config2.getPingAckTimeout())
         );
 
     }

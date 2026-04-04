@@ -543,7 +543,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final boolean hasBeenIdleTooLong = t > 0 && System.currentTimeMillis() - lastActivityTime > t;
             if (hasBeenIdleTooLong && ioSession.hasCommands() && pingHandlers.isEmpty()) {
                 final Timeout socketTimeout = ioSession.getSocketTimeout();
-                ioSession.setSocketTimeout(Timeout.ofSeconds(5));
+                ioSession.setSocketTimeout(localConfig.getPingAckTimeout());
                 executePing(new PingCommand(new BasicPingHandler(result -> {
                     // restore timeout
                     ioSession.setSocketTimeout(socketTimeout);

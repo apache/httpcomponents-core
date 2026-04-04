@@ -1633,6 +1633,50 @@ class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
+    void testValidateAfterInactivityUsesConfiguredPingAckTimeout() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        Mockito.when(protocolIOSession.hasCommands()).thenReturn(true);
+        Mockito.when(protocolIOSession.getSocketTimeout()).thenReturn(Timeout.ofSeconds(30));
+
+        final Timeout customPingAckTimeout = Timeout.ofSeconds(15);
+        final H2Config h2Config = H2Config.custom()
+                .setPingAckTimeout(customPingAckTimeout)
+                .build();
+        final Timeout validateAfterInactivity = Timeout.ofMilliseconds(1);
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler,
+                validateAfterInactivity);
+
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+
+        writes.clear();
+        makeMuxIdle(mux, validateAfterInactivity);
+
+        mux.onOutput();
+
+        Mockito.verify(protocolIOSession, Mockito.atLeastOnce())
+                .setSocketTimeout(ArgumentMatchers.eq(customPingAckTimeout));
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertTrue(frames.stream().anyMatch(f -> f.isPing() && !f.isAck()),
+                "Must emit pre-flight PING");
+    }
+
+    @Test
     void testKeepAliveAckTimeoutShutsDownAndFailsStreams() throws Exception {
         final List<byte[]> writes = new ArrayList<>();
         Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))

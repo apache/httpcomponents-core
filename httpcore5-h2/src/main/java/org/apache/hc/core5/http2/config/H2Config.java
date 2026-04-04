@@ -31,6 +31,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * HTTP/2 protocol configuration.
@@ -51,10 +52,12 @@ public class H2Config {
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
+    private final Timeout pingAckTimeout;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled, final int maxContinuations) {
+             final boolean compressionEnabled, final int maxContinuations,
+             final Timeout pingAckTimeout) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -64,6 +67,7 @@ public class H2Config {
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
         this.maxContinuations = maxContinuations;
+        this.pingAckTimeout = pingAckTimeout;
     }
 
     public int getHeaderTableSize() {
@@ -98,6 +102,15 @@ public class H2Config {
         return maxContinuations;
     }
 
+    /**
+     * Returns the timeout for waiting for a PING ACK during idle connection validation.
+     *
+     * @since 5.5
+     */
+    public Timeout getPingAckTimeout() {
+        return pingAckTimeout;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -109,6 +122,7 @@ public class H2Config {
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
                 .append(", maxContinuations=").append(this.maxContinuations)
+                .append(", pingAckTimeout=").append(this.pingAckTimeout)
                 .append("]");
         return builder.toString();
     }
@@ -142,7 +156,8 @@ public class H2Config {
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setCompressionEnabled(config.isCompressionEnabled());
+                .setCompressionEnabled(config.isCompressionEnabled())
+                .setPingAckTimeout(config.getPingAckTimeout());
     }
 
     public static class Builder {
@@ -155,6 +170,7 @@ public class H2Config {
         private int maxHeaderListSize;
         private boolean compressionEnabled;
         private int maxContinuations;
+        private Timeout pingAckTimeout;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -165,6 +181,7 @@ public class H2Config {
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
             this.maxContinuations = 100;
+            this.pingAckTimeout = Timeout.ofSeconds(5);
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -216,6 +233,16 @@ public class H2Config {
             return this;
         }
 
+        /**
+         * Sets the timeout for waiting for a PING ACK during idle connection validation.
+         *
+         * @since 5.5
+         */
+        public Builder setPingAckTimeout(final Timeout pingAckTimeout) {
+            this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
+            return this;
+        }
+
         public H2Config build() {
             return new H2Config(
                     headerTableSize,
@@ -225,7 +252,8 @@ public class H2Config {
                     maxFrameSize,
                     maxHeaderListSize,
                     compressionEnabled,
-                    maxContinuations);
+                    maxContinuations,
+                    pingAckTimeout);
         }
 
     }
