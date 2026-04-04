@@ -110,23 +110,26 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
             throws InterruptedException, ExecutionException, TimeoutException {
         Args.notNull(unit, "Time unit");
         final long msecs = unit.toMillis(timeout);
-        final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
-        long waitTime = msecs;
+        final long waitNanos = unit.toNanos(timeout);
+        final long startNanos = (waitNanos <= 0) ? 0 : System.nanoTime();
+        long remainingNanos = waitNanos;
         try {
             lock.lock();
             if (this.completed) {
                 return getResult();
-            } else if (waitTime <= 0) {
-                throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+            } else if (remainingNanos <= 0) {
+                throw TimeoutValueException.fromMilliseconds(msecs, msecs);
             } else {
                 for (; ; ) {
-                    condition.await(waitTime, TimeUnit.MILLISECONDS);
+                    condition.await(remainingNanos, TimeUnit.NANOSECONDS);
                     if (this.completed) {
                         return getResult();
                     }
-                    waitTime = msecs - (System.currentTimeMillis() - startTime);
-                    if (waitTime <= 0) {
-                        throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+                    remainingNanos = waitNanos - (System.nanoTime() - startNanos);
+                    if (remainingNanos <= 0) {
+                        final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(
+                                System.nanoTime() - startNanos);
+                        throw TimeoutValueException.fromMilliseconds(msecs, elapsedMillis);
                     }
                 }
             }

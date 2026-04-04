@@ -109,14 +109,14 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
-        long remaining = waitTime.toMilliseconds();
+        final long deadlineNanos = System.nanoTime() + waitTime.toNanoseconds();
+        long remainingNanos = waitTime.toNanoseconds();
         lock.lock();
         try {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
-                condition.await(remaining, TimeUnit.MILLISECONDS);
-                remaining = deadline - System.currentTimeMillis();
-                if (remaining <= 0) {
+                condition.await(remainingNanos, TimeUnit.NANOSECONDS);
+                remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
                     return;
                 }
             }

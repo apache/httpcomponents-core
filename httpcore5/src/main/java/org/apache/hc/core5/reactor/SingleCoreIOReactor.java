@@ -42,6 +42,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,8 +73,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
     private final long selectTimeoutMillis;
-    private volatile long lastTimeoutCheckMillis;
-    private volatile long lastSelectMillis;
+    private final long selectTimeoutNanos;
+    private volatile long lastTimeoutCheckNanos;
+    private volatile long lastSelectNanos;
     private final IOReactorMetricsListener threadPoolListener;
 
     // Atomic variables for tracking total wait time and count of processed requests
@@ -100,6 +102,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.channelQueue = new ConcurrentLinkedQueue<>();
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMilliseconds();
+        this.selectTimeoutNanos = TimeUnit.MILLISECONDS.toNanos(this.selectTimeoutMillis);
     }
 
     void enqueueChannel(final ChannelEntry entry) throws IOReactorShutdownException {
@@ -135,7 +138,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
 
             // Process selected I/O events
-            lastSelectMillis = System.currentTimeMillis();
+            lastSelectNanos = System.nanoTime();
             if (readyCount > 0) {
                 processEvents(this.selector.selectedKeys());
             }
@@ -176,11 +179,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void validateActiveChannels() {
-        final long currentTimeMillis = System.currentTimeMillis();
-        if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.selectTimeoutMillis) {
-            this.lastTimeoutCheckMillis = currentTimeMillis;
+        final long nowNanos = System.nanoTime();
+        if ((nowNanos - this.lastTimeoutCheckNanos) >= this.selectTimeoutNanos) {
+            this.lastTimeoutCheckNanos = nowNanos;
             for (final SelectionKey key : this.selector.keys()) {
-                checkTimeout(key, currentTimeMillis);
+                checkTimeout(key, nowNanos);
             }
         }
     }
@@ -255,10 +258,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
     }
 
-    private void checkTimeout(final SelectionKey key, final long nowMillis) {
+    private void checkTimeout(final SelectionKey key, final long nowNanos) {
         final InternalChannel channel = (InternalChannel) key.attachment();
         if (channel != null) {
-            channel.checkTimeout(nowMillis);
+            channel.checkTimeout(nowNanos);
         }
     }
 
@@ -336,7 +339,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         for (int i = 0; i < MAX_CHANNEL_REQUESTS && (sessionRequest = this.requestQueue.poll()) != null; i++) {
             if (threadPoolListener != null) {
                 // Calculate wait time safely without keeping long-lived state
-                final long waitTimeMillis = System.currentTimeMillis() - sessionRequest.getEnqueueTime();
+                final long waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - sessionRequest.getEnqueueNanos());
 
                 // Accumulate total wait time and increment count atomically
                 totalWaitTime.addAndGet(waitTimeMillis);
@@ -505,8 +508,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     @Override
-    public long lastSelectMilli() {
-        return lastSelectMillis;
+    public long lastSelectNano() {
+        return lastSelectNanos;
     }
 
 }

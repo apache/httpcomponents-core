@@ -206,25 +206,26 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     void setSocketTimeout(Timeout timeout);
 
     /**
-     * Returns timestamp of the last read event.
+     * Returns monotonic nanosecond timestamp of the last read event.
      *
-     * @return timestamp.
+     * @return nanosecond timestamp obtained from {@link System#nanoTime()}.
      */
     long getLastReadTime();
 
     /**
-     * Returns timestamp of the last write event.
+     * Returns monotonic nanosecond timestamp of the last write event.
      *
-     * @return timestamp.
+     * @return nanosecond timestamp obtained from {@link System#nanoTime()}.
      */
     long getLastWriteTime();
 
     /**
-     * Returns timestamp of the last I/O event including socket timeout reset.
+     * Returns monotonic nanosecond timestamp of the last I/O event including
+     * socket timeout reset.
      *
      * @see #getSocketTimeout()
      *
-     * @return timestamp.
+     * @return nanosecond timestamp obtained from {@link System#nanoTime()}.
      */
     long getLastEventTime();
 
