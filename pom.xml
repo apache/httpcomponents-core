@@ -80,7 +80,7 @@
     <mockito.version>4.11.0</mockito.version>
     <assertj.version>3.27.7</assertj.version>
     <slf4j.version>1.7.36</slf4j.version>
-    <log4j.version>2.25.3</log4j.version>
+    <log4j.version>2.25.4</log4j.version>
     <rxjava3.version>3.1.12</rxjava3.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <api.comparison.version>5.4</api.comparison.version>
@@ -234,7 +234,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <id>enforce-java-runtime</id>
