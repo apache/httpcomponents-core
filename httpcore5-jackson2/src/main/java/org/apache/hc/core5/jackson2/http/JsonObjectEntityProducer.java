@@ -31,6 +31,7 @@ import java.io.OutputStream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -45,10 +46,23 @@ public class JsonObjectEntityProducer<T> extends AbstractJsonEntityProducer {
     private final T jsonObject;
     private final ObjectMapper objectMapper;
 
-    public JsonObjectEntityProducer(final T jsonObject, final ObjectMapper objectMapper) {
-        super(4096);
+    /**
+     * Creates a new instance that serializes the given object using the specified content type.
+     * If {@code contentType} is {@code null}, defaults to {@code application/json}.
+     *
+     * @param jsonObject   the object to serialize.
+     * @param objectMapper the object mapper.
+     * @param contentType  the content type, or {@code null} for {@code application/json}.
+     * @since 5.5
+     */
+    public JsonObjectEntityProducer(final T jsonObject, final ObjectMapper objectMapper, final ContentType contentType) {
+        super(4096, contentType);
         this.jsonObject = Args.notNull(jsonObject, "Json object");
         this.objectMapper = Args.notNull(objectMapper, "Object mapper");
+    }
+
+    public JsonObjectEntityProducer(final T jsonObject, final ObjectMapper objectMapper) {
+        this(jsonObject, objectMapper, null);
     }
 
     @Override

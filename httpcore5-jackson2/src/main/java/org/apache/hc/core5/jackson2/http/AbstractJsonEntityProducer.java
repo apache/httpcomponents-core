@@ -37,10 +37,16 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 abstract class AbstractJsonEntityProducer implements AsyncEntityProducer {
 
     private final InternalBuffer buffer;
+    private final ContentType contentType;
     private volatile State state;
 
     AbstractJsonEntityProducer(final int initSize) {
+        this(initSize, null);
+    }
+
+    AbstractJsonEntityProducer(final int initSize, final ContentType contentType) {
         this.buffer = new InternalBuffer(initSize);
+        this.contentType = contentType != null ? contentType : ContentType.APPLICATION_JSON;
         this.state = State.ACTIVE;
     }
 
@@ -58,7 +64,7 @@ abstract class AbstractJsonEntityProducer implements AsyncEntityProducer {
 
     @Override
     public final String getContentType() {
-        return ContentType.APPLICATION_JSON.toString();
+        return contentType.toString();
     }
 
     @Override
