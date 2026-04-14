@@ -51,6 +51,7 @@ class H2Streams {
     private final AtomicInteger lastRemoteId;
     private final AtomicInteger localCount;
     private final AtomicInteger remoteCount;
+    private volatile Runnable localStreamChangeCallback;
 
     public H2Streams(final StreamIdGenerator idGenerator) {
         this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
@@ -60,6 +61,10 @@ class H2Streams {
         this.lastRemoteId = new AtomicInteger(0);
         this.localCount = new AtomicInteger(0);
         this.remoteCount = new AtomicInteger(0);
+    }
+
+    void setLocalStreamChangeCallback(final Runnable callback) {
+        this.localStreamChangeCallback = callback;
     }
 
     public boolean isEmpty() {
@@ -94,9 +99,21 @@ class H2Streams {
             switch (state) {
                 case OPEN:
                     count.incrementAndGet();
+                    if (!remoteStream) {
+                        final Runnable cb = localStreamChangeCallback;
+                        if (cb != null) {
+                            cb.run();
+                        }
+                    }
                     break;
                 case CLOSED:
                     count.decrementAndGet();
+                    if (!remoteStream) {
+                        final Runnable cb = localStreamChangeCallback;
+                        if (cb != null) {
+                            cb.run();
+                        }
+                    }
             }
         });
         if (remoteStream) {

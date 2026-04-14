@@ -47,7 +47,16 @@ class AbstractH2IOEventHandler implements HttpConnectionEventHandler {
     final AbstractH2StreamMultiplexer streamMultiplexer;
 
     AbstractH2IOEventHandler(final AbstractH2StreamMultiplexer streamMultiplexer) {
+        this(streamMultiplexer, null);
+    }
+
+    AbstractH2IOEventHandler(
+            final AbstractH2StreamMultiplexer streamMultiplexer,
+            final H2PoolSessionSupport sessionSupport) {
         this.streamMultiplexer = Args.notNull(streamMultiplexer, "Stream multiplexer");
+        if (sessionSupport != null) {
+            streamMultiplexer.setPoolSessionSupport(sessionSupport);
+        }
     }
 
     @Override

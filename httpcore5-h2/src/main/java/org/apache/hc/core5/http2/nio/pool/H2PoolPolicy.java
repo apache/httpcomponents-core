@@ -24,40 +24,34 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2.nio.pool;
 
-package org.apache.hc.core5.http2.impl.nio;
-
-import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.annotation.Experimental;
 
 /**
- * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
- * client side HTTP/2 messaging protocol with full support for
- * multiplexed message transmission.
+ * Enumeration of HTTP/2 connection pool policies.
  *
- * @since 5.0
+ * @since 5.5
  */
-public class ClientH2IOEventHandler extends AbstractH2IOEventHandler {
+@Experimental
+public enum H2PoolPolicy {
 
-    public ClientH2IOEventHandler(final ClientH2StreamMultiplexer streamMultiplexer) {
-        super(streamMultiplexer);
-    }
+    /**
+     * Simple session pool with one logical session per endpoint.
+     * Multiplexing is handled entirely by the HTTP/2 multiplexer;
+     * the pool itself has no awareness of individual streams or
+     * peer {@code MAX_CONCURRENT_STREAMS} limits. This is the
+     * default policy.
+     */
+    BASIC,
 
-    ClientH2IOEventHandler(
-            final ClientH2StreamMultiplexer streamMultiplexer,
-            final H2PoolSessionSupport sessionSupport) {
-        super(streamMultiplexer, sessionSupport);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder buf = new StringBuilder();
-        InetAddressUtils.formatAddress(buf, getLocalAddress());
-        buf.append("->");
-        InetAddressUtils.formatAddress(buf, getRemoteAddress());
-        buf.append(" [");
-        streamMultiplexer.appendState(buf);
-        buf.append("]");
-        return buf.toString();
-    }
+    /**
+     * Stream-capacity-aware pool that manages multiple connections
+     * per endpoint. The pool tracks active and reserved streams,
+     * honours the peer's {@code MAX_CONCURRENT_STREAMS}, opens
+     * additional connections when existing ones are saturated,
+     * and drains connections gracefully on {@code GOAWAY}.
+     */
+    MULTIPLEXING
 
 }
