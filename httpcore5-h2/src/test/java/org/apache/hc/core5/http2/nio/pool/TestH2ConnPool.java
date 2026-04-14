@@ -93,8 +93,7 @@ class TestH2ConnPool {
     @Test
     void testValidateSessionEnqueuesStaleCheck() {
         final ConnectionInitiator connectionInitiator = Mockito.mock(ConnectionInitiator.class);
-        try (H2ConnPool pool = new H2ConnPool(connectionInitiator, null, null)) {
-            pool.setValidateAfterInactivity(TimeValue.ZERO_MILLISECONDS);
+        try (H2ConnPool pool = new H2ConnPool(connectionInitiator, null, null, TimeValue.ZERO_MILLISECONDS)) {
 
             final IOSession session = Mockito.mock(IOSession.class);
             Mockito.when(session.isOpen()).thenReturn(true);
