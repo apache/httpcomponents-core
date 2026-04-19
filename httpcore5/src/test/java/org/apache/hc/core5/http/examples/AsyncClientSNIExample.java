@@ -53,6 +53,9 @@ import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of SNI (Server Name Identification) usage with async I/O.
+ * <p>
+ * This example uses {@link AsyncClientPipeline} to simplify HTTP message execution pipeline
+ * assembly. One can also use message request producers and response consumers directly.
  */
 public class AsyncClientSNIExample {
 

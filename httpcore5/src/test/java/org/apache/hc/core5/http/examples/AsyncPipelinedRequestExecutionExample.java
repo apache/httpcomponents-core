@@ -50,6 +50,9 @@ import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of asynchronous HTTP/1.1 request execution.
+ * <p>
+ * This example uses {@link AsyncClientPipeline} to simplify HTTP message execution pipeline
+ * assembly. One can also use message request producers and response consumers directly.
  */
 public class AsyncPipelinedRequestExecutionExample {
 

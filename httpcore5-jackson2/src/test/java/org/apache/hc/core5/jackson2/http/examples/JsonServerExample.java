@@ -57,7 +57,13 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Example of asynchronous embedded JSON server.
+ * Example of asynchronous embedded HTTP server that exchanges messages in JSON format.
+ * <p>
+ * Please note content of incoming and outgoing HTTP messages gets streamed without making
+ * a copy of the message body content in an intermediate buffer.
+ * <p>
+ * This example uses {@link AsyncJsonServerPipeline} to simplify HTTP message execution pipeline
+ * assembly. One can also use JSON message consumers and response producers directly.
  */
 public class JsonServerExample {
 

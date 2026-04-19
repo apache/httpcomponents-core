@@ -44,6 +44,16 @@ import org.apache.hc.core5.jackson2.http.AsyncJsonClientPipeline;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
+/**
+ * This example demonstrates how an HTTP response JSON content can be consumed as
+ * Jackson JsonNode object.
+ * <p>
+ * Please note content of incoming and outgoing HTTP messages gets streamed without making
+ * a copy of the message body content in an intermediate buffer.
+ * <p>
+ * This example uses {@link AsyncJsonClientPipeline} to simplify HTTP message execution pipeline
+ * assembly. One can also use JSON message request producers and response consumers directly.
+ */
 public class JsonNodeResponseExample {
 
     public static void main(final String... args) throws Exception {

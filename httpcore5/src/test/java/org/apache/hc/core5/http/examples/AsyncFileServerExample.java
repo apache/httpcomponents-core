@@ -63,6 +63,9 @@ import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of asynchronous embedded HTTP/1.1 file server.
+ * <p>
+ * This example uses {@link AsyncServerPipeline} to simplify HTTP message execution pipeline
+ * assembly. One can also use message request consumers and response producers directly.
  */
 public class AsyncFileServerExample {
 
