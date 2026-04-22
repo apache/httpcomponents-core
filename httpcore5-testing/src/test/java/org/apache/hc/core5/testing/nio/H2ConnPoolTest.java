@@ -42,7 +42,8 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
-import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
+import org.apache.hc.core5.http2.nio.pool.H2RequesterConnPool;
+import org.apache.hc.core5.http2.nio.pool.H2StreamLease;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
@@ -109,29 +110,31 @@ class H2ConnPoolTest {
     }
 
     @Test
-    void testManyGetSession() throws Exception {
+    void testManyLeaseSession() throws Exception {
         final int n = 200;
 
         final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP);
+        final Future<ListenerEndpoint> future = server.listen(
+                new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         final HttpHost target = new HttpHost(URIScheme.HTTP.id, "localhost", address.getPort());
 
         final H2MultiplexingRequester requester = clientResource.start();
-        final H2ConnPool connPool = requester.getConnPool();
-        final CountDownLatchFutureCallback<IOSession> latch = new CountDownLatchFutureCallback<IOSession>(n) {
+        final H2RequesterConnPool connPool = requester.getConnectionPool();
+        final CountDownLatchFutureCallback<H2StreamLease> latch = new CountDownLatchFutureCallback<H2StreamLease>(n) {
 
             @Override
-            public void completed(final IOSession session) {
+            public void completed(final H2StreamLease lease) {
+                final IOSession session = lease.getSession();
                 session.enqueue(new PingCommand(new BasicPingHandler(
                         result -> countDown()
-                        )), Command.Priority.IMMEDIATE);
+                )), Command.Priority.IMMEDIATE);
             }
 
         };
         for (int i = 0; i < n; i++) {
-            connPool.getSession(target, TIMEOUT, latch);
+            connPool.leaseSession(target, TIMEOUT, latch);
         }
         Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
@@ -142,18 +145,20 @@ class H2ConnPoolTest {
     }
 
     @Test
-    void testManyGetSessionFailures() throws Exception {
+    void testManyLeaseSessionFailures() throws Exception {
         final int n = 200;
 
         final HttpHost target = new HttpHost(URIScheme.HTTP.id, "pampa.invalid", 8888);
 
         final H2MultiplexingRequester requester = clientResource.start();
-        final H2ConnPool connPool = requester.getConnPool();
-        final CountDownLatchFutureCallback<IOSession> latch = new CountDownLatchFutureCallback<>(n);
+        final H2RequesterConnPool connPool = requester.getConnectionPool();
+        final CountDownLatchFutureCallback<H2StreamLease> latch = new CountDownLatchFutureCallback<>(n);
 
         for (int i = 0; i < n; i++) {
-            connPool.getSession(target, TIMEOUT, latch);
+            connPool.leaseSession(target, TIMEOUT, latch);
         }
+
+        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
         requester.initiateShutdown();
         requester.awaitShutdown(TIMEOUT);

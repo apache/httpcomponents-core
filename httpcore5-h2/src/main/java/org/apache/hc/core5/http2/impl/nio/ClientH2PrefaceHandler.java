@@ -61,6 +61,7 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
 
     private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final boolean strictALPNHandshake;
+    private final H2PoolSessionSupport sessionSupport;
     private final AtomicBoolean initialized;
 
     private volatile ByteBuffer preface;
@@ -83,9 +84,23 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
             final boolean strictALPNHandshake,
             final FutureCallback<ProtocolIOSession> resultCallback,
             final Callback<Exception> exceptionCallback) {
+        this(ioSession, http2StreamHandlerFactory, strictALPNHandshake, null, resultCallback, exceptionCallback);
+    }
+
+    /**
+     * @since 5.5
+     */
+    public ClientH2PrefaceHandler(
+            final ProtocolIOSession ioSession,
+            final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final boolean strictALPNHandshake,
+            final H2PoolSessionSupport sessionSupport,
+            final FutureCallback<ProtocolIOSession> resultCallback,
+            final Callback<Exception> exceptionCallback) {
         super(ioSession, resultCallback, exceptionCallback);
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.strictALPNHandshake = strictALPNHandshake;
+        this.sessionSupport = sessionSupport;
         this.initialized = new AtomicBoolean();
     }
 
@@ -117,7 +132,8 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
         if (!preface.hasRemaining()) {
             session.clearEvent(SelectionKey.OP_WRITE);
             final ByteBuffer data = inBuf != null ? inBuf.data() : null;
-            startProtocol(new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
+            startProtocol(new ClientH2IOEventHandler(
+                    http2StreamHandlerFactory.create(ioSession), sessionSupport), data);
             if (inBuf != null) {
                 inBuf.clear();
             }

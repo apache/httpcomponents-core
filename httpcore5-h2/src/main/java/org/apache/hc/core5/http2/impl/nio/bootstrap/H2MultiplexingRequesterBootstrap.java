@@ -45,8 +45,10 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientH2PrefaceHandler;
+import org.apache.hc.core5.http2.impl.nio.H2PoolSessionSupport;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
+import org.apache.hc.core5.http2.nio.pool.H2PoolPolicy;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -81,6 +83,9 @@ public class H2MultiplexingRequesterBootstrap {
     private IOReactorMetricsListener threadPoolListener;
 
     private int maxCommandsPerConnection;
+    private H2PoolPolicy poolPolicy = H2PoolPolicy.BASIC;
+    private int defaultMaxPerRoute;
+    private int maxTotal;
 
     private Timeout pingAckTimeout;
 
@@ -206,6 +211,56 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * Sets the HTTP/2 connection pool policy. {@link H2PoolPolicy#BASIC}
+     * uses a simple one-session-per-endpoint pool where the multiplexer
+     * handles all stream management. {@link H2PoolPolicy#MULTIPLEXING}
+     * enables a stream-capacity-aware pool that manages multiple
+     * connections per endpoint and tracks individual stream slots.
+     * The default is {@link H2PoolPolicy#BASIC}.
+     *
+     * @param poolPolicy pool policy
+     * @return this instance.
+     * @since 5.5
+     */
+    @Experimental
+    public final H2MultiplexingRequesterBootstrap setH2PoolPolicy(final H2PoolPolicy poolPolicy) {
+        this.poolPolicy = Args.notNull(poolPolicy, "Pool policy");
+        return this;
+    }
+
+    /**
+     * Sets the maximum number of connections per route for the
+     * multiplexing connection pool. A value {@code <= 0} uses the
+     * default ({@code 3}). Only applies when pool policy is
+     * {@link H2PoolPolicy#MULTIPLEXING}.
+     *
+     * @param max maximum connections per route
+     * @return this instance.
+     * @since 5.5
+     */
+    @Experimental
+    public final H2MultiplexingRequesterBootstrap setDefaultMaxPerRoute(final int max) {
+        this.defaultMaxPerRoute = max;
+        return this;
+    }
+
+    /**
+     * Sets the maximum total number of connections for the
+     * multiplexing connection pool. A value {@code <= 0} uses the
+     * default ({@code 25}). Only applies when pool policy is
+     * {@link H2PoolPolicy#MULTIPLEXING}.
+     *
+     * @param max maximum total connections
+     * @return this instance.
+     * @since 5.5
+     */
+    @Experimental
+    public final H2MultiplexingRequesterBootstrap setMaxTotal(final int max) {
+        this.maxTotal = max;
+        return this;
+    }
+
+    /**
      * Sets the timeout applied while waiting for the HTTP/2 PING ACK emitted during
      * pre-flight connection validation. When unset, the default of 5 seconds is used.
      *
@@ -306,8 +361,15 @@ public class H2MultiplexingRequesterBootstrap {
                 pingAckTimeout);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
-                (ioSession, attachment) ->
-                        new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, strictALPNHandshake, exceptionCallback),
+                (ioSession, attachment) -> {
+                    final H2PoolSessionSupport sessionSupport =
+                            attachment instanceof H2PoolSessionSupport
+                                    ? (H2PoolSessionSupport) attachment : null;
+                    return new ClientH2PrefaceHandler(
+                            ioSession, http2StreamHandlerFactory,
+                            strictALPNHandshake, sessionSupport,
+                            null, exceptionCallback);
+                },
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,
@@ -316,7 +378,11 @@ public class H2MultiplexingRequesterBootstrap {
                 threadPoolListener,
                 null,
                 validateAfterInactivityRef,
-                maxCommandsPerConnection);
+                maxCommandsPerConnection,
+                poolPolicy,
+                defaultMaxPerRoute,
+                maxTotal,
+                null);
     }
 
 }
