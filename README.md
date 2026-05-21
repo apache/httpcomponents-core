@@ -22,7 +22,7 @@ Apache HttpComponents Core
 Welcome to the HttpCore component of the Apache HttpComponents project.
 
 [![GitHub Actions Status](https://github.com/apache/httpcomponents-core/workflows/Java%20CI/badge.svg)](https://github.com/apache/httpcomponents-core/actions)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5)
+[![Maven Central](https://maven-badges.sml.io/maven-central/org.apache.httpcomponents.core5/httpcore5/badge.svg)](https://maven-badges.sml.io/maven-central/org.apache.httpcomponents.core5/httpcore5)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Building Instructions
