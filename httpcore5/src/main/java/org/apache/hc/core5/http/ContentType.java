@@ -38,10 +38,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.message.BasicHeaderValueParser;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.message.ParserCursor;
@@ -434,13 +434,29 @@ public final class ContentType implements Serializable {
             return null;
         }
         final ParserCursor cursor = new ParserCursor(0, s.length());
-        final AtomicReference<HeaderElement> firstElementRef = new AtomicReference<>();
-        MessageSupport.parseElements(s, cursor, e -> firstElementRef.compareAndSet(null, e));
-        final HeaderElement element = firstElementRef.get();
+        return parse(s, cursor, strict);
+    }
+
+    private static ContentType parse(final CharSequence s, final ParserCursor cursor, final boolean strict) throws UnsupportedCharsetException {
+        final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(s, cursor);
         if (element != null) {
             return create(element, strict);
         }
         return null;
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static ContentType parse(final CharSequence s, final ParserCursor cursor) throws UnsupportedCharsetException {
+        return parse(s, cursor, true);
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static ContentType parseLenient(final CharSequence s, final ParserCursor cursor) throws UnsupportedCharsetException {
+        return parse(s, cursor, false);
     }
 
     /**
