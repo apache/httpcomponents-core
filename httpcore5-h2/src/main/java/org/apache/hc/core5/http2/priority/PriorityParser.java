@@ -50,9 +50,7 @@ public final class PriorityParser {
         if (header == null) {
             return PriorityValue.defaults();
         }
-        final PriorityValue[] out = new PriorityValue[1];
-        MessageSupport.parseHeader(header, (seq, cur) -> out[0] = parse(seq, cur));
-        return out[0] != null ? out[0] : PriorityValue.defaults();
+        return MessageSupport.parserHeaderValue(header, PriorityParser::parse);
     }
 
     public static PriorityValue parse(final String headerValue) {

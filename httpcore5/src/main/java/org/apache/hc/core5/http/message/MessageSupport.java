@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
@@ -199,6 +200,23 @@ public class MessageSupport {
             final String value = header.getValue();
             final ParserCursor cursor = new ParserCursor(0, value.length());
             consumer.accept(value, cursor);
+        }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static <T> T parserHeaderValue(final Header header, final BiFunction<CharSequence, ParserCursor, T> transformation) {
+        Args.notNull(header, "Header");
+        if (header instanceof FormattedHeader) {
+            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
+            final ParserCursor cursor = new ParserCursor(0, buf.length());
+            cursor.updatePos(((FormattedHeader) header).getValuePos());
+            return transformation.apply(buf, cursor);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            return transformation.apply(value, cursor);
         }
     }
 
