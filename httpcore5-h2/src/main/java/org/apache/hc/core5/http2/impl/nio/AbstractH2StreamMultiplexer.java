@@ -143,6 +143,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private EndpointDetails endpointDetails;
     private boolean goAwayReceived;
+    private volatile H2PoolSessionSupport poolSessionSupport;
 
     private volatile boolean peerNoRfc7540Priorities;
 
@@ -193,6 +194,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.streams = new H2Streams(idGenerator);
+        this.streams.setLocalStreamChangeCallback(this::fireCapacityAvailable);
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
@@ -674,6 +676,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         streams.shutdownAndReleaseAll();
         CommandSupport.cancelCommands(ioSession);
+        fireSessionClosed();
     }
 
     private void executeShutdown(final ShutdownCommand shutdownCommand) throws IOException {
@@ -1099,6 +1102,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     streams.shutdownAndReleaseAll();
                     connState = ConnectionHandshake.SHUTDOWN;
                 }
+                fireDraining();
             }
             ioSession.setEvent(SelectionKey.OP_WRITE);
             break;
@@ -1358,6 +1362,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
             }
         }
+        fireCapacityAvailable();
     }
 
     private void applyLocalSettings() throws H2ConnectionException {
@@ -1436,6 +1441,61 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     @Override
     public SocketAddress getLocalAddress() {
         return ioSession.getLocalAddress();
+    }
+
+    int getActiveLocalStreams() {
+        return streams.getLocalCount();
+    }
+
+    int getPeerMaxConcurrentStreams() {
+        return remoteConfig.getMaxConcurrentStreams();
+    }
+
+    boolean isGoAwayReceived() {
+        return goAwayReceived;
+    }
+
+    boolean isShutdown() {
+        return connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) >= 0;
+    }
+
+    void setPoolSessionSupport(final H2PoolSessionSupport poolSessionSupport) {
+        this.poolSessionSupport = poolSessionSupport;
+        if (poolSessionSupport != null) {
+            poolSessionSupport.updateActiveLocalStreams(streams.getLocalCount());
+            poolSessionSupport.updatePeerMaxConcurrentStreams(remoteConfig.getMaxConcurrentStreams());
+            poolSessionSupport.updateGoAwayReceived(goAwayReceived);
+            poolSessionSupport.updateShutdown(
+                    connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) >= 0);
+        }
+    }
+
+    void fireCapacityAvailable() {
+        final H2PoolSessionSupport support = this.poolSessionSupport;
+        if (support != null) {
+            support.updateActiveLocalStreams(streams.getLocalCount());
+            support.updatePeerMaxConcurrentStreams(remoteConfig.getMaxConcurrentStreams());
+            support.updateShutdown(connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) >= 0);
+            support.fireCapacityAvailable();
+        }
+    }
+
+    void fireDraining() {
+        final H2PoolSessionSupport support = this.poolSessionSupport;
+        if (support != null) {
+            support.updateGoAwayReceived(true);
+            support.updateShutdown(connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) >= 0);
+            support.fireDraining();
+        }
+    }
+
+    void fireSessionClosed() {
+        final H2PoolSessionSupport support = this.poolSessionSupport;
+        if (support != null) {
+            support.updateActiveLocalStreams(0);
+            support.updateShutdown(true);
+            support.fireSessionClosed();
+        }
     }
 
     void appendState(final StringBuilder buf) {
