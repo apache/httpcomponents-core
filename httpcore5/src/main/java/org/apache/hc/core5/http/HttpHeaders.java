@@ -49,6 +49,13 @@ public final class HttpHeaders {
     public static final String ACCEPT_RANGES = "Accept-Ranges";
 
     /**
+     * The RFC 10008 {@code Accept-Query} response header field name.
+     *
+     * @since 5.5
+     */
+    public static final String ACCEPT_QUERY = "Accept-Query";
+
+    /**
      * The CORS {@code Access-Control-Allow-Credentials} response header field name.
      */
     public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
