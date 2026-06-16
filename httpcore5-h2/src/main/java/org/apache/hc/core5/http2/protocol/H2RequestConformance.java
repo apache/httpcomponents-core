@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -76,6 +77,13 @@ public class H2RequestConformance implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext localContext)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+
+        if (Method.QUERY.isSame(request.getMethod())) {
+            if (!request.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+                throw new ProtocolException("QUERY request must have Content-Type header");
+            }
+        }
+
         for (int i = 0; i < illegalHeaderNames.length; i++) {
             final String headerName = illegalHeaderNames[i];
             if (request.containsHeader(headerName)) {

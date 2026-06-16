@@ -35,6 +35,8 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
@@ -65,6 +67,12 @@ public class RequestConformance implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext localContext)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+
+        if (Method.QUERY.isSame(request.getMethod())) {
+            if (!request.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+                throw new ProtocolException("QUERY request must have Content-Type header");
+            }
+        }
 
         if (TextUtils.isBlank(request.getScheme())) {
             throw new ProtocolException("Request scheme is not set");
