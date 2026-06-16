@@ -404,7 +404,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         final String method = getMethod();
         final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
-            if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
+            if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.QUERY.isSame(method))) {
                 entityCopy = HttpEntities.createUrlEncoded(parameters, getCharset());
             } else {
                 try {

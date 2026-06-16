@@ -379,7 +379,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
             final Charset charset = getCharset();
-            if (entityProducerCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
+            if (entityProducerCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.QUERY.isSame(method))) {
                 final String content = WWWFormCodec.format(
                         parameters,
                         charset != null ? charset : ContentType.APPLICATION_FORM_URLENCODED.getCharset());

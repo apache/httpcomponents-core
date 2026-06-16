@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +43,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -247,6 +249,25 @@ class ClassicRequestBuilderTest {
                         .setVersion(HttpVersion.HTTP_1_1)
                         .setEntity(new ByteArrayEntity(new byte[10240], ContentType.TEXT_PLAIN))
                         .build());
+    }
+
+    @Test
+    void builderQuery() throws IOException {
+        final ClassicHttpRequest classicHttpRequest = ClassicRequestBuilder.query()
+                .setHttpHost(new HttpHost("httpbin.org"))
+                .setPath("/theUri")
+                .addParameter("param1", "value1")
+                .addParameter("param2", "value2")
+                .build();
+
+        assertAll("QUERY builder tests",
+                () -> assertEquals(Method.QUERY.name(), classicHttpRequest.getMethod()),
+                () -> assertEquals("httpbin.org", classicHttpRequest.getAuthority().getHostName()),
+                () -> assertEquals("/theUri", classicHttpRequest.getPath()),
+                () -> assertNotNull(classicHttpRequest.getEntity()),
+                () -> assertEquals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType(), ContentType.parse(classicHttpRequest.getEntity().getContentType()).getMimeType()),
+                () -> assertEquals("param1=value1&param2=value2", EntityUtils.toString(classicHttpRequest.getEntity()))
+        );
     }
 
 }
