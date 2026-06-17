@@ -211,8 +211,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.initInputWinSize = H2Config.INIT.getInitialWindowSize();
         this.initOutputWinSize = H2Config.INIT.getInitialWindowSize();
 
-        this.hPackDecoder.setMaxListSize(H2Config.INIT.getMaxHeaderListSize());
-
+        this.hPackDecoder.setMaxListSize(this.localConfig.getMaxHeaderListSize());
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
         this.lastActivityNanos = System.nanoTime();

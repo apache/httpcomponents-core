@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -66,6 +67,7 @@ import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
+import org.apache.hc.core5.http2.hpack.HPackDecoder;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.hpack.HPackException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -2277,6 +2279,42 @@ class TestAbstractH2StreamMultiplexer {
 
         Mockito.verify(streamHandler, Mockito.never())
                 .consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.anyBoolean());
+    }
+
+    @Test
+    void testHPackDecoderUsesConfiguredMaxHeaderListSizeImmediately() throws Exception {
+        final int maxHeaderListSize = 128;
+
+        final H2Config h2Config = H2Config.custom()
+                .setMaxHeaderListSize(maxHeaderListSize)
+                .build();
+
+        final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
+        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
+        final HandlerFactory<AsyncServerExchangeHandler> handlerFactory = Mockito.mock(HandlerFactory.class);
+
+        final ServerH2StreamMultiplexer multiplexer = new ServerH2StreamMultiplexer(
+                ioSession,
+                httpProcessor,
+                handlerFactory,
+                CharCodingConfig.DEFAULT,
+                h2Config);
+
+        final HPackDecoder hPackDecoder = getHPackDecoder(multiplexer);
+
+        Assertions.assertEquals(maxHeaderListSize, getMaxListSize(hPackDecoder));
+    }
+
+    private static HPackDecoder getHPackDecoder(final AbstractH2StreamMultiplexer multiplexer) throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("hPackDecoder");
+        field.setAccessible(true);
+        return (HPackDecoder) field.get(multiplexer);
+    }
+
+    private static int getMaxListSize(final HPackDecoder hPackDecoder) throws Exception {
+        final Field field = HPackDecoder.class.getDeclaredField("maxListSize");
+        field.setAccessible(true);
+        return field.getInt(hPackDecoder);
     }
 
 
