@@ -750,6 +750,9 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
         @Override
         public int write(final ByteBuffer src) throws IOException {
+            if (!channel().isOpen()) {
+                return 0;
+            }
             final int chunk;
             if (!done) {
                 lineBuffer.clear();
