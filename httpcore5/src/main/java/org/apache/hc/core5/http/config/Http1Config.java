@@ -144,8 +144,8 @@ public class Http1Config {
     private static final int INIT_BUF_SIZE = 8192;
     private static final Timeout INIT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
     private static final int INIT_BUF_CHUNK = -1;
-    private static final int INIT_MAX_HEADER_COUNT = -1;
-    private static final int INIT_MAX_LINE_LENGTH = -1;
+    private static final int INIT_MAX_HEADER_COUNT = 100;
+    private static final int INIT_MAX_LINE_LENGTH = 8192;
     private static final int INIT_MAX_EMPTY_LINE_COUNT = 10;
 
     public static class Builder {
