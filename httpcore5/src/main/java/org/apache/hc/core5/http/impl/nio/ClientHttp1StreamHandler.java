@@ -234,7 +234,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
                 outputChannel.setSocketTimeout(timeout);
                 requestState.set(MessageState.BODY);
-                if (status < HttpStatus.SC_CLIENT_ERROR) {
+                if (status < HttpStatus.SC_REDIRECTION) {
                     exchangeHandler.produce(internalDataChannel);
                 }
             }
@@ -243,7 +243,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             return;
         }
         if (requestState.get() == MessageState.BODY) {
-            if (status >= HttpStatus.SC_CLIENT_ERROR) {
+            if (status >= HttpStatus.SC_REDIRECTION) {
                 requestState.set(MessageState.COMPLETE);
                 if (!outputChannel.abortGracefully()) {
                     keepAlive = false;

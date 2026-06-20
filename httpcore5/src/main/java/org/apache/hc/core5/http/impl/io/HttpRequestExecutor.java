@@ -183,7 +183,7 @@ public class HttpRequestExecutor {
                             }
                             response = null;
                             continue;
-                        } else if (status >= HttpStatus.SC_CLIENT_ERROR) {
+                        } else if (status >= HttpStatus.SC_REDIRECTION) {
                             conn.terminateRequest(request);
                         } else {
                             conn.sendRequestEntity(request);
