@@ -1,12 +1,12 @@
-Release 5.5-beta1
+Release 5.5-beta2
 -----------------
 
-This is the first BETA release in the 5.5 release series that improves
-performance and robustness of connection pool implementations, further
-improves HTTP/2 specification conformance and introduces Jackson 2 JSON
-message bindings.
+This BETA release corrects Java 8 binary problem introduced in the previous BETA
+release. The previous version has been compiled against Java 17 APIs by mistake.
+This release aslo adds support for QUERY method (RFC 10008).
 
-This release also includes all the fixes from the stable 5.4 branch.
+This release includes all the fixes from the stable 5.4 branch.
+
 
 Notable changes and features included in the 5.5 series:
 
@@ -18,11 +18,12 @@ Notable changes and features included in the 5.5 series:
 
 * Cap pending HTTP/2 request commands per connection.
 
-* HPACK RFC 7540 / RFC 7541 / HTTP/2 RFC 9113 conformance improvements.
+* HPACK RFC 7540, RFC 7541, and HTTP/2 RFC 9113 conformance improvements.
 
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
 
+* QUERY method support (RFC 10008).
 
 Compatibility notes:
 
@@ -32,6 +33,24 @@ Compatibility notes:
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
 
+
+Change Log
+-------------------
+* QUERY method support (RFC 10008).
+  Contributed by Mario Daniel Ruiz Saavedra <desiderantes93 at gmail.com>
+
+* Corrects Java 1.8 compatibility problem introduced in the previous release.
+
+
+Release 5.5-beta1
+-----------------
+
+This is the first BETA release in the 5.5 release series that improves
+performance and robustness of connection pool implementations, further
+improves HTTP/2 specification conformance and introduces Jackson 2 JSON
+message bindings.
+
+This release also includes all the fixes from the stable 5.4 branch.
 
 Change Log
 -------------------
@@ -97,26 +116,6 @@ improves HTTP/2 specification conformance and introduces Jackson 2 JSON
 message bindings.
 
 This release also includes all the fixes from the stable 5.4 branch.
-
-
-Notable changes and features included in the 5.5 series:
-
-* Connection pool implementation improvements.
-
-* HTTP message stream APIs and support for HTTP/2 message stream timeout.
-
-* SSLContexts to respect system properties by default.
-
-* Cap pending HTTP/2 request commands per connection.
-
-* HPACK RFC 7540 / RFC 7541 / HTTP/2 RFC 9113 conformance improvements.
-
-
-Compatibility notes:
-
-* HTTP requesters and servers take into account SSL/TLS system properties
-  by default.
-
 
 Change Log
 -------------------
