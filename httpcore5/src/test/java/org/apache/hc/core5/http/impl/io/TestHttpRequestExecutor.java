@@ -305,7 +305,7 @@ class TestHttpRequestExecutor {
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn, Mockito.never()).sendRequestEntity(request);
-        Mockito.verify(conn).terminateRequest(request);
+        Mockito.verify(conn).terminateRequest(Mockito.same(request), Mockito.any());
         Mockito.verify(conn, Mockito.times(2)).flush();
         Mockito.verify(conn).isDataAvailable(Timeout.ofMilliseconds(3000));
         Mockito.verify(conn).receiveResponseHeader();

@@ -184,7 +184,7 @@ public class HttpRequestExecutor {
                             response = null;
                             continue;
                         } else if (status >= HttpStatus.SC_REDIRECTION) {
-                            conn.terminateRequest(request);
+                            conn.terminateRequest(request, response);
                         } else {
                             conn.sendRequestEntity(request);
                         }

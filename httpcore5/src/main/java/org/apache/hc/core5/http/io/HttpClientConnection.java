@@ -78,6 +78,24 @@ public interface HttpClientConnection extends BHttpConnection {
             throws HttpException, IOException;
 
     /**
+     * Terminates request prematurely potentially leaving
+     * the connection in a inconsistent state.
+     *
+     * @param request the request to be terminated prematurely.
+     * @param response if the request being terminated as a result of the response
+     * @throws HttpException
+     * @throws IOException
+     *
+     * @see #isConsistent()
+     *
+     * @since 5.5
+     */
+    default void terminateRequest(ClassicHttpRequest request, ClassicHttpResponse response)
+            throws HttpException, IOException {
+        terminateRequest(request);
+    }
+
+    /**
      * Sends the request entity over the connection.
      * @param request the request whose entity to send.
      * @throws HttpException in case of HTTP protocol violation

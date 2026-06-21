@@ -297,18 +297,26 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
     @Override
     public void terminateRequest(final ClassicHttpRequest request) throws HttpException, IOException {
+        terminateRequest(request, null);
+    }
+
+    @Override
+    public void terminateRequest(final ClassicHttpRequest request,
+                                 final ClassicHttpResponse response) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
         }
-        final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.CONNECTION);
-        while (it.hasNext()) {
-            final String token = it.next();
-            if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
-                this.consistent = false;
-                return;
+        if (response != null && response.getCode() >= HttpStatus.SC_REDIRECTION) {
+            final Iterator<String> it = MessageSupport.iterateTokens(response, HttpHeaders.CONNECTION);
+            while (it.hasNext()) {
+                final String token = it.next();
+                if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
+                    this.consistent = false;
+                    return;
+                }
             }
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
