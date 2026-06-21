@@ -1,3 +1,40 @@
+Release 5.4.3
+------------------
+
+This maintenance release fixes several defects and regression reported sicne the previous
+release includin a regression in backpressure handling of async TLS sessions introduced in
+version 5.3.3.
+
+Change Log
+-------------------
+
+* HTTPCORE-796: abort redirected requests during the expect-continue handshake the same
+  way as errors.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed regression in backpressure handling of async TLS sessions. Reverts HTTPCORE-775.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Use max line length of 8192 and max header count of 100 for incoming HTTP/1 messages
+  by default.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Enforce configured HPACK header list size limit upon initialization of HTTP/2
+  connections.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-774: fixed a race condition caused by concurrent update of the connection input
+  window to the max value (ported from 5.3.x; omitted by mistake).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Ensure async data consumers can avoid NPE if they have been canceled or released from another
+  thread at the same with concurrent data processing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed connection pool lease timeout race potentially causing pool entry leak (#649).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
 Release 5.4.2
 ------------------
 
