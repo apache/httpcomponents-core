@@ -1044,6 +1044,30 @@ class TestStandardInterceptors {
     }
 
     @Test
+    void testRequestConformanceQueryMissingContentType() {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.QUERY, "/");
+        request.setScheme("http");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
+    void testRequestConformanceQueryWithContentType() {
+        final HttpCoreContext context = HttpCoreContext.create();
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.QUERY, "/");
+        request.setScheme("http");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/jsonpath");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertDoesNotThrow(() -> interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
     void testRequestConformanceSchemeMissing() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");

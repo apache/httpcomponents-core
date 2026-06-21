@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
@@ -129,7 +128,6 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
      *
      * @since 5.4
      */
-    @Experimental
     public static ClassicRequestBuilder query() {
         return new ClassicRequestBuilder(Method.QUERY);
     }
@@ -142,7 +140,6 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
      *
      * @since 5.4
      */
-    @Experimental
     public static ClassicRequestBuilder query(final URI uri) {
         return new ClassicRequestBuilder(Method.QUERY, uri);
     }
@@ -155,7 +152,6 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
      *
      * @since 5.4
      */
-    @Experimental
     public static ClassicRequestBuilder query(final String uri) {
         return new ClassicRequestBuilder(Method.QUERY, uri);
     }
@@ -408,7 +404,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         final String method = getMethod();
         final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
-            if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
+            if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.QUERY.isSame(method))) {
                 entityCopy = HttpEntities.createUrlEncoded(parameters, getCharset());
             } else {
                 try {

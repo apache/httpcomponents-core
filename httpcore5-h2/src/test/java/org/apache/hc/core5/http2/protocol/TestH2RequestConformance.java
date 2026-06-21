@@ -37,6 +37,20 @@ import org.junit.jupiter.api.Test;
 class TestH2RequestConformance {
 
     @Test
+    void testQueryMissingContentType() {
+        final HttpRequest request = new BasicHttpRequest("QUERY", "/");
+        Assertions.assertThrows(ProtocolException.class,
+                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+    }
+
+    @Test
+    void testQueryWithContentType() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("QUERY", "/");
+        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/sql");
+        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create());
+    }
+
+    @Test
     void testTEAbsent() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create());

@@ -29,7 +29,6 @@ package org.apache.hc.core5.http;
 
 import java.util.Locale;
 
-import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -104,8 +103,6 @@ public enum Method {
      *
      * @since 5.4
      */
-    @Experimental
-    //("QUERY method is still in DRAFT status")
     QUERY(true, true);
 
     private final boolean safe;
