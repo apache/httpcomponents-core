@@ -16,7 +16,7 @@ Change Log
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
 * Use max line length of 8192 and max header count of 100 for incoming HTTP/1 messages
-  by default.
+  by default. Override with Http1Config.Builder.setMaxLineLength(int) and setMaxHeaderCount(int).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Enforce configured HPACK header list size limit upon initialization of HTTP/2
