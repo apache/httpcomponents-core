@@ -33,7 +33,8 @@ For building from source instructions please refer to [BUILDING.txt](./BUILDING.
 Dependencies
 ------------
 
-HttpCore requires Java 1.8 compatible runtime.
+HttpCore requires Java 1.8 compatible runtime. The optional `httpcore5-jackson3`
+module depends on Jackson 3 and requires Java 17.
 
 Protocol conformance
 --------------------
