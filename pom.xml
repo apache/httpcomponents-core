@@ -63,7 +63,6 @@
     <module>httpcore5</module>
     <module>httpcore5-h2</module>
     <module>httpcore5-reactive</module>
-    <module>httpcore5-jackson2</module>
     <module>httpcore5-testing</module>
   </modules>
 
@@ -75,6 +74,7 @@
     <!-- Maven itself runs on Java 17+, but compilation and tests can still use an older toolchain JDK. -->
     <hc.build.toolchain.version>${maven.compiler.source}</hc.build.toolchain.version>
     <conscrypt.version>2.5.2</conscrypt.version>
+    <jackson.version>3.2.0</jackson.version>
     <junit.version>5.14.4</junit.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.11.0</mockito.version>
@@ -107,7 +107,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents.core5</groupId>
-        <artifactId>httpcore5-jackson2</artifactId>
+        <artifactId>httpcore5-jackson3</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -319,6 +319,22 @@
   </build>
 
   <profiles>
+    <profile>
+      <!--
+        Jackson 3 is compiled for Java 17, so its class files cannot be read by
+        javac 8 or 11. Builds that select an older toolchain must leave this
+        module out of the reactor by setting -Dhc.jackson3.skip.
+      -->
+      <id>jackson3</id>
+      <activation>
+        <property>
+          <name>!hc.jackson3.skip</name>
+        </property>
+      </activation>
+      <modules>
+        <module>httpcore5-jackson3</module>
+      </modules>
+    </profile>
     <profile>
       <id>use-toolchains</id>
       <activation>
