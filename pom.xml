@@ -74,7 +74,7 @@
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <!-- Maven itself runs on Java 17+, but compilation and tests can still use an older toolchain JDK. -->
     <hc.build.toolchain.version>${maven.compiler.source}</hc.build.toolchain.version>
-    <conscrypt.version>2.5.2</conscrypt.version>
+    <conscrypt.version>2.6.1</conscrypt.version>
     <junit.version>5.14.4</junit.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.11.0</mockito.version>
