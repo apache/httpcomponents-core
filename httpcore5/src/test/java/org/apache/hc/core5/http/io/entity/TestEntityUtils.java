@@ -56,7 +56,7 @@ class TestEntityUtils {
     @Test
     void testNullEntityToByteArray() {
         Assertions.assertThrows(NullPointerException.class, () ->
-                EntityUtils.toByteArray(null));
+                EntityUtils.toByteArray(null, 1024));
     }
 
     @Test
@@ -65,14 +65,14 @@ class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EntityUtils.toByteArray(entity));
+                EntityUtils.toByteArray(entity, 1024));
     }
 
     @Test
     void testUnknownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
-        final byte[] bytes2 = EntityUtils.toByteArray(entity);
+        final byte[] bytes2 = EntityUtils.toByteArray(entity, 1024);
         Assertions.assertNotNull(bytes2);
         Assertions.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
@@ -84,7 +84,7 @@ class TestEntityUtils {
     void testKnownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
-        final byte[] bytes2 = EntityUtils.toByteArray(entity);
+        final byte[] bytes2 = EntityUtils.toByteArray(entity, 1024);
         Assertions.assertNotNull(bytes2);
         Assertions.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
@@ -94,7 +94,7 @@ class TestEntityUtils {
 
     @Test
     void testNullEntityToString() {
-        Assertions.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null));
+        Assertions.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null, 1024));
     }
 
     @Test
@@ -119,7 +119,7 @@ class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
-        final String s = EntityUtils.toString(entity, StandardCharsets.US_ASCII);
+        final String s = EntityUtils.toString(entity, StandardCharsets.US_ASCII, 1024);
         Assertions.assertEquals("Message content", s);
     }
 
@@ -147,7 +147,7 @@ class TestEntityUtils {
         final String content = constructString(SWISS_GERMAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), ContentType.TEXT_PLAIN);
-        Assertions.assertDoesNotThrow(() -> EntityUtils.toString(entity));
+        Assertions.assertDoesNotThrow(() -> EntityUtils.toString(entity, 1024));
     }
 
     @Test
@@ -156,7 +156,7 @@ class TestEntityUtils {
         final byte[] bytes = content.getBytes(Charset.forName("KOI8-R"));
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
                 ContentType.parse("text/plain"));
-        final String s = EntityUtils.toString(entity, Charset.forName("KOI8-R"));
+        final String s = EntityUtils.toString(entity, Charset.forName("KOI8-R"), 1024);
         Assertions.assertEquals(content, s);
     }
 
@@ -211,12 +211,12 @@ class TestEntityUtils {
     @Test
     void testParseEntity() throws Exception {
         final StringEntity entity1 = new StringEntity("Name1=Value1", ContentType.APPLICATION_FORM_URLENCODED);
-        final List<NameValuePair> result = EntityUtils.parse(entity1);
+        final List<NameValuePair> result = EntityUtils.parse(entity1, 1024);
         Assertions.assertEquals(1, result.size());
         assertNameValuePair(result.get(0), "Name1", "Value1");
 
         final StringEntity entity2 = new StringEntity("Name1=Value1", ContentType.parse("text/test"));
-        Assertions.assertTrue(EntityUtils.parse(entity2).isEmpty());
+        Assertions.assertTrue(EntityUtils.parse(entity2, 1024).isEmpty());
     }
 
     @Test
@@ -233,7 +233,7 @@ class TestEntityUtils {
                 "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
         final StringEntity entity = new StringEntity(s,
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8));
-        final List<NameValuePair> result = EntityUtils.parse(entity);
+        final List<NameValuePair> result = EntityUtils.parse(entity, 1024);
         Assertions.assertEquals(2, result.size());
         assertNameValuePair(result.get(0), "russian", ru_hello);
         assertNameValuePair(result.get(1), "swiss", ch_hello);

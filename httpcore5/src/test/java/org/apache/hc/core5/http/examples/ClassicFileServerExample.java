@@ -155,8 +155,8 @@ public class ClassicFileServerExample {
 
             final HttpEntity incomingEntity = request.getEntity();
             if (incomingEntity != null) {
-                final byte[] entityContent = EntityUtils.toByteArray(incomingEntity);
-                System.out.println("Incoming incomingEntity content (bytes): " + entityContent.length);
+                EntityUtils.consume(incomingEntity);
+                System.out.println("Incoming incomingEntity content (bytes): " + incomingEntity.getContentLength());
             }
 
             final File file = new File(this.docRoot, URLDecoder.decode(path, "UTF-8"));

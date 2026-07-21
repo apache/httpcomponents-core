@@ -92,7 +92,7 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
 
             try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
                 Assertions.assertEquals(200, response.getCode());
-                final byte[] bytes = EntityUtils.toByteArray(response.getEntity());
+                final byte[] bytes = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 Assertions.assertNotNull(bytes);
                 Assertions.assertArrayEquals(temp, bytes);
             }

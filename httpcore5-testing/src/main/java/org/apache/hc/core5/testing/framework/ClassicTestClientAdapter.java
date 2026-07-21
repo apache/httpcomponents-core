@@ -143,7 +143,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
         try (final ClassicHttpResponse response = client.execute(host, httpRequest, context)) {
             // Prepare the response.  It will contain status, body, headers, and contentType.
             final HttpEntity entity = response.getEntity();
-            final String body = entity == null ? null : EntityUtils.toString(entity);
+            final String body = entity == null ? null : EntityUtils.toString(entity, Integer.MAX_VALUE);
             final String contentType = entity == null ? null : entity.getContentType();
 
             // prepare the returned information

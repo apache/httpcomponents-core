@@ -58,7 +58,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public final class EntityUtils {
 
-    // TODO Consider using a sane value, but what is sane? 1 GB? 100 MB? 10 MB?
     private static final int DEFAULT_ENTITY_RETURN_MAX_LENGTH = Integer.MAX_VALUE;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final int DEFAULT_CHAR_BUFFER_SIZE = 1024;
@@ -128,7 +127,10 @@ public final class EntityUtils {
      *   {@link HttpEntity#getContent()} is null.
      * @throws IOException if an error occurs reading the input stream
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     *
+     * @deprecated Use {@link #toByteArray(HttpEntity, int)}
      */
+    @Deprecated
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) checkContentLength(entity));
@@ -247,7 +249,10 @@ public final class EntityUtils {
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named entity's charset is not available in
      * this instance of the Java virtual machine and no defaultCharset is provided.
+     *
+     * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
+    @Deprecated
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
         return toString(entity, defaultCharset, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
@@ -328,7 +333,10 @@ public final class EntityUtils {
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     *
+     * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
+    @Deprecated
     public static String toString(
             final HttpEntity entity, final String defaultCharset, final int maxResultLength) throws IOException, ParseException {
         return toString(entity, defaultCharset != null ? Charset.forName(defaultCharset) : null, maxResultLength);
@@ -346,7 +354,10 @@ public final class EntityUtils {
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     *
+     * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
+    @Deprecated
     public static String toString(final HttpEntity entity) throws IOException, ParseException {
         return toString(entity, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
     }
@@ -383,7 +394,10 @@ public final class EntityUtils {
      * @return a list of {@link NameValuePair} as built from the URI's query portion.
      * @throws IOException
      *             If there was an exception getting the entity's data.
+     *
+     * @deprecated Use {@link #parse(HttpEntity, int)}
      */
+    @Deprecated
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         return parse(entity, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
     }

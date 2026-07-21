@@ -188,7 +188,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             final String expectedBody = (String) requestExpectations.get(BODY);
             if (expectedBody != null) {
                 final HttpEntity entity = request.getEntity();
-                final String data = EntityUtils.toString(entity);
+                final String data = EntityUtils.toString(entity, 1024);
                 if (! data.equals(expectedBody)) {
                     throw new TestingFrameworkException("Expected body not found. " +
                             " Body=" + data + "; expected=" + expectedBody);
