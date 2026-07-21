@@ -113,7 +113,7 @@ public class ClassicPostExecutionExample {
             request.setEntity(requestBodies[i]);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), context)) {
                 System.out.println(requestUri + "->" + response.getCode());
-                System.out.println(EntityUtils.toString(response.getEntity()));
+                System.out.println(EntityUtils.toString(response.getEntity(), 1024));
                 System.out.println("==============");
             }
         }

@@ -266,7 +266,7 @@ class ClassicRequestBuilderTest {
                 () -> assertEquals("/theUri", classicHttpRequest.getPath()),
                 () -> assertNotNull(classicHttpRequest.getEntity()),
                 () -> assertEquals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType(), ContentType.parse(classicHttpRequest.getEntity().getContentType()).getMimeType()),
-                () -> assertEquals("param1=value1&param2=value2", EntityUtils.toString(classicHttpRequest.getEntity()))
+                () -> assertEquals("param1=value1&param2=value2", EntityUtils.toString(classicHttpRequest.getEntity(), 1024))
         );
     }
 

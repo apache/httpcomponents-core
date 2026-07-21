@@ -93,7 +93,7 @@ public abstract class ClassicHttpCompatTest {
                     .build();
             requester.execute(target, request, TIMEOUT, context, response -> {
                 Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-                final String body1 = EntityUtils.toString(response.getEntity());
+                final String body1 = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
                 Assertions.assertEquals(ContainerImages.AAA, body1);
                 return null;
             });
@@ -123,7 +123,7 @@ public abstract class ClassicHttpCompatTest {
                                     resultQueue.add(new Result<>(
                                             request,
                                             response,
-                                            EntityUtils.toString(response.getEntity())));
+                                            EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE)));
                                     return null;
                                 });
                             } catch (final Exception ex) {

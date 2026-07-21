@@ -43,6 +43,8 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -86,8 +88,6 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import javax.net.ssl.SSLSocket;
 
 abstract class ClassicIntegrationTest {
 
@@ -146,7 +146,7 @@ abstract class ClassicIntegrationTest {
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
             try (final ClassicHttpResponse response = client.execute(host, get, context)) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
                 Assertions.assertEquals(expected.length, received.length);
@@ -184,7 +184,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
         });
@@ -201,7 +201,7 @@ abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, null));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
                 Assertions.assertEquals(expected.length, received.length);
@@ -239,7 +239,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null, true));
             }
         });
@@ -256,7 +256,7 @@ abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, null, true));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
                 Assertions.assertEquals(expected.length, received.length);
@@ -293,7 +293,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
         });
@@ -312,7 +312,7 @@ abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, null));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
                 Assertions.assertEquals(expected.length, received.length);
@@ -376,7 +376,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null, true));
             }
         });
@@ -393,7 +393,7 @@ abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, null, true));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
                 Assertions.assertEquals(expected.length, received.length);
@@ -565,7 +565,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final String line = EntityUtils.toString(entity);
+                final String line = EntityUtils.toString(entity, Integer.MAX_VALUE);
                 final ContentType contentType = ContentType.parse(entity.getContentType());
                 final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
                 response.setEntity(new RepeatingEntity(line, charset, n, n % 2 == 0));
@@ -614,7 +614,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
         });
@@ -630,7 +630,7 @@ abstract class ClassicIntegrationTest {
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals(0, received.length);
         }
     }
@@ -644,7 +644,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
         });
@@ -666,7 +666,7 @@ abstract class ClassicIntegrationTest {
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals(0, received.length);
         }
     }
@@ -680,7 +680,7 @@ abstract class ClassicIntegrationTest {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
-                final byte[] data = EntityUtils.toByteArray(entity);
+                final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
         });
@@ -748,7 +748,7 @@ abstract class ClassicIntegrationTest {
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
             if (response.getEntity() != null) {
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 Assertions.assertEquals(0, received.length);
             }
         }
@@ -772,7 +772,7 @@ abstract class ClassicIntegrationTest {
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals(0, received.length);
         }
     }
@@ -800,7 +800,7 @@ abstract class ClassicIntegrationTest {
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-            final byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
             Assertions.assertArrayEquals(data, received);
         }
     }
@@ -825,7 +825,7 @@ abstract class ClassicIntegrationTest {
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 Assertions.assertArrayEquals(data, received);
             }
         }

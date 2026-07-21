@@ -78,21 +78,21 @@ abstract class ClassicHttpCoreTransportTest {
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-            final String body1 = EntityUtils.toString(response1.getEntity());
+            final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some stuff", body1);
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
-            final String body2 = EntityUtils.toString(response2.getEntity());
+            final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some other stuff", body2);
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
-            final String body3 = EntityUtils.toString(response3.getEntity());
+            final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some more stuff", body3);
         }
     }
@@ -108,21 +108,21 @@ abstract class ClassicHttpCoreTransportTest {
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-            final String body1 = EntityUtils.toString(response1.getEntity());
+            final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some stuff", body1);
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
-            final String body2 = EntityUtils.toString(response2.getEntity());
+            final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some other stuff", body2);
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
-            final String body3 = EntityUtils.toString(response3.getEntity());
+            final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some more stuff", body3);
         }
     }
@@ -149,7 +149,8 @@ abstract class ClassicHttpCoreTransportTest {
                                 request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
                                 requester.execute(target, request1, TIMEOUT, context, response -> {
                                     Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-                                    Assertions.assertEquals("some stuff", EntityUtils.toString(response.getEntity()));
+                                    Assertions.assertEquals("some stuff",
+                                            EntityUtils.toString(response.getEntity(), 1024));
                                     return null;
                                 });
                             } catch (final Exception ex) {

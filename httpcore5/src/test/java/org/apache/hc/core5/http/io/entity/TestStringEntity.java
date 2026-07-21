@@ -89,11 +89,11 @@ class TestStringEntity {
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
         Assertions.assertNotNull(httpentity.getContentType());
         Assertions.assertEquals("text/plain", httpentity.getContentType());
-        Assertions.assertEquals(s, EntityUtils.toString(httpentity));
+        Assertions.assertEquals(s, EntityUtils.toString(httpentity, 1024));
         httpentity = new StringEntity(s, (Charset) null);
         Assertions.assertNotNull(httpentity.getContentType());
         Assertions.assertEquals("text/plain", httpentity.getContentType());
-        Assertions.assertEquals(s, EntityUtils.toString(httpentity));
+        Assertions.assertEquals(s, EntityUtils.toString(httpentity, 1024));
     }
 
     @Test

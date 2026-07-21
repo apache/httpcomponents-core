@@ -126,7 +126,7 @@ class TestTestingFrameworkRequestHandler {
         handler.assertNothingThrown();
 
         Assertions.assertEquals(201, response.getCode());
-        Assertions.assertEquals("pong", EntityUtils.toString(response.getEntity()));
+        Assertions.assertEquals("pong", EntityUtils.toString(response.getEntity(), 1024));
         Assertions.assertTrue(response.getEntity().getContentType().contains("text/plain"));
         Assertions.assertEquals("ok", response.getFirstHeader("X-Reply").getValue());
     }

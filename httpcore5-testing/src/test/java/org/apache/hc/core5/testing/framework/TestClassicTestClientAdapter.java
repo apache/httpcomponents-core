@@ -94,7 +94,7 @@ class TestClassicTestClientAdapter {
                     : null);
             if (request.getEntity() != null) {
                 captured.put("content-type", request.getEntity().getContentType());
-                captured.put("body", EntityUtils.toString(request.getEntity()));
+                captured.put("body", EntityUtils.toString(request.getEntity(), Integer.MAX_VALUE));
             } else {
                 captured.put("content-type", null);
                 captured.put("body", null);

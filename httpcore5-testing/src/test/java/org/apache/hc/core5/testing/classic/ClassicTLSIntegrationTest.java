@@ -137,7 +137,7 @@ class ClassicTLSIntegrationTest {
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-            final String body1 = EntityUtils.toString(response1.getEntity());
+            final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
             Assertions.assertEquals("some stuff", body1);
         }
 
