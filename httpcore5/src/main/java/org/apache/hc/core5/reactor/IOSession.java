@@ -70,6 +70,7 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     /**
      * Returns event handler associated with the session.
      *
+     * @return the event handler, or {@code null} if no handler is associated with the session.
      * @since 5.0
      */
     IOEventHandler getHandler();
@@ -106,6 +107,7 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     /**
      * Removes first {@link Command} from the command queue if available.
      *
+     * @return the first command, or {@code null} if the queue is empty.
      * @since 5.0
      */
     Command poll();
@@ -120,14 +122,14 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     /**
      * Returns address of the remote peer.
      *
-     * @return socket address.
+     * @return socket address, or {@code null} if unavailable.
      */
     SocketAddress getRemoteAddress();
 
     /**
      * Returns local address.
      *
-     * @return socket address.
+     * @return socket address, or {@code null} if unavailable.
      */
     SocketAddress getLocalAddress();
 
