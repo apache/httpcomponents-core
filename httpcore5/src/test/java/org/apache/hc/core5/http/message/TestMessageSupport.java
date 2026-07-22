@@ -478,4 +478,36 @@ class TestMessageSupport {
         Assertions.assertTrue(hopByHopConnectionSpecific.contains("That"));
     }
 
+    @Test
+    void testMessageWithContentLength() throws Exception {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "100");
+        Assertions.assertEquals(100, MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithInvalidContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "whatever");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithNegativeContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "-10");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithMultipleContentLength() throws Exception {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "100");
+        message.addHeader("Content-Length", "100");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
 }

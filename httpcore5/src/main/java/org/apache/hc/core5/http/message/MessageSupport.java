@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
@@ -653,6 +654,30 @@ public class MessageSupport {
             return result;
         }
         return HOP_BY_HOP;
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static long getContentLength(final HttpMessage message) throws HttpException {
+        Args.notNull(message, "HTTP message");
+        if (message.countHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
+            throw new ProtocolException("Multiple Content-Length headers");
+        }
+        final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        if (contentLengthHeader != null) {
+            final String s = contentLengthHeader.getValue();
+            try {
+                final long len = Long.parseLong(s);
+                if (len < 0) {
+                    throw new ProtocolException("Negative content length: " + s);
+                }
+                return len;
+            } catch (final NumberFormatException e) {
+                throw new ProtocolException("Invalid content length: " + s);
+            }
+        }
+        return -1;
     }
 
 }

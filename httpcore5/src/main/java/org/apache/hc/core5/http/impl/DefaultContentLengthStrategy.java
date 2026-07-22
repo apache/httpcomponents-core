@@ -89,23 +89,8 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
             }
             throw new NotImplementedException("Unsupported transfer encoding: " + teh.getValue());
         }
-        if (message.countHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
-            throw new ProtocolException("Multiple Content-Length headers");
-        }
-        final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        if (contentLengthHeader != null) {
-            final String s = contentLengthHeader.getValue();
-            try {
-                final long len = Long.parseLong(s);
-                if (len < 0) {
-                    throw new ProtocolException("Negative content length: " + s);
-                }
-                return len;
-            } catch (final NumberFormatException e) {
-                throw new ProtocolException("Invalid content length: " + s);
-            }
-        }
-        return UNDEFINED;
+        final long contentLength = MessageSupport.getContentLength(message);
+        return contentLength >= 0 ? contentLength : UNDEFINED;
     }
 
 }
