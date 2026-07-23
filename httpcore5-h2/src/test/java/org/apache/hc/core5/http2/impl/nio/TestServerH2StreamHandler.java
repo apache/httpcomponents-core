@@ -136,4 +136,49 @@ class TestServerH2StreamHandler {
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(ArgumentMatchers.anyList());
     }
 
+    @Test
+    void contentLengthValid() throws Exception {
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(requestHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), true);
+    }
+
+    @Test
+    void contentLengthInvalid() throws Exception {
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(requestHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2 }), true));
+    }
+
+    @Test
+    void contentLengthInvalidNoBody() throws Exception {
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"),
+                new BasicHeader("content-length", "12"));
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeHeader(requestHeaders, true));
+    }
+
 }
