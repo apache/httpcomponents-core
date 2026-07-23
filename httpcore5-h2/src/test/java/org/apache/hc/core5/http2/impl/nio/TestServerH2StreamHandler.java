@@ -43,47 +43,57 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 class TestServerH2StreamHandler {
 
-    private ServerH2StreamHandler newHandler() {
-        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
-        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
-        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
-                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
-        @SuppressWarnings("unchecked")
-        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory =
-                (HandlerFactory<AsyncServerExchangeHandler>) Mockito.mock(HandlerFactory.class);
-        return new ServerH2StreamHandler(channel, httpProcessor, metrics, exchangeHandlerFactory,
+    @Mock
+    H2StreamChannel channel;
+    @Mock
+    HttpProcessor httpProcessor;
+    @Mock
+    AsyncServerExchangeHandler exchangeHandler;
+    @Mock
+    HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
+
+    ServerH2StreamHandler handler;
+
+    @BeforeEach
+    void prepareMocks() {
+        MockitoAnnotations.openMocks(this);
+        handler = new ServerH2StreamHandler(
+                channel,
+                httpProcessor,
+                new BasicHttpConnectionMetrics(
+                        new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics()),
+                exchangeHandlerFactory,
                 HttpCoreContext.create());
     }
 
     @Test
     void defaults() {
-        final ServerH2StreamHandler handler = newHandler();
         Assertions.assertNull(handler.getPushHandlerFactory());
         Assertions.assertFalse(handler.isOutputReady());
     }
 
     @Test
     void consumeDataBeforeHeadersRejected() {
-        final ServerH2StreamHandler handler = newHandler();
         Assertions.assertThrows(ProtocolException.class, () ->
                 handler.consumeData(ByteBuffer.allocate(0), true));
     }
 
     @Test
     void updateCapacityWithoutHandlerFails() {
-        final ServerH2StreamHandler handler = newHandler();
         Assertions.assertThrows(IllegalStateException.class, () -> handler.updateInputCapacity());
     }
 
     @Test
     void toStringIncludesStates() {
-        final ServerH2StreamHandler handler = newHandler();
         final String text = handler.toString();
         Assertions.assertTrue(text.contains("requestState"));
         Assertions.assertTrue(text.contains("responseState"));
@@ -91,19 +101,8 @@ class TestServerH2StreamHandler {
 
     @Test
     void consumeTrailersWithPseudoHeaderRejected() throws Exception {
-        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
-        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
-        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
-                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
-        final AsyncServerExchangeHandler exchangeHandler = Mockito.mock(AsyncServerExchangeHandler.class);
-        @SuppressWarnings("unchecked")
-        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory =
-                (HandlerFactory<AsyncServerExchangeHandler>) Mockito.mock(HandlerFactory.class);
         Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(exchangeHandler);
-
-        final ServerH2StreamHandler handler = new ServerH2StreamHandler(
-                channel, httpProcessor, metrics, exchangeHandlerFactory, HttpCoreContext.create());
 
         final List<Header> requestHeaders = Arrays.asList(
                 new BasicHeader(":method", "POST"),
@@ -119,19 +118,8 @@ class TestServerH2StreamHandler {
 
     @Test
     void consumeTrailersWithoutEndStreamRejected() throws Exception {
-        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
-        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
-        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
-                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
-        final AsyncServerExchangeHandler exchangeHandler = Mockito.mock(AsyncServerExchangeHandler.class);
-        @SuppressWarnings("unchecked")
-        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory =
-                (HandlerFactory<AsyncServerExchangeHandler>) Mockito.mock(HandlerFactory.class);
         Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(exchangeHandler);
-
-        final ServerH2StreamHandler handler = new ServerH2StreamHandler(
-                channel, httpProcessor, metrics, exchangeHandlerFactory, HttpCoreContext.create());
 
         final List<Header> requestHeaders = Arrays.asList(
                 new BasicHeader(":method", "POST"),

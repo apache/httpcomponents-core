@@ -39,28 +39,35 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 class TestClientPushH2StreamHandler {
 
-    private ClientPushH2StreamHandler newHandler(final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
-        final H2StreamChannel channel = Mockito.mock(H2StreamChannel.class);
-        final HttpProcessor httpProcessor = Mockito.mock(HttpProcessor.class);
-        final BasicHttpConnectionMetrics metrics = new BasicHttpConnectionMetrics(
-                new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics());
-        return new ClientPushH2StreamHandler(channel, httpProcessor, metrics, pushHandlerFactory,
+    @Mock
+    H2StreamChannel channel;
+    @Mock
+    HttpProcessor httpProcessor;
+    @Mock
+    HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+
+    ClientPushH2StreamHandler handler;
+
+    @BeforeEach
+    void prepareMocks() {
+        MockitoAnnotations.openMocks(this);
+        handler = new ClientPushH2StreamHandler(
+                channel, httpProcessor,
+                new BasicHttpConnectionMetrics(
+                        new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics()),
+                pushHandlerFactory,
                 HttpCoreContext.create());
     }
 
     @Test
     void consumePromiseRefusedWhenFactoryReturnsNull() throws Exception {
-        @SuppressWarnings("unchecked")
-        final HandlerFactory<AsyncPushConsumer> pushHandlerFactory =
-                (HandlerFactory<AsyncPushConsumer>) Mockito.mock(HandlerFactory.class);
-        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(null);
-        final ClientPushH2StreamHandler handler = newHandler(pushHandlerFactory);
-
         final H2StreamResetException ex = Assertions.assertThrows(H2StreamResetException.class, () ->
                 handler.consumePromise(java.util.Arrays.asList(
                         new BasicHeader(":method", "GET"),
@@ -72,14 +79,12 @@ class TestClientPushH2StreamHandler {
 
     @Test
     void consumeDataRejectedBeforeBody() {
-        final ClientPushH2StreamHandler handler = newHandler(null);
         Assertions.assertThrows(ProtocolException.class, () ->
                 handler.consumeData(ByteBuffer.allocate(0), true));
     }
 
     @Test
     void updateCapacityFailsWithoutHandler() {
-        final ClientPushH2StreamHandler handler = newHandler(null);
         Assertions.assertThrows(IllegalStateException.class, handler::updateInputCapacity);
     }
 
