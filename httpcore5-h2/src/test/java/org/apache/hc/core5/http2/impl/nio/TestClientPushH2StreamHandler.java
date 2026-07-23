@@ -27,7 +27,10 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -42,6 +45,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 class TestClientPushH2StreamHandler {
@@ -50,6 +54,8 @@ class TestClientPushH2StreamHandler {
     H2StreamChannel channel;
     @Mock
     HttpProcessor httpProcessor;
+    @Mock
+    AsyncPushConsumer pushConsumer;
     @Mock
     HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
 
@@ -86,6 +92,57 @@ class TestClientPushH2StreamHandler {
     @Test
     void updateCapacityFailsWithoutHandler() {
         Assertions.assertThrows(IllegalStateException.class, handler::updateInputCapacity);
+    }
+
+    @Test
+    void contentLengthValid() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(java.util.Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), true);
+    }
+
+    @Test
+    void contentLengthInvalid() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(java.util.Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2 }), true));
+    }
+
+    @Test
+    void contentLengthInvalidNoBody() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(java.util.Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeHeader(responseHeaders, true));
     }
 
 }

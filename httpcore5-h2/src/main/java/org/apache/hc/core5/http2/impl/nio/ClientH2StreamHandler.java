@@ -41,10 +41,12 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -71,6 +73,10 @@ class ClientH2StreamHandler implements H2StreamHandler {
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
+
+    private volatile String method = null;
+    private volatile long declaredContentLen = -1;
+    private volatile long actualContentLen = 0;
 
     ClientH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -141,6 +147,8 @@ class ClientH2StreamHandler implements H2StreamHandler {
 
             httpProcessor.process(request, entityDetails, context);
 
+            method = request.getMethod();
+
             final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
             if (entityDetails == null) {
                 requestState.set(MessageState.COMPLETE);
@@ -207,6 +215,13 @@ class ClientH2StreamHandler implements H2StreamHandler {
                     return;
                 }
 
+                if (!Method.HEAD.isSame(method) && MessageSupport.canResponseHaveBody(method, response)) {
+                    declaredContentLen = MessageSupport.getContentLength(response);
+                    if (endStream) {
+                        validateContentLength();
+                    }
+                }
+
                 final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(response, -1);
                 context.setResponse(response);
                 httpProcessor.process(response, entityDetails, context);
@@ -236,11 +251,19 @@ class ClientH2StreamHandler implements H2StreamHandler {
             throw new ProtocolException("Unexpected message data");
         }
         if (src != null) {
+            actualContentLen += src.remaining();
             exchangeHandler.consume(src);
         }
         if (endStream) {
             responseState.set(MessageState.COMPLETE);
+            validateContentLength();
             exchangeHandler.streamEnd(null);
+        }
+    }
+
+    private void validateContentLength() throws ProtocolException {
+        if (declaredContentLen >= 0 && declaredContentLen != actualContentLen) {
+            throw new ProtocolException("Invalid content-length (does not equal the sum of data payload)");
         }
     }
 

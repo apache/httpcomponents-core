@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,6 +115,36 @@ class TestClientH2StreamHandler {
 
         Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(trailers, true));
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
+    }
+
+    @Test
+    void contentLengthValid() throws Exception {
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), true);
+    }
+
+    @Test
+    void contentLengthInvalid() throws Exception {
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2 }), true));
+    }
+
+    @Test
+    void contentLengthInvalidNoBody() throws Exception {
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        Assertions.assertThrows(ProtocolException.class, () ->
+            handler.consumeHeader(responseHeaders, true));
     }
 
 }

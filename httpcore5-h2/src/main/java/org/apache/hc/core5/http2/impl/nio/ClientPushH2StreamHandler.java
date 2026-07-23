@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -66,6 +67,9 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     private volatile AsyncPushConsumer exchangeHandler;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
+
+    private volatile long declaredContentLen = -1;
+    private volatile long actualContentLen = 0;
 
     ClientPushH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -132,6 +136,14 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+
+            if (MessageSupport.canResponseHaveBody(response)) {
+                declaredContentLen = MessageSupport.getContentLength(response);
+                if (endStream) {
+                    validateContentLength();
+                }
+            }
+
             final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
             context.setResponse(response);
@@ -163,11 +175,19 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
         }
         Asserts.notNull(exchangeHandler, "Exchange handler");
         if (src != null) {
+            actualContentLen += src.remaining();
             exchangeHandler.consume(src);
         }
         if (endStream) {
             responseState = MessageState.COMPLETE;
+            validateContentLength();
             exchangeHandler.streamEnd(null);
+        }
+    }
+
+    private void validateContentLength() throws ProtocolException {
+        if (declaredContentLen >= 0 && declaredContentLen != actualContentLen) {
+            throw new ProtocolException("Invalid content-length (does not equal the sum of data payload)");
         }
     }
 
