@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -81,6 +82,8 @@ class ServerH2StreamHandler implements H2StreamHandler {
 
     private volatile AsyncServerExchangeHandler exchangeHandler;
     private volatile HttpRequest receivedRequest;
+    private volatile long declaredContentLen = -1;
+    private volatile long actualContentLen = 0;
 
     ServerH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -230,6 +233,12 @@ class ServerH2StreamHandler implements H2StreamHandler {
                 requestState.set(endStream ? MessageState.COMPLETE : MessageState.BODY);
 
                 final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+
+                declaredContentLen = MessageSupport.getContentLength(request);
+                if (endStream) {
+                    validateContentLength();
+                }
+
                 final EntityDetails requestEntityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
                 final AsyncServerExchangeHandler handler;
@@ -295,11 +304,19 @@ class ServerH2StreamHandler implements H2StreamHandler {
         }
         Asserts.notNull(exchangeHandler, "Exchange handler");
         if (src != null) {
+            actualContentLen += src.remaining();
             exchangeHandler.consume(src);
         }
         if (endStream) {
             requestState.set(MessageState.COMPLETE);
+            validateContentLength();
             exchangeHandler.streamEnd(null);
+        }
+    }
+
+    private void validateContentLength() throws ProtocolException {
+        if (declaredContentLen >= 0 && declaredContentLen != actualContentLen) {
+            throw new ProtocolException("Invalid content-length (does not equal the sum of data payload)");
         }
     }
 
