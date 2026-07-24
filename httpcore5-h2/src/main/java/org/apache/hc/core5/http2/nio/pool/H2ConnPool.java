@@ -57,30 +57,76 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
+public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> implements H2RequesterConnPool {
 
     private final ConnectionInitiator connectionInitiator;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
     private final TlsStrategy tlsStrategy;
 
-    private volatile TimeValue validateAfterInactivity = TimeValue.NEG_ONE_MILLISECOND;
+    private volatile TimeValue validateAfterInactivity;
 
     public H2ConnPool(
             final ConnectionInitiator connectionInitiator,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {
+        this(connectionInitiator, addressResolver, tlsStrategy, null);
+    }
+
+    H2ConnPool(
+            final ConnectionInitiator connectionInitiator,
+            final Resolver<HttpHost, InetSocketAddress> addressResolver,
+            final TlsStrategy tlsStrategy,
+            final TimeValue validateAfterInactivity) {
         super();
         this.connectionInitiator = Args.notNull(connectionInitiator, "Connection initiator");
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
         this.tlsStrategy = tlsStrategy;
+        this.validateAfterInactivity = validateAfterInactivity != null
+                ? validateAfterInactivity : TimeValue.NEG_ONE_MILLISECOND;
     }
 
+    /**
+     * Returns the current validate-after-inactivity interval. A non-negative
+     * value enables stale-checking of pooled sessions that have been idle
+     * for longer than the interval before they are handed out again.
+     *
+     * @since 5.0
+     */
     public TimeValue getValidateAfterInactivity() {
         return validateAfterInactivity;
     }
 
+    @Override
+    public Future<H2StreamLease> leaseSession(
+            final HttpHost endpoint,
+            final Timeout connectTimeout,
+            final FutureCallback<H2StreamLease> callback) {
+        final org.apache.hc.core5.concurrent.BasicFuture<H2StreamLease> future =
+                new org.apache.hc.core5.concurrent.BasicFuture<>(callback);
+        getSession(endpoint, connectTimeout, new FutureCallback<IOSession>() {
+
+            @Override
+            public void completed(final IOSession ioSession) {
+                future.completed(new H2StreamLease(ioSession, () -> {
+                }));
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                future.failed(ex);
+            }
+
+            @Override
+            public void cancelled() {
+                future.cancel();
+            }
+        });
+        return future;
+    }
+
+    @Override
     public void setValidateAfterInactivity(final TimeValue timeValue) {
-        this.validateAfterInactivity = timeValue;
+        this.validateAfterInactivity = timeValue != null ? timeValue : TimeValue.NEG_ONE_MILLISECOND;
     }
 
     @Override
