@@ -322,6 +322,13 @@ public final class TlsCiphers {
                     "TLS_PSK_WITH_AES_256_CCM_8"
             )));
 
+    /**
+     * Tests whether <a href="Prohibited TLS 1.2 Cipher Suites">RFC9113 Appendix A Prohibited TLS 1.2 Cipher Suites</a> prohibits the use of a given cipher
+     * suite.
+     *
+     * @param cipherSuite The cipher suite name to test.
+     * @return Whether RFC9113 prohibits the use of a given cipher suites for HTTP/2.
+     */
     public static boolean isH2Blacklisted(final String cipherSuite) {
         return H2_BLACKLISTED.contains(cipherSuite);
     }

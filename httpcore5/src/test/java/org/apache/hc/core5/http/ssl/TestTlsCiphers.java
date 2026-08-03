@@ -95,6 +95,15 @@ class TestTlsCiphers {
         Assertions.assertNull(TlsCiphers.excludeWeak((String[]) null));
     }
 
+    /**
+     * RFC9113 "prohibits" the use of certain cipher suites in HTTP/2.
+     *
+     * RFC10015 "deprecates" some cipher suites, and discourages the use of others.
+     *
+     * So we have 3 classifications and our own "weak" classification.
+     *
+     * For leave test disabled.
+     */
     @Disabled("https://lists.apache.org/thread/2z09rjxv0wpss2gvv9jl8yq9wlst8qmh")
     @ParameterizedTest
     @MethodSource("org.apache.hc.core5.http.ssl.TlsCiphers#getH2Blacklisted()")
