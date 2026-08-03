@@ -349,7 +349,19 @@ public final class TlsCiphers {
             Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE),
             Pattern.compile(RC100015_DEPRECATED_CIPHERS, Pattern.CASE_INSENSITIVE)));
 
+    /**
+     * Tests whether a given cipher suite is considered weak.
+     * <p>
+     * A cipher suite is considered weak if it is blacklisted for HTTP/2 or matches any of the weak cipher suite patterns.
+     * </p>
+     *
+     * @param cipherSuite The cipher suite name to test.
+     * @return Whether the cipher suite is considered weak.
+     */
     public static boolean isWeak(final String cipherSuite) {
+        if (isH2Blacklisted(cipherSuite)) {
+            return true;
+        }
         for (final Pattern pattern : WEAK_CIPHER_SUITE_PATTERNS) {
             if (pattern.matcher(cipherSuite).matches()) {
                 return true;

@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.ssl;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -78,16 +77,24 @@ class TestTlsCiphers {
         return TlsCiphers.excludeWeak(weakCiphersSuites);
     }
 
+    @Test
+    void testCipherTLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384() {
+        final String cipherSuite = "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384";
+        Assertions.assertTrue(TlsCiphers.isH2Blacklisted(cipherSuite));
+        Assertions.assertTrue(TlsCiphers.isWeak(cipherSuite));
+    }
+
     @ParameterizedTest
     @MethodSource
     void testExcludeH2Blacklisted(final String strongCipherSuite) {
-       Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite));
+        Assertions.assertFalse(TlsCiphers.isH2Blacklisted(strongCipherSuite), strongCipherSuite);
+        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
    }
 
     @ParameterizedTest
     @MethodSource
     void testExcludeWeak(final String strongCipherSuite) {
-        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite));
+        Assertions.assertTrue(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
     }
 
     @Test
@@ -104,7 +111,6 @@ class TestTlsCiphers {
      *
      * For leave test disabled.
      */
-    @Disabled("https://lists.apache.org/thread/2z09rjxv0wpss2gvv9jl8yq9wlst8qmh")
     @ParameterizedTest
     @MethodSource("org.apache.hc.core5.http.ssl.TlsCiphers#getH2Blacklisted()")
     void testH2BlacklistedIsWeak(final String h2BlacklistedCipherSuite) {
@@ -386,7 +392,6 @@ class TestTlsCiphers {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
             // TLS 1.2 from https://www.ibm.com/docs/en/wm-integration-ipaas?topic=securing-understanding-cipher-suites
             "TLS_AES_128_GCM_SHA256", // RFC8446
             "TLS_AES_256_GCM_SHA384", // RFC8446
@@ -406,7 +411,7 @@ class TestTlsCiphers {
             "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256", // RFC8442
     })
     void testStrongCipherSuites(final String strongCipherSuite) {
-        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite));
+        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
     }
 
     @ParameterizedTest
@@ -428,7 +433,7 @@ class TestTlsCiphers {
             "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
     })
     void testWeakCiphersDisabledByDefault(final String weakCiphersSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(weakCiphersSuite));
+        Assertions.assertTrue(TlsCiphers.isWeak(weakCiphersSuite), weakCiphersSuite);
     }
 
 }
