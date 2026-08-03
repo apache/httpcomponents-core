@@ -332,9 +332,15 @@ public final class TlsCiphers {
     private static final String WEAK_CIPHERS
             = "^(TLS|SSL)_(.*)_WITH_(NULL|DES_CBC|DES40_CBC|DES_CBC_40|3DES_EDE_CBC|RC4_128|RC4_40|RC2_CBC_40)_(.*)";
 
+    /**
+     * RFC 10015 Deprecating Obsolete Key Exchange Methods in TLS 1.2 and DTLS 1.2.
+     */
+    private static final String RC100015_DEPRECATED_CIPHERS = "^TLS_(DHE?|PSK_DHE_WITH_AES|ECDH|RSA)_(.*)";
+
     private static final List<Pattern> WEAK_CIPHER_SUITE_PATTERNS = Collections.unmodifiableList(Arrays.asList(
             Pattern.compile(WEAK_KEY_EXCHANGES, Pattern.CASE_INSENSITIVE),
-            Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE)));
+            Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE),
+            Pattern.compile(RC100015_DEPRECATED_CIPHERS, Pattern.CASE_INSENSITIVE)));
 
     public static boolean isWeak(final String cipherSuite) {
         for (final Pattern pattern : WEAK_CIPHER_SUITE_PATTERNS) {
@@ -369,6 +375,10 @@ public final class TlsCiphers {
             }
         }
         return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
+    }
+
+    static Set<String> getH2Blacklisted() {
+        return H2_BLACKLISTED;
     }
 
 }
