@@ -141,7 +141,9 @@ public class Http1Config {
     }
 
     private static final int INIT_WINDOW_SIZE = 65535;
-    private static final int INIT_BUF_SIZE = 8192;
+    // Larger session buffers cut the number of read/write events on large messages; the gain
+    // levels off past 32 KB while per-connection footprint keeps growing, so 32 KB is the default.
+    private static final int INIT_BUF_SIZE = 32 * 1024;
     private static final Timeout INIT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
     private static final int INIT_BUF_CHUNK = -1;
     private static final int INIT_MAX_HEADER_COUNT = 100;
