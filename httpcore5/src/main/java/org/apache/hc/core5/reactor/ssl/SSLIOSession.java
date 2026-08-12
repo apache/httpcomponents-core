@@ -890,7 +890,10 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public String toString() {
-        this.session.getLock().lock();
+        if (!this.session.getLock().tryLock()) {
+            // show simplified version for non-locked case
+            return this.session.getId() + "[" + this.status + "]";
+        }
         try {
             final StringBuilder buffer = new StringBuilder();
             buffer.append(this.session);
