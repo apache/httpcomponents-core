@@ -62,7 +62,7 @@ public final class SSLContexts {
         try {
             return SSLContext.getDefault();
         } catch (final NoSuchAlgorithmException ex) {
-            return createDefault();
+            throw new SSLInitializationException(ex.getMessage(), ex);
         }
     }
 
