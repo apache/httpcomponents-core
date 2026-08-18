@@ -114,9 +114,7 @@ public final class PriorityParamsParser {
         if (header == null) {
             return new PriorityParams(null, null);
         }
-        final PriorityParams[] box = new PriorityParams[1];
-        MessageSupport.parseHeader(header, (seq, cur) -> box[0] = parse(seq, cur));
-        return box[0] != null ? box[0] : new PriorityParams(null, null);
+        return MessageSupport.parserHeaderValue(header, PriorityParamsParser::parse);
     }
 
     private static void skipToNextItem(final CharSequence buf, final ParserCursor c) {
