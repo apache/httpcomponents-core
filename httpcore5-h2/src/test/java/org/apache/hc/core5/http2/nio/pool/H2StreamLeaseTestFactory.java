@@ -24,40 +24,22 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2.nio.pool;
 
-package org.apache.hc.core5.http2.impl.nio;
-
-import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.reactor.IOSession;
 
 /**
- * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
- * client side HTTP/2 messaging protocol with full support for
- * multiplexed message transmission.
- *
- * @since 5.0
+ * Test-only factory that exposes the package-private {@link H2StreamLease}
+ * constructor to tests living outside the {@code nio.pool} package, without
+ * widening production visibility or resorting to reflection.
  */
-public class ClientH2IOEventHandler extends AbstractH2IOEventHandler {
+public final class H2StreamLeaseTestFactory {
 
-    public ClientH2IOEventHandler(final ClientH2StreamMultiplexer streamMultiplexer) {
-        super(streamMultiplexer);
+    private H2StreamLeaseTestFactory() {
     }
 
-    ClientH2IOEventHandler(
-            final ClientH2StreamMultiplexer streamMultiplexer,
-            final H2PoolSessionSupport sessionSupport) {
-        super(streamMultiplexer, sessionSupport);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder buf = new StringBuilder();
-        InetAddressUtils.formatAddress(buf, getLocalAddress());
-        buf.append("->");
-        InetAddressUtils.formatAddress(buf, getRemoteAddress());
-        buf.append(" [");
-        streamMultiplexer.appendState(buf);
-        buf.append("]");
-        return buf.toString();
+    public static H2StreamLease newLease(final IOSession session, final Runnable releaseAction) {
+        return new H2StreamLease(session, releaseAction);
     }
 
 }
