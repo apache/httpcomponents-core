@@ -490,14 +490,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
         private IOSession getIOSession() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
-            if (poolEntry == null) {
-                throw new IllegalStateException("Endpoint has already been released");
-            }
-            final IOSession ioSession = poolEntry.getConnection();
-            if (ioSession == null) {
-                throw new IllegalStateException("I/O session is invalid");
-            }
-            return ioSession;
+            return poolEntry != null ? poolEntry.getConnection() : null;
         }
 
         @Override
@@ -506,6 +499,14 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
                 final HttpContext context) {
             final IOSession ioSession = getIOSession();
+            if (ioSession == null) {
+                try {
+                    exchangeHandler.failed(new ConnectionClosedException());
+                } finally {
+                    exchangeHandler.releaseResources();
+                }
+                return;
+            }
             final int max = maxPendingCommandsPerConnection;
             if (max > 0) {
                 final int pending = ioSession.getPendingCommandCount();
@@ -522,13 +523,6 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             ioSession.enqueue(
                     new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, context),
                     Command.Priority.NORMAL);
-            if (!ioSession.isOpen()) {
-                try {
-                    exchangeHandler.failed(new ConnectionClosedException());
-                } finally {
-                    exchangeHandler.releaseResources();
-                }
-            }
         }
 
         @Override
@@ -558,7 +552,6 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         public void releaseAndDiscard() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
-                poolEntry.discardConnection(CloseMode.GRACEFUL);
                 connPool.release(poolEntry, false);
             }
         }
@@ -566,6 +559,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         @Override
         public void tlsUpgrade(final NamedEndpoint endpoint, final FutureCallback<ProtocolIOSession> callback) {
             final IOSession ioSession = getIOSession();
+            if (ioSession == null) {
+                callback.failed(new ConnectionClosedException());
+                return;
+            }
             if (ioSession instanceof ProtocolIOSession) {
                 doTlsUpgrade((ProtocolIOSession) ioSession, endpoint, callback);
             } else {
