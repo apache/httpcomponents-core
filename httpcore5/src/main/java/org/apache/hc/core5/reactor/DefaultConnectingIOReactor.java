@@ -69,6 +69,25 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final IOReactorMetricsListener threadPoolListener,
             final Callback<IOSession> sessionShutdownCallback,
             final IOWorkerSelector workerSelector) {
+        this(eventHandlerFactory, ioReactorConfig, threadFactory, ioSessionDecorator, exceptionCallback,
+                sessionListener, threadPoolListener, sessionShutdownCallback, workerSelector, null);
+    }
+
+    /**
+     * @since 5.5
+     */
+    @Internal
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final ThreadFactory threadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
+            final Callback<IOSession> sessionShutdownCallback,
+            final IOWorkerSelector workerSelector,
+            final SocketChannelFactory socketChannelFactory) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         final int workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
@@ -81,7 +100,8 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
                     ioSessionDecorator,
                     sessionListener,
                     threadPoolListener,
-                    sessionShutdownCallback);
+                    sessionShutdownCallback,
+                    socketChannelFactory);
             this.workers[i] = dispatcher;
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
@@ -101,11 +121,41 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
                 null, sessionShutdownCallback, null);
     }
 
+    /**
+     * @since 5.5
+     */
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final ThreadFactory threadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final Callback<IOSession> sessionShutdownCallback,
+            final SocketChannelFactory socketChannelFactory) {
+        this(eventHandlerFactory, ioReactorConfig, threadFactory, ioSessionDecorator, exceptionCallback, sessionListener,
+                null, sessionShutdownCallback, null, socketChannelFactory);
+    }
+
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
         this(eventHandlerFactory, config, null, null, null, null, sessionShutdownCallback);
+    }
+
+    /**
+     * Creates an instance with a custom socket channel factory.
+     *
+     * @since 5.5
+     */
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig config,
+            final Callback<IOSession> sessionShutdownCallback,
+            final SocketChannelFactory socketChannelFactory) {
+        this(eventHandlerFactory, config, null, null, null, null, null, sessionShutdownCallback, null,
+                socketChannelFactory);
     }
 
     /**
