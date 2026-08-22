@@ -77,6 +77,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private volatile long lastTimeoutCheckNanos;
     private volatile long lastSelectNanos;
     private final IOReactorMetricsListener threadPoolListener;
+    private final SocketChannelFactory socketChannelFactory;
 
     // Atomic variables for tracking total wait time and count of processed requests
     private final AtomicLong totalWaitTime = new AtomicLong(0);
@@ -90,6 +91,19 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final IOSessionListener sessionListener,
             final IOReactorMetricsListener threadPoolListener,
             final Callback<IOSession> sessionShutdownCallback) {
+        this(exceptionCallback, eventHandlerFactory, reactorConfig, ioSessionDecorator, sessionListener,
+                threadPoolListener, sessionShutdownCallback, null);
+    }
+
+    SingleCoreIOReactor(
+            final Callback<Exception> exceptionCallback,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig,
+            final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
+            final Callback<IOSession> sessionShutdownCallback,
+            final SocketChannelFactory socketChannelFactory) {
         super(exceptionCallback);
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
@@ -97,6 +111,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.sessionListener = sessionListener;
         this.threadPoolListener = threadPoolListener;
         this.sessionShutdownCallback = sessionShutdownCallback;
+        this.socketChannelFactory = socketChannelFactory != null ? socketChannelFactory : SingleCoreIOReactor::openSocketFor;
         this.shutdownInitiated = new AtomicBoolean();
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.channelQueue = new ConcurrentLinkedQueue<>();
@@ -349,8 +364,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             if (!sessionRequest.isCancelled()) {
                 final SocketChannel socketChannel;
                 try {
-                    socketChannel = openSocketFor(sessionRequest.remoteAddress);
-                } catch (final IOException ex) {
+                    socketChannel = Args.notNull(socketChannelFactory.createChannel(sessionRequest.remoteAddress), "Socket channel");
+                } catch (final IOException | RuntimeException ex) {
                     sessionRequest.failed(ex);
                     return;
                 }
