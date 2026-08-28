@@ -116,4 +116,26 @@ class TestPercentCodec {
         assertEquals("%7C", PercentCodec.encode("|", StandardCharsets.UTF_8));
     }
 
+    @Test
+    void decodeIllegalChars() {
+        assertEquals(
+                "1?2?3?4",
+                PercentCodec.decode("1\u012E2\u012E3\u012E4", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void testDecodeDoesNotCombineEscapedBytesAcrossLiteralCharacters() {
+        assertEquals(
+                "\uFFFDx\uFFFD",
+                PercentCodec.decode("%C3x%A4", StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void testEncodeHonorsUtf16Charset() {
+        assertEquals(
+                "%FE%FF%00a%00b%00c",
+                PercentCodec.encode("abc", StandardCharsets.UTF_16));
+
+    }
+
 }

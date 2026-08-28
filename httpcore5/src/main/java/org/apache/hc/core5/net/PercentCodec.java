@@ -236,7 +236,11 @@ public class PercentCodec {
             } else if (plusAsBlank && c == '+') {
                 bb.put((byte) ' ');
             } else {
-                bb.put((byte) c);
+                if (c > 0x7f) {
+                    bb.put((byte) '?');
+                } else {
+                    bb.put((byte) c);
+                }
             }
         }
         bb.flip();
