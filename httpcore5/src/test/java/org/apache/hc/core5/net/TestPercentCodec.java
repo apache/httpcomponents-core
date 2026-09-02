@@ -30,6 +30,7 @@ package org.apache.hc.core5.net;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.util.BitSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,15 @@ class TestPercentCodec {
         PercentCodec.encode(buf, " ~ ", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, "huh?", StandardCharsets.UTF_8);
         assertEquals("blah%21%20~%20huh%3F", buf.toString());
+    }
+
+    @Test
+    void testLowerCaseHexEncoding() {
+        final BitSet safeChars = new BitSet(256);
+        safeChars.set(' ');
+        final PercentCodec codec = new PercentCodec(safeChars, true);
+        assertEquals(" %c3%bc%22%25", codec.encode(" ü\"%"));
+        assertEquals("%C3%BC", PercentCodec.RFC3986.encode("ü"));
     }
 
     @Test
