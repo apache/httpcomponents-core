@@ -162,11 +162,63 @@ class TestHeaderGroup {
     }
 
     @Test
-    void testIterator() {
+    void testEmptyListIterator() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Iterator<Header> i = headergroup.headerIterator();
         Assertions.assertNotNull(i);
         Assertions.assertFalse(i.hasNext());
+    }
+
+    @Test
+    void testEmptyListIteratorByName() {
+        final HeaderGroup headergroup = new HeaderGroup();
+        final Iterator<Header> i = headergroup.headerIterator("some-header");
+        Assertions.assertNotNull(i);
+        Assertions.assertFalse(i.hasNext());
+    }
+
+    @Test
+    void testNonEmptyListIteratorByName() {
+        final HeaderGroup headergroup = new HeaderGroup();
+        headergroup.setHeaders(
+                new BasicHeader("a", "a-one"),
+                new BasicHeader("b", "b-one"),
+                new BasicHeader("a", "a-two"),
+                new BasicHeader("b", "b-two"),
+                new BasicHeader("b", "b-three"));
+        final Iterator<Header> it1 = headergroup.headerIterator("a");
+        Assertions.assertNotNull(it1);
+        Assertions.assertTrue(it1.hasNext());
+        Assertions.assertEquals("a-one", it1.next().getValue());
+        Assertions.assertTrue(it1.hasNext());
+        Assertions.assertEquals("a-two", it1.next().getValue());
+        Assertions.assertFalse(it1.hasNext());
+
+        final Iterator<Header> it2 = headergroup.headerIterator("b");
+        Assertions.assertNotNull(it2);
+        Assertions.assertTrue(it2.hasNext());
+        Assertions.assertEquals("b-one", it2.next().getValue());
+        Assertions.assertTrue(it2.hasNext());
+        Assertions.assertEquals("b-two", it2.next().getValue());
+        Assertions.assertTrue(it2.hasNext());
+        Assertions.assertEquals("b-three", it2.next().getValue());
+        Assertions.assertFalse(it2.hasNext());
+    }
+
+
+    @Test
+    void testIteratorByNameRemoveBeforeNext() {
+        final HeaderGroup headerGroup = new HeaderGroup();
+        final Header headerA = new BasicHeader("a", "a-one");
+        final Header headerB = new BasicHeader("b", "b-one");
+        headerGroup.setHeaders(headerA, headerB);
+
+        final Iterator<Header> iterator = headerGroup.headerIterator("b");
+
+        Assertions.assertThrows(IllegalStateException.class, iterator::remove);
+        Assertions.assertArrayEquals(
+                new Header[] { headerA, headerB },
+                headerGroup.getHeaders());
     }
 
     @Test
