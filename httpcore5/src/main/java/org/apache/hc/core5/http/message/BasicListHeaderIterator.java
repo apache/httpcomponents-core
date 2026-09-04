@@ -81,6 +81,14 @@ class BasicListHeaderIterator implements Iterator<Header> {
         this.lastIndex = -1;
     }
 
+    BasicListHeaderIterator(final List<? extends Header> headers, final int currentIndex, final String name) {
+        super();
+        this.allHeaders = headers;
+        this.headerName = name;
+        this.currentIndex = currentIndex;
+        this.lastIndex = -1;
+    }
+
     /**
      * Determines the index of the next header.
      *

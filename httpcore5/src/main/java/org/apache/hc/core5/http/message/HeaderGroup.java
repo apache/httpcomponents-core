@@ -345,10 +345,19 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @return iterator over this group of headers.
      *
+     * <p>
+     * IMPORTANT: please note that if the header group mutates while the
+     * iterator returned by this method still has pending elements
+     * the sequence of headers produced by such iterator is considered
+     * unstable and can be incorrect.
+     *
      * @since 5.0
      */
     @Override
     public Iterator<Header> headerIterator() {
+        if (this.headers.isEmpty()) {
+            return NullHeaderIterator.INSTANCE;
+        }
         return new BasicListHeaderIterator(this.headers, null);
     }
 
@@ -360,10 +369,28 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @return iterator over some headers in this group.
      *
+     * <p>
+     * IMPORTANT: please note that if the header group mutates while the
+     * iterator returned by this method still has pending elements
+     * the sequence of headers produced by such iterator is considered
+     * unstable and can be incorrect.
+     *
      * @since 5.0
      */
     @Override
     public Iterator<Header> headerIterator(final String name) {
+        if (this.headers.isEmpty()) {
+            return NullHeaderIterator.INSTANCE;
+        }
+        if (name != null) {
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header h = this.headers.get(i);
+                if (h.getName().equalsIgnoreCase(name)) {
+                    return new BasicListHeaderIterator(this.headers, i, name);
+                }
+            }
+            return NullHeaderIterator.INSTANCE;
+        }
         return new BasicListHeaderIterator(this.headers, name);
     }
 
