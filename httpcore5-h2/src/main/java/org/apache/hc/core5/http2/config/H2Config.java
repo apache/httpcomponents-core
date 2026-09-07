@@ -51,10 +51,13 @@ public class H2Config {
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
+    private final boolean originFrameEnabled;
+    private final int maxOriginSetSize;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled, final int maxContinuations) {
+             final boolean compressionEnabled, final int maxContinuations,
+             final boolean originFrameEnabled, final int maxOriginSetSize) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -64,6 +67,8 @@ public class H2Config {
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
         this.maxContinuations = maxContinuations;
+        this.originFrameEnabled = originFrameEnabled;
+        this.maxOriginSetSize = maxOriginSetSize;
     }
 
     public int getHeaderTableSize() {
@@ -98,6 +103,27 @@ public class H2Config {
         return maxContinuations;
     }
 
+    /**
+     * Tests whether ORIGIN frames are enabled. Proxy clients that receive
+     * HTTP/2 frames directly from a proxy must disable this option.
+     *
+     * @return {@code true} if ORIGIN frames are enabled.
+     * @since 5.5
+     */
+    public boolean isOriginFrameEnabled() {
+        return originFrameEnabled;
+    }
+
+    /**
+     * Returns the maximum number of origins retained for a connection. A value of
+     * {@code 0} means unlimited.
+     *
+     * @since 5.5
+     */
+    public int getMaxOriginSetSize() {
+        return maxOriginSetSize;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -109,6 +135,8 @@ public class H2Config {
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
                 .append(", maxContinuations=").append(this.maxContinuations)
+                .append(", originFrameEnabled=").append(this.originFrameEnabled)
+                .append(", maxOriginSetSize=").append(this.maxOriginSetSize)
                 .append("]");
         return builder.toString();
     }
@@ -142,7 +170,10 @@ public class H2Config {
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setCompressionEnabled(config.isCompressionEnabled());
+                .setCompressionEnabled(config.isCompressionEnabled())
+                .setMaxContinuations(config.getMaxContinuations())
+                .setOriginFrameEnabled(config.isOriginFrameEnabled())
+                .setMaxOriginSetSize(config.getMaxOriginSetSize());
     }
 
     public static class Builder {
@@ -155,6 +186,8 @@ public class H2Config {
         private int maxHeaderListSize;
         private boolean compressionEnabled;
         private int maxContinuations;
+        private boolean originFrameEnabled;
+        private int maxOriginSetSize;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -165,6 +198,8 @@ public class H2Config {
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
             this.maxContinuations = 100;
+            this.originFrameEnabled = true;
+            this.maxOriginSetSize = 1000;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -216,6 +251,30 @@ public class H2Config {
             return this;
         }
 
+        /**
+         * Enables or disables ORIGIN frame processing. This should be set
+         * to {@code false} by clients that receive HTTP/2 frames directly from a
+         * proxy, which must ignore any ORIGIN frames received from it.
+         *
+         * @since 5.5
+         */
+        public Builder setOriginFrameEnabled(final boolean originFrameEnabled) {
+            this.originFrameEnabled = originFrameEnabled;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of origins retained for one connection. A value
+         * of {@code 0} disables the limit. Exceeding a positive limit terminates
+         * the connection with {@code ENHANCE_YOUR_CALM}.
+         *
+         * @since 5.5
+         */
+        public Builder setMaxOriginSetSize(final int maxOriginSetSize) {
+            this.maxOriginSetSize = Args.notNegative(maxOriginSetSize, "Max Origin Set size");
+            return this;
+        }
+
         public H2Config build() {
             return new H2Config(
                     headerTableSize,
@@ -225,7 +284,9 @@ public class H2Config {
                     maxFrameSize,
                     maxHeaderListSize,
                     compressionEnabled,
-                    maxContinuations);
+                    maxContinuations,
+                    originFrameEnabled,
+                    maxOriginSetSize);
         }
 
     }

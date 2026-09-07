@@ -116,4 +116,16 @@ public abstract class FrameFactory {
         return new RawFrame(FrameType.PRIORITY_UPDATE.getValue(), 0, 0, payload);
     }
 
+    /**
+     * Creates an ORIGIN frame.
+     *
+     * @param payload the encoded sequence of Origin-Entry values, or {@code null}
+     *                for an empty Origin Set advertisement.
+     * @return the ORIGIN frame.
+     * @since 5.5
+     */
+    public RawFrame createOrigin(final ByteBuffer payload) {
+        return new RawFrame(FrameType.ORIGIN.getValue(), 0, 0, payload);
+    }
+
 }
