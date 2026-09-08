@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -70,24 +71,26 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
     @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
-        final Header teh = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        if (teh != null) {
+        final Iterator<Header> it = message.headerIterator(HttpHeaders.TRANSFER_ENCODING);
+        if (it.hasNext()) {
             final AtomicReference<Coding> codingRef = new AtomicReference<>();
-            MessageSupport.parseTokens(message, HttpHeaders.TRANSFER_ENCODING, e -> {
-                if (!TextUtils.isBlank(e)) {
-                    if (e.equalsIgnoreCase(HeaderElements.CHUNKED_ENCODING)) {
-                        if (!codingRef.compareAndSet(null, Coding.CHUNK)) {
+            while (it.hasNext()) {
+                MessageSupport.parseTokens(it.next(), e -> {
+                    if (!TextUtils.isBlank(e)) {
+                        if (e.equalsIgnoreCase(HeaderElements.CHUNKED_ENCODING)) {
+                            if (!codingRef.compareAndSet(null, Coding.CHUNK)) {
+                                codingRef.set(Coding.UNKNOWN);
+                            }
+                        } else {
                             codingRef.set(Coding.UNKNOWN);
                         }
-                    } else {
-                        codingRef.set(Coding.UNKNOWN);
                     }
-                }
-            });
+                });
+            }
             if (codingRef.get() == Coding.CHUNK) {
                 return CHUNKED;
             }
-            throw new NotImplementedException("Unsupported transfer encoding: " + teh.getValue());
+            throw new NotImplementedException("Unsupported transfer encoding");
         }
         final long contentLength = MessageSupport.getContentLength(message);
         return contentLength >= 0 ? contentLength : UNDEFINED;
