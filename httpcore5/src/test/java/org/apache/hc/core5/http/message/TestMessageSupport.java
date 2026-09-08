@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Tokenizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -109,6 +110,15 @@ class TestMessageSupport {
         final List<String> tokens = new ArrayList<>();
         MessageSupport.parseTokens(s, cursor, tokens::add);
         Assertions.assertEquals(Arrays.asList("a", "b", "c", "c"), tokens);
+    }
+
+    @Test
+    void testParseTokensWithConsumerAndCustomDelimiter() {
+        final String s = "a, b ;  c, c";
+        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final List<String> tokens = new ArrayList<>();
+        MessageSupport.parseTokens(s, cursor, Tokenizer.delimiters(';'), tokens::add);
+        Assertions.assertEquals(Arrays.asList("a, b", "c, c"), tokens);
     }
 
     @Test
