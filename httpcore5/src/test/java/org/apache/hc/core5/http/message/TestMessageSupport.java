@@ -45,9 +45,11 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -393,6 +395,27 @@ class TestMessageSupport {
     }
 
     @Test
+    void testParseHeadersElementWhitespace() throws Exception {
+        final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
+        message.addHeader("Some-Header", "HTTP/1.0");
+        message.addHeader("Some-Header", "   HTTP/1.1  ");
+        message.addHeader("Some-Header", " HTTP/2   , HTTP/2.0   , HTTP/0.9  ");
+
+        final List<String> versions = new LinkedList<>();
+        MessageSupport.parseElementList(message, "Some-header", (charSequence, cursor) -> {
+            final String ver = copyToken(charSequence, cursor);
+            versions.add(ver);
+        });
+        Assertions.assertEquals(Arrays.asList(
+                        "HTTP/1.0",
+                        "HTTP/1.1",
+                        "HTTP/2",
+                        "HTTP/2.0",
+                        "HTTP/0.9"),
+                versions);
+    }
+
+    @Test
     void testParseHeadersStrict() throws Exception {
         final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
         message.addHeader("Some-Header", "this");
@@ -423,6 +446,41 @@ class TestMessageSupport {
                         throw new ProtocolException("How awful!");
                     }
                 }));
+    }
+
+    @Test
+    void testParseHeadersStrictElementWhitespace() throws Exception {
+        final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
+        message.addHeader("Some-Header", "HTTP/1.0");
+        message.addHeader("Some-Header", "   HTTP/1.1  ");
+        message.addHeader("Some-Header", " HTTP/2   , HTTP/2.0   , HTTP/0.9  ");
+
+        final List<ProtocolVersion> versions = new LinkedList<>();
+        MessageSupport.parseElementListStrict(message, "Some-header", (charSequence, cursor) -> {
+            final ProtocolVersion ver = HttpVersion.parse(charSequence, cursor, Tokenizer.delimiters(','));
+            versions.add(ver);
+        });
+        Assertions.assertEquals(Arrays.asList(
+                HttpVersion.HTTP_1_0,
+                HttpVersion.HTTP_1_1,
+                HttpVersion.HTTP_2_0,
+                HttpVersion.HTTP_2_0,
+                HttpVersion.HTTP_0_9),
+                versions);
+    }
+
+    @Test
+    void testParseHeadersStrictInvalidElement() throws Exception {
+        final HttpMessage message = new BasicHttpRequest(Method.GET, "/");
+        message.addHeader("Some-Header", "HTTP/1.0");
+        message.addHeader("Some-Header", "   HTTP/1.1  HTTP/1.1");
+
+        Assertions.assertThrows(ProtocolException.class, () -> {
+                    MessageSupport.parseElementListStrict(message, "Some-header", (charSequence, cursor) -> {
+                        HttpVersion.parse(charSequence, cursor, Tokenizer.delimiters(','));
+                    });
+                }
+        );
     }
 
     @Test
