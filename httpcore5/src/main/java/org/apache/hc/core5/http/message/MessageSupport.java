@@ -66,6 +66,8 @@ import org.apache.hc.core5.util.Tokenizer;
  */
 public class MessageSupport {
 
+    private static final Tokenizer TK = Tokenizer.INSTANCE;
+
     private MessageSupport() {
         // Do not allow utility class to be instantiated.
     }
@@ -265,6 +267,7 @@ public class MessageSupport {
         Args.notNull(consumer, "Consumer");
         while (!cursor.atEnd()) {
             consumer.accept(src, cursor);
+            TK.skipWhiteSpace(src, cursor);
             if (!cursor.atEnd()) {
                 final char ch = src.charAt(cursor.getPos());
                 if (ch == ',') {
@@ -327,10 +330,14 @@ public class MessageSupport {
         Args.notNull(consumer, "Consumer");
         while (!cursor.atEnd()) {
             consumer.accept(src, cursor);
+            TK.skipWhiteSpace(src, cursor);
             if (!cursor.atEnd()) {
                 final char ch = src.charAt(cursor.getPos());
                 if (ch == ',') {
                     cursor.updatePos(cursor.getPos() + 1);
+                } else {
+                    throw new ParseException("Invalid header element",
+                            src, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
                 }
             }
         }
