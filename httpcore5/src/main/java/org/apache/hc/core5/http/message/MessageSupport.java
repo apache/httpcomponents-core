@@ -332,10 +332,16 @@ public class MessageSupport {
                                    final ParserCursor cursor,
                                    final Tokenizer.Delimiter delimiterPredicate,
                                    final Consumer<String> consumer) {
-        parseElementList(src, cursor, (sequence, c) -> {
-            final String token = Tokenizer.INSTANCE.parseToken(src, c, delimiterPredicate);
+        while (!cursor.atEnd()) {
+            final String token = Tokenizer.INSTANCE.parseToken(src, cursor, delimiterPredicate);
             consumer.accept(token);
-        });
+            if (!cursor.atEnd()) {
+                final char ch = src.charAt(cursor.getPos());
+                if (delimiterPredicate != null && delimiterPredicate.test(ch)) {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
+            }
+        }
     }
 
     /**
