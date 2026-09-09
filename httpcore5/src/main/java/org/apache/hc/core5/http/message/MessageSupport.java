@@ -208,7 +208,7 @@ public class MessageSupport {
     /**
      * @since 5.5
      */
-    public static <T> T parserHeaderValue(final Header header, final BiFunction<CharSequence, ParserCursor, T> transformation) {
+    public static <T> T parseHeaderValue(final Header header, final BiFunction<CharSequence, ParserCursor, T> transformation) {
         Args.notNull(header, "Header");
         if (header instanceof FormattedHeader) {
             final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
