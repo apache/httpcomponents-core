@@ -29,14 +29,16 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.ParseException;
 
 /**
- * Abstract transformation of a header value represented by a subsequence
+ * Abstract transformation of an element represented by a subsequence
  * of the given {@link CharSequence} within the given {@link ParserCursor}
  * bounds into a value object.
+ *
+ * @param <T> type of transformation result object
  *
  * @since 5.5
  */
 @FunctionalInterface
-public interface HeaderTransformation<T> {
+public interface ElementTransformation<T> {
 
     T apply(CharSequence buffer, ParserCursor cursor) throws ParseException;
 

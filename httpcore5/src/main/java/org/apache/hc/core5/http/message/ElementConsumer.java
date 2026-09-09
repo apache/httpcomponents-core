@@ -29,14 +29,13 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.ParseException;
 
 /**
- * Abstract consumer of header elements represented by a subsequence
- * of the given {@link CharSequence} within the given {@link ParserCursor}
- * bounds.
+ * Abstract consumer of elements represented by a subsequence of the given
+ * {@link CharSequence} within the given {@link ParserCursor} bounds.
  *
  * @since 5.5
  */
 @FunctionalInterface
-public interface HeaderElementConsumer {
+public interface ElementConsumer {
 
     void accept(CharSequence buffer, ParserCursor cursor) throws ParseException;
 
