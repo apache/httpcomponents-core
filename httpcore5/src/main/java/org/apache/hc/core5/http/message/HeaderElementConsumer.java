@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ParseException;
 
 /**
  * Abstract consumer of header elements represented by a subsequence
@@ -38,6 +38,6 @@ import org.apache.hc.core5.http.ProtocolException;
 @FunctionalInterface
 public interface HeaderElementConsumer {
 
-    void accept(CharSequence buffer, ParserCursor cursor) throws ProtocolException;
+    void accept(CharSequence buffer, ParserCursor cursor) throws ParseException;
 
 }

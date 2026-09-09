@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
@@ -403,14 +404,14 @@ class TestMessageSupport {
         });
         Assertions.assertEquals(Arrays.asList("this", "that", "this", "that", "what not"), tokens);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 MessageSupport.parseElementListStrict(
                         message,
                         "Some-header",
                         (charSequence, cursor) -> {
                     final String token = copyToken(charSequence, cursor);
                     if (token.equalsIgnoreCase("what not")) {
-                        throw new ProtocolException("How awful!");
+                        throw new ParseException("How awful!");
                     }
                 }));
     }

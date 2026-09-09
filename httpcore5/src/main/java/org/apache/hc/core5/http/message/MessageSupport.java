@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -267,7 +268,7 @@ public class MessageSupport {
      * @since 5.5
      */
     public static void parseHeaderStrict(final Header header,
-                                         final HeaderElementConsumer consumer) throws ProtocolException {
+                                         final HeaderElementConsumer consumer) throws ParseException {
         Args.notNull(header, "Header");
         if (header instanceof FormattedHeader) {
             final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
@@ -286,7 +287,7 @@ public class MessageSupport {
      */
     public static void parseHeadersStrict(final MessageHeaders headers,
                                           final String name,
-                                          final HeaderElementConsumer consumer) throws ProtocolException {
+                                          final HeaderElementConsumer consumer) throws ParseException {
         Args.notNull(headers, "Message headers");
         Args.notBlank(name, "Header name");
         final Iterator<Header> it = headers.headerIterator(name);
@@ -300,7 +301,7 @@ public class MessageSupport {
      */
     public static void parseElementListStrict(final CharSequence src,
                                               final ParserCursor cursor,
-                                              final HeaderElementConsumer consumer) throws ProtocolException {
+                                              final HeaderElementConsumer consumer) throws ParseException {
         Args.notNull(src, "Source");
         Args.notNull(cursor, "Cursor");
         Args.notNull(consumer, "Consumer");
@@ -320,7 +321,7 @@ public class MessageSupport {
      */
     public static void parseElementListStrict(final MessageHeaders headers,
                                               final String name,
-                                              final HeaderElementConsumer consumer) throws ProtocolException {
+                                              final HeaderElementConsumer consumer) throws ParseException {
         parseHeadersStrict(headers, name, (charSequence, cursor) ->
                 parseElementListStrict(charSequence, cursor, consumer));
     }
