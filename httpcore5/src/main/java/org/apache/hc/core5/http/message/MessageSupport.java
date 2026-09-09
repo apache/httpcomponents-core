@@ -210,6 +210,26 @@ public class MessageSupport {
      */
     public static <T> T parseHeaderValue(final Header header, final BiFunction<CharSequence, ParserCursor, T> transformation) {
         Args.notNull(header, "Header");
+        Args.notNull(transformation, "Transformation");
+        if (header instanceof FormattedHeader) {
+            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
+            final ParserCursor cursor = new ParserCursor(0, buf.length());
+            cursor.updatePos(((FormattedHeader) header).getValuePos());
+            return transformation.apply(buf, cursor);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            return transformation.apply(value, cursor);
+        }
+    }
+
+    /**
+     * @since 5.5
+     */
+    public static <T> T parseHeaderValueStrict(
+            final Header header, final HeaderTransformation<T> transformation) throws ParseException {
+        Args.notNull(header, "Header");
+        Args.notNull(transformation, "Transformation");
         if (header instanceof FormattedHeader) {
             final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
             final ParserCursor cursor = new ParserCursor(0, buf.length());
