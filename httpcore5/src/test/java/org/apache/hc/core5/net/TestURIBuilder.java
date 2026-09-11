@@ -999,6 +999,39 @@ class TestURIBuilder {
     }
 
     @Test
+    void testDefaultEncodingPolicy() throws Exception {
+        final URIBuilder builder = new URIBuilder()
+                .setScheme("http")
+                .setHost("example.com")
+                .setPath("/a:b")
+                .addParameter("key", "a/b")
+                .setFragment("a/b");
+        final URI expected = new URI("http://example.com/a%3Ab?key=a%2Fb#a%2Fb");
+
+        Assertions.assertEquals(expected, builder.build());
+        builder.setEncodingPolicy(URIBuilder.EncodingPolicy.ALL_RESERVED);
+        Assertions.assertEquals(expected, builder.build());
+        builder.setEncodingPolicy(null);
+        Assertions.assertEquals(expected, builder.build());
+    }
+
+    @Test
+    void testResetEncodingPolicy() throws Exception {
+        final URIBuilder builder = new URIBuilder()
+                .setScheme("http")
+                .setUserInfo("user!")
+                .setHost("example.com")
+                .setPath("/a:b")
+                .setCustomQuery("a/b")
+                .setFragment("a/b")
+                .setEncodingPolicy(URIBuilder.EncodingPolicy.RFC_3986);
+
+        Assertions.assertEquals(new URI("http://user!@example.com/a:b?a/b#a/b"), builder.build());
+        Assertions.assertSame(builder, builder.setEncodingPolicy(null));
+        Assertions.assertEquals(new URI("http://user%21@example.com/a%3Ab?a%2Fb#a%2Fb"), builder.build());
+    }
+
+    @Test
     void testCustomQueryEncoding() throws Exception {
         final String query = "query param:!@/?\"";
         final String expectedEncodedQuery = "query%20param:!@/?%22";
