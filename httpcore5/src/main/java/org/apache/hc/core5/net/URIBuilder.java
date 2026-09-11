@@ -207,7 +207,7 @@ public class URIBuilder {
      * Sets the encoding policy for this {@link URIBuilder}.
      * The encoding policy determines how URI components (e.g., query, fragment) are
      * percent-encoded when building the URI string. If not set, the default policy
-     * is {@link EncodingPolicy#RFC_3986}.
+     * is {@link EncodingPolicy#ALL_RESERVED}.
      *
      * @param encodingPolicy the encoding policy to apply, or {@code null} to reset
      *                       to the default ({@link EncodingPolicy#ALL_RESERVED})
@@ -215,7 +215,7 @@ public class URIBuilder {
      * @since 5.4
      */
     public URIBuilder setEncodingPolicy(final EncodingPolicy encodingPolicy) {
-        this.encodingPolicy = encodingPolicy;
+        this.encodingPolicy = encodingPolicy != null ? encodingPolicy : EncodingPolicy.ALL_RESERVED;
         return this;
     }
 
