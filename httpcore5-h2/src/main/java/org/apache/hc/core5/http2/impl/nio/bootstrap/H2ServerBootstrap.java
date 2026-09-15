@@ -27,11 +27,13 @@
 package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
@@ -108,6 +110,7 @@ public class H2ServerBootstrap {
     private Http1StreamListener http1StreamListener;
     private IOReactorMetricsListener threadPoolListener;
     private FrameFactory frameFactory;
+    private List<HttpHost> originSet;
 
     private H2ServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -167,6 +170,28 @@ public class H2ServerBootstrap {
     public final H2ServerBootstrap setH2Config(final H2Config h2Config) {
         Args.check(!h2Config.isPushEnabled(), "A server MUST NOT set enable_push to true");
         this.h2Config = h2Config;
+        return this;
+    }
+
+    /**
+     * Configures the Origin Set advertised immediately after the
+     * server's HTTP/2 SETTINGS frame. An empty collection advertises only the
+     * connection's initial origin. A {@code null} value disables advertising.
+     * ORIGIN frames are never sent over cleartext HTTP/2.
+     *
+     * @param origins origins served authoritatively by the same TLS connection.
+     * @return this instance.
+     * @since 5.5
+     */
+    public final H2ServerBootstrap setOriginSet(final Collection<HttpHost> origins) {
+        if (origins == null) {
+            this.originSet = null;
+        } else {
+            this.originSet = new ArrayList<>(origins.size());
+            for (final HttpHost origin : origins) {
+                this.originSet.add(Args.notNull(origin, "Origin"));
+            }
+        }
         return this;
     }
 
@@ -528,7 +553,8 @@ public class H2ServerBootstrap {
                 h2Config != null ? h2Config : DEFAULT_H2_CONFIG,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 h2StreamListener,
-                frameFactory);
+                frameFactory,
+                originSet);
 
         final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy();
 
