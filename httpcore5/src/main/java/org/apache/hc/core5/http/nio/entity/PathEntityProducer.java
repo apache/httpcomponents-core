@@ -161,6 +161,7 @@ public final class PathEntityProducer implements AsyncEntityProducer {
     @Override
     public void releaseResources() {
         eof = false;
+        byteBuffer.clear();
         Closer.closeQuietly(channelRef.getAndSet(null));
     }
 
