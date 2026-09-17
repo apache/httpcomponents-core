@@ -104,4 +104,22 @@ class TestFileAsyncEntityProducer {
         }
     }
 
+    @Test
+    void testTextContentRepeatableAfterPartialWrite() throws Exception {
+        final AsyncEntityProducer producer = new FileEntityProducer(tempFile, ContentType.TEXT_PLAIN);
+
+        final WritableByteChannelMock partialByteChannel = new WritableByteChannelMock(1024, 3);
+        producer.produce(new BasicDataStreamChannel(partialByteChannel));
+        Assertions.assertEquals("abc", partialByteChannel.dump(StandardCharsets.US_ASCII));
+        producer.releaseResources();
+
+        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+        producer.produce(streamChannel);
+        producer.produce(streamChannel);
+
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+    }
+
 }

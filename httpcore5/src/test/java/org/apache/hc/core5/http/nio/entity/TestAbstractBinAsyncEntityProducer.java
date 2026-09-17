@@ -82,6 +82,48 @@ class TestAbstractBinAsyncEntityProducer {
 
     }
 
+    static private class RepeatableByteAsyncEntityProducer extends AbstractBinAsyncEntityProducer {
+
+        private final ByteBuffer content;
+
+        public RepeatableByteAsyncEntityProducer(
+                final int fragmentSizeHint,
+                final ContentType contentType,
+                final byte[] content) {
+            super(fragmentSizeHint, contentType);
+            this.content = ByteBuffer.wrap(content);
+        }
+
+        @Override
+        public boolean isRepeatable() {
+            return true;
+        }
+
+        @Override
+        protected int availableData() {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        protected void produceData(final StreamChannel<ByteBuffer> channel) throws IOException {
+            channel.write(content);
+            if (!content.hasRemaining()) {
+                channel.endStream();
+            }
+        }
+
+        @Override
+        public void failed(final Exception cause) {
+        }
+
+        @Override
+        public void releaseResources() {
+            content.clear();
+            super.releaseResources();
+        }
+
+    }
+
     @Test
     void testProduceDataNoBuffering() throws Exception {
 
@@ -182,6 +224,24 @@ class TestAbstractBinAsyncEntityProducer {
         Assertions.assertFalse(byteChannel.isOpen());
         Assertions.assertEquals("67890", byteChannel.dump(StandardCharsets.US_ASCII));
 
+    }
+
+    @Test
+    void testProduceDataRepeatableAfterPartialWrite() throws Exception {
+        final AsyncEntityProducer producer = new RepeatableByteAsyncEntityProducer(
+                6, ContentType.TEXT_PLAIN, "abcdef".getBytes(StandardCharsets.US_ASCII));
+
+        final WritableByteChannelMock partialByteChannel = new WritableByteChannelMock(1024, 3);
+        producer.produce(new BasicDataStreamChannel(partialByteChannel));
+        Assertions.assertEquals("abc", partialByteChannel.dump(StandardCharsets.US_ASCII));
+        producer.releaseResources();
+
+        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+        producer.produce(streamChannel);
+
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
 }
