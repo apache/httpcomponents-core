@@ -223,6 +223,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     @Override
     public void releaseResources() {
         state = State.ACTIVE;
+        byteBuffer.clear();
     }
 
 }

@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
+import org.apache.hc.core5.util.TextUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +61,31 @@ class TestDigestingEntityProducer {
         Assertions.assertEquals("MD5", trailers.get(0).getValue());
         Assertions.assertEquals("digest", trailers.get(1).getName());
         Assertions.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
+    }
+
+    @Test
+    void testProduceDataRepeatableAfterPartialWrite() throws Exception {
+        final DigestingEntityProducer producer = new DigestingEntityProducer("MD5",
+                new StringAsyncEntityProducer("abcdef", 6, 6, ContentType.TEXT_PLAIN));
+
+        final WritableByteChannelMock partialByteChannel = new WritableByteChannelMock(1024, 3);
+        producer.produce(new BasicDataStreamChannel(partialByteChannel));
+        Assertions.assertEquals("abc", partialByteChannel.dump(StandardCharsets.US_ASCII));
+        producer.releaseResources();
+
+        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+        final BasicDataStreamChannel dataStreamChannel = new BasicDataStreamChannel(byteChannel);
+        while (byteChannel.isOpen()) {
+            producer.produce(dataStreamChannel);
+        }
+
+        Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertEquals("e80b5017098950fc58aad83c8c14978e", TextUtils.toHexString(producer.getDigest()));
+
+        final List<Header> trailers = dataStreamChannel.getTrailers();
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals("digest", trailers.get(1).getName());
+        Assertions.assertEquals("e80b5017098950fc58aad83c8c14978e", trailers.get(1).getValue());
     }
 
 }

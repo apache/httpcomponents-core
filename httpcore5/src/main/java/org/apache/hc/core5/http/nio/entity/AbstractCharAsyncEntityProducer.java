@@ -245,6 +245,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     @Override
     public void releaseResources() {
         state = State.ACTIVE;
+        bytebuf.clear();
         charsetEncoder.reset();
     }
 
