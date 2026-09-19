@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  */
 class TestHttpExceptions {
 
-    private static final String CLEAN_MESSAGE = "[0x00]Hello[0x06][0x07][0x08][0x09][0x0a][0x0b][0x0c][0x0d][0x0e][0x0f]World";
+    private static final String CLEAN_MESSAGE = "[0x01]Hello[0x01][0x02][0x03][0x04][0x05][0x06][0x07][0x08][0x09][0x00]World";
     private static final String nonPrintableMessage = String.valueOf(
             new char[] { 1, 'H', 'e', 'l', 'l', 'o', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'W', 'o', 'r', 'l', 'd' });
 
@@ -84,6 +84,20 @@ class TestHttpExceptions {
     @Test
     void testNonPrintableCharactersInUnsupportedHttpVersionException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new UnsupportedHttpVersionException(nonPrintableMessage).getMessage());
+    }
+
+
+    @Test
+    void testControlCharacterEscaping() {
+        final HttpException exception = new HttpException("0123456789abcdef\nsuffix");
+
+        Assertions.assertEquals("0123456789abcdef[0x0a]suffix", exception.getMessage());
+    }
+
+    @Test
+    void testControlCharacterEncodingIndependentOfPosition() {
+        Assertions.assertEquals("a[0x0a]b", new HttpException("a\nb").getMessage());
+        Assertions.assertEquals("0123456789abcdef[0x0a]b", new HttpException("0123456789abcdef\nb").getMessage());
     }
 
 }

@@ -60,7 +60,7 @@ public class HttpException extends Exception {
             final char ch = chars[i];
             if (ch < FIRST_VALID_CHAR) {
                 builder.append("[0x");
-                final String hexString = Integer.toHexString(i);
+                final String hexString = Integer.toHexString(ch);
                 if (hexString.length() == 1) {
                     builder.append("0");
                 }
