@@ -322,6 +322,13 @@ public final class TlsCiphers {
                     "TLS_PSK_WITH_AES_256_CCM_8"
             )));
 
+    /**
+     * Tests whether <a href="Prohibited TLS 1.2 Cipher Suites">RFC9113 Appendix A Prohibited TLS 1.2 Cipher Suites</a> prohibits the use of a given cipher
+     * suite.
+     *
+     * @param cipherSuite The cipher suite name to test.
+     * @return Whether RFC9113 prohibits the use of a given cipher suites for HTTP/2.
+     */
     public static boolean isH2Blacklisted(final String cipherSuite) {
         return H2_BLACKLISTED.contains(cipherSuite);
     }
@@ -332,11 +339,29 @@ public final class TlsCiphers {
     private static final String WEAK_CIPHERS
             = "^(TLS|SSL)_(.*)_WITH_(NULL|DES_CBC|DES40_CBC|DES_CBC_40|3DES_EDE_CBC|RC4_128|RC4_40|RC2_CBC_40)_(.*)";
 
+    /**
+     * RFC 10015 Deprecating Obsolete Key Exchange Methods in TLS 1.2 and DTLS 1.2.
+     */
+    private static final String RC100015_DEPRECATED_CIPHERS = "^TLS_(DHE?|PSK_DHE_WITH_AES|ECDH|RSA)_(.*)";
+
     private static final List<Pattern> WEAK_CIPHER_SUITE_PATTERNS = Collections.unmodifiableList(Arrays.asList(
             Pattern.compile(WEAK_KEY_EXCHANGES, Pattern.CASE_INSENSITIVE),
-            Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE)));
+            Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE),
+            Pattern.compile(RC100015_DEPRECATED_CIPHERS, Pattern.CASE_INSENSITIVE)));
 
+    /**
+     * Tests whether a given cipher suite is considered weak.
+     * <p>
+     * A cipher suite is considered weak if it is blacklisted for HTTP/2 or matches any of the weak cipher suite patterns.
+     * </p>
+     *
+     * @param cipherSuite The cipher suite name to test.
+     * @return Whether the cipher suite is considered weak.
+     */
     public static boolean isWeak(final String cipherSuite) {
+        if (isH2Blacklisted(cipherSuite)) {
+            return true;
+        }
         for (final Pattern pattern : WEAK_CIPHER_SUITE_PATTERNS) {
             if (pattern.matcher(cipherSuite).matches()) {
                 return true;
@@ -369,6 +394,10 @@ public final class TlsCiphers {
             }
         }
         return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
+    }
+
+    static Set<String> getH2Blacklisted() {
+        return H2_BLACKLISTED;
     }
 
 }
