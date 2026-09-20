@@ -1,3 +1,26 @@
+Release 5.4.4
+------------------
+
+This maintenance release optimizes HTTP/1.1 message buffer configuration and corrects
+the handling of asynchronous entity producer state resets after interrupted writes.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-800: Fixed hexadecimal encoding of control characters in HttpException messages.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-799: Corrected the handling of asynchronous entity producer state resets after interrupted writes.
+  Contributed by Matthias Kurz <m.kurz at irregular.at>
+
+* Fixed URIBuilder encoding policy documentation and null reset behavior.
+  Contributed by Praful Gupta <prafulgupta6 at gmail.com>
+
+* Increased the default HTTP/1.1 buffer size to 32 KiB.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
 Release 5.4.3
 ------------------
 
