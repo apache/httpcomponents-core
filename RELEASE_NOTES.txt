@@ -1,12 +1,11 @@
-Release 5.5-beta2
+Release 5.5-beta3
 -----------------
 
-This BETA release corrects Java 8 binary problem introduced in the previous BETA
-release. The previous version has been compiled against Java 17 APIs by mistake.
-This release aslo adds support for QUERY method (RFC 10008).
+This BETA release migrates JSON bindings to Jackson 3, introduces support for
+Structured Field Values (RFC 9651) and improves and optimizes message parsing
+support methods. It is expected to be the last BETA release before 5.5 GA.
 
 This release includes all the fixes from the stable 5.4 branch.
-
 
 Notable changes and features included in the 5.5 series:
 
@@ -25,6 +24,8 @@ Notable changes and features included in the 5.5 series:
 
 * QUERY method support (RFC 10008).
 
+* Structured Field Values for HTTP (RFC 9651)
+
 Compatibility notes:
 
 * HTTP requesters and servers take into account SSL/TLS system properties
@@ -36,6 +37,95 @@ Compatibility notes:
 
 Change Log
 -------------------
+* RFC 10015 (Deprecating Obsolete Key Exchange Methods in TLS 1.2 and DTLS 1.2)
+  support in TlsCiphers (#686).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-799: Corrected reset of async entity producer state after interrupted
+  writes.
+  Contributed by Matthias Kurz <m.kurz at irregular.at>
+
+* Structured Field Values for HTTP (RFC 9651).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* #parseElementList in MessageSupport to tolerate trailing whitespace;
+  #parseElementListStrict to disallow malformed / unparsed elements.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Corrected the use of custom delimiters by #parseTokens in MessageSupport.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Transfer-Encoding parsing optimization in DefaultContentLengthStrategy.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Header iterator memory optimization in HeaderGroup.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* MessageSupport: method for strict header value parsing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* MessageSupport: method for strict header value transformation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Strict #parse methods in MessageSupport to throw ParseException.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* PercentCodec decoder to disallow non-ASCII characters in input.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-798: Maked socket channel creation customizable.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Improved message exchange initation and endpoint management in HttpAsyncRequester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Parsing code optimization in PriorityParamsParser.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-797: fixed infinite recursion in SSLContexts#createDefault.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved logic of HTTP/1.1 request termination: terminate the request in case of
+  non-2xx reponse with 'Connecction: close'.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Simplified toString() implementation to avoid possible deadlocks
+  Contributed Andrey Turbanov <turbanoff at gmail.com>
+
+* Increase default HTTP/1.1 buffer size to 32 KiB.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Upgraded Conscrypt to version 2.6.1.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* H2 stream handlers to make sure content-length header value equals the sum of data
+  payload as per RFC 9113, section 8.1.1.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Migrated JSON bindings to Jackson 3.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Deprecated EntityUtils#toByteArray / EntityUtils#toString methods with
+  no maxResultLength constraint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added #getContentLength method to MessageSupport.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 5.5-beta2
+-----------------
+
+This BETA release corrects Java 8 binary problem introduced in the previous BETA
+release. The previous version has been compiled against Java 17 APIs by mistake.
+This release aslo adds support for QUERY method (RFC 10008).
+
+This release includes all the fixes from the stable 5.4 branch.
+
+
+Change Log
+-------------------
+
 * QUERY method support (RFC 10008).
   Contributed by Mario Daniel Ruiz Saavedra <desiderantes93 at gmail.com>
 
