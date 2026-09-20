@@ -49,6 +49,10 @@ final class NoopH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void outputAborted() {
+    }
+
+    @Override
     public void consumePromise(final List<Header> headers) throws HttpException, IOException {
     }
 

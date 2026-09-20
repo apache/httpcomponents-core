@@ -957,6 +957,7 @@ class TestAbstractH2StreamMultiplexer {
                 sent = true;
             }
         }
+        @Override public void outputAborted() { }
         @Override public void consumePromise(final List<Header> headers) { }
         @Override public void consumeHeader(final List<Header> headers, final boolean endStream) { }
         @Override public void updateInputCapacity() { }

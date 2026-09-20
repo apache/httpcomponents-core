@@ -237,6 +237,10 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void outputAborted() {
+    }
+
+    @Override
     public void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException {
         throw ex;
     }

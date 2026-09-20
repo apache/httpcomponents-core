@@ -186,6 +186,13 @@ class ClientH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void outputAborted() {
+        if (requestState.get() == MessageState.BODY) {
+            exchangeHandler.outputAborted();
+        }
+    }
+
+    @Override
     public void consumePromise(final List<Header> headers) throws HttpException, IOException {
         throw new ProtocolException("Unexpected message promise");
     }

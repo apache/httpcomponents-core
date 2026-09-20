@@ -142,6 +142,11 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
     }
 
     @Override
+    public void outputAborted() {
+        handler.outputAborted();
+    }
+
+    @Override
     public final void failed(final Exception cause) {
         if (exceptionCallback != null) {
             exceptionCallback.execute(cause);

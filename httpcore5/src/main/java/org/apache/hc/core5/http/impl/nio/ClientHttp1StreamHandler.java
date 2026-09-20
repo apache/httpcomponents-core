@@ -246,6 +246,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             if (status >= HttpStatus.SC_REDIRECTION) {
                 requestState.set(MessageState.COMPLETE);
                 if (!outputChannel.abortGracefully()) {
+                    exchangeHandler.outputAborted();
                     keepAlive = false;
                 }
             }

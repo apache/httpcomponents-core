@@ -288,6 +288,7 @@ class H2Stream implements StreamControl {
     boolean abortGracefully() throws IOException {
         if (!isLocalClosed() && isRemoteClosed()) {
             channel.endStream();
+            handler.outputAborted();
             releaseResources();
             return true;
         } else {

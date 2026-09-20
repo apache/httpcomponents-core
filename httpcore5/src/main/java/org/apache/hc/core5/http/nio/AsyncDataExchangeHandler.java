@@ -41,4 +41,13 @@ public interface AsyncDataExchangeHandler extends AsyncDataConsumer, AsyncDataPr
      */
     void failed(Exception cause);
 
+    /**
+     * Triggered to signal the opposite endpoint requesed graceful
+     * termination of the outgoing data stream.
+     *
+     * @since 5.5
+     */
+    default void outputAborted() {
+    }
+
 }

@@ -103,6 +103,10 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void outputAborted() {
+    }
+
+    @Override
     public void consumePromise(final List<Header> headers) throws HttpException, IOException {
         if (requestState == MessageState.HEADERS) {
 

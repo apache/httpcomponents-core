@@ -334,6 +334,13 @@ class ServerH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void outputAborted() {
+        if (responseState.get() == MessageState.BODY) {
+            exchangeHandler.outputAborted();
+        }
+    }
+
+    @Override
     public void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException {
         if (done.get()) {
             throw ex;
