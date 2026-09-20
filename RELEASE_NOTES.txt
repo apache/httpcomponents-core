@@ -2,34 +2,33 @@ Release 5.5-beta3
 -----------------
 
 This BETA release migrates JSON bindings to Jackson 3, introduces support for
-Structured Field Values (RFC 9651) and improves and optimizes message parsing
+Structured Field Values (RFC 9651), and improves and optimizes message parsing
 support methods. It is expected to be the last BETA release before 5.5 GA.
 
-This release includes all the fixes from the stable 5.4 branch.
+This release includes all fixes from the stable 5.4 branch.
 
 Notable changes and features included in the 5.5 series:
 
-* Connection pool implementation improvements.
+* Improved connection pool implementation.
 
-* HTTP message stream APIs and support for HTTP/2 message stream timeout.
+* Added HTTP message stream APIs and support for HTTP/2 message stream timeouts.
 
-* SSLContexts to respect system properties by default.
+* Updated SSLContexts to respect system properties by default.
 
-* Cap pending HTTP/2 request commands per connection.
+* Limited pending HTTP/2 request commands per connection.
 
-* HPACK RFC 7540, RFC 7541, and HTTP/2 RFC 9113 conformance improvements.
+* Improved conformance with RFC 7540, HPACK (RFC 7541), and HTTP/2 (RFC 9113).
 
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
 
-* QUERY method support (RFC 10008).
+* Added support for the QUERY method (RFC 10008).
 
-* Structured Field Values for HTTP (RFC 9651)
+* Added support for Structured Field Values for HTTP (RFC 9651).
 
 Compatibility notes:
 
-* HTTP requesters and servers take into account SSL/TLS system properties
-  by default.
+* HTTP requesters and servers respect SSL/TLS system properties by default.
 
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
@@ -37,79 +36,80 @@ Compatibility notes:
 
 Change Log
 -------------------
-* RFC 10015 (Deprecating Obsolete Key Exchange Methods in TLS 1.2 and DTLS 1.2)
-  support in TlsCiphers (#686).
+
+* Added support for RFC 10015 (Deprecating Obsolete Key Exchange Methods in TLS 1.2
+  and DTLS 1.2) in TlsCiphers (#686).
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-799: Corrected reset of async entity producer state after interrupted
-  writes.
+* HTTPCORE-799: Corrected the handling of asynchronous entity producer state resets
+  after interrupted writes.
   Contributed by Matthias Kurz <m.kurz at irregular.at>
 
-* Structured Field Values for HTTP (RFC 9651).
+* Added support for Structured Field Values for HTTP (RFC 9651).
   Contributed by Arturo Bernal <abernal at apache.org>
 
-* #parseElementList in MessageSupport to tolerate trailing whitespace;
-  #parseElementListStrict to disallow malformed / unparsed elements.
+* Updated MessageSupport#parseElementList to tolerate trailing whitespace and
+  MessageSupport#parseElementListStrict to reject malformed or unparsed elements.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Corrected the use of custom delimiters by #parseTokens in MessageSupport.
+* Corrected the use of custom delimiters in MessageSupport#parseTokens.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Transfer-Encoding parsing optimization in DefaultContentLengthStrategy.
+* Optimized Transfer-Encoding parsing in DefaultContentLengthStrategy.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Header iterator memory optimization in HeaderGroup.
+* Optimized header iterator memory usage in HeaderGroup.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* MessageSupport: method for strict header value parsing.
+* Added a method for strict header value parsing to MessageSupport.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* MessageSupport: method for strict header value transformation.
+* Added a method for strict header value transformation to MessageSupport.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Strict #parse methods in MessageSupport to throw ParseException.
+* Updated strict parsing methods in MessageSupport to throw ParseException.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* PercentCodec decoder to disallow non-ASCII characters in input.
+* Updated the PercentCodec decoder to reject non-ASCII input characters.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-798: Maked socket channel creation customizable.
+* HTTPCORE-798: Made socket channel creation customizable.
   Contributed by Arturo Bernal <abernal at apache.org>
 
-* Improved message exchange initation and endpoint management in HttpAsyncRequester.
+* Improved message exchange initiation and endpoint management in HttpAsyncRequester.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Parsing code optimization in PriorityParamsParser.
+* Optimized parsing code in PriorityParamsParser.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-797: fixed infinite recursion in SSLContexts#createDefault.
+* HTTPCORE-797: Fixed infinite recursion in SSLContexts#createDefault.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Improved logic of HTTP/1.1 request termination: terminate the request in case of
-  non-2xx reponse with 'Connecction: close'.
+* Improved HTTP/1.1 request termination logic to terminate requests upon receiving
+  a non-2xx response with 'Connection: close'.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Simplified toString() implementation to avoid possible deadlocks
-  Contributed Andrey Turbanov <turbanoff at gmail.com>
+* Simplified the toString() implementation to avoid possible deadlocks.
+  Contributed by Andrey Turbanov <turbanoff at gmail.com>
 
-* Increase default HTTP/1.1 buffer size to 32 KiB.
+* Increased the default HTTP/1.1 buffer size to 32 KiB.
   Contributed by Arturo Bernal <abernal at apache.org>
 
 * Upgraded Conscrypt to version 2.6.1.
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
-* H2 stream handlers to make sure content-length header value equals the sum of data
-  payload as per RFC 9113, section 8.1.1.
+* Updated HTTP/2 stream handlers to ensure that the content-length header value
+  equals the total length of DATA payloads, as required by RFC 9113, Section 8.1.1.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Migrated JSON bindings to Jackson 3.
   Contributed by Arturo Bernal <abernal at apache.org>
 
-* Deprecated EntityUtils#toByteArray / EntityUtils#toString methods with
+* Deprecated EntityUtils#toByteArray and EntityUtils#toString methods that have
   no maxResultLength constraint.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Added #getContentLength method to MessageSupport.
+* Added the #getContentLength method to MessageSupport.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
