@@ -323,7 +323,7 @@ public final class TlsCiphers {
             )));
 
     /**
-     * Tests whether <a href="Prohibited TLS 1.2 Cipher Suites">RFC9113 Appendix A Prohibited TLS 1.2 Cipher Suites</a> prohibits the use of a given cipher
+     * Tests whether RFC9113 Appendix A Prohibited TLS 1.2 Cipher Suites prohibits the use of a given cipher
      * suite.
      *
      * @param cipherSuite The cipher suite name to test.
