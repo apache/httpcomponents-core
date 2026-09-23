@@ -98,6 +98,13 @@ public final class HttpHeaders {
 
     public static final String CONNECTION = "Connection";
 
+    /**
+     * The RFC 9530 {@code Content-Digest} field name.
+     *
+     * @since 5.5
+     */
+    public static final String CONTENT_DIGEST = "Content-Digest";
+
     public static final String CONTENT_ENCODING = "Content-Encoding";
     /**
      * The HTTP {@code Content-Disposition} header field name.
@@ -180,6 +187,13 @@ public final class HttpHeaders {
 
     public static final String REFERER = "Referer";
 
+    /**
+     * The RFC 9530 {@code Repr-Digest} field name.
+     *
+     * @since 5.5
+     */
+    public static final String REPR_DIGEST = "Repr-Digest";
+
     public static final String RETRY_AFTER = "Retry-After";
 
     public static final String SERVER = "Server";
@@ -206,6 +220,20 @@ public final class HttpHeaders {
     public static final String VARY = "Vary";
 
     public static final String VIA = "Via";
+
+    /**
+     * The RFC 9530 {@code Want-Content-Digest} field name.
+     *
+     * @since 5.5
+     */
+    public static final String WANT_CONTENT_DIGEST = "Want-Content-Digest";
+
+    /**
+     * The RFC 9530 {@code Want-Repr-Digest} field name.
+     *
+     * @since 5.5
+     */
+    public static final String WANT_REPR_DIGEST = "Want-Repr-Digest";
 
     public static final String WARNING = "Warning";
 
