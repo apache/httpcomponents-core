@@ -249,6 +249,11 @@ public class H2MultiplexingRequester extends AsyncRequester {
                             }
 
                             @Override
+                            public void outputAborted() {
+                                exchangeHandler.outputAborted();
+                            }
+
+                            @Override
                             public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
                                 exchangeHandler.streamEnd(trailers);
                             }
