@@ -194,9 +194,10 @@
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <doclint>all,-missing</doclint>
           <links>
-            <link>${project.url}/httpcore5/apidocs/</link>
-            <link>${project.url}/httpcore5-h2/apidocs/</link>
+            <link>https://hc.apache.org/httpcomponents-core-5.4.x/current/httpcore5/apidocs/</link>
+            <link>https://hc.apache.org/httpcomponents-core-5.4.x/current/httpcore5-h2/apidocs/</link>
           </links>
         </configuration>
       </plugin>
@@ -320,9 +321,10 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <quiet>true</quiet>
+          <doclint>all,-missing</doclint>
           <links>
-            <link>${project.url}/httpcore5/apidocs/</link>
-            <link>${project.url}/httpcore5-h2/apidocs/</link>
+            <link>https://hc.apache.org/httpcomponents-core-5.4.x/current/httpcore5/apidocs/</link>
+            <link>https://hc.apache.org/httpcomponents-core-5.4.x/current/httpcore5-h2/apidocs/</link>
           </links>
           <notimestamp>true</notimestamp>
           <groups>
