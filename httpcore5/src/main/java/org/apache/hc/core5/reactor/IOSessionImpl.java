@@ -52,6 +52,16 @@ class IOSessionImpl implements IOSession {
     /** Counts instances created. */
     private final static AtomicLong COUNT = new AtomicLong(0);
 
+    /**
+     * The default buffer size for chunked writes of heap data.
+     * When a heap buffer is written through a socket channel,
+     * the JDK copies its content through a temporary direct buffer of the same size, which is cached per I/O dispatch thread.
+     * Bounding the size of individual write operations also bounds the amount of native memory
+     * that can be consumed by such temporary buffers.
+     * The value is the same as the internal buffer size used by the JDK's built-in HTTP client.
+     */
+    private static final int DEFAULT_BUFSIZE = 16 * 1024;
+
     private final SelectionKey key;
     private final SocketChannel channel;
     private final Deque<Command> commandQueue;
@@ -216,12 +226,31 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-            return this.channel.read(dst);
+        return this.channel.read(dst);
     }
 
     @Override
     public int write(final ByteBuffer src) throws IOException {
-        return this.channel.write(src);
+        if (src.isDirect() || src.remaining() <= DEFAULT_BUFSIZE) {
+            return this.channel.write(src);
+        }
+        final int limit = src.limit();
+        int totalBytesWritten = 0;
+        do {
+            src.limit(src.position() + Math.min(DEFAULT_BUFSIZE, src.remaining()));
+            final int bytesWritten;
+            try {
+                bytesWritten = this.channel.write(src);
+            } finally {
+                src.limit(limit);
+            }
+            if (bytesWritten > 0) {
+                totalBytesWritten += bytesWritten;
+            } else {
+                break;
+            }
+        } while (src.hasRemaining());
+        return totalBytesWritten;
     }
 
     @Override

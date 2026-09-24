@@ -26,9 +26,17 @@
  */
 package org.apache.hc.core5.reactor;
 
+import java.io.ByteArrayOutputStream;
+import java.net.SocketAddress;
+import java.net.SocketOption;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,6 +53,123 @@ class TestIOSessionImpl {
         public boolean cancel() {
             cancelled.set(true);
             return true;
+        }
+    }
+
+    private static class WriteRecordingChannel extends SocketChannel {
+
+        final List<Integer> writeSizes = new ArrayList<>();
+        private final ByteArrayOutputStream data = new ByteArrayOutputStream();
+        private int maxBytesPerWrite = Integer.MAX_VALUE;
+
+        WriteRecordingChannel() {
+            super(null);
+        }
+
+        @Override
+        public int write(final ByteBuffer src) {
+            writeSizes.add(src.remaining());
+            final int chunk = Math.min(maxBytesPerWrite, src.remaining());
+            final byte[] bytes = new byte[chunk];
+            src.get(bytes);
+            data.write(bytes, 0, chunk);
+            return chunk;
+        }
+
+        @Override
+        public long write(final ByteBuffer[] srcs, final int offset, final int length) {
+            long total = 0;
+            for (int i = offset; i < offset + length; i++) {
+                total += write(srcs[i]);
+            }
+            return total;
+        }
+
+        byte[] toByteArray() {
+            return data.toByteArray();
+        }
+
+        @Override
+        public int read(final ByteBuffer dst) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public long read(final ByteBuffer[] dsts, final int offset, final int length) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.net.Socket socket() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SocketAddress getLocalAddress() {
+            return null;
+        }
+
+        @Override
+        public SocketAddress getRemoteAddress() {
+            return null;
+        }
+
+        @Override
+        public boolean isConnected() {
+            return true;
+        }
+
+        @Override
+        public boolean isConnectionPending() {
+            return false;
+        }
+
+        @Override
+        public boolean connect(final SocketAddress remote) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean finishConnect() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SocketChannel shutdownInput() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SocketChannel shutdownOutput() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SocketChannel bind(final SocketAddress local) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T> SocketChannel setOption(final SocketOption<T> name, final T value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T> T getOption(final SocketOption<T> name) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<SocketOption<?>> supportedOptions() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        protected void implCloseSelectableChannel() {
+        }
+
+        @Override
+        protected void implConfigureBlocking(final boolean block) {
         }
     }
 
@@ -138,4 +263,124 @@ class TestIOSessionImpl {
         }
     }
 
+    @Test
+    @SuppressWarnings("resource")
+    void largeHeapBufferWriteIsChunked() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final WriteRecordingChannel mockChannel = new WriteRecordingChannel();
+            final IOSessionImpl session = new IOSessionImpl("t", key, mockChannel, null);
+
+            final byte[] content = new byte[16 * 1024 * 2 + 16];
+            for (int i = 0; i < content.length; i++) {
+                content[i] = (byte) i;
+            }
+            final ByteBuffer src = ByteBuffer.wrap(content);
+
+            final int bytesWritten = session.write(src);
+
+            Assertions.assertEquals(content.length, bytesWritten);
+            Assertions.assertFalse(src.hasRemaining());
+            Assertions.assertEquals(3, mockChannel.writeSizes.size());
+            for (final int size : mockChannel.writeSizes) {
+                Assertions.assertTrue(size <= 16 * 1024);
+            }
+            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("resource")
+    void smallHeapBufferWriteIsNotChunked() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final WriteRecordingChannel mockChannel = new WriteRecordingChannel();
+            final IOSessionImpl session = new IOSessionImpl("t", key, mockChannel, null);
+
+            final byte[] content = new byte[100];
+            final ByteBuffer src = ByteBuffer.wrap(content);
+
+            final int bytesWritten = session.write(src);
+
+            Assertions.assertEquals(content.length, bytesWritten);
+            Assertions.assertEquals(1, mockChannel.writeSizes.size());
+            Assertions.assertEquals(content.length, mockChannel.writeSizes.get(0));
+            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("resource")
+    void directBufferWriteIsNotChunked() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final WriteRecordingChannel mockChannel = new WriteRecordingChannel();
+            final IOSessionImpl session = new IOSessionImpl("t", key, mockChannel, null);
+
+            final int contentSize = 16 * 1024 * 3;
+            final ByteBuffer src = ByteBuffer.allocateDirect(contentSize);
+            for (int i = 0; i < contentSize; i++) {
+                src.put((byte) i);
+            }
+            src.flip();
+
+            final int bytesWritten = session.write(src);
+
+            Assertions.assertEquals(contentSize, bytesWritten);
+            Assertions.assertEquals(1, mockChannel.writeSizes.size());
+            Assertions.assertEquals(contentSize, mockChannel.writeSizes.get(0));
+        }
+    }
+
+    @Test
+    @SuppressWarnings("resource")
+    void partialWriteDrainsAll() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final WriteRecordingChannel mockChannel = new WriteRecordingChannel();
+            mockChannel.maxBytesPerWrite = 8 * 1024;
+            final IOSessionImpl session = new IOSessionImpl("t", key, mockChannel, null);
+
+            final byte[] content = new byte[16 * 1024 * 2 + 16];
+            for (int i = 0; i < content.length; i++) {
+                content[i] = (byte) i;
+            }
+            final ByteBuffer src = ByteBuffer.wrap(content);
+
+            final int bytesWritten = session.write(src);
+
+            Assertions.assertEquals(content.length, bytesWritten);
+            Assertions.assertFalse(src.hasRemaining());
+            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("resource")
+    void saturatedChannelWriteReturnsZero() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final WriteRecordingChannel mockChannel = new WriteRecordingChannel();
+            mockChannel.maxBytesPerWrite = 0;
+            final IOSessionImpl session = new IOSessionImpl("t", key, mockChannel, null);
+
+            final byte[] content = new byte[16 * 1024 * 2];
+            final ByteBuffer src = ByteBuffer.wrap(content);
+
+            final int bytesWritten = session.write(src);
+
+            Assertions.assertEquals(0, bytesWritten);
+            Assertions.assertTrue(src.hasRemaining());
+        }
+    }
 }
