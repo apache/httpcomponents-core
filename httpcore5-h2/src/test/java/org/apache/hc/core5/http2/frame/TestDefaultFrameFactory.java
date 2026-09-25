@@ -99,4 +99,17 @@ class TestDefaultFrameFactory {
         Assertions.assertEquals("Oopsie", new String(tmp, StandardCharsets.US_ASCII));
     }
 
+    @Test
+    void testOriginFrame() {
+        final FrameFactory frameFactory = new DefaultFrameFactory();
+        final ByteBuffer payload = ByteBuffer.wrap(new byte[] {0, 0});
+
+        final Frame<ByteBuffer> originFrame = frameFactory.createOrigin(payload);
+
+        Assertions.assertEquals(FrameType.ORIGIN.value, originFrame.getType());
+        Assertions.assertEquals(0, originFrame.getStreamId());
+        Assertions.assertEquals(0, originFrame.getFlags());
+        Assertions.assertEquals(2, originFrame.getPayload().remaining());
+    }
+
 }

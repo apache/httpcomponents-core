@@ -27,8 +27,18 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.Set;
+
+import javax.net.ssl.ExtendedSSLSession;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
+import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -44,7 +54,9 @@ import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Timeout;
 
@@ -59,6 +71,7 @@ import org.apache.hc.core5.util.Timeout;
 public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
 
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+    private final H2OriginSet originSet;
 
     /**
      * @since 5.5
@@ -76,6 +89,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config,
                 streamListener, validateAfterInactivity, pingAckTimeout);
         this.pushHandlerFactory = pushHandlerFactory;
+        this.originSet = createOriginSet(ioSession, h2Config);
     }
 
     public ClientH2StreamMultiplexer(
@@ -90,6 +104,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config,
                 streamListener, validateAfterInactivity);
         this.pushHandlerFactory = pushHandlerFactory;
+        this.originSet = createOriginSet(ioSession, h2Config);
     }
 
     public ClientH2StreamMultiplexer(
@@ -160,6 +175,47 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     }
 
     @Override
+    void consumeOriginFrame(final RawFrame frame) throws H2ConnectionException {
+        if (!getLocalConfig().isOriginFrameEnabled()
+                || getSSLSession() == null
+                || frame.getStreamId() != 0
+                || (frame.getFlags() & 0x0f) != 0) {
+            return;
+        }
+        originSet.update(H2OriginFrameCodec.decode(frame.getPayload()));
+    }
+
+    /**
+     * Tests whether an ORIGIN frame has initialized this connection's
+     * Origin Set.
+     *
+     * @since 5.5
+     */
+    public boolean isOriginSetInitialized() {
+        return originSet.isInitialized();
+    }
+
+    /**
+     * Returns an immutable snapshot of this connection's Origin Set.
+     *
+     * @since 5.5
+     */
+    public Set<HttpHost> getOriginSet() {
+        return originSet.snapshot();
+    }
+
+    /**
+     * Tests whether a request to the given origin may use this connection based
+     * on its Origin Set. TLS certificate checks remain the caller's
+     * responsibility when selecting a connection for another origin.
+     *
+     * @since 5.5
+     */
+    public boolean isOriginAllowed(final HttpHost origin) {
+        return originSet.isAllowed(origin);
+    }
+
+    @Override
     H2StreamHandler outgoingRequest(
             final H2StreamChannel channel,
             final AsyncClientExchangeHandler exchangeHandler,
@@ -170,7 +226,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         coreContext.setEndpointDetails(getEndpointDetails());
         return new ClientH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(), exchangeHandler,
                 pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
-                coreContext);
+                coreContext, originSet);
     }
 
     @Override
@@ -191,7 +247,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         context.setEndpointDetails(getEndpointDetails());
         return new ClientPushH2StreamHandler(channel, getHttpProcessor(), getConnMetrics(),
                 pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
-                context);
+                context, originSet);
     }
 
     @Override
@@ -208,5 +264,54 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
         return buf.toString();
     }
 
-}
+    private static H2OriginSet createOriginSet(final ProtocolIOSession ioSession, final H2Config config) {
+        final H2Config actualConfig = config != null ? config : H2Config.DEFAULT;
+        return new H2OriginSet(determineInitialOrigin(ioSession), actualConfig.getMaxOriginSetSize());
+    }
 
+    private static HttpHost determineInitialOrigin(final ProtocolIOSession ioSession) {
+        final SSLSession sslSession = ioSession.getTlsDetails() != null
+                ? ioSession.getTlsDetails().getSSLSession()
+                : null;
+        final NamedEndpoint initialEndpoint = ioSession.getInitialEndpoint();
+        String hostName = getSniHostName(sslSession);
+        if (hostName == null && initialEndpoint != null) {
+            hostName = initialEndpoint.getHostName();
+        }
+        if (hostName == null && sslSession != null) {
+            hostName = sslSession.getPeerHost();
+        }
+        int port = sslSession != null ? sslSession.getPeerPort() : -1;
+        final SocketAddress remoteAddress = ioSession.getRemoteAddress();
+        if (remoteAddress instanceof InetSocketAddress) {
+            final InetSocketAddress inetAddress = (InetSocketAddress) remoteAddress;
+            if (hostName == null) {
+                hostName = inetAddress.getAddress() != null
+                        ? inetAddress.getAddress().getHostAddress()
+                        : inetAddress.getHostString();
+            }
+            if (port <= 0) {
+                port = inetAddress.getPort();
+            }
+        }
+        if (port < 0 && initialEndpoint != null) {
+            port = initialEndpoint.getPort();
+        }
+        return hostName != null && port >= 0 ? new HttpHost("https", hostName, port) : null;
+    }
+
+    private static String getSniHostName(final SSLSession sslSession) {
+        if (sslSession instanceof ExtendedSSLSession) {
+            final List<SNIServerName> serverNames = ((ExtendedSSLSession) sslSession).getRequestedServerNames();
+            if (serverNames != null) {
+                for (final SNIServerName serverName : serverNames) {
+                    if (serverName instanceof SNIHostName) {
+                        return ((SNIHostName) serverName).getAsciiName();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+}

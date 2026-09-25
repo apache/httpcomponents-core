@@ -232,6 +232,18 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return httpProcessor;
     }
 
+    final H2Config getLocalConfig() {
+        return localConfig;
+    }
+
+    final FrameFactory getFrameFactory() {
+        return frameFactory;
+    }
+
+    final int getMaxFramePayloadSize() {
+        return Math.min(remoteConfig.getMaxFrameSize(), outputBuffer.getMaxFramePayloadSize());
+    }
+
     void submitCommand(final Command command) {
         ioSession.enqueue(command, Command.Priority.NORMAL);
     }
@@ -260,6 +272,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                                                  AsyncPushProducer pushProducer) throws IOException;
 
     abstract boolean allowGracefulAbort(H2Stream stream);
+
+    /** Called after the local SETTINGS frame has been queued. */
+    void onConnectComplete() throws HttpException, IOException {
+    }
+
+    /** Handles an ORIGIN frame. The server-side default is to ignore it. */
+    void consumeOriginFrame(final RawFrame frame) throws HttpException, IOException {
+    }
 
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
@@ -322,6 +342,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             ioSession.getLock().unlock();
         }
         updateLastActivity();
+    }
+
+    final void commitConnectionFrame(final RawFrame frame) throws IOException {
+        commitFrame(frame);
     }
 
     private void commitHeaders(
@@ -462,6 +486,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
+        onConnectComplete();
         maximizeWindow(0, connInputWindow);
 
         if (streamListener != null) {
@@ -1014,6 +1039,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             break;
             case PRIORITY:
+                break;
+            case ORIGIN:
+                consumeOriginFrame(frame);
                 break;
             case PUSH_PROMISE: {
                 acceptPushFrame();

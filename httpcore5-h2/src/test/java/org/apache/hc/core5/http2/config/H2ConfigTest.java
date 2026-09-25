@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.config;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,6 +55,8 @@ class H2ConfigTest {
                 .setMaxFrameSize(16384)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
+                .setOriginFrameEnabled(false)
+                .setMaxOriginSetSize(42)
                 .build();
 
         assertEquals(1, h2Config.getHeaderTableSize());
@@ -61,6 +64,8 @@ class H2ConfigTest {
         assertEquals(16384, h2Config.getMaxFrameSize());
         assertTrue(h2Config.isPushEnabled());
         assertTrue(h2Config.isCompressionEnabled());
+        assertFalse(h2Config.isOriginFrameEnabled());
+        assertEquals(42, h2Config.getMaxOriginSetSize());
     }
 
     @Test
@@ -72,6 +77,8 @@ class H2ConfigTest {
                 .setMaxFrameSize(16384)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
+                .setOriginFrameEnabled(false)
+                .setMaxOriginSetSize(42)
                 .build();
 
         final H2Config.Builder builder = H2Config.copy(h2Config);
@@ -82,7 +89,10 @@ class H2ConfigTest {
                 () -> assertEquals(h2Config.getInitialWindowSize(), h2Config2.getInitialWindowSize()),
                 () -> assertEquals(h2Config.getMaxConcurrentStreams(), h2Config2.getMaxConcurrentStreams()),
                 () -> assertEquals(h2Config.getMaxFrameSize(), h2Config2.getMaxFrameSize()),
-                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize())
+                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize()),
+                () -> assertEquals(h2Config.getMaxContinuations(), h2Config2.getMaxContinuations()),
+                () -> assertEquals(h2Config.isOriginFrameEnabled(), h2Config2.isOriginFrameEnabled()),
+                () -> assertEquals(h2Config.getMaxOriginSetSize(), h2Config2.getMaxOriginSetSize())
         );
 
     }
