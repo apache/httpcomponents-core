@@ -28,6 +28,8 @@
 package org.apache.hc.core5.http2.hpack;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
@@ -37,84 +39,208 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
  */
 final class HuffmanDecoder {
 
-    private final HuffmanNode root;
+    private static final int BYTE_VALUES = 256;
+    private static final int MISSING = -1;
+
+    private static final int STATE_BITS = 9;
+    private static final int STATE_MASK = (1 << STATE_BITS) - 1;
+    private static final int FIRST_SYMBOL_SHIFT = STATE_BITS;
+    private static final int SECOND_SYMBOL_SHIFT = FIRST_SYMBOL_SHIFT + 8;
+    private static final int SYMBOL_COUNT_SHIFT = SECOND_SYMBOL_SHIFT + 8;
+    private static final int SYMBOL_COUNT_MASK = 0x3;
+    private static final int INVALID_FLAG = 0x40000000;
+    private static final int EOS_FLAG = 0x80000000;
+    private static final int ERROR_MASK = INVALID_FLAG | EOS_FLAG;
+
+    private final int[] transitions;
+    private final boolean[] endStates;
 
     HuffmanDecoder(final int[] codes, final byte[] lengths) {
-        root = buildTree(codes, lengths);
+        if (codes.length != lengths.length) {
+            throw new IllegalArgumentException("Mismatched Huffman code table");
+        }
+        final List<Node> nodes = buildTree(codes, lengths);
+        if (nodes.size() > STATE_MASK + 1) {
+            throw new IllegalStateException("Huffman decode table too large");
+        }
+        this.transitions = buildTransitions(nodes);
+        this.endStates = buildEndStates(nodes);
     }
 
     void decode(final ByteArrayBuffer out, final ByteBuffer src) throws HPackException {
-        HuffmanNode node = this.root;
-        int current = 0;
-        int bits = 0;
+        int state = 0;
+        byte[] output = out.array();
+        int outputPos = out.length();
+
         while (src.hasRemaining()) {
-            final int b = src.get() & 0xFF;
-            current = (current << 8) | b;
-            bits += 8;
-            while (bits >= 8) {
-                final int c = (current >>> (bits - 8)) & 0xFF;
-                node = node.getChild(c);
-                bits -= node.getBits();
-                if (node.isTerminal()) {
-                    if (node.getSymbol() == Huffman.EOS) {
-                        throw new HPackException("EOS decoded");
-                    }
-                    out.append(node.getSymbol());
-                    node = root;
+            final int transition = transitions[(state << 8) | (src.get() & 0xFF)];
+            final int symbolCount = (transition >>> SYMBOL_COUNT_SHIFT) & SYMBOL_COUNT_MASK;
+
+            if (symbolCount != 0) {
+                if (outputPos + symbolCount > output.length) {
+                    out.setLength(outputPos);
+                    out.ensureCapacity(symbolCount);
+                    output = out.array();
+                    outputPos = out.length();
+                }
+                output[outputPos++] = (byte) (transition >>> FIRST_SYMBOL_SHIFT);
+                if (symbolCount == 2) {
+                    output[outputPos++] = (byte) (transition >>> SECOND_SYMBOL_SHIFT);
                 }
             }
-        }
 
-        while (bits > 0) {
-            final int c = (current << (8 - bits)) & 0xFF;
-            node = node.getChild(c);
-            if (node.isTerminal() && node.getBits() <= bits) {
-                bits -= node.getBits();
-                out.append(node.getSymbol());
-                node = this.root;
-            } else {
-                break;
+            final int error = transition & ERROR_MASK;
+            if (error != 0) {
+                out.setLength(outputPos);
+                if ((error & EOS_FLAG) != 0) {
+                    throw new HPackException("EOS decoded");
+                }
+                throw new HPackException("Invalid Huffman code");
             }
+            state = transition & STATE_MASK;
         }
 
-        // Section 5.2. String Literal Representation
-        // Padding not corresponding to the most significant bits of the code
-        // for the EOS symbol (0xFF) MUST be treated as a decoding error.
-        final int mask = (1 << bits) - 1;
-        if ((current & mask) != mask) {
+        out.setLength(outputPos);
+        if (!endStates[state]) {
             throw new HPackException("Invalid padding");
         }
     }
 
-    private static HuffmanNode buildTree(final int[] codes, final byte[] lengths) {
-        final HuffmanNode root = new HuffmanNode();
+    private static List<Node> buildTree(final int[] codes, final byte[] lengths) {
+        final List<Node> nodes = new ArrayList<>(BYTE_VALUES);
+        nodes.add(new Node(0, 0));
+
         for (int symbol = 0; symbol < codes.length; symbol++) {
-
             final int code = codes[symbol];
-            int length = lengths[symbol];
+            final int length = lengths[symbol];
+            int state = 0;
 
-            HuffmanNode current = root;
-            while (length > 8) {
-                if (current.isTerminal()) {
-                    throw new IllegalStateException("Invalid Huffman code: prefix not unique");
-                }
-                length -= 8;
-                final int i = (code >>> length) & 0xFF;
-                if (!current.hasChild(i)) {
-                    current.setChild(i, new HuffmanNode());
-                }
-                current = current.getChild(i);
-            }
+            for (int bitIndex = length - 1; bitIndex >= 0; bitIndex--) {
+                final int bit = (code >>> bitIndex) & 1;
+                final Node node = nodes.get(state);
+                final int child = node.get(bit);
 
-            final HuffmanNode terminal = new HuffmanNode(symbol, length);
-            final int shift = 8 - length;
-            final int start = (code << shift) & 0xFF;
-            final int end = 1 << shift;
-            for (int i = start; i < start + end; i++) {
-                current.setChild(i, terminal);
+                if (bitIndex == 0) {
+                    if (child != MISSING) {
+                        throw new IllegalStateException("Invalid Huffman code: prefix not unique");
+                    }
+                    node.set(bit, leaf(symbol));
+                } else {
+                    if (isLeaf(child)) {
+                        throw new IllegalStateException("Invalid Huffman code: prefix not unique");
+                    }
+                    if (child == MISSING) {
+                        final int next = nodes.size();
+                        nodes.add(new Node(node.depth + 1, (node.path << 1) | bit));
+                        node.set(bit, next);
+                        state = next;
+                    } else {
+                        state = child;
+                    }
+                }
             }
         }
-        return root;
+        return nodes;
+    }
+
+    private static int[] buildTransitions(final List<Node> nodes) {
+        final int[] table = new int[nodes.size() * BYTE_VALUES];
+
+        for (int initialState = 0; initialState < nodes.size(); initialState++) {
+            for (int value = 0; value < BYTE_VALUES; value++) {
+                int state = initialState;
+                int firstSymbol = 0;
+                int secondSymbol = 0;
+                int symbolCount = 0;
+                int error = 0;
+
+                for (int bitIndex = 7; bitIndex >= 0; bitIndex--) {
+                    final int bit = (value >>> bitIndex) & 1;
+                    final int child = nodes.get(state).get(bit);
+                    if (child == MISSING) {
+                        error = INVALID_FLAG;
+                        break;
+                    }
+                    if (isLeaf(child)) {
+                        final int symbol = symbol(child);
+                        if (symbol == Huffman.EOS) {
+                            error = EOS_FLAG;
+                            break;
+                        }
+                        if (symbolCount == 0) {
+                            firstSymbol = symbol;
+                        } else if (symbolCount == 1) {
+                            secondSymbol = symbol;
+                        } else {
+                            throw new IllegalStateException("More than two symbols decoded from one input byte");
+                        }
+                        symbolCount++;
+                        state = 0;
+                    } else {
+                        state = child;
+                    }
+                }
+
+                table[(initialState << 8) | value] = state
+                        | (firstSymbol << FIRST_SYMBOL_SHIFT)
+                        | (secondSymbol << SECOND_SYMBOL_SHIFT)
+                        | (symbolCount << SYMBOL_COUNT_SHIFT)
+                        | error;
+            }
+        }
+        return table;
+    }
+
+    private static boolean[] buildEndStates(final List<Node> nodes) {
+        final boolean[] endStates = new boolean[nodes.size()];
+        for (int state = 0; state < nodes.size(); state++) {
+            final Node node = nodes.get(state);
+            final int residualBits = node.depth & 7;
+            if (residualBits == 0) {
+                endStates[state] = true;
+            } else {
+                final int mask = (1 << residualBits) - 1;
+                endStates[state] = (node.path & mask) == mask;
+            }
+        }
+        return endStates;
+    }
+
+    private static int leaf(final int symbol) {
+        return -symbol - 2;
+    }
+
+    private static boolean isLeaf(final int value) {
+        return value < MISSING;
+    }
+
+    private static int symbol(final int leaf) {
+        return -leaf - 2;
+    }
+
+    private static final class Node {
+
+        private final int depth;
+        private final int path;
+        private int zero = MISSING;
+        private int one = MISSING;
+
+        Node(final int depth, final int path) {
+            this.depth = depth;
+            this.path = path;
+        }
+
+        int get(final int bit) {
+            return bit == 0 ? zero : one;
+        }
+
+        void set(final int bit, final int value) {
+            if (bit == 0) {
+                zero = value;
+            } else {
+                one = value;
+            }
+        }
     }
 
 }
