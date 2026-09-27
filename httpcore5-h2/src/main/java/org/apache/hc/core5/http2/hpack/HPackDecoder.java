@@ -308,7 +308,8 @@ public final class HPackDecoder {
 
     public List<Header> decodeHeaders(final ByteBuffer src) throws HPackException {
         final boolean enforceSizeLimit = maxListSize < Integer.MAX_VALUE;
-        int listSize = 0;
+        long listSize = 0;
+        boolean listSizeExceeded = false;
         // RFC 7541 §4.2: dynamic table size updates are only allowed at the
         // beginning of a header block (before the first header field).
         boolean allowTableSizeUpdate = true;
@@ -322,11 +323,16 @@ public final class HPackDecoder {
             allowTableSizeUpdate = false;
             if (enforceSizeLimit) {
                 listSize += header.getTotalSize();
-                if (listSize >= maxListSize) {
-                    throw new HeaderListConstraintException("Maximum header list size exceeded");
+                if (listSize > maxListSize) {
+                    listSizeExceeded = true;
                 }
             }
-            list.add(new BasicHeader(header.getName(), header.getValue(), header.isSensitive()));
+            if (!listSizeExceeded) {
+                list.add(new BasicHeader(header.getName(), header.getValue(), header.isSensitive()));
+            }
+        }
+        if (listSizeExceeded) {
+            throw new HeaderListConstraintException("Maximum header list size exceeded");
         }
         return list;
     }
