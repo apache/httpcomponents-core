@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http2.hpack;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
@@ -36,18 +37,24 @@ import org.junit.jupiter.api.Test;
 class TestHuffmanDecoderCompatibility {
 
     @Test
-    void testSameBehaviorAsLegacyDecoder() throws Exception {
+    void testSameBehaviorAsLegacyDecoderForValidInput() throws Exception {
         final LegacyHuffmanDecoder legacy = new LegacyHuffmanDecoder(Huffman.CODES, Huffman.LENGTHS);
-        final Random random = new Random(0x5a17eL);
-
         for (int value = 0; value < 256; value++) {
-            assertSameResult(legacy, new byte[] {(byte) value});
+            assertSameResult(legacy, encode(new byte[] {(byte) value}));
         }
+
+        final Random random = new Random(0x5a17eL);
         for (int i = 0; i < 10000; i++) {
-            final byte[] encoded = new byte[random.nextInt(9)];
-            random.nextBytes(encoded);
-            assertSameResult(legacy, encoded);
+            final byte[] input = new byte[random.nextInt(256)];
+            random.nextBytes(input);
+            assertSameResult(legacy, encode(input));
         }
+    }
+
+    private static byte[] encode(final byte[] input) {
+        final ByteArrayBuffer encoded = new ByteArrayBuffer(Math.max(1, input.length));
+        Huffman.ENCODER.encode(encoded, ByteBuffer.wrap(input));
+        return Arrays.copyOf(encoded.array(), encoded.length());
     }
 
     private static void assertSameResult(final LegacyHuffmanDecoder legacy, final byte[] encoded) throws Exception {

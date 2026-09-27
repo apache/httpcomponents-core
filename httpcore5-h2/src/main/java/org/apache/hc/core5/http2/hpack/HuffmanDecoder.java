@@ -64,7 +64,7 @@ final class HuffmanDecoder {
             throw new IllegalStateException("Huffman decode table too large");
         }
         this.transitions = buildTransitions(nodes);
-        this.endStates = buildEndStates(nodes);
+        this.endStates = buildEndStates(nodes, codes[Huffman.EOS], lengths[Huffman.EOS]);
     }
 
     void decode(final ByteArrayBuffer out, final ByteBuffer src) throws HPackException {
@@ -191,17 +191,23 @@ final class HuffmanDecoder {
         return table;
     }
 
-    private static boolean[] buildEndStates(final List<Node> nodes) {
+    private static boolean[] buildEndStates(
+            final List<Node> nodes,
+            final int eosCode,
+            final int eosLength) {
         final boolean[] endStates = new boolean[nodes.size()];
-        for (int state = 0; state < nodes.size(); state++) {
-            final Node node = nodes.get(state);
-            final int residualBits = node.depth & 7;
-            if (residualBits == 0) {
-                endStates[state] = true;
-            } else {
-                final int mask = (1 << residualBits) - 1;
-                endStates[state] = (node.path & mask) == mask;
+        endStates[0] = true;
+
+        int state = 0;
+        final int paddingBits = Math.min(7, eosLength - 1);
+        for (int depth = 1; depth <= paddingBits; depth++) {
+            final int bit = (eosCode >>> (eosLength - depth)) & 1;
+            final int child = nodes.get(state).get(bit);
+            if (child < 0) {
+                break;
             }
+            state = child;
+            endStates[state] = true;
         }
         return endStates;
     }
