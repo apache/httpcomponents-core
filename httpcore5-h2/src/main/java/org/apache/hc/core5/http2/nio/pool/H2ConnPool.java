@@ -155,4 +155,15 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
         }
     }
 
+    /**
+     * Evict expired (closed) sessions.
+     * @since 5.5
+     */
+    public void evictExpired() {
+        // This will cause closed sessions to get removed from the pool
+        enumAvailable(e -> {
+            // no op
+        });
+    }
+
 }

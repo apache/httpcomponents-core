@@ -32,9 +32,9 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.Cancellable;
@@ -129,11 +129,22 @@ public class H2MultiplexingRequester extends AsyncRequester {
      *
      * @deprecated This method has no effect as of version 5.5 and should not be used.
      * Use the connection level socket timeout to ensure idle connections time out
-     * and get gracefully terminated.
+     * and get gracefully terminated. Expired connections can be proactively evicted
+     * from the pool with {@link #evictExpired()}.
+     *
+     * @see #evictExpired()
      */
     @Deprecated
     public void closeIdle(final TimeValue idleTime) {
         connPool.closeIdle(idleTime);
+    }
+
+    /**
+     * Evict expired (closed) connections.
+     * @since 5.5
+     */
+    public void evictExpired() {
+        connPool.evictExpired();
     }
 
     public Set<HttpHost> getRoutes() {
