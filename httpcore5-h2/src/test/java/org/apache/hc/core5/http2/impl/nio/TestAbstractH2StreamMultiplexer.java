@@ -2306,6 +2306,95 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(maxHeaderListSize, getMaxListSize(hPackDecoder));
     }
 
+    private int encoderTableSizeAfterRemoteSettings(final int headerTableSize) throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(headerTableSize);
+            payload.flip();
+            final RawFrame settingsFrame = new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+            mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame)));
+            return getHPackEncoder(mux).getMaxTableSize();
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testRemoteHeaderTableSizeIsCappedForEncoder() throws Exception {
+        Assertions.assertEquals(
+                H2Config.INIT.getHeaderTableSize(),
+                encoderTableSizeAfterRemoteSettings(Integer.MAX_VALUE));
+    }
+
+    @Test
+    void testSmallerRemoteHeaderTableSizeIsHonouredByEncoder() throws Exception {
+        Assertions.assertEquals(1024, encoderTableSizeAfterRemoteSettings(1024));
+        Assertions.assertEquals(0, encoderTableSizeAfterRemoteSettings(0));
+    }
+
+    @Test
+    void testRemoteHeaderTableSizeChangesRemainLocallyBounded() throws Exception {
+        try (AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler)) {
+            final HPackEncoder encoder = getHPackEncoder(mux);
+
+            ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(1024);
+            payload.flip();
+            mux.onInput(ByteBuffer.wrap(
+                    encodeFrame(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload))));
+            Assertions.assertEquals(1024, encoder.getMaxTableSize());
+
+            payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(65536);
+            payload.flip();
+            mux.onInput(ByteBuffer.wrap(
+                    encodeFrame(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload))));
+            Assertions.assertEquals(H2Config.INIT.getHeaderTableSize(), encoder.getMaxTableSize());
+
+            payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(0);
+            payload.flip();
+            mux.onInput(ByteBuffer.wrap(
+                    encodeFrame(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload))));
+            Assertions.assertEquals(0, encoder.getMaxTableSize());
+
+            payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(8192);
+            payload.flip();
+            mux.onInput(ByteBuffer.wrap(
+                    encodeFrame(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload))));
+            Assertions.assertEquals(H2Config.INIT.getHeaderTableSize(), encoder.getMaxTableSize());
+        }
+    }
+
+    private static HPackEncoder getHPackEncoder(final AbstractH2StreamMultiplexer multiplexer) throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("hPackEncoder");
+        field.setAccessible(true);
+        return (HPackEncoder) field.get(multiplexer);
+    }
+
     private static HPackDecoder getHPackDecoder(final AbstractH2StreamMultiplexer multiplexer) throws Exception {
         final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("hPackDecoder");
         field.setAccessible(true);
