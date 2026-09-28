@@ -1179,6 +1179,13 @@ class TestAbstractH2StreamMultiplexer {
         }
     }
 
+    private static byte[] encodeFrame(final RawFrame frame) throws IOException {
+        final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+        outBuffer.write(frame, writableChannel);
+        return writableChannel.toByteArray();
+    }
+
     private static HPackEncoder getHPackEncoder(final AbstractH2StreamMultiplexer multiplexer) throws Exception {
         final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("hPackEncoder");
         field.setAccessible(true);
