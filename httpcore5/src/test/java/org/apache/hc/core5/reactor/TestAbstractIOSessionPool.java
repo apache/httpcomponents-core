@@ -33,7 +33,6 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -186,25 +185,6 @@ class TestAbstractIOSessionPool {
         Mockito.verify(connectFuture).cancel(ArgumentMatchers.anyBoolean());
         Mockito.verify(callback1).cancelled();
         Mockito.verify(callback2).cancelled();
-    }
-
-    @Test
-    void testCloseIdleSessions() {
-        final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
-        entry1.session = ioSession1;
-
-        final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
-        entry2.session = ioSession2;
-
-        impl.closeIdle(TimeValue.ZERO_MILLISECONDS);
-
-        Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
-        Mockito.verify(impl).closeSession(ioSession2, CloseMode.GRACEFUL);
-
-        Assertions.assertNull(entry1.session);
-        Assertions.assertNull(entry2.session);
     }
 
     @Test

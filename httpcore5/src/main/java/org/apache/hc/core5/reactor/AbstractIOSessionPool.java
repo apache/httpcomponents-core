@@ -266,21 +266,18 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         }
     }
 
+    /**
+     * This method has no effect. Its initial implementation has been removed, as it can
+     * cause premature termination of sessions with multiplexing message exchanges such
+     * as HTTP/2.
+     *
+     * @deprecated This method has no effect as of version 5.5 and should not be used.
+     * Use {@link #enumAvailable(Callback)} method and implement idle detection
+     * logic that correctly takes into account specifics of the underlying
+     * communication protocol.
+     */
+    @Deprecated
     public final void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.nanoTime() - (TimeValue.isPositive(idleTime) ? idleTime.toNanoseconds() : 0);
-        for (final PoolEntry poolEntry: sessionPool.values()) {
-            if (poolEntry.session != null) {
-                lock.lock();
-                try {
-                    if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
-                        closeSession(poolEntry.session, CloseMode.GRACEFUL);
-                        poolEntry.session = null;
-                    }
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
     }
 
     public final Set<T> getRoutes() {

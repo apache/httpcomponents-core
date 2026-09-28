@@ -123,6 +123,15 @@ public class H2MultiplexingRequester extends AsyncRequester {
         this.maxCommandsPerConnection = maxCommandsPerConnection;
     }
 
+    /**
+     * This method has no effect. Its initial implementation has been removed, as it can
+     * cause termination of sessions with multiplexing message exchange such as HTTP/2.
+     *
+     * @deprecated This method has no effect as of version 5.5 and should not be used.
+     * Use the connection level socket timeout to ensure idle connections time out
+     * and get gracefully terminated.
+     */
+    @Deprecated
     public void closeIdle(final TimeValue idleTime) {
         connPool.closeIdle(idleTime);
     }
