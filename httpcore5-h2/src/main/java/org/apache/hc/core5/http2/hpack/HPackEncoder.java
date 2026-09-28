@@ -138,7 +138,7 @@ public final class HPackEncoder {
         if (this.tmpBuf == null) {
             this.tmpBuf = ByteBuffer.allocate(Math.max(256, extra));
         }
-        final int requiredCapacity = this.tmpBuf.remaining() + extra;
+        final int requiredCapacity = this.tmpBuf.position() + extra;
         if (requiredCapacity > this.tmpBuf.capacity()) {
             expandCapacity(requiredCapacity);
         }
