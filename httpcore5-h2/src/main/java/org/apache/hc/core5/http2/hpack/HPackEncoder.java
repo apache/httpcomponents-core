@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -259,8 +260,9 @@ public final class HPackEncoder {
         if (entries == null || entries.isEmpty()) {
             return 0;
         }
-        for (int i = 0; i < entries.size(); i++) {
-            final HPackEntry entry = entries.get(i);
+        final Iterator<HPackEntry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            final HPackEntry entry = iterator.next();
             if (Objects.equals(value, entry.getHeader().getValue())) {
                 return entry.getIndex();
             }
