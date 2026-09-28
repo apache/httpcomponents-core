@@ -1204,7 +1204,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private void applyRemoteSettings(final H2Config config) throws H2ConnectionException {
         remoteConfig = config;
 
-        hPackEncoder.setMaxTableSize(remoteConfig.getHeaderTableSize());
+        // The peer's HEADER_TABLE_SIZE is an upper bound for the encoder. Keep the local
+        // dynamic table bounded to limit memory usage and lookup cost per connection.
+        hPackEncoder.setMaxTableSize(Math.min(remoteConfig.getHeaderTableSize(), H2Config.INIT.getHeaderTableSize()));
         final int delta = remoteConfig.getInitialWindowSize() - initOutputWinSize;
         initOutputWinSize = remoteConfig.getInitialWindowSize();
 
