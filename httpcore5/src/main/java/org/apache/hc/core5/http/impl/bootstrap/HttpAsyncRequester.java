@@ -28,11 +28,10 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -44,20 +43,16 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
+import org.apache.hc.core5.http.impl.nio.AsyncClientExchangeHandlerDelegate;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
@@ -289,74 +284,46 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
                     @Override
                     public void completed(final AsyncClientEndpoint endpoint) {
-                        endpoint.execute(new AsyncClientExchangeHandler() {
+                        endpoint.execute(new AsyncClientExchangeHandlerDelegate(exchangeHandler) {
+
+                            private final AtomicBoolean released = new AtomicBoolean();
 
                             @Override
                             public void releaseResources() {
-                                endpoint.releaseAndDiscard();
-                                exchangeHandler.releaseResources();
+                                try {
+                                    if (released.compareAndSet(false, true)) {
+                                        endpoint.releaseAndReuse();
+                                    }
+                                } finally {
+                                    exchangeHandler.releaseResources();
+                                }
                             }
 
                             @Override
                             public void failed(final Exception cause) {
-                                endpoint.releaseAndDiscard();
-                                exchangeHandler.failed(cause);
+                                try {
+                                    if (released.compareAndSet(false, true)) {
+                                        endpoint.releaseAndDiscard();
+                                    }
+                                } finally {
+                                    exchangeHandler.failed(cause);
+                                }
                             }
 
                             @Override
                             public void cancel() {
-                                endpoint.releaseAndDiscard();
-                                exchangeHandler.cancel();
+                                try {
+                                    if (released.compareAndSet(false, true)) {
+                                        endpoint.releaseAndDiscard();
+                                    }
+                                } finally {
+                                    exchangeHandler.cancel();
+                                }
                             }
 
                             @Override
                             public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
                                 channel.sendRequest(request, entityDetails, httpContext);
-                            }
-
-                            @Override
-                            public int available() {
-                                return exchangeHandler.available();
-                            }
-
-                            @Override
-                            public void produce(final DataStreamChannel channel) throws IOException {
-                                exchangeHandler.produce(channel);
-                            }
-
-                            @Override
-                            public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
-                                exchangeHandler.consumeInformation(response, httpContext);
-                            }
-
-                            @Override
-                            public void consumeResponse(
-                                    final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                                if (entityDetails == null) {
-                                    endpoint.releaseAndReuse();
-                                }
-                                exchangeHandler.consumeResponse(response, entityDetails, httpContext);
-                            }
-
-                            @Override
-                            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                                exchangeHandler.updateCapacity(capacityChannel);
-                            }
-
-                            @Override
-                            public void consume(final ByteBuffer src) throws IOException {
-                                exchangeHandler.consume(src);
-                            }
-
-                            @Override
-                            public void outputAborted() {
-                                exchangeHandler.outputAborted();
-                            }
-
-                            @Override
-                            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                                endpoint.releaseAndReuse();
-                                exchangeHandler.streamEnd(trailers);
                             }
 
                         }, pushHandlerFactory, executeContext);
