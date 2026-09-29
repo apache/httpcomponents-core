@@ -86,6 +86,11 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
+    public boolean isIdle() {
+        return streamDuplexer.inputIdle() && streamDuplexer.outputIdle();
+    }
+
+    @Override
     public void exception(final IOSession session, final Exception cause) {
         streamDuplexer.onException(cause);
     }

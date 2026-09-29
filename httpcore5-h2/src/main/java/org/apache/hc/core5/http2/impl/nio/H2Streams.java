@@ -66,6 +66,10 @@ class H2Streams {
         return streams.isEmpty();
     }
 
+    public int getCount() {
+        return streams.size();
+    }
+
     public Iterator<H2Stream> iterator() {
         return streams.iterator();
     }

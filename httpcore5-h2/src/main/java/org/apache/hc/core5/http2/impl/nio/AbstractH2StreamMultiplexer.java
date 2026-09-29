@@ -37,8 +37,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -1381,6 +1381,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         lowMark = initInputWinSize / 2;
     }
 
+    /**
+     * @since 5.5
+     */
+    public int streamCount() {
+        return streams.getCount();
+    }
+
     @Override
     public void close() throws IOException {
         ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.IMMEDIATE);
@@ -1444,7 +1451,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 .append(", connInputWindow=").append(connInputWindow)
                 .append(", connOutputWindow=").append(connOutputWindow)
                 .append(", outputQueue=").append(outputQueue.size())
-                .append(", streams.localCoubt=").append(streams.getLocalCount())
+                .append(", streams.localCount=").append(streams.getLocalCount())
                 .append(", streams.remoteCount=").append(streams.getRemoteCount())
                 .append(", streams.lastLocal=").append(streams.getLastLocalId())
                 .append(", streams.lastRemote=").append(streams.getLastRemoteId());
