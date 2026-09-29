@@ -266,6 +266,16 @@ class H2Stream implements StreamControl {
         localReset(new H2StreamResetException(H2Error.CANCEL, "Cancelled"));
     }
 
+    /**
+     * Resets a cancelled stream that has already sent END_STREAM. Such a stream
+     * produces no more output, so it would otherwise wait for a peer frame.
+     */
+    void resetIfCancelled() throws IOException {
+        if (cancelled.get() && channel.isLocalClosed() && !isClosed()) {
+            localResetCancelled();
+        }
+    }
+
     void handle(final HttpException ex) throws IOException, HttpException {
         handler.handle(ex, remoteClosed);
     }
