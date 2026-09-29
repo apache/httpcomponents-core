@@ -526,6 +526,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
             if (connOutputWindow.get() > 0 && remoteSettingState == SettingsHandshake.ACKED) {
                 produceOutput();
+            } else {
+                // RST_STREAM is not subject to flow control
+                for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
+                    it.next().resetIfCancelled();
+                }
             }
             final int pendingOutputRequests = outputRequests.get();
             boolean outputPending = false;
@@ -1314,6 +1319,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private void produceOutput() throws HttpException, IOException {
         for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
             final H2Stream stream = it.next();
+            stream.resetIfCancelled();
             if (!stream.isLocalClosed() && !stream.isReserved() && stream.getOutputWindow().get() > 0) {
                 stream.produceOutput();
             }
