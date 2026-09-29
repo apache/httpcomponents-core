@@ -985,7 +985,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
                             final H2Stream stream = it.next();
                             final int activeStreamId = stream.getId();
-                            if (!streams.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
+                            if (streams.isSameSide(activeStreamId) && activeStreamId > processedLocalStreamId) {
                                 stream.fail(new RequestNotExecutedException());
                                 it.remove();
                             }
