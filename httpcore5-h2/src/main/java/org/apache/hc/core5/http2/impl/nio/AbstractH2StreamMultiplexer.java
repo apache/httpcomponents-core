@@ -1030,6 +1030,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void consumeDataFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
+        if (stream.isReserved()) {
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected DATA frame on reserved stream");
+        }
         if (stream.isRemoteClosed()) {
             throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
         }
