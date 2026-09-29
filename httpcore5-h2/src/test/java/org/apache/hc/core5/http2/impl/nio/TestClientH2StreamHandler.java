@@ -26,12 +26,14 @@
  */
 package org.apache.hc.core5.http2.impl.nio;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -127,6 +129,24 @@ class TestClientH2StreamHandler {
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
     }
 
+    @Test
+    void informationalResponseWithEndStreamRejected() throws HttpException, IOException {
+        final List<Header> responseHeaders = Collections.singletonList(
+                new BasicHeader(":status", "103"));
+        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(responseHeaders, true));
+        Mockito.verify(exchangeHandler, Mockito.never()).consumeInformation(Mockito.any(), Mockito.any());
+    }
+    @Test
+    void consumeTrailersWithoutEndStreamRejected() throws Exception {
+        final List<Header> responseHeaders = Collections.singletonList(
+                new BasicHeader(":status", "200"));
+        handler.consumeHeader(responseHeaders, false);
+
+        final List<Header> trailers = Collections.singletonList(
+                new BasicHeader("x-checksum", "abc123"));
+        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(trailers, false));
+        Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
+    }
     @Test
     void contentLengthValid() throws Exception {
         final List<Header> responseHeaders = Arrays.asList(

@@ -209,6 +209,9 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 if (status < HttpStatus.SC_INFORMATIONAL) {
                     throw new ProtocolException("Invalid response: " + new StatusLine(response));
                 }
+                if (status < HttpStatus.SC_SUCCESS && endStream) {
+                    throw new ProtocolException("Informational response must not set END_STREAM");
+                }
                 if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
                     exchangeHandler.consumeInformation(response, context);
                 }
@@ -238,6 +241,9 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 responseState.set(endStream ? MessageState.COMPLETE : MessageState.BODY);
                 break;
             case BODY:
+                if (!endStream) {
+                    throw new ProtocolException("Trailer headers must set END_STREAM");
+                }
                 TrailersValidationSupport.verify(headers);
                 responseState.set(MessageState.COMPLETE);
                 exchangeHandler.streamEnd(headers);
