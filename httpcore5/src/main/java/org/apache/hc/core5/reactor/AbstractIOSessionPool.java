@@ -59,13 +59,10 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     private final ConcurrentMap<T, PoolEntry> sessionPool;
     private final AtomicBoolean closed;
 
-    private final ReentrantLock lock;
-
     public AbstractIOSessionPool() {
         super();
         this.sessionPool = new ConcurrentHashMap<>();
         this.closed = new AtomicBoolean();
-        this.lock = new ReentrantLock();
     }
 
     protected abstract Future<IOSession> connectSession(
@@ -85,7 +82,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     public final void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
             for (final PoolEntry poolEntry : sessionPool.values()) {
-                lock.lock();
+                poolEntry.lock.lock();
                 try {
                     if (poolEntry.session != null) {
                         closeSession(poolEntry.session, closeMode);
@@ -104,7 +101,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                         }
                     }
                 } finally {
-                    lock.unlock();
+                    poolEntry.lock.unlock();
                 }
             }
             sessionPool.clear();
@@ -251,7 +248,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     public final void enumAvailable(final Callback<IOSession> callback) {
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
-                lock.lock();
+                poolEntry.lock.lock();
                 try {
                     if (poolEntry.session != null) {
                         callback.execute(poolEntry.session);
@@ -260,7 +257,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                         }
                     }
                 } finally {
-                    lock.unlock();
+                    poolEntry.lock.unlock();
                 }
             }
         }
