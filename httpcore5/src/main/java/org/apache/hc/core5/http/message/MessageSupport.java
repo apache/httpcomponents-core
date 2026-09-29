@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
@@ -80,12 +81,27 @@ public class MessageSupport {
         if (tokens == null) {
             return;
         }
-        for (int i = 0; i < tokens.size(); i++) {
-            final String element = transformation != null ? transformation.apply(tokens.get(i)) : tokens.get(i);
-            if (i > 0) {
-                dst.append(", ");
+        if (tokens instanceof RandomAccess) {
+            for (int i = 0; i < tokens.size(); i++) {
+                final String token = tokens.get(i);
+                final String element = transformation != null ? transformation.apply(token) : token;
+                if (i > 0) {
+                    dst.append(", ");
+                }
+                dst.append(element);
             }
-            dst.append(element);
+        } else {
+            final Iterator<String> iterator = tokens.iterator();
+            boolean first = true;
+            while (iterator.hasNext()) {
+                final String token = iterator.next();
+                final String element = transformation != null ? transformation.apply(token) : token;
+                if (!first) {
+                    dst.append(", ");
+                }
+                dst.append(element);
+                first = false;
+            }
         }
     }
 
@@ -446,12 +462,25 @@ public class MessageSupport {
         if (elements == null) {
             return;
         }
-        for (int i = 0; i < elements.size(); i++) {
-            final HeaderElement element = elements.get(i);
-            if (i > 0) {
-                dst.append(", ");
+        if (elements instanceof RandomAccess) {
+            for (int i = 0; i < elements.size(); i++) {
+                final HeaderElement element = elements.get(i);
+                if (i > 0) {
+                    dst.append(", ");
+                }
+                BasicHeaderValueFormatter.INSTANCE.formatHeaderElement(dst, element, false);
             }
-            BasicHeaderValueFormatter.INSTANCE.formatHeaderElement(dst, element, false);
+        } else {
+            final Iterator<HeaderElement> iterator = elements.iterator();
+            boolean first = true;
+            while (iterator.hasNext()) {
+                final HeaderElement element = iterator.next();
+                if (!first) {
+                    dst.append(", ");
+                }
+                BasicHeaderValueFormatter.INSTANCE.formatHeaderElement(dst, element, false);
+                first = false;
+            }
         }
     }
 
@@ -550,12 +579,25 @@ public class MessageSupport {
         if (params == null) {
             return;
         }
-        for (int i = 0; i < params.size(); i++) {
-            final NameValuePair param = params.get(i);
-            if (i > 0) {
-                dst.append("; ");
+        if (params instanceof RandomAccess) {
+            for (int i = 0; i < params.size(); i++) {
+                final NameValuePair param = params.get(i);
+                if (i > 0) {
+                    dst.append("; ");
+                }
+                BasicHeaderValueFormatter.INSTANCE.formatNameValuePair(dst, param, false);
             }
-            BasicHeaderValueFormatter.INSTANCE.formatNameValuePair(dst, param, false);
+        } else {
+            final Iterator<NameValuePair> iterator = params.iterator();
+            boolean first = true;
+            while (iterator.hasNext()) {
+                final NameValuePair param = iterator.next();
+                if (!first) {
+                    dst.append("; ");
+                }
+                BasicHeaderValueFormatter.INSTANCE.formatNameValuePair(dst, param, false);
+                first = false;
+            }
         }
     }
 
