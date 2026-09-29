@@ -2407,5 +2407,70 @@ class TestAbstractH2StreamMultiplexer {
         return field.getInt(hPackDecoder);
     }
 
+    @Test
+    void testDataOnReservedRemoteStreamIsConnectionProtocolError() throws Exception {
+        final H2Config h2Config = H2Config.custom()
+                .setPushEnabled(true)
+                .build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Existing client-initiated stream 1.
+        final H2StreamChannel stream1 = mux.createChannel(1);
+        mux.createStream(stream1, streamHandler);
+
+        // Receive PUSH_PROMISE for stream 2 -> stream 2 becomes reserved (remote).
+        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(256);
+        final HPackEncoder encoder = new HPackEncoder(
+                H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/pushed"));
+
+        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
+
+        final ByteBuffer pushPayload = ByteBuffer.allocate(4 + headerBuf.length());
+        pushPayload.putInt(2);
+        pushPayload.put(headerBuf.array(), 0, headerBuf.length());
+        pushPayload.flip();
+
+        final RawFrame pushPromise = new RawFrame(
+                FrameType.PUSH_PROMISE.getValue(),
+                FrameFlag.END_HEADERS.getValue(),
+                1,
+                pushPayload);
+
+        mux.onInput(ByteBuffer.wrap(encodeFrame(pushPromise)));
+
+        // DATA is illegal while stream 2 is still reserved (remote).
+        final RawFrame data = FRAME_FACTORY.createData(
+                2,
+                ByteBuffer.wrap(new byte[] {1, 2, 3}),
+                false);
+
+        final H2ConnectionException ex = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> mux.onInput(ByteBuffer.wrap(encodeFrame(data))));
+
+        Assertions.assertEquals(
+                H2Error.PROTOCOL_ERROR,
+                H2Error.getByCode(ex.getCode()));
+
+        Mockito.verify(streamHandler, Mockito.never()).consumeData(
+                ArgumentMatchers.any(ByteBuffer.class),
+                ArgumentMatchers.anyBoolean());
+    }
 
 }
