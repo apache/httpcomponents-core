@@ -60,8 +60,8 @@ import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameConsts;
-import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameFactory;
+import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -885,23 +885,48 @@ class TestAbstractH2StreamMultiplexer {
     // Small struct + parser to decode the frames we capture from writes
     private static final class FrameStub {
         final int type;
+        final int flags;
         final int streamId;
-        FrameStub(final int type, final int streamId) { this.type = type; this.streamId = streamId; }
+        final byte[] payload;
+
+        FrameStub(final int type, final int flags, final int streamId, final byte[] payload) {
+            this.type = type;
+            this.flags = flags;
+            this.streamId = streamId;
+            this.payload = payload;
+        }
     }
+
     private static List<FrameStub> parseFrames(final byte[] all) {
         final List<FrameStub> out = new ArrayList<>();
         int p = 0;
         while (p + 9 <= all.length) {
             final int len = ((all[p] & 0xff) << 16) | ((all[p + 1] & 0xff) << 8) | (all[p + 2] & 0xff);
             final int type = all[p + 3] & 0xff;
+            final int flags = all[p + 4] & 0xff;
             final int sid = ((all[p + 5] & 0x7f) << 24) | ((all[p + 6] & 0xff) << 16)
                     | ((all[p + 7] & 0xff) << 8) | (all[p + 8] & 0xff);
             p += 9;
-            if (p + len > all.length) break;
-            out.add(new FrameStub(type, sid));
+            if (p + len > all.length) {
+                break;
+            }
+            final byte[] payload = new byte[len];
+            System.arraycopy(all, p, payload, 0, len);
+            out.add(new FrameStub(type, flags, sid, payload));
             p += len;
         }
         return out;
+    }
+
+    private static byte[] concat(final List<byte[]> writes) {
+        final int total = writes.stream().mapToInt(a -> a.length).sum();
+        final byte[] all = new byte[total];
+        int p = 0;
+        for (final byte[] a : writes) {
+            System.arraycopy(a, 0, all, p, a.length);
+            p += a.length;
+        }
+        return all;
     }
 
     // 2) Client emits PRIORITY_UPDATE BEFORE HEADERS when Priority header present
@@ -1071,6 +1096,118 @@ class TestAbstractH2StreamMultiplexer {
                 .filter(i -> frames.get(i).type == FrameType.PRIORITY_UPDATE.getValue() && frames.get(i).streamId == 0)
                 .findFirst().orElse(-1);
         Assertions.assertTrue(idxPriUpd >= 0, "PRIORITY_UPDATE should be emitted when NO_RFC7540=1");
+    }
+
+    @Test
+    void testAbortAfterLocalEndStreamSendsRstStreamWithoutInboundFrames() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+        final WritableByteChannelMock writable = new WritableByteChannelMock(256);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+        fob.write(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, null), writable);
+        mux.onInput(ByteBuffer.wrap(writable.toByteArray()));
+        writes.clear();
+
+        // A request without a body: HEADERS carry END_STREAM, so the stream is half-closed (local)
+        final H2StreamChannel channel = mux.createChannel(1);
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"));
+        final H2Stream stream = mux.createStream(channel, new PriorityHeaderSender(channel, requestHeaders, true));
+        mux.onOutput();
+        Assertions.assertTrue(stream.isLocalClosed());
+        writes.clear();
+
+        // The request gets cancelled while the peer stays silent
+        stream.abort();
+        mux.onOutput();
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final FrameStub rst = frames.stream()
+                .filter(f -> f.type == FrameType.RST_STREAM.getValue() && f.streamId == 1)
+                .findFirst()
+                .orElse(null);
+        Assertions.assertNotNull(rst, "RST_STREAM not emitted for the cancelled stream");
+        Assertions.assertEquals(H2Error.CANCEL.getCode(), ByteBuffer.wrap(rst.payload).getInt());
+        Assertions.assertTrue(channel.isLocalReset());
+    }
+
+    @Test
+    void testAbortAfterLocalEndStreamSendsRstStreamWithNoConnectionWindow() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer b = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[b.remaining()];
+                    b.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.doNothing().when(protocolIOSession).setEvent(ArgumentMatchers.anyInt());
+        Mockito.doNothing().when(protocolIOSession).clearEvent(ArgumentMatchers.anyInt());
+
+        final H2Config h2Config = H2Config.custom().build();
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, h2Config, h2StreamListener, () -> streamHandler);
+
+        mux.onConnect();
+        final WritableByteChannelMock writable = new WritableByteChannelMock(256);
+        final FrameOutputBuffer fob = new FrameOutputBuffer(16 * 1024);
+        fob.write(new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, null), writable);
+        mux.onInput(ByteBuffer.wrap(writable.toByteArray()));
+
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "example.test"));
+        // Stream 1: a request without a body, half-closed (local) once its HEADERS are sent
+        final H2StreamChannel channel = mux.createChannel(1);
+        final H2Stream stream = mux.createStream(channel, new PriorityHeaderSender(channel, requestHeaders, true));
+        // Stream 3: a request with a body that uses up the connection output window
+        final H2StreamChannel uploadChannel = mux.createChannel(3);
+        mux.createStream(uploadChannel, new PriorityHeaderSender(uploadChannel, requestHeaders, false));
+        mux.onOutput();
+        Assertions.assertTrue(stream.isLocalClosed());
+
+        final ByteBuffer body = ByteBuffer.allocate(h2Config.getInitialWindowSize());
+        while (body.hasRemaining()) {
+            Assertions.assertTrue(uploadChannel.write(body) > 0, "connection window used up too early");
+        }
+        Assertions.assertEquals(0, uploadChannel.write(ByteBuffer.allocate(1)), "connection window must be 0");
+        writes.clear();
+
+        // The request gets cancelled while the peer stays silent and grants no window
+        stream.abort();
+        mux.onOutput();
+
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        final FrameStub rst = frames.stream()
+                .filter(f -> f.type == FrameType.RST_STREAM.getValue() && f.streamId == 1)
+                .findFirst()
+                .orElse(null);
+        Assertions.assertNotNull(rst, "RST_STREAM not emitted while the connection window is 0");
+        Assertions.assertEquals(H2Error.CANCEL.getCode(), ByteBuffer.wrap(rst.payload).getInt());
+        Assertions.assertTrue(channel.isLocalReset());
     }
 
     @Test
@@ -1272,4 +1409,3 @@ class TestAbstractH2StreamMultiplexer {
     }
 
 }
-
