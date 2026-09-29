@@ -927,7 +927,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         try {
                             updateOutputWindow(streamId, stream.getOutputWindow(), delta);
                         } catch (final ArithmeticException ex) {
-                            throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
+                            stream.localReset(new H2StreamResetException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage()));
+                            requestSessionOutput();
                         }
                     }
                 }

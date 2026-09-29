@@ -498,9 +498,13 @@ class TestAbstractH2StreamMultiplexer {
         writableChannel.reset();
         final RawFrame incrementFrame2 = FRAME_FACTORY.createWindowUpdate(1, 0x7fffffff - 50);
         outBuffer.write(incrementFrame2, writableChannel);
-        final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class, () ->
+        Assertions.assertDoesNotThrow(() ->
                 streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
-        Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR, H2Error.getByCode(exception.getCode()));
+        Mockito.verify(streamHandler).failed(exceptionCaptor.capture());
+        final Exception exception = exceptionCaptor.getValue();
+        Assertions.assertInstanceOf(H2StreamResetException.class, exception);
+        Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR,
+                H2Error.getByCode(((H2StreamResetException) exception).getCode()));
     }
 
     @Test
