@@ -42,6 +42,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.RequestNotExecutedException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -2151,41 +2152,16 @@ class TestAbstractH2StreamMultiplexer {
                 h2StreamListener,
                 () -> streamHandler);
 
-        // Create 3 remote (even) streams by feeding inbound HEADERS on 2,4,6.
-        final ByteArrayBuffer headerBuf = new ByteArrayBuffer(256);
-        final HPackEncoder encoder = new HPackEncoder(
-                H2Config.INIT.getHeaderTableSize(),
-                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
-
-        final List<Header> headers = Arrays.asList(
-                new BasicHeader(":method", "GET"),
-                new BasicHeader(":scheme", "https"),
-                new BasicHeader(":path", "/"),
-                new BasicHeader(":authority", "example.test"));
-        encoder.encodeHeaders(headerBuf, headers, h2Config.isCompressionEnabled());
-
-        final RawFrame h2 = FRAME_FACTORY.createHeaders(2,
-                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
-                true,  // END_HEADERS
-                false  // END_STREAM
-        );
-        final RawFrame h4 = FRAME_FACTORY.createHeaders(4,
-                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
-                true,
-                false
-        );
-        final RawFrame h6 = FRAME_FACTORY.createHeaders(6,
-                ByteBuffer.wrap(headerBuf.array(), 0, headerBuf.length()),
-                true,
-                false
-        );
-
-        feedFrame(mux, h2);
-        feedFrame(mux, h4);
-        feedFrame(mux, h6);
+        // Create 3 local (odd) streams: 1, 3, 5.
+        final H2StreamHandler streamHandler1 = Mockito.mock(H2StreamHandler.class);
+        final H2StreamHandler streamHandler3 = Mockito.mock(H2StreamHandler.class);
+        final H2StreamHandler streamHandler5 = Mockito.mock(H2StreamHandler.class);
+        mux.createStream(mux.createChannel(1), streamHandler1);
+        mux.createStream(mux.createChannel(3), streamHandler3);
+        mux.createStream(mux.createChannel(5), streamHandler5);
 
         // GOAWAY last-stream-id = 4, but with reserved MSB set.
-        // Correct masking keeps streams <= 4 (2 and 4) and drops only stream 6.
+        // Correct masking keeps streams <= 4 (1 and 3) and drops only stream 5.
         final ByteBuffer goAwayPayload = ByteBuffer.allocate(8);
         goAwayPayload.putInt(0x80000004); // reserved bit set, last-stream-id = 4
         goAwayPayload.putInt(H2Error.NO_ERROR.getCode());
@@ -2195,8 +2171,49 @@ class TestAbstractH2StreamMultiplexer {
 
         Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(goAway))));
 
-        Mockito.verify(streamHandler, Mockito.times(1)).failed(exceptionCaptor.capture());
-        Assertions.assertInstanceOf(org.apache.hc.core5.http.RequestNotExecutedException.class, exceptionCaptor.getValue());
+        Mockito.verify(streamHandler5, Mockito.times(1)).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(RequestNotExecutedException.class, exceptionCaptor.getValue());
+        Mockito.verify(streamHandler1, Mockito.never()).failed(ArgumentMatchers.any());
+        Mockito.verify(streamHandler3, Mockito.never()).failed(ArgumentMatchers.any());
+    }
+
+    @Test
+    void testGoAwayNoErrorFailsUnprocessedLocalStreamsOnly() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD, // local=odd, remote=even
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        // Create 2 local (odd) streams: 1, 3 and 1 remote (even) stream: 2.
+        final H2StreamHandler streamHandler1 = Mockito.mock(H2StreamHandler.class);
+        final H2StreamHandler streamHandler2 = Mockito.mock(H2StreamHandler.class);
+        final H2StreamHandler streamHandler3 = Mockito.mock(H2StreamHandler.class);
+        mux.createStream(mux.createChannel(1), streamHandler1);
+        mux.createStream(mux.createChannel(2), streamHandler2);
+        mux.createStream(mux.createChannel(3), streamHandler3);
+
+        // GOAWAY last-stream-id = 1: local stream 3 was not processed and must fail.
+        // Last-stream-id does not apply to remote streams, so stream 2 must not fail.
+        final ByteBuffer goAwayPayload = ByteBuffer.allocate(8);
+        goAwayPayload.putInt(1); // last-stream-id = 1
+        goAwayPayload.putInt(H2Error.NO_ERROR.getCode());
+        goAwayPayload.flip();
+
+        final RawFrame goAway = new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, goAwayPayload);
+
+        Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(goAway))));
+
+        Mockito.verify(streamHandler3, Mockito.times(1)).failed(exceptionCaptor.capture());
+        Assertions.assertInstanceOf(RequestNotExecutedException.class, exceptionCaptor.getValue());
+        Mockito.verify(streamHandler1, Mockito.never()).failed(ArgumentMatchers.any());
+        Mockito.verify(streamHandler2, Mockito.never()).failed(ArgumentMatchers.any());
     }
 
     @Test
