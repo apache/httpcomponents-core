@@ -44,9 +44,9 @@ import org.mockito.MockitoAnnotations;
 class TestAbstractHttp1StreamDuplexerCapacityWindow {
 
     @Mock
-    private IOSession ioSession;
+    IOSession ioSession;
 
-    private AutoCloseable closeable;
+    AutoCloseable closeable;
 
     @BeforeEach
     void prepareMocks() {
@@ -55,7 +55,9 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
 
     @AfterEach
     void releaseMocks() throws Exception {
-        closeable.close();
+        if (closeable != null) {
+            closeable.close();
+        }
     }
 
     @Test

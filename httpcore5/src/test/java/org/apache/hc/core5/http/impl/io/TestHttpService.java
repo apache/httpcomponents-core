@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,30 +63,39 @@ import org.mockito.Spy;
 class TestHttpService {
 
     @Mock
-    private HttpProcessor httprocessor;
+    HttpProcessor httprocessor;
     @Mock
-    private ConnectionReuseStrategy connReuseStrategy;
+    ConnectionReuseStrategy connReuseStrategy;
     @Spy
-    private final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
+    ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
     @Mock
-    private HttpResponseFactory<ClassicHttpResponse> responseFactory;
+    HttpResponseFactory<ClassicHttpResponse> responseFactory;
     @Mock
-    private HttpRequestMapper<HttpRequestHandler> handlerResolver;
+    HttpRequestMapper<HttpRequestHandler> handlerResolver;
     @Mock
-    private HttpRequestHandler requestHandler;
+    HttpRequestHandler requestHandler;
     @Mock
-    private HttpServerConnection conn;
+    HttpServerConnection conn;
+
+    AutoCloseable closeable;
 
     private HttpService httpservice;
 
     @BeforeEach
     void prepareMocks() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
         httpservice = new HttpService(
                 httprocessor,
                 handlerResolver,
                 connReuseStrategy,
                 responseFactory);
+    }
+
+    @AfterEach
+    void releaseMocks() throws Exception {
+        if (closeable != null) {
+            closeable.close();
+        }
     }
 
     @Test

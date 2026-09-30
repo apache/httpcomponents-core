@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,14 +54,23 @@ import org.mockito.MockitoAnnotations;
 class TestBHttpConnectionBase {
 
     @Mock
-    private Socket socket;
+    Socket socket;
 
-    private BHttpConnectionBase conn;
+    AutoCloseable closeable;
+
+    BHttpConnectionBase conn;
 
     @BeforeEach
     void prepareMocks() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
         conn = new BHttpConnectionBase(Http1Config.DEFAULT, null, null);
+    }
+
+    @AfterEach
+    void releaseMocks() throws Exception {
+        if (closeable != null) {
+            closeable.close();
+        }
     }
 
     @Test

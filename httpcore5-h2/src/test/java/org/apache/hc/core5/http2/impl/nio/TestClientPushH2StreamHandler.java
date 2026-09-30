@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,17 +60,26 @@ class TestClientPushH2StreamHandler {
     @Mock
     HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
 
+    AutoCloseable closeable;
+
     ClientPushH2StreamHandler handler;
 
     @BeforeEach
     void prepareMocks() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
         handler = new ClientPushH2StreamHandler(
                 channel, httpProcessor,
                 new BasicHttpConnectionMetrics(
                         new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics()),
                 pushHandlerFactory,
                 HttpCoreContext.create());
+    }
+
+    @AfterEach
+    void releaseMocks() throws Exception {
+        if (closeable != null) {
+            closeable.close();
+        }
     }
 
     @Test

@@ -34,6 +34,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,26 +49,35 @@ import org.mockito.MockitoAnnotations;
 class TestAbstractIOSessionPool {
 
     @Mock
-    private Future<IOSession> connectFuture;
+    Future<IOSession> connectFuture;
     @Mock
-    private FutureCallback<IOSession> callback1;
+    FutureCallback<IOSession> callback1;
     @Mock
-    private FutureCallback<IOSession> callback2;
+    FutureCallback<IOSession> callback2;
     @Mock
-    private IOSession ioSession1;
+    IOSession ioSession1;
     @Mock
-    private IOSession ioSession2;
+    IOSession ioSession2;
     @Captor
     ArgumentCaptor<FutureCallback<IOSession>> connectCallbackCaptor;
 
-    private AbstractIOSessionPool<String> impl;
+    AutoCloseable closeable;
+
+    AbstractIOSessionPool<String> impl;
 
     @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
+    void prepareMocks() {
+        closeable = MockitoAnnotations.openMocks(this);
         impl = Mockito.mock(AbstractIOSessionPool.class, Mockito.withSettings()
                 .defaultAnswer(Answers.CALLS_REAL_METHODS)
                 .useConstructor());
+    }
+
+    @AfterEach
+    void releaseMocks() throws Exception {
+        if (closeable != null) {
+            closeable.close();
+        }
     }
 
     @Test

@@ -73,6 +73,7 @@ import org.apache.hc.core5.http2.hpack.HPackException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Timeout;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,12 +103,20 @@ class TestAbstractH2StreamMultiplexer {
     @Captor
     ArgumentCaptor<Exception> exceptionCaptor;
 
+    AutoCloseable closeable;
+
     @BeforeEach
     void prepareMocks() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
         Mockito.when(protocolIOSession.getLock()).thenReturn(lock);
     }
 
+    @AfterEach
+    void releaseMocks() throws Exception {
+        if (closeable != null) {
+            closeable.close();
+        }
+    }
     static class H2StreamMultiplexerImpl extends AbstractH2StreamMultiplexer {
 
         private Supplier<H2StreamHandler> streamHandlerSupplier;
