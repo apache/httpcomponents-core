@@ -155,4 +155,100 @@ class TestClientPushH2StreamHandler {
                 handler.consumeHeader(responseHeaders, true));
     }
 
+
+    @Test
+    void informationalPushResponseBeforeFinalResponseAccepted() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        handler.consumeHeader(Arrays.asList(
+                new BasicHeader(":status", "103")), false);
+
+        Mockito.verify(pushConsumer, Mockito.never()).consumePromise(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+        handler.consumeHeader(Arrays.asList(
+                new BasicHeader(":status", "200")), true);
+
+        Mockito.verify(pushConsumer).consumePromise(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(pushConsumer).streamEnd(null);
+    }
+
+    @Test
+    void informationalPushResponseWithEndStreamRejected() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeHeader(Arrays.asList(
+                        new BasicHeader(":status", "103")), true));
+    }
+
+    @Test
+    void pushResponseTrailersAccepted() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        handler.consumeHeader(Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "2")), false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), false);
+
+        final List<Header> trailers = Arrays.asList(
+                new BasicHeader("x-checksum", "abc123"));
+        handler.consumeHeader(trailers, true);
+
+        Mockito.verify(pushConsumer).streamEnd(trailers);
+    }
+
+    @Test
+    void pushResponseTrailersWithoutEndStreamRejected() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        handler.consumeHeader(Arrays.asList(
+                new BasicHeader(":status", "200")), false);
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeHeader(Arrays.asList(
+                        new BasicHeader("x-checksum", "abc123")), false));
+    }
+
+    @Test
+    void pushResponseContentLengthMismatchWithTrailersRejected() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        handler.consumeHeader(Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "3")), false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), false);
+
+        Assertions.assertThrows(ProtocolException.class, () ->
+                handler.consumeHeader(Arrays.asList(
+                        new BasicHeader("x-checksum", "abc123")), true));
+    }
+
+
 }

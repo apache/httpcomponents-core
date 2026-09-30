@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -140,6 +141,14 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+            final int status = response.getCode();
+
+            if (status < HttpStatus.SC_SUCCESS) {
+                if (endStream) {
+                    throw new ProtocolException("Informational response must not set END_STREAM");
+                }
+                return;
+            }
 
             if (MessageSupport.canResponseHaveBody(response)) {
                 declaredContentLen = MessageSupport.getContentLength(response);
@@ -161,6 +170,14 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             } else {
                 responseState = MessageState.BODY;
             }
+        } else if (responseState == MessageState.BODY) {
+            if (!endStream) {
+                throw new ProtocolException("Trailer headers must set END_STREAM");
+            }
+            TrailersValidationSupport.verify(headers);
+            validateContentLength();
+            responseState = MessageState.COMPLETE;
+            exchangeHandler.streamEnd(headers);
         } else {
             throw new ProtocolException("Unexpected message headers");
         }
