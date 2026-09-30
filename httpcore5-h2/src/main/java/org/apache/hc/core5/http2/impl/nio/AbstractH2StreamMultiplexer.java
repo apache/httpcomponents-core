@@ -575,7 +575,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 })));
                 return;
             }
-            while (streams.getLocalCount() < remoteConfig.getMaxConcurrentStreams()) {
+            while (streams.getLocalCount() < Integer.toUnsignedLong(remoteConfig.getMaxConcurrentStreams())) {
                 final Command command = ioSession.poll();
                 if (command == null) {
                     break;
@@ -1288,7 +1288,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     case INITIAL_WINDOW_SIZE:
                         if (value < 0) {
                             throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR,
-                                    "Invalid initial window size: " + (value & 0xffffffffL));
+                                    "Invalid initial window size: " + Integer.toUnsignedLong(value));
                         }
                         try {
                             configBuilder.setInitialWindowSize(value);
@@ -1318,7 +1318,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         applyRemoteSettings(configBuilder.build());
     }
-
     private void produceOutput() throws HttpException, IOException {
         for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
             final H2Stream stream = it.next();
@@ -1340,13 +1339,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private void applyRemoteSettings(final H2Config config) throws H2ConnectionException {
         remoteConfig = config;
-
         // The peer's HEADER_TABLE_SIZE is an upper bound for the encoder. Keep the local
         // dynamic table bounded to limit memory usage and lookup cost per connection.
-        hPackEncoder.setMaxTableSize(Math.min(remoteConfig.getHeaderTableSize(), H2Config.INIT.getHeaderTableSize()));
+        hPackEncoder.setMaxTableSize((int) Math.min(
+                Integer.toUnsignedLong(remoteConfig.getHeaderTableSize()),
+                H2Config.INIT.getHeaderTableSize()));
         final int delta = remoteConfig.getInitialWindowSize() - initOutputWinSize;
         initOutputWinSize = remoteConfig.getInitialWindowSize();
-
         final int maxFrameSize = remoteConfig.getMaxFrameSize();
         if (maxFrameSize < outputBuffer.getMaxFramePayloadSize()) {
             try {
@@ -1355,7 +1354,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Failure resizing the frame output buffer");
             }
         }
-
         if (delta != 0) {
             if (!streams.isEmpty()) {
                 for (final Iterator<H2Stream> it = streams.iterator(); it.hasNext(); ) {
@@ -1369,7 +1367,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
         }
     }
-
     private void applyLocalSettings() throws H2ConnectionException {
         hPackDecoder.setMaxTableSize(localConfig.getHeaderTableSize());
         hPackDecoder.setMaxListSize(localConfig.getMaxHeaderListSize());
