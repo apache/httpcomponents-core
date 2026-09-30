@@ -1448,4 +1448,125 @@ class TestAbstractH2StreamMultiplexer {
                 ArgumentMatchers.anyBoolean());
     }
 
+    @Test
+    void testInvalidInitialWindowSizeSettingIsFlowControlError() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.INITIAL_WINDOW_SIZE.getCode());
+            payload.putInt(-1);
+            payload.flip();
+            final RawFrame settingsFrame = new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+
+            final H2ConnectionException exception = Assertions.assertThrows(H2ConnectionException.class,
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
+            Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR, H2Error.getByCode(exception.getCode()));
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testUnsignedHeaderTableSizeSettingAccepted() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.HEADER_TABLE_SIZE.getCode());
+            payload.putInt(-1); // 0xffffffff
+            payload.flip();
+
+            final RawFrame settingsFrame =
+                    new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+
+            Assertions.assertDoesNotThrow(
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
+            Assertions.assertEquals(-1, getRemoteConfig(mux).getHeaderTableSize());
+            Assertions.assertEquals(
+                    H2Config.INIT.getHeaderTableSize(),
+                    getHPackEncoder(mux).getMaxTableSize());
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testUnsignedMaxConcurrentStreamsSettingAccepted() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.MAX_CONCURRENT_STREAMS.getCode());
+            payload.putInt(Integer.MIN_VALUE); // 0x80000000
+            payload.flip();
+
+            final RawFrame settingsFrame =
+                    new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+
+            Assertions.assertDoesNotThrow(
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
+            Assertions.assertEquals(
+                    Integer.MIN_VALUE,
+                    getRemoteConfig(mux).getMaxConcurrentStreams());
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testUnsignedMaxHeaderListSizeSettingAccepted() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+        try {
+            final ByteBuffer payload = ByteBuffer.allocate(6);
+            payload.putShort((short) H2Param.MAX_HEADER_LIST_SIZE.getCode());
+            payload.putInt(-1); // 0xffffffff
+            payload.flip();
+
+            final RawFrame settingsFrame =
+                    new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+
+            Assertions.assertDoesNotThrow(
+                    () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
+            Assertions.assertEquals(-1, getRemoteConfig(mux).getMaxHeaderListSize());
+        } finally {
+            mux.close();
+        }
+    }
+
+    private static H2Config getRemoteConfig(final AbstractH2StreamMultiplexer multiplexer) throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("remoteConfig");
+        field.setAccessible(true);
+        return (H2Config) field.get(multiplexer);
+    }
+
 }

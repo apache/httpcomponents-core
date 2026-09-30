@@ -168,7 +168,6 @@ public class H2Config {
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
-            Args.notNegative(headerTableSize, "Header table size");
             this.headerTableSize = headerTableSize;
             return this;
         }
@@ -179,7 +178,6 @@ public class H2Config {
         }
 
         public Builder setMaxConcurrentStreams(final int maxConcurrentStreams) {
-            Args.positive(maxConcurrentStreams, "Max concurrent streams");
             this.maxConcurrentStreams = maxConcurrentStreams;
             return this;
         }
@@ -197,7 +195,6 @@ public class H2Config {
         }
 
         public Builder setMaxHeaderListSize(final int maxHeaderListSize) {
-            Args.positive(maxHeaderListSize, "Max header list size");
             this.maxHeaderListSize = maxHeaderListSize;
             return this;
         }
