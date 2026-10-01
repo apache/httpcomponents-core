@@ -43,6 +43,7 @@ public enum FrameType {
     GOAWAY(0x07),
     WINDOW_UPDATE(0x08),
     CONTINUATION(0x09),
+    ORIGIN(0x0c),
     PRIORITY_UPDATE(0x10); // 16
 
     final int value;
@@ -73,7 +74,7 @@ public enum FrameType {
         if (value < 0 || value >= LOOKUP_TABLE.length) {
             return null;
         }
-        return LOOKUP_TABLE[value]; // may be null for gaps (e.g., 0x0A..0x0F)
+        return LOOKUP_TABLE[value]; // may be null for gaps (e.g., 0x0A)
     }
 
     public static String toString(final int value) {

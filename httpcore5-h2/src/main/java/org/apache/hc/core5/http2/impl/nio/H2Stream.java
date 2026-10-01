@@ -220,6 +220,10 @@ class H2Stream implements StreamControl {
     void produceOutput() throws HttpException, IOException {
         try {
             handler.produceOutput();
+        } catch (final H2OriginMismatchException ex) {
+            // No HEADERS have been emitted for this locally rejected request.
+            // Sending RST_STREAM for an idle stream would itself be a protocol error.
+            fail(ex);
         } catch (final ProtocolException ex) {
             localReset(ex, H2Error.PROTOCOL_ERROR);
         }

@@ -34,8 +34,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -62,6 +64,7 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     private final HttpCoreContext context;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
+    private final H2OriginSet originSet;
 
     private volatile HttpRequest request;
     private volatile AsyncPushConsumer exchangeHandler;
@@ -70,6 +73,7 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
 
     private volatile long declaredContentLen = -1;
     private volatile long actualContentLen = 0;
+    private volatile HttpHost requestOrigin;
 
     ClientPushH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -77,11 +81,22 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             final BasicHttpConnectionMetrics connMetrics,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpCoreContext context) {
+        this(outputChannel, httpProcessor, connMetrics, pushHandlerFactory, context, null);
+    }
+
+    ClientPushH2StreamHandler(
+            final H2StreamChannel outputChannel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final HttpCoreContext context,
+            final H2OriginSet originSet) {
         this.internalOutputChannel = outputChannel;
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
         this.context = context;
+        this.originSet = originSet;
         this.failed = new AtomicBoolean();
         this.done = new AtomicBoolean();
         this.requestState = MessageState.HEADERS;
@@ -111,6 +126,13 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
         if (requestState == MessageState.HEADERS) {
 
             request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+            requestOrigin = H2OriginFrameCodec.fromRequest(request);
+            if (originSet != null && requestOrigin != null && !originSet.isAllowed(requestOrigin)) {
+                throw new H2StreamResetException(
+                        H2Error.REFUSED_STREAM,
+                        "Pushed origin " + H2OriginFrameCodec.format(requestOrigin)
+                                + " is not in the connection Origin Set");
+            }
             try {
                 exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
             } catch (final ProtocolException ex) {
@@ -140,6 +162,9 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+            if (response.getCode() == HttpStatus.SC_MISDIRECTED_REQUEST && originSet != null) {
+                originSet.remove(requestOrigin);
+            }
 
             if (MessageSupport.canResponseHaveBody(response)) {
                 declaredContentLen = MessageSupport.getContentLength(response);
@@ -237,4 +262,3 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     }
 
 }
-

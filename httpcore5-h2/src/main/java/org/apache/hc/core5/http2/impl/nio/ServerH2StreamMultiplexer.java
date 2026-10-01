@@ -28,11 +28,13 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -66,6 +68,24 @@ import org.apache.hc.core5.util.Args;
 public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
 
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
+    private final List<HttpHost> configuredOriginSet;
+
+    /**
+     * @since 5.5
+     */
+    public ServerH2StreamMultiplexer(
+            final ProtocolIOSession ioSession,
+            final FrameFactory frameFactory,
+            final HttpProcessor httpProcessor,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
+            final CharCodingConfig charCodingConfig,
+            final H2Config h2Config,
+            final H2StreamListener streamListener,
+            final Collection<HttpHost> originSet) {
+        super(ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
+        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
+        this.configuredOriginSet = originSet != null ? H2OriginFrameCodec.normalize(originSet) : null;
+    }
 
     public ServerH2StreamMultiplexer(
             final ProtocolIOSession ioSession,
@@ -75,8 +95,8 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final H2StreamListener streamListener) {
-        super(ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
+        this(ioSession, frameFactory, httpProcessor, exchangeHandlerFactory, charCodingConfig, h2Config,
+                streamListener, null);
     }
 
     public ServerH2StreamMultiplexer(
@@ -119,6 +139,33 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
     @Override
     void acceptPushFrame() throws H2ConnectionException {
         throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push not supported");
+    }
+
+    @Override
+    void onConnectComplete() throws IOException {
+        if (configuredOriginSet != null) {
+            sendOriginSet(configuredOriginSet);
+        }
+    }
+
+    /**
+     * Sends an ORIGIN advertisement. Entries are split across frames
+     * when necessary. An empty collection sends an empty ORIGIN frame, which
+     * initializes the peer's Origin Set with the connection's initial origin.
+     * No frame is sent on cleartext HTTP/2 connections.
+     *
+     * @param origins origins to advertise.
+     * @throws IOException in case of an I/O error.
+     * @since 5.5
+     */
+    public void sendOriginSet(final Collection<HttpHost> origins) throws IOException {
+        Args.notNull(origins, "Origins");
+        if (!getLocalConfig().isOriginFrameEnabled() || getSSLSession() == null) {
+            return;
+        }
+        for (final ByteBuffer payload : H2OriginFrameCodec.encode(origins, getMaxFramePayloadSize())) {
+            commitConnectionFrame(getFrameFactory().createOrigin(payload));
+        }
     }
 
     @Override

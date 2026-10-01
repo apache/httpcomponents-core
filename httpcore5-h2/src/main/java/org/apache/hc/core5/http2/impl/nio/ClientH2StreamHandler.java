@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -73,10 +74,12 @@ class ClientH2StreamHandler implements H2StreamHandler {
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
+    private final H2OriginSet originSet;
 
     private volatile String method = null;
     private volatile long declaredContentLen = -1;
     private volatile long actualContentLen = 0;
+    private volatile HttpHost requestOrigin;
 
     ClientH2StreamHandler(
             final H2StreamChannel outputChannel,
@@ -85,6 +88,17 @@ class ClientH2StreamHandler implements H2StreamHandler {
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpCoreContext context) {
+        this(outputChannel, httpProcessor, connMetrics, exchangeHandler, pushHandlerFactory, context, null);
+    }
+
+    ClientH2StreamHandler(
+            final H2StreamChannel outputChannel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics,
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final HttpCoreContext context,
+            final H2OriginSet originSet) {
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
 
@@ -116,6 +130,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
         this.exchangeHandler = exchangeHandler;
         this.pushHandlerFactory = pushHandlerFactory;
         this.context = context;
+        this.originSet = originSet;
         this.requestCommitted = new AtomicBoolean();
         this.failed = new AtomicBoolean();
         this.done = new AtomicBoolean();
@@ -146,6 +161,11 @@ class ClientH2StreamHandler implements H2StreamHandler {
             context.setRequest(request);
 
             httpProcessor.process(request, entityDetails, context);
+
+            requestOrigin = H2OriginFrameCodec.fromRequest(request);
+            if (originSet != null) {
+                originSet.ensureAllowed(requestOrigin);
+            }
 
             method = request.getMethod();
 
@@ -220,6 +240,10 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 }
                 if (status < HttpStatus.SC_SUCCESS) {
                     return;
+                }
+
+                if (status == HttpStatus.SC_MISDIRECTED_REQUEST && originSet != null) {
+                    originSet.remove(requestOrigin);
                 }
 
                 if (!Method.HEAD.isSame(method) && MessageSupport.canResponseHaveBody(method, response)) {
@@ -310,4 +334,3 @@ class ClientH2StreamHandler implements H2StreamHandler {
     }
 
 }
-
