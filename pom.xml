@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-parent</artifactId>
-    <version>14</version>
+    <version>15</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents.core5</groupId>
@@ -73,14 +73,14 @@
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <!-- Maven itself runs on Java 17+, but compilation and tests can still use an older toolchain JDK. -->
     <hc.build.toolchain.version>${maven.compiler.source}</hc.build.toolchain.version>
-    <conscrypt.version>2.6.1</conscrypt.version>
-    <jackson.version>3.2.0</jackson.version>
+    <conscrypt.version>2.7.0</conscrypt.version>
+    <jackson.version>3.2.3</jackson.version>
     <junit.version>5.14.4</junit.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.11.0</mockito.version>
     <assertj.version>3.27.7</assertj.version>
     <slf4j.version>1.7.36</slf4j.version>
-    <log4j.version>2.25.4</log4j.version>
+    <log4j.version>2.26.1</log4j.version>
     <rxjava3.version>3.1.12</rxjava3.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <api.comparison.version>5.4</api.comparison.version>
@@ -235,7 +235,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.6.3</version>
         <executions>
           <execution>
             <id>enforce-java-runtime</id>
@@ -256,7 +256,7 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>0.25.6</version>
+        <version>0.26.2</version>
         <configuration>
           <oldVersion>
             <dependency>
@@ -348,7 +348,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-toolchains-plugin</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.0</version>
             <configuration combine.self="override">
               <toolchains>
                 <jdk>
