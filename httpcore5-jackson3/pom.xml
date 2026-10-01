@@ -43,17 +43,9 @@
       of HttpCore continues to target Java 8. The root POM keeps the module out
       of the reactor when an older toolchain is selected.
     -->
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.release>17</maven.compiler.release>
-    <hc.build.toolchain.version>17</hc.build.toolchain.version>
-    <!--
-      Animal Sniffer derives its signature artifact from the compiler target
-      (java${major}${minor}); target 17 resolves to the non-existent
-      "java170" signature. The API-level check is moot for a module that
-      deliberately targets Java 17, so it is disabled here.
-    -->
-    <animal.sniffer.skip>true</animal.sniffer.skip>
+    <javaVersion>17</javaVersion>
+    <maven.compiler.source>${javaVersion}</maven.compiler.source>
+    <maven.compiler.target>${javaVersion}</maven.compiler.target>
   </properties>
 
   <dependencies>

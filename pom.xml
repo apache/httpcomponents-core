@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-parent</artifactId>
-    <version>14</version>
+    <version>15</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents.core5</groupId>
@@ -67,12 +67,17 @@
   </modules>
 
   <properties>
-    <!-- Override parent 7 setting for deprecation (only - other settings stand)-->
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <javaVersion>8</javaVersion>
+    <minimalJavaBuildVersion>17</minimalJavaBuildVersion>
+    <maven.compiler.source>${javaVersion}</maven.compiler.source>
+    <maven.compiler.target>${javaVersion}</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-    <!-- Maven itself runs on Java 17+, but compilation and tests can still use an older toolchain JDK. -->
-    <hc.build.toolchain.version>${maven.compiler.source}</hc.build.toolchain.version>
+    <api.comparison.version>5.4</api.comparison.version>
+
+    <!-- Disable animal sniffer. It has been superseded by compiler release version
+      To be completely removed -->
+    <animal.sniffer.skip>true</animal.sniffer.skip>
+
     <conscrypt.version>2.6.1</conscrypt.version>
     <jackson.version>3.2.0</jackson.version>
     <junit.version>5.14.4</junit.version>
@@ -83,9 +88,7 @@
     <log4j.version>2.25.4</log4j.version>
     <rxjava3.version>3.1.12</rxjava3.version>
     <testcontainers.version>1.21.4</testcontainers.version>
-    <api.comparison.version>5.4</api.comparison.version>
     <jmh.version>1.37</jmh.version>
-    <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters,java.nio.ByteBuffer,java.nio.CharBuffer,jdk.net.ExtendedSocketOptions,jdk.net.Sockets</hc.animal-sniffer.signature.ignores>
   </properties>
 
   <dependencyManagement>
@@ -188,6 +191,19 @@
     <defaultGoal>clean verify</defaultGoal>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <!-- unset compiler release version set by the apache parent
+           Presently core and client fail compile with java 8 release target
+           due to the use of jdk.net classes
+           -->
+          <release combine.self="override"/>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
@@ -233,30 +249,8 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.6.2</version>
-        <executions>
-          <execution>
-            <id>enforce-java-runtime</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireJavaVersion>
-                  <version>[17,)</version>
-                  <message>Apache HttpComponents Core requires Java 17 or newer to run Maven. Use toolchains to compile and test with older JDKs.</message>
-                </requireJavaVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>0.25.6</version>
         <configuration>
           <oldVersion>
             <dependency>
@@ -297,7 +291,6 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.18</version>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -335,37 +328,6 @@
       <modules>
         <module>httpcore5-jackson3</module>
       </modules>
-    </profile>
-    <profile>
-      <id>use-toolchains</id>
-      <activation>
-        <file>
-          <exists>${user.home}/.m2/toolchains.xml</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-toolchains-plugin</artifactId>
-            <version>3.2.0</version>
-            <configuration combine.self="override">
-              <toolchains>
-                <jdk>
-                  <version>${hc.build.toolchain.version}</version>
-                </jdk>
-              </toolchains>
-            </configuration>
-            <executions combine.self="override">
-              <execution>
-                <goals>
-                  <goal>toolchain</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 
