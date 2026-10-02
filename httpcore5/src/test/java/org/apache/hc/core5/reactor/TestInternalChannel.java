@@ -28,7 +28,6 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -119,10 +118,10 @@ class TestInternalChannel {
     @Test
     void checkTimeoutInvokesCallback() {
         try (TestChannel channel = new TestChannel()) {
-            channel.lastEventTime = System.nanoTime() - TimeUnit.SECONDS.toNanos(10);
+            channel.lastEventTime = 0;
             channel.timeout = Timeout.ofMilliseconds(1);
 
-            final boolean result = channel.checkTimeout(System.nanoTime());
+            final boolean result = channel.checkTimeout(10);
 
             Assertions.assertFalse(result);
             Assertions.assertTrue(channel.timedOut.get());
@@ -134,7 +133,7 @@ class TestInternalChannel {
         try (TestChannel channel = new TestChannel()) {
             channel.timeout = Timeout.DISABLED;
 
-            final boolean result = channel.checkTimeout(System.nanoTime());
+            final boolean result = channel.checkTimeout(System.currentTimeMillis());
 
             Assertions.assertTrue(result);
             Assertions.assertFalse(channel.timedOut.get());
