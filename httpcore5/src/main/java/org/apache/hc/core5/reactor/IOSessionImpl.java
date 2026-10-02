@@ -88,10 +88,10 @@ class IOSessionImpl implements IOSession {
         this.id = String.format(type + "-%010d", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
-        final long nowNanos = System.nanoTime();
-        this.lastReadTime = nowNanos;
-        this.lastWriteTime = nowNanos;
-        this.lastEventTime = nowNanos;
+        final long currentTimeMillis = System.currentTimeMillis();
+        this.lastReadTime = currentTimeMillis;
+        this.lastWriteTime = currentTimeMillis;
+        this.lastEventTime = currentTimeMillis;
     }
 
     @Override
@@ -221,7 +221,7 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         this.socketTimeout = Timeout.defaultsToInfinite(timeout);
-        this.lastEventTime = System.nanoTime();
+        this.lastEventTime = System.currentTimeMillis();
     }
 
     @Override
@@ -255,13 +255,13 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void updateReadTime() {
-        lastReadTime = System.nanoTime();
+        lastReadTime = System.currentTimeMillis();
         lastEventTime = lastReadTime;
     }
 
     @Override
     public void updateWriteTime() {
-        lastWriteTime = System.nanoTime();
+        lastWriteTime = System.currentTimeMillis();
         lastEventTime = lastWriteTime;
     }
 

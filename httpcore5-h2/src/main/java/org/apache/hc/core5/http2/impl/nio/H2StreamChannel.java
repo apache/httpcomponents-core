@@ -68,10 +68,10 @@ interface H2StreamChannel extends DataStreamChannel, CapacityChannel, Cancellabl
         }
     }
 
-    long getLocalResetNanos();
+    long getLocalResetTime();
 
     default boolean isLocalReset() {
-        return getLocalResetNanos() != Long.MIN_VALUE;
+        return getLocalResetTime() > 0;
     }
 
 }
