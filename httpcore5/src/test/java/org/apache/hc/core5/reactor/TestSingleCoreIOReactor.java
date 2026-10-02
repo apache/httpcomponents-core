@@ -26,10 +26,17 @@
  */
 package org.apache.hc.core5.reactor;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
@@ -88,6 +95,39 @@ class TestSingleCoreIOReactor {
 
             Assertions.assertThrows(IOReactorShutdownException.class, () ->
                     reactor.enqueueChannel(new ChannelEntry(channel, null)));
+        }
+    }
+
+    @Test
+    void terminatesWhenSelectorClosedByAnotherThread() throws Exception {
+        final CountDownLatch connected = new CountDownLatch(1);
+        final CountDownLatch reactorClosed = new CountDownLatch(1);
+        final IOEventHandler handler = Mockito.mock(IOEventHandler.class);
+        Mockito.doAnswer(invocation -> {
+            connected.countDown();
+            reactorClosed.await();
+            return null;
+        }).when(handler).connected(Mockito.any());
+        final List<Exception> exceptions = new CopyOnWriteArrayList<>();
+        try (ServerSocketChannel server = ServerSocketChannel.open()) {
+            server.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
+            try (SocketChannel client = SocketChannel.open(server.getLocalAddress());
+                 SocketChannel channel = server.accept()) {
+                final SingleCoreIOReactor reactor = new SingleCoreIOReactor(
+                        exceptions::add, (session, attachment) -> handler, IOReactorConfig.DEFAULT, null, null, null, null);
+                final Thread worker = new Thread(reactor::execute);
+                worker.start();
+                reactor.enqueueChannel(new ChannelEntry(channel, null));
+                Assertions.assertTrue(connected.await(5, TimeUnit.SECONDS));
+
+                reactor.close(CloseMode.IMMEDIATE);
+                reactorClosed.countDown();
+                worker.join(TimeUnit.SECONDS.toMillis(5));
+
+                Assertions.assertFalse(worker.isAlive());
+                Assertions.assertTrue(exceptions.isEmpty(), exceptions::toString);
+                Mockito.verify(handler).disconnected(Mockito.any());
+            }
         }
     }
 
