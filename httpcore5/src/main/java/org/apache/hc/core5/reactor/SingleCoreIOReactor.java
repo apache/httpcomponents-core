@@ -37,6 +37,7 @@ import java.net.StandardSocketOptions;
 import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Queue;
@@ -434,7 +435,13 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void closeOpenChannels() {
-        for (final SelectionKey key : selector.keys()) {
+        final Set<SelectionKey> keys;
+        try {
+            keys = selector.keys();
+        } catch (final ClosedSelectorException ignore) {
+            return;
+        }
+        for (final SelectionKey key : keys) {
             final Object attachment = key.attachment();
             if (attachment instanceof InternalChannel) {
                 final InternalChannel channel = (InternalChannel) attachment;
