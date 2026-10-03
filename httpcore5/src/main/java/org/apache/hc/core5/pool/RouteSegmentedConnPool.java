@@ -67,8 +67,8 @@ import org.apache.hc.core5.util.Timeout;
  *
  * <p>Per-route state is kept in independent segments. Disposal of connections is offloaded
  * to a bounded executor so slow graceful closes do not block threads leasing on other routes.
- * A minimal round-robin helper is engaged only when there are many pending routes and
- * there is global headroom; it never scans all routes.</p>
+ * A minimal round-robin helper is engaged for pending routes. When the global capacity is
+ * exhausted, reusable idle entries can be reclaimed across segments without a global lock.</p>
  *
  * @param <R> route key type
  * @param <C> connection type (must be {@link ModalCloseable})
@@ -117,6 +117,10 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     private final ConcurrentLinkedQueue<R> pendingQueue = new ConcurrentLinkedQueue<>();
     private final AtomicBoolean draining = new AtomicBoolean(false);
     private final AtomicInteger pendingRouteCount = new AtomicInteger(0);
+
+    // Segments that currently have at least one reusable idle entry. This is a
+    // best-effort hint queue used only when the global capacity is exhausted.
+    private final ConcurrentLinkedQueue<Segment> reclaimQueue = new ConcurrentLinkedQueue<>();
 
     public RouteSegmentedConnPool(
             final int defaultMaxPerRoute,
@@ -193,10 +197,16 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     }
 
     final class Segment {
+        final R route;
         final ConcurrentLinkedDeque<PoolEntry<R, C>> available = new ConcurrentLinkedDeque<>();
         final ConcurrentLinkedDeque<Waiter> waiters = new ConcurrentLinkedDeque<>();
         final AtomicInteger allocated = new AtomicInteger(0);
         final AtomicBoolean enqueued = new AtomicBoolean(false);
+        final AtomicBoolean reclaimEnqueued = new AtomicBoolean(false);
+
+        Segment(final R route) {
+            this.route = route;
+        }
 
         int limitPerRoute(final R route) {
             final Integer v = maxPerRoute.get(route);
@@ -253,7 +263,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             final FutureCallback<PoolEntry<R, C>> callback) {
 
         ensureOpen();
-        final Segment seg = segments.computeIfAbsent(route, r -> new Segment());
+        final Segment seg = segments.computeIfAbsent(route, Segment::new);
 
         // 1) Try available
         PoolEntry<R, C> hit;
@@ -320,8 +330,31 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 }
                 if (!handedOff) {
                     offerAvailable(seg, late);
+                    serveOnePendingForOtherRoutes(seg);
+                    triggerDrainIfMany();
                 }
             }
+        }
+
+        // Capacity may have appeared after the first allocation attempt but
+        // before this waiter was enqueued. Retry synchronously for this exact
+        // waiter so single-route progress does not depend on the asynchronous
+        // round-robin helper.
+        if (!w.isDone() && tryAllocateOne(route, seg)) {
+            final PoolEntry<R, C> entry = new PoolEntry<>(route, timeToLive, disposal, clock);
+            if (seg.waiters.remove(w) && w.complete(entry)) {
+                fireOnLease(route);
+                dequeueIfDrained(seg);
+                if (callback != null) {
+                    callback.completed(entry);
+                }
+                return w;
+            }
+
+            // The waiter was completed or cancelled concurrently after the
+            // allocation was reserved. Return the reservation to the pool.
+            seg.allocated.decrementAndGet();
+            totalAllocated.decrementAndGet();
         }
 
         scheduleTimeout(w, seg);
@@ -342,6 +375,8 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             });
         }
 
+        // The background helper is a throughput optimization for genuinely
+        // multi-route contention, not a liveness mechanism for a single waiter.
         triggerDrainIfMany();
         return w;
     }
@@ -367,11 +402,14 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 offerAvailable(seg, entry);
                 if (!seg.waiters.isEmpty()) {
                     enqueueIfNeeded(route, seg);
-                    triggerDrainIfMany();
                 }
+                serveOnePendingForOtherRoutes(seg);
+                triggerDrainIfMany();
             }
         } else {
             discardAndDecr(entry, CloseMode.GRACEFUL);
+            serveOnePendingIfPossible();
+            triggerDrainIfMany();
         }
 
         maybeCleanupSegment(route, seg);
@@ -403,6 +441,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             if (seg.enqueued.getAndSet(false)) {
                 pendingRouteCount.decrementAndGet();
             }
+            seg.reclaimEnqueued.set(false);
 
             for (final PoolEntry<R, C> p : seg.available) {
                 if (seg.available.remove(p)) {
@@ -418,6 +457,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         }
         segments.clear();
         pendingQueue.clear();
+        reclaimQueue.clear();
         pendingRouteCount.set(0);
 
         // Let in-flight graceful closes progress; no blocking here.
@@ -447,6 +487,10 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 }
             }
             maybeCleanupSegment(route, seg);
+            if (processed > 0) {
+                serveOnePendingIfPossible();
+                triggerDrainIfMany();
+            }
         }
     }
 
@@ -472,6 +516,10 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 }
             }
             maybeCleanupSegment(route, seg);
+            if (processed > 0) {
+                serveOnePendingIfPossible();
+                triggerDrainIfMany();
+            }
         }
     }
 
@@ -494,7 +542,12 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     @Override
     public void setMaxTotal(final int max) {
-        maxTotal.set(Math.max(1, max));
+        final int updated = Math.max(1, max);
+        final int previous = maxTotal.getAndSet(updated);
+        if (updated > previous) {
+            serveOnePendingIfPossible();
+            triggerDrainIfMany();
+        }
     }
 
     @Override
@@ -579,6 +632,8 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
             if (p != null) {
                 if (!handOffToCompatibleWaiter(p, seg)) {
                     offerAvailable(seg, p);
+                    serveOnePendingForOtherRoutes(seg);
+                    triggerDrainIfMany();
                 }
             }
         }, w.requestTimeout.toMilliseconds(), TimeUnit.MILLISECONDS);
@@ -597,6 +652,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         } else {
             seg.available.addLast(p);
         }
+        markReclaimable(seg);
     }
 
     private PoolEntry<R, C> pollAvailable(final Segment seg, final Object neededState) {
@@ -664,22 +720,117 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
 
     private void maybeCleanupSegment(final R route, final Segment seg) {
         if (seg.allocated.get() == 0 && seg.available.isEmpty() && seg.waiters.isEmpty()) {
-            segments.remove(route, seg);
-            if (seg.enqueued.getAndSet(false)) {
-                pendingRouteCount.decrementAndGet();
+            if (segments.remove(route, seg)) {
+                seg.reclaimEnqueued.set(false);
+                if (seg.enqueued.getAndSet(false)) {
+                    pendingRouteCount.decrementAndGet();
+                }
+            }
+        }
+    }
+
+    private void markReclaimable(final Segment seg) {
+        if (!seg.reclaimEnqueued.get()
+                && !seg.available.isEmpty()
+                && seg.reclaimEnqueued.compareAndSet(false, true)) {
+            reclaimQueue.offer(seg);
+        }
+    }
+
+    /**
+     * Replaces one reusable idle entry with an allocation for {@code route}
+     * without releasing the global slot in between. This keeps the full-pool
+     * cold-route path free of a global lock and prevents another allocator from
+     * stealing the reclaimed slot.
+     */
+    private boolean tryReclaimAndAllocate(final R route, final Segment target) {
+        if (target.allocated.get() >= target.limitPerRoute(route)) {
+            return false;
+        }
+
+        for (; ; ) {
+            if (totalAllocated.get() != maxTotal.get()) {
+                return false;
+            }
+
+            final Segment victimSegment = reclaimQueue.poll();
+            if (victimSegment == null) {
+                return false;
+            }
+            victimSegment.reclaimEnqueued.set(false);
+
+            if (segments.get(victimSegment.route) != victimSegment) {
+                continue;
+            }
+
+            // removeLast mirrors StrictConnPool's eviction side: for LIFO this
+            // is the least recently released entry; for FIFO it is the newest.
+            final PoolEntry<R, C> victim = victimSegment.available.pollLast();
+            if (victim == null) {
+                markReclaimable(victimSegment);
+                continue;
+            }
+
+            markReclaimable(victimSegment);
+
+            if (victimSegment == target) {
+                // Replacing an idle entry in the same segment leaves both the
+                // per-route and global allocation counts unchanged.
+                discardEntry(victim, CloseMode.GRACEFUL);
+                return true;
+            }
+
+            victimSegment.allocated.decrementAndGet();
+
+            for (; ; ) {
+                final int per = target.allocated.get();
+                if (per >= target.limitPerRoute(route)) {
+                    // The victim has already gone away and the transfer can no
+                    // longer be completed. Convert the reserved global slot
+                    // into real headroom.
+                    totalAllocated.decrementAndGet();
+                    discardEntry(victim, CloseMode.GRACEFUL);
+                    maybeCleanupSegment(victimSegment.route, victimSegment);
+                    triggerDrainIfMany();
+                    return false;
+                }
+                if (target.allocated.compareAndSet(per, per + 1)) {
+                    // Global total intentionally stays unchanged: the victim's
+                    // slot has been transferred to the target segment.
+                    discardEntry(victim, CloseMode.GRACEFUL);
+                    maybeCleanupSegment(victimSegment.route, victimSegment);
+                    return true;
+                }
             }
         }
     }
 
     private boolean tryAllocateOne(final R route, final Segment seg) {
         for (; ; ) {
-            final int tot = totalAllocated.get();
-            if (tot >= maxTotal.get()) {
+            if (seg.allocated.get() >= seg.limitPerRoute(route)) {
                 return false;
             }
+
+            final int max = maxTotal.get();
+            final int tot = totalAllocated.get();
+
+            if (tot > max) {
+                return false;
+            }
+            if (tot == max) {
+                if (tryReclaimAndAllocate(route, seg)) {
+                    return true;
+                }
+                if (totalAllocated.get() < maxTotal.get()) {
+                    continue;
+                }
+                return false;
+            }
+
             if (!totalAllocated.compareAndSet(tot, tot + 1)) {
                 continue;
             }
+
             for (; ; ) {
                 final int per = seg.allocated.get();
                 if (per >= seg.limitPerRoute(route)) {
@@ -706,25 +857,50 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         }
     }
 
+    private boolean hasDrainOpportunity() {
+        return totalAllocated.get() < maxTotal.get() || !reclaimQueue.isEmpty();
+    }
+
+    private void serveOnePendingIfPossible() {
+        if (pendingRouteCount.get() == 0 || !hasDrainOpportunity()) {
+            return;
+        }
+        // Scan a small bounded number of route tokens, but complete at most one
+        // lease inline. This is enough for liveness without turning release or
+        // maintenance into a global drain.
+        serveRoundRobin(RR_INLINE_FALLBACK_BUDGET, 1);
+    }
+
+    private void serveOnePendingForOtherRoutes(final Segment seg) {
+        final int ownPending = seg.enqueued.get() ? 1 : 0;
+        if (pendingRouteCount.get() <= ownPending || !hasDrainOpportunity()) {
+            return;
+        }
+        serveRoundRobin(RR_INLINE_FALLBACK_BUDGET, 1);
+    }
+
     private void triggerDrainIfMany() {
-        if (pendingRouteCount.get() < RR_MIN_PENDING_ROUTES) {
+        if (pendingRouteCount.get() < RR_MIN_PENDING_ROUTES || !hasDrainOpportunity()) {
             return;
         }
-        if (totalAllocated.get() >= maxTotal.get()) {
-            return;
-        }
+        triggerDrain();
+    }
+
+    private void triggerDrain() {
         if (!draining.compareAndSet(false, true)) {
             return;
         }
 
         final Runnable task = () -> {
+            int created = 0;
             try {
-                serveRoundRobin(RR_BUDGET);
+                created = serveRoundRobin(RR_BUDGET);
             } finally {
                 draining.set(false);
-                if (pendingRouteCount.get() >= RR_MIN_PENDING_ROUTES
-                        && totalAllocated.get() < maxTotal.get()
-                        && !pendingQueue.isEmpty()) {
+                if (created > 0
+                        && pendingRouteCount.get() >= RR_MIN_PENDING_ROUTES
+                        && !pendingQueue.isEmpty()
+                        && hasDrainOpportunity()) {
                     triggerDrainIfMany();
                 }
             }
@@ -742,10 +918,15 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
         }
     }
 
-    private void serveRoundRobin(final int budget) {
-        int created = 0;
+    private int serveRoundRobin(final int budget) {
+        return serveRoundRobin(budget, budget);
+    }
 
-        for (; created < budget; ) {
+    private int serveRoundRobin(final int budget, final int maxCreated) {
+        int created = 0;
+        final int attempts = Math.min(budget, pendingRouteCount.get());
+
+        for (int i = 0; i < attempts && created < maxCreated; i++) {
             final R route = pendingQueue.poll();
             if (route == null) {
                 break;
@@ -786,6 +967,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
                 }
             }
         }
+        return created;
     }
 
     /**

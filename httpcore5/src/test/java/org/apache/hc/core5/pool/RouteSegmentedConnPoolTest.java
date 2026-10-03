@@ -319,43 +319,50 @@ public class RouteSegmentedConnPoolTest {
 
         assertTrue(pool.getRoutes().isEmpty(), "Initially there should be no routes");
 
-        // Allocate on rA
+        // Allocate on rA.
         final PoolEntry<String, FakeConnection> a =
                 pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        assertEquals(new HashSet<String>(Collections.singletonList("rA")), pool.getRoutes(),
-                "rA must be listed because it is leased (allocated > 0)");
 
-        // Make rA available
+        assertEquals(
+                new HashSet<>(Collections.singletonList("rA")),
+                pool.getRoutes(),
+                "rA must be listed because it is leased");
+
+        // Make rA idle and reclaimable.
         a.assignConnection(new FakeConnection());
         a.updateExpiry(TimeValue.ofSeconds(30));
         pool.release(a, true);
-        assertEquals(new HashSet<>(Collections.singletonList("rA")), pool.getRoutes(),
-                "rA must be listed because it has AVAILABLE entries");
 
-        // Enqueue waiter on rB (will time out)
-        final Future<PoolEntry<String, FakeConnection>> waiterB =
-                pool.lease("rB", null, Timeout.ofMilliseconds(300), null);
-        final Set<String> routesNow = pool.getRoutes();
-        assertTrue(routesNow.contains("rA") && routesNow.contains("rB"),
-                "Both rA (available) and rB (waiter) must be listed");
+        assertEquals(
+                new HashSet<>(Collections.singletonList("rA")),
+                pool.getRoutes(),
+                "rA must be listed because it has an available entry");
 
-        // Let rB time out (do NOT free capacity before the timeout fires)
-        final ExecutionException ex = assertThrows(
-                ExecutionException.class,
-                () -> waiterB.get(600, TimeUnit.MILLISECONDS));
-        assertInstanceOf(TimeoutException.class, ex.getCause());
-        assertEquals("Lease timed out", ex.getCause().getMessage());
+        // The pool is globally full, but rA has an idle entry. Leasing rB must
+        // reclaim rA's global slot instead of leaving rB pending.
+        final PoolEntry<String, FakeConnection> b =
+                pool.lease("rB", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
 
-        // Now drain rA by leasing and discarding to trigger segment cleanup
-        final PoolEntry<String, FakeConnection> a2 =
-                pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        pool.release(a2, false); // discard
-        final Set<String> afterDropA = pool.getRoutes();
-        assertFalse(afterDropA.contains("rA"), "rA segment should be cleaned up");
-        assertFalse(afterDropA.contains("rB"), "rB waiter timed out; should not remain listed");
+        assertEquals("rB", b.getRoute());
 
-        // Final cleanup
+        final Set<String> routesAfterReclaim = pool.getRoutes();
+        assertFalse(routesAfterReclaim.contains("rA"),
+                "rA should be removed after its idle entry is reclaimed");
+        assertTrue(routesAfterReclaim.contains("rB"),
+                "rB must be listed because it owns the reclaimed allocation");
+
+        final PoolStats totalStats = pool.getTotalStats();
+        assertEquals(1, totalStats.getLeased());
+        assertEquals(0, totalStats.getAvailable());
+        assertEquals(0, totalStats.getPending());
+
+        pool.release(b, false);
+
+        assertTrue(pool.getRoutes().isEmpty(),
+                "All routes should be gone after the final allocation is discarded");
+
         pool.close(CloseMode.IMMEDIATE);
-        assertTrue(pool.getRoutes().isEmpty(), "All routes must be gone after close()");
+        assertTrue(pool.getRoutes().isEmpty(),
+                "All routes must be gone after close()");
     }
 }
