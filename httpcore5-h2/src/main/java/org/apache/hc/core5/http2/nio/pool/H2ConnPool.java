@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http2.nio.pool;
 
 import java.net.InetSocketAddress;
+import java.time.Clock;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -35,9 +36,9 @@ import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Resolver;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.StaleCheckCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -45,6 +46,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.AbstractIOSessionPool;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
@@ -65,14 +67,25 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
 
     private volatile TimeValue validateAfterInactivity = TimeValue.NEG_ONE_MILLISECOND;
 
+    /**
+     * @since 5.5
+     */
+    public H2ConnPool(
+            final Clock clock,
+            final ConnectionInitiator connectionInitiator,
+            final Resolver<HttpHost, InetSocketAddress> addressResolver,
+            final TlsStrategy tlsStrategy) {
+        super(clock);
+        this.connectionInitiator = Args.notNull(connectionInitiator, "Connection initiator");
+        this.addressResolver = addressResolver;
+        this.tlsStrategy = tlsStrategy;
+    }
+
     public H2ConnPool(
             final ConnectionInitiator connectionInitiator,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {
-        super();
-        this.connectionInitiator = Args.notNull(connectionInitiator, "Connection initiator");
-        this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
-        this.tlsStrategy = tlsStrategy;
+        this(Clock.systemUTC(), connectionInitiator, addressResolver, tlsStrategy);
     }
 
     public TimeValue getValidateAfterInactivity() {
@@ -99,7 +112,9 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final HttpHost namedEndpoint,
             final Timeout connectTimeout,
             final FutureCallback<IOSession> callback) {
-        final InetSocketAddress remoteAddress = addressResolver.resolve(namedEndpoint);
+        final InetSocketAddress remoteAddress = addressResolver != null ?
+                addressResolver.resolve(namedEndpoint) :
+                new InetSocketAddress(namedEndpoint.getHostName(), namedEndpoint.getPort());
         return connectionInitiator.connect(
                 namedEndpoint,
                 remoteAddress,
@@ -140,11 +155,11 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final IOSession ioSession,
             final Callback<Boolean> callback) {
         if (ioSession.isOpen()) {
-            final TimeValue timeValue = validateAfterInactivity;
-            if (TimeValue.isNonNegative(timeValue)) {
-                final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
-                final long deadline = lastAccessTime + timeValue.toNanoseconds();
-                if (deadline <= System.nanoTime()) {
+            final TimeValue inactivityTime = validateAfterInactivity;
+            if (TimeValue.isNonNegative(inactivityTime)) {
+                // Last tolerable point of inactivity
+                final long deadline = inactivityDeadline(inactivityTime);
+                if (ioSession.getLastEventTime() <= deadline) {
                     ioSession.enqueue(new StaleCheckCommand(callback::execute), Command.Priority.NORMAL);
                     return;
                 }
@@ -153,6 +168,15 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
         } else {
             callback.execute(false);
         }
+    }
+
+    @Override
+    protected boolean isIdle(final IOSession session) {
+        final IOEventHandler handler = session.getHandler();
+        if (handler instanceof HttpConnection) {
+            return ((HttpConnection) handler).isIdle();
+        }
+        return false;
     }
 
     /**
