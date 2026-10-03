@@ -1893,23 +1893,23 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertTrue(frames.stream().noneMatch(FrameStub::isPing), "Disabled policy must never emit PING");
     }
 
-    private static long getValidateAfterInactivityGranularityNanos() throws Exception {
-        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("VALIDATE_AFTER_INACTIVITY_GRANULARITY_NANOS");
+    private static long getValidateAfterInactivityGranularityMillis() throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("VALIDATE_AFTER_INACTIVITY_GRANULARITY_MILLIS");
         field.setAccessible(true);
         return field.getLong(null);
     }
 
-    private static void setLastActivityNanos(final AbstractH2StreamMultiplexer mux, final long nanos) throws Exception {
-        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("lastActivityNanos");
+    private static void setLastActivityTime(final AbstractH2StreamMultiplexer mux, final long millis) throws Exception {
+        final Field field = AbstractH2StreamMultiplexer.class.getDeclaredField("lastActivityTime");
         field.setAccessible(true);
-        field.setLong(mux, nanos);
+        field.setLong(mux, millis);
     }
 
     private static void makeMuxIdle(final AbstractH2StreamMultiplexer mux, final Timeout validateAfterInactivity) throws Exception {
-        final long granularityNanos = getValidateAfterInactivityGranularityNanos();
-        final long configuredNanos = validateAfterInactivity != null ? validateAfterInactivity.toNanoseconds() : 0;
-        final long effectiveNanos = configuredNanos > 0 ? Math.max(configuredNanos, granularityNanos) : 0;
-        setLastActivityNanos(mux, System.nanoTime() - effectiveNanos - TimeUnit.MILLISECONDS.toNanos(10));
+        final long granularityMillis = getValidateAfterInactivityGranularityMillis();
+        final long configuredMillis = validateAfterInactivity != null ? validateAfterInactivity.toMilliseconds() : 0;
+        final long effectiveMillis = configuredMillis > 0 ? Math.max(configuredMillis, granularityMillis) : 0;
+        setLastActivityTime(mux, System.currentTimeMillis() - effectiveMillis - 10);
     }
 
     @Test

@@ -44,7 +44,7 @@ final class InternalConnectChannel extends InternalChannel {
     private final InternalDataChannel dataChannel;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
-    private final long creationNanos;
+    private final long creationTimeMillis;
 
     InternalConnectChannel(
             final SelectionKey key,
@@ -60,7 +60,7 @@ final class InternalConnectChannel extends InternalChannel {
         this.dataChannel = dataChannel;
         this.eventHandlerFactory = eventHandlerFactory;
         this.reactorConfig = reactorConfig;
-        this.creationNanos = System.nanoTime();
+        this.creationTimeMillis = System.currentTimeMillis();
     }
 
     @Override
@@ -70,8 +70,8 @@ final class InternalConnectChannel extends InternalChannel {
                 socketChannel.finishConnect();
             }
             //check out connectTimeout
-            final long nowNanos = System.nanoTime();
-            if (checkTimeout(nowNanos)) {
+            final long now = System.currentTimeMillis();
+            if (checkTimeout(now)) {
                 if (reactorConfig.getSocksProxyAddress() == null) {
                     dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, sessionRequest.attachment));
                     key.attach(dataChannel);
@@ -95,7 +95,7 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     long getLastEventTime() {
-        return creationNanos;
+        return creationTimeMillis;
     }
 
     @Override

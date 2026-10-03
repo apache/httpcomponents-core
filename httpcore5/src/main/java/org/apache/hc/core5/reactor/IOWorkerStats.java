@@ -45,6 +45,6 @@ public interface IOWorkerStats {
     int pendingChannelCount();
 
     // Cheap
-    long lastSelectNano();
+    long lastSelectMilli();
 
 }
