@@ -273,6 +273,7 @@
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
               <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
+              <exclude>org.apache.hc.core5.testing.framework.*</exclude>
             </excludes>
             <skipXmlReport>true</skipXmlReport>
             <skipHtmlReport>false</skipHtmlReport>
@@ -420,6 +421,7 @@
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
               <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
+              <exclude>org.apache.hc.core5.testing.framework.*</exclude>
             </excludes>
             <reportOnlyFilename>true</reportOnlyFilename>
           </parameter>
