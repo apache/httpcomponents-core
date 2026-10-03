@@ -534,7 +534,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             final ContentEncoder contentEncoder = outgoingMessage.body();
             contentEncoder.complete(trailers);
-            ioSession.setEvent(SelectionKey.OP_WRITE);
+            if (outbuf.hasData()) {
+                ioSession.setEvent(SelectionKey.OP_WRITE);
+            }
             outgoingMessage = null;
             return contentEncoder instanceof ChunkEncoder
                             ? MessageDelineation.CHUNK_CODED
