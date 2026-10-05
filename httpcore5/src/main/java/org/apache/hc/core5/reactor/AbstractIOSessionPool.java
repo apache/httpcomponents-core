@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.reactor;
 
+import java.time.Clock;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
@@ -56,11 +57,20 @@ import org.apache.hc.core5.util.Timeout;
 @Contract(threading = ThreadingBehavior.SAFE)
 public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
+    private final Clock clock;
     private final ConcurrentMap<T, PoolEntry> sessionPool;
     private final AtomicBoolean closed;
 
     public AbstractIOSessionPool() {
+        this(Clock.systemUTC());
+    }
+
+    /**
+     * @since 5.5
+     */
+    public AbstractIOSessionPool(final Clock clock) {
         super();
+        this.clock = Args.notNull(clock, "Clock");
         this.sessionPool = new ConcurrentHashMap<>();
         this.closed = new AtomicBoolean();
     }
@@ -77,6 +87,16 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     protected abstract void closeSession(
             IOSession ioSession,
             CloseMode closeMode);
+
+    /**
+     * Tests if the given session is idle. This method is expected to be communication protocol
+     * aware.
+     *
+     * @since 5.5
+     */
+    protected boolean isIdle(final IOSession session) {
+        return false;
+    }
 
     @Override
     public final void close(final CloseMode closeMode) {
@@ -263,18 +283,23 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         }
     }
 
+    protected long inactivityDeadline(final TimeValue inactivityTime) {
+        return this.clock.millis() - (TimeValue.isPositive(inactivityTime) ? inactivityTime.toMilliseconds() : 0);
+    }
+
     /**
-     * This method has no effect. Its initial implementation has been removed, as it can
-     * cause premature termination of sessions with multiplexing message exchanges such
-     * as HTTP/2.
-     *
-     * @deprecated This method has no effect as of version 5.5 and should not be used.
-     * Use {@link #enumAvailable(Callback)} method and implement idle detection
-     * logic that correctly takes into account specifics of the underlying
-     * communication protocol.
+     * Close sessions idle longer than the given period of inactivity. This method will also
+     * Evict closed sessions.
      */
-    @Deprecated
-    public final void closeIdle(final TimeValue idleTime) {
+    public final void closeIdle(final TimeValue inactivityTime) {
+        // Last tolerable point of inactivity
+        // Millisecond precision is good enough
+        final long deadline = inactivityDeadline(inactivityTime);
+        enumAvailable(session -> {
+            if (isIdle(session) && session.getLastEventTime() <= deadline) {
+                closeSession(session, CloseMode.GRACEFUL);
+            }
+        });
     }
 
     public final Set<T> getRoutes() {

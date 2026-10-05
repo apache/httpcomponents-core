@@ -28,11 +28,18 @@ package org.apache.hc.core5.reactor;
 
 
 import java.net.UnknownHostException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -63,14 +70,21 @@ class TestAbstractIOSessionPool {
 
     AutoCloseable closeable;
 
+    Clock clock;
+
     AbstractIOSessionPool<String> impl;
 
     @BeforeEach
     void prepareMocks() {
         closeable = MockitoAnnotations.openMocks(this);
+
+        clock = Clock.fixed(
+                LocalDateTime.of(2026, Month.SEPTEMBER, 30, 13, 30).toInstant(ZoneOffset.UTC),
+                ZoneId.of("UTC"));
+
         impl = Mockito.mock(AbstractIOSessionPool.class, Mockito.withSettings()
                 .defaultAnswer(Answers.CALLS_REAL_METHODS)
-                .useConstructor());
+                .useConstructor(clock));
     }
 
     @AfterEach
@@ -268,6 +282,52 @@ class TestAbstractIOSessionPool {
         final Future<IOSession> future2 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
         Assertions.assertNotNull(future2);
         Assertions.assertTrue(future2.isDone());
+    }
+
+    @Test
+    void testCloseIdleOnly() {
+        final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
+        Assertions.assertNotNull(entry1);
+        entry1.session = ioSession1;
+
+        final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
+        Assertions.assertNotNull(entry2);
+        entry2.session = ioSession2;
+
+        Mockito.doReturn(true).when(impl).isIdle(ioSession1);
+        Mockito.doReturn(Instant.now(clock).minusSeconds(1).toEpochMilli())
+                .when(ioSession1).getLastEventTime();
+        Mockito.doReturn(false).when(impl).isIdle(ioSession2);
+        Mockito.doReturn(Instant.now(clock).minusSeconds(2).toEpochMilli())
+                .when(ioSession2).getLastEventTime();
+
+        impl.closeIdle(null);
+
+        Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
+        Mockito.verify(impl, Mockito.never()).closeSession(Mockito.same(ioSession2), Mockito.any());
+    }
+
+    @Test
+    void testCloseIdlePastDeadline() {
+        final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
+        Assertions.assertNotNull(entry1);
+        entry1.session = ioSession1;
+
+        final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
+        Assertions.assertNotNull(entry2);
+        entry2.session = ioSession2;
+
+        Mockito.doReturn(true).when(impl).isIdle(ioSession1);
+        Mockito.doReturn(Instant.now(clock).minusSeconds(1).toEpochMilli())
+                .when(ioSession1).getLastEventTime();
+        Mockito.doReturn(true).when(impl).isIdle(ioSession2);
+        Mockito.doReturn(Instant.now(clock).toEpochMilli())
+                .when(ioSession2).getLastEventTime();
+
+        impl.closeIdle(TimeValue.ofSeconds(1));
+
+        Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
+        Mockito.verify(impl, Mockito.never()).closeSession(Mockito.same(ioSession2), Mockito.any());
     }
 
 }
