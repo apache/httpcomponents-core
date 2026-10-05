@@ -88,7 +88,7 @@ class AbstractH2IOEventHandler implements HttpConnectionEventHandler {
 
     @Override
     public boolean isIdle() {
-        return streamMultiplexer.streamCount() > 0;
+        return streamMultiplexer.streamCount() == 0;
     }
 
     @Override
