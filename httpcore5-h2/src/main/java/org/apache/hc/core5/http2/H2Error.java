@@ -136,17 +136,17 @@ public enum H2Error {
      */
     HTTP_1_1_REQUIRED (0x0d);
 
-    int code;
+    long code;
 
-    H2Error(final int code) {
+    H2Error(final long code) {
         this.code = code;
     }
 
-    public int getCode() {
+    public long getCode() {
         return code;
     }
 
-    private static final ConcurrentMap<Integer, H2Error> MAP_BY_CODE;
+    private static final ConcurrentMap<Long, H2Error> MAP_BY_CODE;
     static {
         MAP_BY_CODE = new ConcurrentHashMap<>();
         for (final H2Error error: values()) {
@@ -154,8 +154,12 @@ public enum H2Error {
         }
     }
 
-    public static H2Error getByCode(final int code) {
+    public static H2Error getByCode(final long code) {
         return MAP_BY_CODE.get(code);
+    }
+
+    public static H2Error getByCode(final int code) {
+        return getByCode(Integer.toUnsignedLong(code));
     }
 
 }

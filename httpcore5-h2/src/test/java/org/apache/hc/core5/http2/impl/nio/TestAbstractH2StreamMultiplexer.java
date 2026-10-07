@@ -156,7 +156,7 @@ class TestAbstractH2StreamMultiplexer {
         }
 
         @Override
-        void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
+        void validateSetting(final H2Param param, final long value) throws H2ConnectionException {
         }
 
         @Override
@@ -323,7 +323,7 @@ class TestAbstractH2StreamMultiplexer {
                 .build();
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
-        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final HPackEncoder encoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("test-header-key", "value"));
         headers.add(new BasicHeader(":status", "200"));
@@ -369,7 +369,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -468,7 +468,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -523,7 +523,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -579,7 +579,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -635,7 +635,7 @@ class TestAbstractH2StreamMultiplexer {
                 () -> streamHandler);
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -673,7 +673,7 @@ class TestAbstractH2StreamMultiplexer {
                 .build();
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(19);
-        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final HPackEncoder encoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(":status", "200"));
         for (int i = 1; i <= 100; i++) {
@@ -727,7 +727,7 @@ class TestAbstractH2StreamMultiplexer {
                 .build();
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(19);
-        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final HPackEncoder encoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(":status", "200"));
         for (int i = 1; i <= 100; i++) {
@@ -792,7 +792,7 @@ class TestAbstractH2StreamMultiplexer {
         final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
-        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final HPackEncoder encoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(":status", "200"));
         encoder.encodeHeaders(buf, headers, h2Config.isCompressionEnabled());
@@ -838,7 +838,7 @@ class TestAbstractH2StreamMultiplexer {
         final H2Stream stream = streamMultiplexer.createStream(channel, streamHandler);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(19);
-        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final HPackEncoder encoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(":status", "200"));
         encoder.encodeHeaders(buf, headers, h2Config.isCompressionEnabled());
@@ -1269,7 +1269,7 @@ class TestAbstractH2StreamMultiplexer {
 
         // Encode request headers
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -1341,7 +1341,7 @@ class TestAbstractH2StreamMultiplexer {
 
         // Encode request headers
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(200);
-        final HPackEncoder encoder = new HPackEncoder(h2Config.getHeaderTableSize(),
+        final HPackEncoder encoder = new HPackEncoder((int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -1984,7 +1984,7 @@ class TestAbstractH2StreamMultiplexer {
 
         final ByteArrayBuffer hbuf = new ByteArrayBuffer(256);
         final HPackEncoder encoder = new HPackEncoder(
-                H2Config.INIT.getHeaderTableSize(),
+                (int) H2Config.INIT.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> reqHeaders = Arrays.asList(
@@ -2037,7 +2037,7 @@ class TestAbstractH2StreamMultiplexer {
 
         final ByteBuffer goAwayPayload = ByteBuffer.allocate(8);
         goAwayPayload.putInt(0x80000003); // reserved bit set, last-stream-id = 3
-        goAwayPayload.putInt(H2Error.NO_ERROR.getCode());
+        goAwayPayload.putInt((int) H2Error.NO_ERROR.getCode());
         goAwayPayload.flip();
         final RawFrame goAway = new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, goAwayPayload);
 
@@ -2223,7 +2223,7 @@ class TestAbstractH2StreamMultiplexer {
 
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(128);
         final HPackEncoder encoder = new HPackEncoder(
-                h2Config.getHeaderTableSize(),
+                (int) h2Config.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(
@@ -2309,7 +2309,7 @@ class TestAbstractH2StreamMultiplexer {
     @Test
     void testRemoteHeaderTableSizeIsCappedForEncoder() throws Exception {
         Assertions.assertEquals(
-                H2Config.INIT.getHeaderTableSize(),
+                (int) H2Config.INIT.getHeaderTableSize(),
                 encoderTableSizeAfterRemoteSettings(Integer.MAX_VALUE));
     }
 
@@ -2389,9 +2389,9 @@ class TestAbstractH2StreamMultiplexer {
 
             Assertions.assertDoesNotThrow(
                     () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
-            Assertions.assertEquals(-1, getRemoteConfig(mux).getHeaderTableSize());
+            Assertions.assertEquals(0xffffffffL, getRemoteConfig(mux).getHeaderTableSize());
             Assertions.assertEquals(
-                    H2Config.INIT.getHeaderTableSize(),
+                    (int) H2Config.INIT.getHeaderTableSize(),
                     getHPackEncoder(mux).getMaxTableSize());
         } finally {
             mux.close();
@@ -2421,7 +2421,7 @@ class TestAbstractH2StreamMultiplexer {
             Assertions.assertDoesNotThrow(
                     () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
             Assertions.assertEquals(
-                    Integer.MIN_VALUE,
+                    0x80000000L,
                     getRemoteConfig(mux).getMaxConcurrentStreams());
         } finally {
             mux.close();
@@ -2450,7 +2450,163 @@ class TestAbstractH2StreamMultiplexer {
 
             Assertions.assertDoesNotThrow(
                     () -> mux.onInput(ByteBuffer.wrap(encodeFrame(settingsFrame))));
-            Assertions.assertEquals(-1, getRemoteConfig(mux).getMaxHeaderListSize());
+            Assertions.assertEquals(0xffffffffL, getRemoteConfig(mux).getMaxHeaderListSize());
+        } finally {
+            mux.close();
+        }
+    }
+
+    private AbstractH2StreamMultiplexer createUnsignedValueTestMultiplexer() {
+        return new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler);
+    }
+
+    private static RawFrame createSettingsFrame(final H2Param param, final int rawValue) {
+        final ByteBuffer payload = ByteBuffer.allocate(6);
+        payload.putShort((short) param.getCode());
+        payload.putInt(rawValue);
+        payload.flip();
+        return new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+    }
+
+    @Test
+    void testLocalHpackLimitsAboveDecoderCapacityRejected() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD, httpProcessor, CharCodingConfig.DEFAULT,
+                H2Config.custom().setHeaderTableSize(0x80000000L).build(), h2StreamListener, () -> streamHandler));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD, httpProcessor, CharCodingConfig.DEFAULT,
+                H2Config.custom().setMaxHeaderListSize(0xffffffffL).build(), h2StreamListener, () -> streamHandler));
+    }
+
+    @Test
+    void testUnsignedSettingsValuesObservedAsPositiveLong() throws Exception {
+        final int[] rawValues = {0x00000000, 0x7fffffff, 0x80000000, 0xffffffff};
+        final long[] expected = {0L, 2147483647L, 2147483648L, 4294967295L};
+        for (final H2Param param : new H2Param[] {
+                H2Param.HEADER_TABLE_SIZE, H2Param.MAX_CONCURRENT_STREAMS, H2Param.MAX_HEADER_LIST_SIZE}) {
+            for (int i = 0; i < rawValues.length; i++) {
+                final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+                try {
+                    mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(param, rawValues[i]))));
+                    final H2Config remoteConfig = getRemoteConfig(mux);
+                    final long actual = param == H2Param.HEADER_TABLE_SIZE ? remoteConfig.getHeaderTableSize()
+                            : param == H2Param.MAX_CONCURRENT_STREAMS ? remoteConfig.getMaxConcurrentStreams()
+                            : remoteConfig.getMaxHeaderListSize();
+                    Assertions.assertEquals(expected[i], actual, param + " " + Integer.toHexString(rawValues[i]));
+                } finally {
+                    mux.close();
+                }
+            }
+        }
+    }
+
+    @Test
+    void testZeroMaxConcurrentStreamsSettingAccepted() throws Exception {
+        final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+        try {
+            mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(H2Param.MAX_CONCURRENT_STREAMS, 0))));
+            Assertions.assertEquals(0L, getRemoteConfig(mux).getMaxConcurrentStreams());
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testInitialWindowSizeSettingAboveMaxIsFlowControlError() throws Exception {
+        for (final int rawValue : new int[] {0x80000000, 0xffffffff}) {
+            final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+            try {
+                final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class,
+                        () -> mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(H2Param.INITIAL_WINDOW_SIZE, rawValue)))));
+                Assertions.assertEquals(H2Error.FLOW_CONTROL_ERROR, H2Error.getByCode(ex.getCode()));
+            } finally {
+                mux.close();
+            }
+        }
+        final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+        try {
+            mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(H2Param.INITIAL_WINDOW_SIZE, 0x7fffffff))));
+            Assertions.assertEquals(0x7fffffff, getRemoteConfig(mux).getInitialWindowSize());
+        } finally {
+            mux.close();
+        }
+    }
+
+    @Test
+    void testInvalidMaxFrameSizeSettingIsProtocolError() throws Exception {
+        for (final int rawValue : new int[] {0, 0x3fff, 0x01000000, 0x7fffffff, 0x80000000, 0xffffffff}) {
+            final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+            try {
+                final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class,
+                        () -> mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(H2Param.MAX_FRAME_SIZE, rawValue)))),
+                        Integer.toHexString(rawValue));
+                Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(ex.getCode()));
+            } finally {
+                mux.close();
+            }
+        }
+        for (final int rawValue : new int[] {0x4000, 0xffffff}) {
+            final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+            try {
+                mux.onInput(ByteBuffer.wrap(encodeFrame(createSettingsFrame(H2Param.MAX_FRAME_SIZE, rawValue))));
+                Assertions.assertEquals(rawValue, getRemoteConfig(mux).getMaxFrameSize());
+            } finally {
+                mux.close();
+            }
+        }
+    }
+
+    @Test
+    void testRstStreamErrorCodeObservedAsUnsignedLong() throws Exception {
+        final int[] rawCodes = {0x7fffffff, 0x80000000, 0xffffffff, (int) H2Error.PROTOCOL_ERROR.getCode()};
+        final long[] expected = {2147483647L, 2147483648L, 4294967295L, 1L};
+        for (int i = 0; i < rawCodes.length; i++) {
+            final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+            final H2StreamHandler handler = Mockito.mock(H2StreamHandler.class);
+            try {
+                mux.createStream(mux.createChannel(1), handler);
+                final ByteBuffer payload = ByteBuffer.allocate(4);
+                payload.putInt(rawCodes[i]);
+                payload.flip();
+                mux.onInput(ByteBuffer.wrap(encodeFrame(new RawFrame(FrameType.RST_STREAM.getValue(), 0, 1, payload))));
+
+                final ArgumentCaptor<Exception> captor = ArgumentCaptor.forClass(Exception.class);
+                Mockito.verify(handler).failed(captor.capture());
+                final H2StreamResetException ex = Assertions.assertInstanceOf(H2StreamResetException.class, captor.getValue());
+                Assertions.assertEquals(expected[i], ex.getCode());
+            } finally {
+                mux.close();
+            }
+        }
+        Assertions.assertEquals(H2Error.PROTOCOL_ERROR, H2Error.getByCode(1L));
+        Assertions.assertNull(H2Error.getByCode(2147483648L));
+        Assertions.assertNull(H2Error.getByCode(4294967295L));
+    }
+
+    @Test
+    void testGoAwayErrorCodeObservedAsUnsignedLong() throws Exception {
+        final AbstractH2StreamMultiplexer mux = createUnsignedValueTestMultiplexer();
+        final H2StreamHandler handler = Mockito.mock(H2StreamHandler.class);
+        try {
+            mux.createStream(mux.createChannel(1), handler);
+            final ByteBuffer payload = ByteBuffer.allocate(8);
+            payload.putInt(1);
+            payload.putInt(0xffffffff);
+            payload.flip();
+            mux.onInput(ByteBuffer.wrap(encodeFrame(new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, payload))));
+
+            final ArgumentCaptor<Exception> captor = ArgumentCaptor.forClass(Exception.class);
+            Mockito.verify(handler).failed(captor.capture());
+            final H2StreamResetException ex = Assertions.assertInstanceOf(H2StreamResetException.class, captor.getValue());
+            Assertions.assertEquals(4294967295L, ex.getCode());
         } finally {
             mux.close();
         }
@@ -2503,7 +2659,7 @@ class TestAbstractH2StreamMultiplexer {
         // Receive PUSH_PROMISE for stream 2 -> stream 2 becomes reserved (remote).
         final ByteArrayBuffer headerBuf = new ByteArrayBuffer(256);
         final HPackEncoder encoder = new HPackEncoder(
-                H2Config.INIT.getHeaderTableSize(),
+                (int) H2Config.INIT.getHeaderTableSize(),
                 CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
 
         final List<Header> headers = Arrays.asList(

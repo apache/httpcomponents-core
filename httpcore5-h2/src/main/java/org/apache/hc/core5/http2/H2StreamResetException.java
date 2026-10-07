@@ -43,7 +43,7 @@ public class H2StreamResetException extends HttpStreamResetException {
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 4280996898701236013L;
-    private final int code;
+    private final long code;
 
     public H2StreamResetException(final H2Error error, final String message) {
         super(message);
@@ -51,12 +51,16 @@ public class H2StreamResetException extends HttpStreamResetException {
         this.code = error.getCode();
     }
 
-    public H2StreamResetException(final int code, final String message) {
+    public H2StreamResetException(final long code, final String message) {
         super(message);
-        this.code = code;
+        this.code = Args.checkRange(code, 0L, 0xffffffffL, "H2 Error code");
     }
 
-    public int getCode() {
+    public H2StreamResetException(final int code, final String message) {
+        this(Integer.toUnsignedLong(code), message);
+    }
+
+    public long getCode() {
         return code;
     }
 

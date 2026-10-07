@@ -40,7 +40,7 @@ public class H2ConnectionException extends IOException {
 
     private static final long serialVersionUID = -2014204317155428658L;
 
-    private final int code;
+    private final long code;
 
     public H2ConnectionException(final H2Error error, final String message) {
         super(message);
@@ -48,12 +48,16 @@ public class H2ConnectionException extends IOException {
         this.code = error.getCode();
     }
 
-    public H2ConnectionException(final int code, final String message) {
+    public H2ConnectionException(final long code, final String message) {
         super(message);
-        this.code = code;
+        this.code = Args.checkRange(code, 0L, 0xffffffffL, "H2 Error code");
     }
 
-    public int getCode() {
+    public H2ConnectionException(final int code, final String message) {
+        this(Integer.toUnsignedLong(code), message);
+    }
+
+    public long getCode() {
         return code;
     }
 

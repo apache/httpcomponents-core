@@ -241,7 +241,7 @@ class H2Stream implements StreamControl {
         }
     }
 
-    void localReset(final Exception cause, final int code) throws IOException {
+    void localReset(final Exception cause, final long code) throws IOException {
         channel.localReset(code);
         if (released.compareAndSet(false, true)) {
             try {

@@ -36,20 +36,23 @@ import org.apache.hc.core5.util.Args;
 public final class H2Setting {
 
     private final H2Param param;
-    private final int value;
+    private final long value;
+
+    public H2Setting(final H2Param param, final long value) {
+        Args.notNull(param, "Setting parameter");
+        this.param = param;
+        this.value = Args.checkRange(value, 0L, 0xffffffffL, "Setting value");
+    }
 
     public H2Setting(final H2Param param, final int value) {
-        Args.notNull(param, "Setting parameter");
-        Args.notNegative(value, "Setting value must be a non-negative value");
-        this.param = param;
-        this.value = value;
+        this(param, (long) value);
     }
 
     public int getCode() {
         return param.code;
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 

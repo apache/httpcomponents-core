@@ -30,11 +30,53 @@ package org.apache.hc.core5.http2.config;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 class H2ConfigTest {
+
+    @Test
+    void unsignedSettingsRange() {
+        for (final long value : new long[] {0L, 0x7fffffffL, 0x80000000L, 0xffffffffL}) {
+            final H2Config h2Config = H2Config.custom()
+                    .setHeaderTableSize(value)
+                    .setMaxConcurrentStreams(value)
+                    .setMaxHeaderListSize(value)
+                    .build();
+            assertEquals(value, h2Config.getHeaderTableSize());
+            assertEquals(value, h2Config.getMaxConcurrentStreams());
+            assertEquals(value, h2Config.getMaxHeaderListSize());
+        }
+        for (final long value : new long[] {-1L, 0x100000000L}) {
+            assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setHeaderTableSize(value));
+            assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxConcurrentStreams(value));
+            assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxHeaderListSize(value));
+        }
+    }
+
+    @Test
+    void semanticIntSettingsRejectNegative() {
+        final H2Config h2Config = H2Config.custom()
+                .setHeaderTableSize(Integer.MAX_VALUE)
+                .setMaxConcurrentStreams(0)
+                .setMaxHeaderListSize(Integer.MAX_VALUE)
+                .build();
+        assertEquals(2147483647L, h2Config.getHeaderTableSize());
+        assertEquals(0L, h2Config.getMaxConcurrentStreams());
+        assertEquals(2147483647L, h2Config.getMaxHeaderListSize());
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setHeaderTableSize(-1));
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxConcurrentStreams(-1));
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxHeaderListSize(-1));
+    }
+
+    @Test
+    void constrainedSettingsRange() {
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setInitialWindowSize(-1));
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxFrameSize(16383));
+        assertThrows(IllegalArgumentException.class, () -> H2Config.custom().setMaxFrameSize(16777216));
+    }
 
     @Test
     void builder() {

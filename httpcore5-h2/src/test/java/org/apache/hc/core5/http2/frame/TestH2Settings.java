@@ -55,4 +55,18 @@ class TestH2Settings {
         Assertions.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
     }
 
+    @Test
+    void testH2SettingUnsignedValueRange() {
+        Assertions.assertEquals(0L, new H2Setting(H2Param.HEADER_TABLE_SIZE, 0L).getValue());
+        Assertions.assertEquals(2147483647L, new H2Setting(H2Param.HEADER_TABLE_SIZE, 0x7fffffffL).getValue());
+        Assertions.assertEquals(2147483648L, new H2Setting(H2Param.HEADER_TABLE_SIZE, 0x80000000L).getValue());
+        Assertions.assertEquals(4294967295L, new H2Setting(H2Param.HEADER_TABLE_SIZE, 0xffffffffL).getValue());
+        Assertions.assertEquals("MAX_HEADER_LIST_SIZE: 4294967295",
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, 0xffffffffL).toString());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new H2Setting(H2Param.HEADER_TABLE_SIZE, -1L));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new H2Setting(H2Param.HEADER_TABLE_SIZE, 0x100000000L));
+        Assertions.assertEquals(0x7fffffffL, new H2Setting(H2Param.HEADER_TABLE_SIZE, 0x7fffffff).getValue());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new H2Setting(H2Param.HEADER_TABLE_SIZE, -1));
+    }
+
 }

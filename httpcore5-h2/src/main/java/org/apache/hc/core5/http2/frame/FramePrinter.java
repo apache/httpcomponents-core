@@ -105,13 +105,13 @@ public final class FramePrinter {
                         while (buf.hasRemaining()) {
                             final int code = buf.getShort();
                             final H2Param param = H2Param.valueOf(code);
-                            final int value = buf.getInt();
+                            final long value = Integer.toUnsignedLong(buf.getInt());
                             if (param != null) {
                                 appendable.append(param.name());
                             } else {
                                 appendable.append("0x").append(Integer.toHexString(code));
                             }
-                            appendable.append(": ").append(Integer.toString(value)).append("\r\n");
+                            appendable.append(": ").append(Long.toString(value)).append("\r\n");
                         }
                     } else {
                         appendable.append("Invalid\r\n");
@@ -120,12 +120,12 @@ public final class FramePrinter {
                 case RST_STREAM:
                     if (buf.remaining() == 4) {
                         appendable.append("Code ");
-                        final int code = buf.getInt();
+                        final long code = Integer.toUnsignedLong(buf.getInt());
                         final H2Error error = H2Error.getByCode(code);
                         if (error != null) {
                             appendable.append(error.name());
                         } else {
-                            appendable.append("0x").append(Integer.toHexString(code));
+                            appendable.append("0x").append(Long.toHexString(code));
                         }
                         appendable.append("\r\n");
                     } else {
@@ -137,12 +137,12 @@ public final class FramePrinter {
                         final int lastStream = buf.getInt() & 0x7fffffff;
                         appendable.append("Last stream ").append(Integer.toString(lastStream)).append("\r\n");
                         appendable.append("Code ");
-                        final int code2 = buf.getInt();
+                        final long code2 = Integer.toUnsignedLong(buf.getInt());
                         final H2Error error2 = H2Error.getByCode(code2);
                         if (error2 != null) {
                             appendable.append(error2.name());
                         } else {
-                            appendable.append("0x").append(Integer.toHexString(code2));
+                            appendable.append("0x").append(Long.toHexString(code2));
                         }
                         appendable.append("\r\n");
                         final byte[] tmp = new byte[buf.remaining()];

@@ -46,7 +46,7 @@ public abstract class FrameFactory {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
         for (final H2Setting setting: settings) {
             payload.putShort((short) setting.getCode());
-            payload.putInt(setting.getValue());
+            payload.putInt((int) setting.getValue());
         }
         payload.flip();
         return new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
@@ -61,12 +61,17 @@ public abstract class FrameFactory {
         return createResetStream(streamId, error.getCode());
     }
 
-    public RawFrame createResetStream(final int streamId, final int code) {
+    public RawFrame createResetStream(final int streamId, final long code) {
         Args.positive(streamId, "Stream id");
+        Args.checkRange(code, 0L, 0xffffffffL, "Error code");
         final ByteBuffer payload = ByteBuffer.allocate(4);
-        payload.putInt(code);
+        payload.putInt((int) code);
         payload.flip();
         return new RawFrame(FrameType.RST_STREAM.getValue(), 0, streamId, payload);
+    }
+
+    public RawFrame createResetStream(final int streamId, final int code) {
+        return createResetStream(streamId, Integer.toUnsignedLong(code));
     }
 
     public RawFrame createPing(final ByteBuffer opaqueData) {
@@ -86,7 +91,7 @@ public abstract class FrameFactory {
         final byte[] debugData = message != null ? message.getBytes(StandardCharsets.US_ASCII) : null;
         final ByteBuffer payload = ByteBuffer.allocate(8 + (debugData != null ? debugData.length : 0));
         payload.putInt(lastStream);
-        payload.putInt(error.getCode());
+        payload.putInt((int) error.getCode());
         if (debugData != null) {
             payload.put(debugData);
         }

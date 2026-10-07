@@ -82,6 +82,24 @@ class TestDefaultFrameFactory {
     }
 
     @Test
+    void testUnsignedValuesWrittenToWire() {
+        final FrameFactory frameFactory = new DefaultFrameFactory();
+        final ByteBuffer settings = frameFactory.createSettings(
+                new H2Setting(H2Param.MAX_HEADER_LIST_SIZE, 0xffffffffL)).getPayload();
+        Assertions.assertEquals(H2Param.MAX_HEADER_LIST_SIZE.getCode(), settings.getShort());
+        Assertions.assertEquals(0xffffffffL, Integer.toUnsignedLong(settings.getInt()));
+
+        Assertions.assertEquals(0x80000000L, Integer.toUnsignedLong(
+                frameFactory.createResetStream(1, 0x80000000L).getPayload().getInt()));
+        Assertions.assertEquals(0xffffffffL, Integer.toUnsignedLong(
+                frameFactory.createResetStream(1, 0xffffffffL).getPayload().getInt()));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> frameFactory.createResetStream(1, -1L));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> frameFactory.createResetStream(1, 0x100000000L));
+        Assertions.assertEquals(0xffffffffL, Integer.toUnsignedLong(
+                frameFactory.createResetStream(1, 0xffffffff).getPayload().getInt()));
+    }
+
+    @Test
     void testGoAwayFrame() {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();

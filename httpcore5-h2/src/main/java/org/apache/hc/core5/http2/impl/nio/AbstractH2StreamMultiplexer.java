@@ -76,6 +76,7 @@ import org.apache.hc.core5.http2.H2StreamTimeoutException;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
+import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
@@ -193,6 +194,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.streams = new H2Streams(idGenerator);
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
+        // The HPACK decoder cannot represent limits above Integer.MAX_VALUE
+        Args.check(this.localConfig.getHeaderTableSize() <= Integer.MAX_VALUE,
+                "Header table size exceeds HPACK decoder limit");
+        Args.check(this.localConfig.getMaxHeaderListSize() <= Integer.MAX_VALUE,
+                "Max header list size exceeds HPACK decoder limit");
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
         this.connMetrics = new BasicHttpConnectionMetrics(this.inputMetrics, this.outputMetrics);
@@ -201,8 +207,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.outputQueue = new ConcurrentLinkedDeque<>();
         this.pingHandlers = new ConcurrentLinkedQueue<>();
         this.outputRequests = new AtomicInteger(0);
-        this.hPackEncoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(charCodingConfig));
-        this.hPackDecoder = new HPackDecoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createDecoder(charCodingConfig));
+        this.hPackEncoder = new HPackEncoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(charCodingConfig));
+        this.hPackDecoder = new HPackDecoder((int) H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createDecoder(charCodingConfig));
         this.remoteConfig = H2Config.INIT;
         this.connInputWindow = new AtomicInteger(H2Config.INIT.getInitialWindowSize());
         this.connOutputWindow = new AtomicInteger(H2Config.INIT.getInitialWindowSize());
@@ -210,7 +216,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.initInputWinSize = H2Config.INIT.getInitialWindowSize();
         this.initOutputWinSize = H2Config.INIT.getInitialWindowSize();
 
-        this.hPackDecoder.setMaxListSize(this.localConfig.getMaxHeaderListSize());
+        this.hPackDecoder.setMaxListSize((int) this.localConfig.getMaxHeaderListSize());
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
         this.lastActivityTime = System.currentTimeMillis();
@@ -235,7 +241,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         ioSession.enqueue(command, Command.Priority.NORMAL);
     }
 
-    abstract void validateSetting(H2Param param, int value) throws H2ConnectionException;
+    abstract void validateSetting(H2Param param, long value) throws H2ConnectionException;
+
 
     abstract H2Setting[] generateSettings(H2Config localConfig);
 
@@ -575,7 +582,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 })));
                 return;
             }
-            while (streams.getLocalCount() < Integer.toUnsignedLong(remoteConfig.getMaxConcurrentStreams())) {
+            while (streams.getLocalCount() < remoteConfig.getMaxConcurrentStreams()) {
                 final Command command = ioSession.poll();
                 if (command == null) {
                     break;
@@ -951,7 +958,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
                 final H2Stream stream = streams.lookupSeen(streamId);
                 if (stream != null) {
-                    final int errorCode = payload.getInt();
+                    final long errorCode = Integer.toUnsignedLong(payload.getInt());
                     if (errorCode == H2Error.NO_ERROR.getCode() && allowGracefulAbort(stream)) {
                         stream.abortGracefully();
                         requestSessionOutput();
@@ -1081,7 +1088,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid GOAWAY payload");
                 }
                 final int processedLocalStreamId = payload.getInt() & 0x7fffffff;
-                final int errorCode = payload.getInt();
+                final long errorCode = Integer.toUnsignedLong(payload.getInt());
                 goAwayReceived = true;
                 if (errorCode == H2Error.NO_ERROR.getCode()) {
                     if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
@@ -1263,7 +1270,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final H2Config.Builder configBuilder = H2Config.initial();
         while (payload.hasRemaining()) {
             final int code = payload.getShort();
-            final int value = payload.getInt();
+            final long value = Integer.toUnsignedLong(payload.getInt());
             final H2Param param = H2Param.valueOf(code);
             if (param != null) {
                 validateSetting(param, value);
@@ -1286,19 +1293,22 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         configBuilder.setPushEnabled(value == 1);
                         break;
                     case INITIAL_WINDOW_SIZE:
-                        if (value < 0) {
+                        if (value > Integer.MAX_VALUE) {
                             throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR,
-                                    "Invalid initial window size: " + Integer.toUnsignedLong(value));
+                                    "Invalid initial window size: " + value);
                         }
                         try {
-                            configBuilder.setInitialWindowSize(value);
+                            configBuilder.setInitialWindowSize((int) value);
                         } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                         }
                         break;
                     case MAX_FRAME_SIZE:
+                        if (value < FrameConsts.MIN_FRAME_SIZE || value > FrameConsts.MAX_FRAME_SIZE) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Invalid max frame size: " + value);
+                        }
                         try {
-                            configBuilder.setMaxFrameSize(value);
+                            configBuilder.setMaxFrameSize((int) value);
                         } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
@@ -1341,9 +1351,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         remoteConfig = config;
         // The peer's HEADER_TABLE_SIZE is an upper bound for the encoder. Keep the local
         // dynamic table bounded to limit memory usage and lookup cost per connection.
-        hPackEncoder.setMaxTableSize((int) Math.min(
-                Integer.toUnsignedLong(remoteConfig.getHeaderTableSize()),
-                H2Config.INIT.getHeaderTableSize()));
+        hPackEncoder.setMaxTableSize((int) Math.min(remoteConfig.getHeaderTableSize(), H2Config.INIT.getHeaderTableSize()));
         final int delta = remoteConfig.getInitialWindowSize() - initOutputWinSize;
         initOutputWinSize = remoteConfig.getInitialWindowSize();
         final int maxFrameSize = remoteConfig.getMaxFrameSize();
@@ -1368,8 +1376,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
     private void applyLocalSettings() throws H2ConnectionException {
-        hPackDecoder.setMaxTableSize(localConfig.getHeaderTableSize());
-        hPackDecoder.setMaxListSize(localConfig.getMaxHeaderListSize());
+        hPackDecoder.setMaxTableSize((int) localConfig.getHeaderTableSize());
+        hPackDecoder.setMaxListSize((int) localConfig.getMaxHeaderListSize());
 
         final int delta = localConfig.getInitialWindowSize() - initInputWinSize;
         initInputWinSize = localConfig.getInitialWindowSize();
@@ -1699,7 +1707,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         @Override
-        public boolean localReset(final int code) throws IOException {
+        public boolean localReset(final long code) throws IOException {
             ioSession.getLock().lock();
             try {
                 if (isLocalReset()) {

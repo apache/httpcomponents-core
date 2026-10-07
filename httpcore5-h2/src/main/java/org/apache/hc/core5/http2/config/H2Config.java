@@ -43,17 +43,17 @@ public class H2Config {
     public static final H2Config DEFAULT = custom().build();
     public static final H2Config INIT = initial().build();
 
-    private final int headerTableSize;
+    private final long headerTableSize;
     private final boolean pushEnabled;
-    private final int maxConcurrentStreams;
+    private final long maxConcurrentStreams;
     private final int initialWindowSize;
     private final int maxFrameSize;
-    private final int maxHeaderListSize;
+    private final long maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
 
-    H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
-             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
+    H2Config(final long headerTableSize, final boolean pushEnabled, final long maxConcurrentStreams,
+             final int initialWindowSize, final int maxFrameSize, final long maxHeaderListSize,
              final boolean compressionEnabled, final int maxContinuations) {
         super();
         this.headerTableSize = headerTableSize;
@@ -66,7 +66,7 @@ public class H2Config {
         this.maxContinuations = maxContinuations;
     }
 
-    public int getHeaderTableSize() {
+    public long getHeaderTableSize() {
         return headerTableSize;
     }
 
@@ -74,7 +74,7 @@ public class H2Config {
         return pushEnabled;
     }
 
-    public int getMaxConcurrentStreams() {
+    public long getMaxConcurrentStreams() {
         return maxConcurrentStreams;
     }
 
@@ -86,7 +86,7 @@ public class H2Config {
         return maxFrameSize;
     }
 
-    public int getMaxHeaderListSize() {
+    public long getMaxHeaderListSize() {
         return maxHeaderListSize;
     }
 
@@ -147,12 +147,12 @@ public class H2Config {
 
     public static class Builder {
 
-        private int headerTableSize;
+        private long headerTableSize;
         private boolean pushEnabled;
-        private int maxConcurrentStreams;
+        private long maxConcurrentStreams;
         private int initialWindowSize;
         private int maxFrameSize;
-        private int maxHeaderListSize;
+        private long maxHeaderListSize;
         private boolean compressionEnabled;
         private int maxContinuations;
 
@@ -167,9 +167,13 @@ public class H2Config {
             this.maxContinuations = 100;
         }
 
-        public Builder setHeaderTableSize(final int headerTableSize) {
-            this.headerTableSize = headerTableSize;
+        public Builder setHeaderTableSize(final long headerTableSize) {
+            this.headerTableSize = Args.checkRange(headerTableSize, 0L, 0xffffffffL, "Header table size");
             return this;
+        }
+
+        public Builder setHeaderTableSize(final int headerTableSize) {
+            return setHeaderTableSize((long) headerTableSize);
         }
 
         public Builder setPushEnabled(final boolean pushEnabled) {
@@ -177,9 +181,13 @@ public class H2Config {
             return this;
         }
 
-        public Builder setMaxConcurrentStreams(final int maxConcurrentStreams) {
-            this.maxConcurrentStreams = maxConcurrentStreams;
+        public Builder setMaxConcurrentStreams(final long maxConcurrentStreams) {
+            this.maxConcurrentStreams = Args.checkRange(maxConcurrentStreams, 0L, 0xffffffffL, "Max concurrent streams");
             return this;
+        }
+
+        public Builder setMaxConcurrentStreams(final int maxConcurrentStreams) {
+            return setMaxConcurrentStreams((long) maxConcurrentStreams);
         }
 
         public Builder setInitialWindowSize(final int initialWindowSize) {
@@ -193,9 +201,13 @@ public class H2Config {
             return this;
         }
 
-        public Builder setMaxHeaderListSize(final int maxHeaderListSize) {
-            this.maxHeaderListSize = maxHeaderListSize;
+        public Builder setMaxHeaderListSize(final long maxHeaderListSize) {
+            this.maxHeaderListSize = Args.checkRange(maxHeaderListSize, 0L, 0xffffffffL, "Max header list size");
             return this;
+        }
+
+        public Builder setMaxHeaderListSize(final int maxHeaderListSize) {
+            return setMaxHeaderListSize((long) maxHeaderListSize);
         }
 
         public Builder setCompressionEnabled(final boolean compressionEnabled) {

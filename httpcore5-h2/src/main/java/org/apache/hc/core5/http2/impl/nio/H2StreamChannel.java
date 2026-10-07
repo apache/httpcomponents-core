@@ -55,7 +55,7 @@ interface H2StreamChannel extends DataStreamChannel, CapacityChannel, Cancellabl
 
     void markLocalClosed();
 
-    boolean localReset(int errorCode) throws IOException;
+    boolean localReset(long errorCode) throws IOException;
 
     default boolean localReset(H2Error error) throws IOException {
         return localReset(error != null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());

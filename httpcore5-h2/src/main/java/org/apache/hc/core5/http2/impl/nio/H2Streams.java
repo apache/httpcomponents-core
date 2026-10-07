@@ -126,7 +126,7 @@ class H2Streams {
         return createStream(channel, streamHandler);
     }
 
-    public void resetIfExceedsMaxConcurrentLimit(final H2Stream stream, final int max) throws IOException {
+    public void resetIfExceedsMaxConcurrentLimit(final H2Stream stream, final long max) throws IOException {
         if (stream.isActive() && getRemoteCount() > max) {
             stream.localReset(new H2StreamResetException(H2Error.REFUSED_STREAM, "Local SETTINGS_MAX_CONCURRENT_STREAMS exceeded"));
         }

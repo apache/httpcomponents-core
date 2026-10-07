@@ -274,6 +274,14 @@
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
               <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
               <exclude>org.apache.hc.core5.testing.framework.*</exclude>
+              <!-- HTTPCORE-801: uint32 HTTP/2 values returned as long -->
+              <exclude>org.apache.hc.core5.http2.H2ConnectionException#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.H2Error#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.H2StreamResetException#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getHeaderTableSize()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getMaxConcurrentStreams()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getMaxHeaderListSize()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Setting#getValue()</exclude>
             </excludes>
             <skipXmlReport>true</skipXmlReport>
             <skipHtmlReport>false</skipHtmlReport>
@@ -422,6 +430,14 @@
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
               <exclude>org.apache.hc.core5.testing.reactive.ReactiveTestUtils</exclude>
               <exclude>org.apache.hc.core5.testing.framework.*</exclude>
+              <!-- HTTPCORE-801: uint32 HTTP/2 values returned as long -->
+              <exclude>org.apache.hc.core5.http2.H2ConnectionException#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.H2Error#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.H2StreamResetException#getCode()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getHeaderTableSize()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getMaxConcurrentStreams()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Config#getMaxHeaderListSize()</exclude>
+              <exclude>org.apache.hc.core5.http2.config.H2Setting#getValue()</exclude>
             </excludes>
             <reportOnlyFilename>true</reportOnlyFilename>
           </parameter>
