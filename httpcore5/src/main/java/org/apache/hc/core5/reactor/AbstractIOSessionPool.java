@@ -29,6 +29,8 @@ package org.apache.hc.core5.reactor;
 import java.time.Clock;
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -80,13 +83,37 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             Timeout connectTimeout,
             FutureCallback<IOSession> callback);
 
-    protected abstract void validateSession(
-            IOSession ioSession,
-            Callback<Boolean> callback);
+    /**
+     * @deprecated Use {@link #validateSession(Object, IOSession, Callback)}.
+     */
+    @Deprecated
+    protected void validateSession(
+            final IOSession ioSession,
+            final Callback<Boolean> callback) {
+        callback.execute(Boolean.TRUE);
+    }
+
+    /**
+     * @since 5.5
+     */
+    @SuppressWarnings("deprecation")
+    protected void validateSession(
+            final T endpoint,
+            final IOSession ioSession,
+            final Callback<Boolean> callback) {
+        validateSession(ioSession, callback);
+    }
 
     protected abstract void closeSession(
             IOSession ioSession,
             CloseMode closeMode);
+
+    /**
+     * @since 5.5
+     */
+    protected long clockMillis() {
+        return clock.millis();
+    }
 
     /**
      * Tests if the given session is idle. This method is expected to be communication protocol
@@ -95,6 +122,16 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
      * @since 5.5
      */
     protected boolean isIdle(final IOSession session) {
+        return false;
+    }
+
+    /**
+     * Tests if the given session has expired. This method is expected to be communication protocol
+     * aware.
+     *
+     * @since 5.5
+     */
+    protected boolean isExpired(final T endpoint, final IOSession session) {
         return false;
     }
 
@@ -157,14 +194,19 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
             @Override
             public void completed(final IOSession ioSession) {
-                validateSession(ioSession, result -> {
-                    if (result) {
-                        future.completed(ioSession);
-                    } else {
-                        getSessionInternal(poolEntry, true, endpoint, connectTimeout,
+                if (isIdle(ioSession) && isExpired(endpoint, ioSession)) {
+                    getSessionInternal(poolEntry, true, endpoint, connectTimeout,
                             new CompletingFutureContribution<>(future));
-                    }
-                });
+                } else {
+                    validateSession(endpoint, ioSession, result -> {
+                        if (result) {
+                            future.completed(ioSession);
+                        } else {
+                            getSessionInternal(poolEntry, true, endpoint, connectTimeout,
+                                    new CompletingFutureContribution<>(future));
+                        }
+                    });
+                }
             }
 
             @Override
@@ -265,13 +307,31 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         }
     }
 
+    /**
+     * @deprecated Use {@link #enumAvailable(BiConsumer)}.
+     */
+    @Deprecated
     public final void enumAvailable(final Callback<IOSession> callback) {
-        for (final PoolEntry poolEntry: sessionPool.values()) {
+        Args.notNull(callback, "Callback");
+        enumAvailable((endpoint, session) -> callback.execute(session));
+    }
+
+    /**
+     * @since 5.5
+     */
+    public final void enumAvailable(final BiConsumer<T, IOSession> consumer) {
+        Args.notNull(consumer, "consumer");
+        for (final Iterator<Map.Entry<T, PoolEntry>> it = sessionPool.entrySet().iterator(); it.hasNext(); ) {
+            final Map.Entry<T, PoolEntry> entry = it.next();
+            final PoolEntry poolEntry = entry.getValue();
             if (poolEntry.session != null) {
                 poolEntry.lock.lock();
                 try {
                     if (poolEntry.session != null) {
-                        callback.execute(poolEntry.session);
+                        if (poolEntry.session.isOpen()) {
+                            final T endpoint = entry.getKey();
+                            consumer.accept(endpoint, poolEntry.session);
+                        }
                         if (!poolEntry.session.isOpen()) {
                             poolEntry.session = null;
                         }
@@ -283,20 +343,27 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         }
     }
 
-    protected long inactivityDeadline(final TimeValue inactivityTime) {
-        return this.clock.millis() - (TimeValue.isPositive(inactivityTime) ? inactivityTime.toMilliseconds() : 0);
-    }
-
     /**
      * Close sessions idle longer than the given period of inactivity. This method will also
      * Evict closed sessions.
      */
     public final void closeIdle(final TimeValue inactivityTime) {
-        // Last tolerable point of inactivity
-        // Millisecond precision is good enough
-        final long deadline = inactivityDeadline(inactivityTime);
-        enumAvailable(session -> {
+        final long deadline = clockMillis() - (TimeValue.isPositive(inactivityTime) ? inactivityTime.toMilliseconds() : 0);
+        enumAvailable((endpoint, session) -> {
             if (isIdle(session) && session.getLastEventTime() <= deadline) {
+                closeSession(session, CloseMode.GRACEFUL);
+            }
+        });
+    }
+
+    /**
+     * Evict expired (closed) sessions.
+     * @since 5.5
+     */
+    public final void evictExpired() {
+        // This method also causes closed sessions to get removed from the pool
+        enumAvailable((endpoint, session) -> {
+            if (isIdle(session) && isExpired(endpoint, session)) {
                 closeSession(session, CloseMode.GRACEFUL);
             }
         });

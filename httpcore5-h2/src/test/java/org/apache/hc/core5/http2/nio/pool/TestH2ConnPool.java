@@ -78,12 +78,13 @@ class TestH2ConnPool {
     @Test
     void testValidateSessionClosed() {
         final ConnectionInitiator connectionInitiator = Mockito.mock(ConnectionInitiator.class);
+        final HttpHost host = new HttpHost(URIScheme.HTTP.id, "localhost", 7443);
         try (H2ConnPool pool = new H2ConnPool(connectionInitiator, null, null)) {
             final IOSession session = Mockito.mock(IOSession.class);
             Mockito.when(session.isOpen()).thenReturn(false);
 
             final AtomicReference<Boolean> result = new AtomicReference<>();
-            pool.validateSession(session, result::set);
+            pool.validateSession(host, session, result::set);
 
             Assertions.assertEquals(Boolean.FALSE, result.get());
         }
@@ -92,6 +93,7 @@ class TestH2ConnPool {
     @Test
     void testValidateSessionEnqueuesStaleCheck() {
         final ConnectionInitiator connectionInitiator = Mockito.mock(ConnectionInitiator.class);
+        final HttpHost host = new HttpHost(URIScheme.HTTP.id, "localhost", 7443);
         try (H2ConnPool pool = new H2ConnPool(connectionInitiator, null, null)) {
             pool.setValidateAfterInactivity(TimeValue.ZERO_MILLISECONDS);
 
@@ -102,7 +104,7 @@ class TestH2ConnPool {
 
             @SuppressWarnings("unchecked")
             final Callback<Boolean> callback = (Callback<Boolean>) Mockito.mock(Callback.class);
-            pool.validateSession(session, callback);
+            pool.validateSession(host, session, callback);
 
             Mockito.verify(session).enqueue(Mockito.any(StaleCheckCommand.class), Mockito.eq(Command.Priority.NORMAL));
             Mockito.verifyNoInteractions(callback);
