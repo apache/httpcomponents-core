@@ -43,20 +43,19 @@ import org.apache.hc.core5.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ClassicResponseBuilderTest {
 
     @Mock
     Socket socket;
-
-    AutoCloseable closeable;
 
     DefaultBHttpServerConnection conn;
 
@@ -64,7 +63,6 @@ class ClassicResponseBuilderTest {
 
     @BeforeEach
     void prepareMocks() throws IOException {
-        closeable = MockitoAnnotations.openMocks(this);
         conn = new DefaultBHttpServerConnection("http", Http1Config.DEFAULT,
                 null, null,
                 DefaultContentLengthStrategy.INSTANCE,
@@ -75,13 +73,6 @@ class ClassicResponseBuilderTest {
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
         conn.bind(socket);
         Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test

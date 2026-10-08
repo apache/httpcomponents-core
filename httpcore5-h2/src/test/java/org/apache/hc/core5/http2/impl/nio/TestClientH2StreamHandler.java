@@ -43,14 +43,15 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TestClientH2StreamHandler {
 
     @Mock
@@ -62,13 +63,10 @@ class TestClientH2StreamHandler {
     @Mock
     HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
 
-    AutoCloseable closeable;
-
     ClientH2StreamHandler handler;
 
     @BeforeEach
     void prepareMocks() {
-        closeable = MockitoAnnotations.openMocks(this);
         handler = new ClientH2StreamHandler(
                 channel, httpProcessor,
                 new BasicHttpConnectionMetrics(
@@ -76,13 +74,6 @@ class TestClientH2StreamHandler {
                 exchangeHandler,
                 pushHandlerFactory,
                 HttpCoreContext.create());
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test

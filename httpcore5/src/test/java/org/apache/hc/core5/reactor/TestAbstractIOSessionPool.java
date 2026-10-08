@@ -41,18 +41,19 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TestAbstractIOSessionPool {
 
     @Mock
@@ -68,16 +69,12 @@ class TestAbstractIOSessionPool {
     @Captor
     ArgumentCaptor<FutureCallback<IOSession>> connectCallbackCaptor;
 
-    AutoCloseable closeable;
-
     Clock clock;
 
     AbstractIOSessionPool<String> impl;
 
     @BeforeEach
     void prepareMocks() {
-        closeable = MockitoAnnotations.openMocks(this);
-
         clock = Clock.fixed(
                 LocalDateTime.of(2026, Month.SEPTEMBER, 30, 13, 30).toInstant(ZoneOffset.UTC),
                 ZoneId.of("UTC"));
@@ -85,13 +82,6 @@ class TestAbstractIOSessionPool {
         impl = Mockito.mock(AbstractIOSessionPool.class, Mockito.withSettings()
                 .defaultAnswer(Answers.CALLS_REAL_METHODS)
                 .useConstructor(clock));
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test
@@ -265,8 +255,6 @@ class TestAbstractIOSessionPool {
 
     @Test
     void testGetSessionConnectUnknownHost() {
-
-        Mockito.when(connectFuture.isDone()).thenReturn(true);
         Mockito.when(impl.connectSession(
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.any(),
@@ -298,8 +286,6 @@ class TestAbstractIOSessionPool {
         Mockito.doReturn(Instant.now(clock).minusSeconds(1).toEpochMilli())
                 .when(ioSession1).getLastEventTime();
         Mockito.doReturn(false).when(impl).isIdle(ioSession2);
-        Mockito.doReturn(Instant.now(clock).minusSeconds(2).toEpochMilli())
-                .when(ioSession2).getLastEventTime();
 
         impl.closeIdle(null);
 

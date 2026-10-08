@@ -30,29 +30,20 @@ package org.apache.hc.core5.http.nio.ssl;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class BasicClientTlsStrategyTest {
 
     @Mock
     SSLSessionVerifier sslSessionVerifier;
 
-    AutoCloseable closeable;
-
     @BeforeEach
     void prepareMocks() {
-        closeable = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test

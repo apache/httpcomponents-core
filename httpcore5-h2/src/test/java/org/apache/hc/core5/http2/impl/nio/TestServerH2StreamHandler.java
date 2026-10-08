@@ -42,15 +42,16 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TestServerH2StreamHandler {
 
     @Mock
@@ -62,13 +63,10 @@ class TestServerH2StreamHandler {
     @Mock
     HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
 
-    AutoCloseable closeable;
-
     ServerH2StreamHandler handler;
 
     @BeforeEach
     void prepareMocks() {
-        closeable = MockitoAnnotations.openMocks(this);
         handler = new ServerH2StreamHandler(
                 channel,
                 httpProcessor,
@@ -76,13 +74,6 @@ class TestServerH2StreamHandler {
                         new BasicHttpTransportMetrics(), new BasicHttpTransportMetrics()),
                 exchangeHandlerFactory,
                 HttpCoreContext.create());
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test
@@ -179,8 +170,6 @@ class TestServerH2StreamHandler {
 
     @Test
     void contentLengthInvalidNoBody() throws Exception {
-        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(exchangeHandler);
         final List<Header> requestHeaders = Arrays.asList(
                 new BasicHeader(":method", "POST"),
                 new BasicHeader(":scheme", "https"),

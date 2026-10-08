@@ -44,39 +44,30 @@ import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TestDefaultBHttpServerConnection {
 
     @Mock
     Socket socket;
 
-    AutoCloseable closeable;
-
     DefaultBHttpServerConnection conn;
 
     @BeforeEach
     void prepareMocks() {
-        closeable = MockitoAnnotations.openMocks(this);
         conn = new DefaultBHttpServerConnection("http", Http1Config.DEFAULT,
                 null, null,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultHttpRequestParserFactory.INSTANCE,
                 DefaultHttpResponseWriterFactory.INSTANCE);
-    }
-
-    @AfterEach
-    void releaseMocks() throws Exception {
-        if (closeable != null) {
-            closeable.close();
-        }
     }
 
     @Test

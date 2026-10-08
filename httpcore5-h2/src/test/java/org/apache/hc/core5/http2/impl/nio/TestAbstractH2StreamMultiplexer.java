@@ -76,18 +76,20 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class TestAbstractH2StreamMultiplexer {
 
     private static final FrameFactory FRAME_FACTORY = DefaultFrameFactory.INSTANCE;
 
-    @Mock
+    @Mock(strictness = Mock.Strictness.LENIENT)
     ProtocolIOSession protocolIOSession;
     @Mock
     Lock lock;
@@ -104,7 +106,6 @@ class TestAbstractH2StreamMultiplexer {
 
     @BeforeEach
     void prepareMocks() {
-        MockitoAnnotations.openMocks(this);
         Mockito.when(protocolIOSession.getLock()).thenReturn(lock);
     }
 
