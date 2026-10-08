@@ -208,6 +208,14 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     void setSocketTimeout(Timeout timeout);
 
     /**
+     * Returns the absolute millisecond timestamp of the session initiation.
+     * @since 5.5
+     */
+    default long getInitiationTime() {
+        return -1;
+    }
+
+    /**
      * Returns the absolute millisecond timestamp of the last read event.
      *
      * @return timestamp in milliseconds, compatible with {@link System#currentTimeMillis()}.

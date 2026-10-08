@@ -125,6 +125,7 @@ class TestSocksProxyProtocolHandler {
         private volatile int eventMask;
         private volatile IOEventHandler handler;
         private volatile Timeout socketTimeout;
+        private volatile long initiationTime;
         private volatile long lastReadTime;
         private volatile long lastWriteTime;
         private volatile long lastEventTime;
@@ -137,8 +138,9 @@ class TestSocksProxyProtocolHandler {
             this.eventMask = 0;
             this.socketTimeout = Timeout.DISABLED;
             this.lastReadTime = System.currentTimeMillis();
-            this.lastWriteTime = this.lastReadTime;
-            this.lastEventTime = this.lastReadTime;
+            this.lastReadTime = this.initiationTime;
+            this.lastWriteTime = this.initiationTime;
+            this.lastEventTime = this.initiationTime;
         }
 
         CloseMode getLastCloseMode() {
@@ -221,6 +223,11 @@ class TestSocksProxyProtocolHandler {
         public void setSocketTimeout(final Timeout timeout) {
             this.socketTimeout = timeout;
             this.lastEventTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public long getInitiationTime() {
+            return this.initiationTime;
         }
 
         @Override

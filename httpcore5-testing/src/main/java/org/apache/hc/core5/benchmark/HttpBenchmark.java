@@ -273,6 +273,11 @@ public class HttpBenchmark {
                     }
 
                     @Override
+                    public long getInitiationTime() {
+                        return ioSession.getInitiationTime();
+                    }
+
+                    @Override
                     public long getLastReadTime() {
                         return ioSession.getLastReadTime();
                     }

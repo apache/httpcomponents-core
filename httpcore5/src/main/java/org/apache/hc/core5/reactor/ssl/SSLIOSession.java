@@ -855,6 +855,11 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
+    public long getInitiationTime() {
+        return this.session.getInitiationTime();
+    }
+
+    @Override
     public void updateReadTime() {
         this.session.updateReadTime();
     }

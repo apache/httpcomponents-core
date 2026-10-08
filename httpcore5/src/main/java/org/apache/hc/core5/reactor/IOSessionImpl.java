@@ -72,6 +72,7 @@ class IOSessionImpl implements IOSession {
     private final AtomicReference<IOSession.Status> status;
 
     private volatile Timeout socketTimeout;
+    private volatile long initiationTime;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
     private volatile long lastEventTime;
@@ -89,6 +90,7 @@ class IOSessionImpl implements IOSession {
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
         final long currentTimeMillis = System.currentTimeMillis();
+        this.initiationTime = currentTimeMillis;
         this.lastReadTime = currentTimeMillis;
         this.lastWriteTime = currentTimeMillis;
         this.lastEventTime = currentTimeMillis;
@@ -251,6 +253,11 @@ class IOSessionImpl implements IOSession {
             }
         } while (src.hasRemaining());
         return totalBytesWritten;
+    }
+
+    @Override
+    public long getInitiationTime() {
+        return initiationTime;
     }
 
     @Override
