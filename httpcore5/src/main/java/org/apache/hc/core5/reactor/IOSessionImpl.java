@@ -70,9 +70,9 @@ class IOSessionImpl implements IOSession {
     private final AtomicReference<IOEventHandler> handlerRef;
     private final Callback<IOSession> sessionClosedCallback;
     private final AtomicReference<IOSession.Status> status;
+    private final long initiationTime;
 
     private volatile Timeout socketTimeout;
-    private volatile long initiationTime;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
     private volatile long lastEventTime;
@@ -123,6 +123,7 @@ class IOSessionImpl implements IOSession {
         } else {
             commandQueue.add(command);
         }
+        lastEventTime = System.currentTimeMillis();
         if (isOpen()) {
             setEvent(SelectionKey.OP_WRITE);
         } else {
