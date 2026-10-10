@@ -1,11 +1,14 @@
-Release 5.5-beta3
+Release 5.5-beta4
 -----------------
 
-This BETA release migrates JSON bindings to Jackson 3, introduces support for
-Structured Field Values (RFC 9651), and improves and optimizes message parsing
-support methods. It is expected to be the last BETA release before 5.5 GA.
+This BETA release features multiple HTTP/2 protocol conformance improvements
+and perfroance optimizations, introduces support for Digest Fields (RFC 9530),
+and improves async IOsession pool functionality.
+
+It is expected to be the last BETA release before 5.5 GA.
 
 This release includes all fixes from the stable 5.4 branch.
+
 
 Notable changes and features included in the 5.5 series:
 
@@ -26,12 +29,108 @@ Notable changes and features included in the 5.5 series:
 
 * Added support for Structured Field Values for HTTP (RFC 9651).
 
+* Added support for Digest Fields (RFC 9530).
+
+* Improved async IOSession pool implementation.
+
+
 Compatibility notes:
 
 * HTTP requesters and servers respect SSL/TLS system properties by default.
 
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
+
+
+Change Log
+-------------------
+
+* Async sessions to update lastEventTime upon command submission.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Async IOSession pool: improved available sessions enumeration, improved session
+  validation, and added method to evict expired sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Async IOSession sessions to capture the initiation time.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Correct handling of unsigned HTTP/2 SETTINGS values.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Async IOSession pool: improved handling of idle sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Restore absolute millisecond timestamps in I/O reactor and H2.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* AbstractHttp1StreamDuplexer should not trigger output interest when
+  completion of a message leaves no data in the output buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Complete I/O reactor termination when the selector has been closed by another thread.
+  Contributed by AdzerKI <silver_cat at list.ru>
+
+* HTTP/2: Stricter handling of responses carrying END_STREAM and response trailers without
+  END_STREAM.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Stricter handling of pushed response message.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Corrected handling of unprocessed local streams on GOAWAY signal.
+  Contributed by Ariel Rodriguez <ariel.rodriguez at recargapay.com>
+
+* Send RST_STREAM for a cancelled half-closed stream
+  Contributed by Ariel Rodriguez <ariel.rodriguez at recargapay.com>
+
+* HTTP/2: Corrected handling of H2 stream flow control overflow.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Reject H2 DATA on reserved streams.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Optimizeed message list traversal in HTTP messages.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Added #isIdle method to async HTTP/1.1 and HTTP/2 protocol handlers to test if
+  there are ongoing messages exchanges.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved endpoint release logic in HttpAsyncRequester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/2: Optimized HPACK full match lookup.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Limit HPACK encoder table size.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Fixed defect in HPACK encoder buffer expansion for multibyte values.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Added H2MultiplexingRequester method to evict expired connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/2: Improved HPACK decoding conformance.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2: Optimized HPACK Huffman decoding with a byte-oriented DFA.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* RFC 9530 Digest Fields support.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Limit write chunk size in async IOSession.
+  Contributed by yhzdys <yhzdys at foxmail.com>
+
+
+Release 5.5-beta3
+-----------------
+
+This BETA release migrates JSON bindings to Jackson 3, introduces support for
+Structured Field Values (RFC 9651), and improves and optimizes message parsing
+support methods. It is expected to be the last BETA release before 5.5 GA.
 
 
 Change Log
