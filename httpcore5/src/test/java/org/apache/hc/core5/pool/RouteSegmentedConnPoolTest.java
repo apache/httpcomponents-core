@@ -319,43 +319,126 @@ public class RouteSegmentedConnPoolTest {
 
         assertTrue(pool.getRoutes().isEmpty(), "Initially there should be no routes");
 
-        // Allocate on rA
+        // Allocate on rA.
         final PoolEntry<String, FakeConnection> a =
                 pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        assertEquals(new HashSet<String>(Collections.singletonList("rA")), pool.getRoutes(),
-                "rA must be listed because it is leased (allocated > 0)");
 
-        // Make rA available
+        assertEquals(
+                new HashSet<>(Collections.singletonList("rA")),
+                pool.getRoutes(),
+                "rA must be listed because it is leased");
+
+        // Make rA idle and reclaimable.
         a.assignConnection(new FakeConnection());
         a.updateExpiry(TimeValue.ofSeconds(30));
         pool.release(a, true);
-        assertEquals(new HashSet<>(Collections.singletonList("rA")), pool.getRoutes(),
-                "rA must be listed because it has AVAILABLE entries");
 
-        // Enqueue waiter on rB (will time out)
-        final Future<PoolEntry<String, FakeConnection>> waiterB =
-                pool.lease("rB", null, Timeout.ofMilliseconds(300), null);
-        final Set<String> routesNow = pool.getRoutes();
-        assertTrue(routesNow.contains("rA") && routesNow.contains("rB"),
-                "Both rA (available) and rB (waiter) must be listed");
+        assertEquals(
+                new HashSet<>(Collections.singletonList("rA")),
+                pool.getRoutes(),
+                "rA must be listed because it has an available entry");
 
-        // Let rB time out (do NOT free capacity before the timeout fires)
-        final ExecutionException ex = assertThrows(
-                ExecutionException.class,
-                () -> waiterB.get(600, TimeUnit.MILLISECONDS));
-        assertInstanceOf(TimeoutException.class, ex.getCause());
-        assertEquals("Lease timed out", ex.getCause().getMessage());
+        // The pool is globally full, but rA has an idle entry. Leasing rB must
+        // reclaim rA's global slot instead of leaving rB pending.
+        final PoolEntry<String, FakeConnection> b =
+                pool.lease("rB", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
 
-        // Now drain rA by leasing and discarding to trigger segment cleanup
-        final PoolEntry<String, FakeConnection> a2 =
-                pool.lease("rA", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        pool.release(a2, false); // discard
-        final Set<String> afterDropA = pool.getRoutes();
-        assertFalse(afterDropA.contains("rA"), "rA segment should be cleaned up");
-        assertFalse(afterDropA.contains("rB"), "rB waiter timed out; should not remain listed");
+        assertEquals("rB", b.getRoute());
 
-        // Final cleanup
+        final Set<String> routesAfterReclaim = pool.getRoutes();
+        assertFalse(routesAfterReclaim.contains("rA"),
+                "rA should be removed after its idle entry is reclaimed");
+        assertTrue(routesAfterReclaim.contains("rB"),
+                "rB must be listed because it owns the reclaimed allocation");
+
+        final PoolStats totalStats = pool.getTotalStats();
+        assertEquals(1, totalStats.getLeased());
+        assertEquals(0, totalStats.getAvailable());
+        assertEquals(0, totalStats.getPending());
+
+        pool.release(b, false);
+
+        assertTrue(pool.getRoutes().isEmpty(),
+                "All routes should be gone after the final allocation is discarded");
+
         pool.close(CloseMode.IMMEDIATE);
-        assertTrue(pool.getRoutes().isEmpty(), "All routes must be gone after close()");
+        assertTrue(pool.getRoutes().isEmpty(),
+                "All routes must be gone after close()");
     }
+
+    @Test
+    void hotRouteProgressesAfterItsIdleEntryWasReclaimed() throws Exception {
+        final RouteSegmentedConnPool<String, FakeConnection> pool =
+                newPool(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close);
+
+        final PoolEntry<String, FakeConnection> slow1 =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+
+        final PoolEntry<String, FakeConnection> hot =
+                pool.lease("hot", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        hot.assignConnection(new FakeConnection());
+        hot.updateExpiry(TimeValue.ofSeconds(30));
+        pool.release(hot, true);
+
+        // Fill the second slot of the slow route. At maxTotal this reclaims
+        // the hot route's idle entry, so "hot" no longer has a local idle.
+        final PoolEntry<String, FakeConnection> slow2 =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        assertEquals(0, pool.getStats("hot").getAvailable());
+
+        // Queue the other route first, then keep the slow route backlogged.
+        final Future<PoolEntry<String, FakeConnection>> hotWaiter =
+                pool.lease("hot", null, Timeout.ofSeconds(1), null);
+        final Future<PoolEntry<String, FakeConnection>> slowWaiter =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null);
+
+        slow1.assignConnection(new FakeConnection());
+        slow1.updateExpiry(TimeValue.ofSeconds(30));
+        pool.release(slow1, true);
+
+        // A reusable release from the permanently backlogged slow route must
+        // give another route an opportunity before recycling the slot locally.
+        final PoolEntry<String, FakeConnection> hotAgain =
+                hotWaiter.get(500, TimeUnit.MILLISECONDS);
+        assertEquals("hot", hotAgain.getRoute());
+        assertFalse(slowWaiter.isDone(),
+                "Same-route backlog must not starve an already pending other route");
+
+        slowWaiter.cancel(true);
+        pool.release(slow2, false);
+        pool.release(hotAgain, false);
+        pool.close(CloseMode.IMMEDIATE);
+    }
+
+    @Test
+    void coldRouteProgressesWhenBackloggedRouteReleasesReusableEntry() throws Exception {
+        final RouteSegmentedConnPool<String, FakeConnection> pool =
+                newPool(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close);
+
+        final PoolEntry<String, FakeConnection> slow1 =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        final PoolEntry<String, FakeConnection> slow2 =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+
+        final Future<PoolEntry<String, FakeConnection>> coldWaiter =
+                pool.lease("cold", null, Timeout.ofSeconds(1), null);
+        final Future<PoolEntry<String, FakeConnection>> slowWaiter =
+                pool.lease("slow", null, Timeout.ofSeconds(1), null);
+
+        slow1.assignConnection(new FakeConnection());
+        slow1.updateExpiry(TimeValue.ofSeconds(30));
+        pool.release(slow1, true);
+
+        final PoolEntry<String, FakeConnection> cold =
+                coldWaiter.get(500, TimeUnit.MILLISECONDS);
+        assertEquals("cold", cold.getRoute());
+        assertFalse(slowWaiter.isDone(),
+                "Same-route backlog must not consume every reusable release");
+
+        slowWaiter.cancel(true);
+        pool.release(slow2, false);
+        pool.release(cold, false);
+        pool.close(CloseMode.IMMEDIATE);
+    }
+
 }
