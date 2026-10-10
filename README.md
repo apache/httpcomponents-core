@@ -48,6 +48,7 @@ Protocol conformance
 - [RFC 9218](https://datatracker.ietf.org/doc/html/rfc9218) - Extensible Prioritization Scheme for HTTP
 - [RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008) - The HTTP QUERY Method
 - [RFC 9651](https://datatracker.ietf.org/doc/html/rfc9651) - Structured Field Values for HTTP
+- [RFC 9530](https://datatracker.ietf.org/doc/html/rfc9530) - Digest Fields
 
 
 Licensing
