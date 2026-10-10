@@ -87,7 +87,7 @@
     <slf4j.version>1.7.36</slf4j.version>
     <log4j.version>2.26.1</log4j.version>
     <rxjava3.version>3.1.12</rxjava3.version>
-    <testcontainers.version>1.21.4</testcontainers.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
     <jmh.version>1.37</jmh.version>
   </properties>
 
@@ -173,7 +173,7 @@
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>junit-jupiter</artifactId>
+        <artifactId>testcontainers-junit-jupiter</artifactId>
         <version>${testcontainers.version}</version>
       </dependency>
       <dependency>
