@@ -881,6 +881,30 @@ class TestURIBuilder {
     }
 
     @Test
+    void testOptimizeMutatesSameInstance() throws Exception {
+        final URIBuilder builder = new URIBuilder("HTTP://www.EXAMPLE.com/a/./b/../c");
+        final URIBuilder optimized = builder.optimize();
+        Assertions.assertSame(builder, optimized);
+        Assertions.assertEquals("http://www.example.com/a/c", builder.build().toASCIIString());
+    }
+
+    @Test
+    void testOptimizeRootlessOpaquePathUnchangedExceptSchemeCase() throws Exception {
+        final URIBuilder builder = new URIBuilder("MAILTO:John.Doe@example.com");
+        builder.optimize();
+        Assertions.assertEquals("mailto:John.Doe@example.com", builder.build().toString());
+    }
+
+    @Test
+    void testOptimizeIpvFutureAuthorityWithoutJdkUriRoundTrip() {
+        final URIBuilder builder = new URIBuilder()
+                .setScheme("http")
+                .setSchemeSpecificPart("//[v1.fe80]/a/./b");
+        builder.optimize();
+        Assertions.assertEquals("http://[v1.fe80]/a/b", builder.toString());
+    }
+
+    @Test
     void testIpv6Host() throws Exception {
         final URIBuilder builder = new URIBuilder("https://[::1]:432/path");
         final URI uri = builder.build();
