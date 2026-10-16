@@ -137,7 +137,9 @@ class AsyncH2SocketTimeoutCoreTest {
 
     private InetSocketAddress startServer() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0), URIScheme.HTTP).get();
+        final ListenerEndpoint listener = server.listen(
+                new InetSocketAddress("127.0.0.1", 0),
+                URIScheme.HTTP).get();
         return (InetSocketAddress) listener.getAddress();
     }
 
