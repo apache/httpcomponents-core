@@ -34,6 +34,8 @@ import java.util.List;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.Http1FieldValidator;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
@@ -147,17 +149,36 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     private void writeClosingChunk() throws IOException {
+        final List<? extends Header> trailers = this.trailerSupplier != null ? this.trailerSupplier.get() : null;
+        validateTrailers(trailers);
         // Write the final chunk.
         this.lineBuffer.clear();
         this.lineBuffer.append('0');
         this.buffer.writeLine(this.lineBuffer, this.outputStream);
-        writeTrailers();
+        writeTrailers(trailers);
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer, this.outputStream);
     }
 
-    private void writeTrailers() throws IOException {
-        final List<? extends Header> trailers = this.trailerSupplier != null ? this.trailerSupplier.get() : null;
+    private void validateTrailers(final List<? extends Header> trailers) throws IOException {
+        if (trailers != null) {
+            try {
+                for (final Header header : trailers) {
+                    this.lineBuffer.clear();
+                    if (header instanceof FormattedHeader) {
+                        Http1FieldValidator.validate(((FormattedHeader) header).getBuffer());
+                    } else {
+                        BasicLineFormatter.INSTANCE.formatHeader(this.lineBuffer, header);
+                        Http1FieldValidator.validate(this.lineBuffer);
+                    }
+                }
+            } catch (final ProtocolException ex) {
+                throw new IOException(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void writeTrailers(final List<? extends Header> trailers) throws IOException {
         if (trailers != null) {
             for (int i = 0; i < trailers.size(); i++) {
                 final Header header = trailers.get(i);

@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.impl.Http1FieldValidator;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
@@ -94,10 +95,12 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
             final Header header = it.next();
             if (header instanceof FormattedHeader) {
                 final CharArrayBuffer buffer = ((FormattedHeader) header).getBuffer();
+                Http1FieldValidator.validate(buffer);
                 sessionBuffer.writeLine(buffer);
             } else {
                 this.lineBuf.clear();
                 this.lineFormatter.formatHeader(this.lineBuf, header);
+                Http1FieldValidator.validate(this.lineBuf);
                 sessionBuffer.writeLine(this.lineBuf);
             }
         }
