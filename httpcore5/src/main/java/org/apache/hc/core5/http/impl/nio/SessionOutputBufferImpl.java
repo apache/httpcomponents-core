@@ -198,7 +198,11 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                         // terminate the encoding process
                         eol = true;
                     }
-                    this.charbuffer.put(lineBuffer.array(), offset, l);
+                    // Filter control characters while copying into the encoder buffer.
+                    for (int i = 0; i < l; i++) {
+                        final char ch = lineBuffer.charAt(offset + i);
+                        this.charbuffer.put(TextUtils.isPrintable(ch) ? ch : '?');
+                    }
                     this.charbuffer.flip();
 
                     boolean retry = true;

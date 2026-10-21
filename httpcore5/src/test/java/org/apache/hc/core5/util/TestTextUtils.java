@@ -67,4 +67,15 @@ class TestTextUtils {
         Assertions.assertNull(TextUtils.toHexString(null));
     }
 
+    @Test
+    void testPrintableCharactersAndByteConversion() {
+        for (int c = 0; c <= 0xFF; c++) {
+            final boolean expected = c == '\t' || c >= 0x20 && c <= 0x7E || c >= 0xA0;
+            Assertions.assertEquals(expected, TextUtils.isPrintable(c), "Character: " + c);
+            Assertions.assertEquals(expected ? (byte) c : (byte) '?', TextUtils.castAsByte(c), "Character: " + c);
+        }
+        Assertions.assertTrue(TextUtils.isPrintable(0x20AC));
+        Assertions.assertEquals((byte) '?', TextUtils.castAsByte(0x20AC));
+    }
+
 }
