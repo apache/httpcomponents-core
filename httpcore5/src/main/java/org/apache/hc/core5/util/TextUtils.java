@@ -180,9 +180,7 @@ public final class TextUtils {
      */
     @Internal
     public static byte castAsByte(final int c) {
-        if (c >= 0x20 && c <= 0x7E || // Visible ASCII
-                c >= 0xA0 && c <= 0xFF || // Visible ISO-8859-1
-                c == 0x09) {               // TAB
+        if (c <= 0xFF && isPrintable(c)) {
             return (byte) c;
         }
         return '?';
@@ -202,6 +200,19 @@ public final class TextUtils {
         return c >= '0' && c <= '9'
                 || c >= 'A' && c <= 'F'
                 || c >= 'a' && c <= 'f';
+    }
+
+    /**
+     * Tests whether a character can be written to an HTTP protocol line without
+     * replacing it. Horizontal tab is permitted for compatibility.
+     *
+     * @param c The character to test.
+     * @return {@code true} if the character does not need filtering.
+     * @since 5.5
+     */
+    @Internal
+    public static boolean isPrintable(final int c) {
+        return c == 0x09 || c >= 0x20 && (c < 0x7F || c > 0x9F);
     }
 
 

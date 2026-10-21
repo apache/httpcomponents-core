@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.util.Arrays;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -41,6 +42,7 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Abstract base class for session output buffers that stream data to
@@ -207,7 +209,20 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
                 remaining -= chunk;
             }
         } else {
-            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.array(), 0, charbuffer.length());
+            // Filter control characters that bypass the default castAsByte conversion.
+            final char[] chars = charbuffer.array();
+            final int length = charbuffer.length();
+            char[] sanitized = null;
+            for (int i = 0; i < length; i++) {
+                final char ch = chars[i];
+                if (!TextUtils.isPrintable(ch)) {
+                    if (sanitized == null) {
+                        sanitized = Arrays.copyOf(chars, length);
+                    }
+                    sanitized[i] = '?';
+                }
+            }
+            final CharBuffer cbuf = CharBuffer.wrap(sanitized != null ? sanitized : chars, 0, length);
             writeEncoded(cbuf, outputStream);
         }
         write(CRLF, outputStream);

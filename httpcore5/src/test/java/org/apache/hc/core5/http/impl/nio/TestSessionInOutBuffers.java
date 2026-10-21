@@ -69,6 +69,65 @@ class TestSessionInOutBuffers {
     }
 
     @Test
+    void testEncodedWriteLineFiltersControlCharacters() throws Exception {
+        final String original = "X-Test: ok\r\nX-Injected: yes\0\u001f\u007f\u0085\t\u00e9\u20ac";
+        final CharArrayBuffer line = new CharArrayBuffer(original.length());
+        line.append(original);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(
+                16, 8, StandardCharsets.UTF_8.newEncoder());
+
+        outbuffer.writeLine(line);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(out);
+        while (outbuffer.hasData()) {
+            outbuffer.flush(channel);
+        }
+
+        Assertions.assertEquals("X-Test: ok??X-Injected: yes????\t\u00e9\u20ac\r\n",
+                new String(out.toByteArray(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(original, line.toString());
+    }
+
+    @Test
+    void testDefaultWriteLineFilteringIsUnchanged() throws Exception {
+        final CharArrayBuffer line = new CharArrayBuffer(32);
+        line.append("X-Test: ok\r\nX-Injected: yes");
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, 8);
+
+        outbuffer.writeLine(line);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(out);
+        while (outbuffer.hasData()) {
+            outbuffer.flush(channel);
+        }
+
+        Assertions.assertEquals("X-Test: ok??X-Injected: yes\r\n",
+                new String(out.toByteArray(), StandardCharsets.ISO_8859_1));
+    }
+
+    @Test
+    void testWriteBinaryDataWithCharsetEncoder() throws Exception {
+        final byte[] payload = {
+                0x00, '\r', '\n', '\t', 0x1f, 0x7f,
+                (byte) 0x80, (byte) 0xff
+        };
+
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(
+                16, 16, StandardCharsets.UTF_8.newEncoder());
+
+        outbuffer.write(ByteBuffer.wrap(payload));
+
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = Channels.newChannel(outputStream);
+
+        while (outbuffer.hasData()) {
+            Assertions.assertTrue(outbuffer.flush(channel) > 0);
+        }
+
+        Assertions.assertArrayEquals(payload, outputStream.toByteArray());
+    }
+
+    @Test
     void testReadLineChunks() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
 
