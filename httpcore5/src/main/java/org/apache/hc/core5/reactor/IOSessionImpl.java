@@ -153,6 +153,9 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public int getEventMask() {
+        if (isStatusClosed()) {
+            return 0;
+        }
         return this.key.interestOps();
     }
 
