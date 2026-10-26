@@ -248,6 +248,20 @@ class TestIOSessionImpl {
 
     @Test
     @SuppressWarnings("resource")
+    void eventMaskIsEmptyOnceClosed() throws Exception {
+        try (Selector selector = Selector.open();
+             SocketChannel channel = SocketChannel.open()) {
+            channel.configureBlocking(false);
+            final SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+            final IOSessionImpl session = new IOSessionImpl("t", key, channel, null);
+            session.close(CloseMode.IMMEDIATE);
+
+            Assertions.assertEquals(0, session.getEventMask());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("resource")
     void toStringIncludesStatus() throws Exception {
         try (Selector selector = Selector.open();
              SocketChannel channel = SocketChannel.open()) {
