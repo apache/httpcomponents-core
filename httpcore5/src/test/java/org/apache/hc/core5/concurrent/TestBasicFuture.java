@@ -102,11 +102,8 @@ class TestBasicFuture {
         Mockito.verify(callback).failed(boom);
         Mockito.verify(callback, Mockito.never()).cancelled();
 
-        try {
-            future.get();
-        } catch (final ExecutionException ex) {
-            Assertions.assertSame(boom, ex.getCause());
-        }
+        final ExecutionException ex = assertThrows(ExecutionException.class, future::get);
+        Assertions.assertSame(boom, ex.getCause());
         Assertions.assertTrue(future.isDone());
         Assertions.assertFalse(future.isCancelled());
     }
@@ -162,11 +159,9 @@ class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        try {
-            future.get(60, TimeUnit.SECONDS);
-        } catch (final ExecutionException ex) {
-            Assertions.assertSame(boom, ex.getCause());
-        }
+        final ExecutionException ex = assertThrows(ExecutionException.class, () ->
+                future.get(60, TimeUnit.SECONDS));
+        Assertions.assertSame(boom, ex.getCause());
         Assertions.assertTrue(future.isDone());
         Assertions.assertFalse(future.isCancelled());
     }
