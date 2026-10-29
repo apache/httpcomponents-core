@@ -211,11 +211,9 @@ class TestSharedOutputBuffer {
         });
 
         Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        try {
-            task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        } catch (final ExecutionException ex) {
-            Assertions.assertInstanceOf(InterruptedIOException.class, ex.getCause());
-        }
+        final ExecutionException ex = Assertions.assertThrows(ExecutionException.class, () ->
+                task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertInstanceOf(InterruptedIOException.class, ex.getCause());
     }
 
     @Test
