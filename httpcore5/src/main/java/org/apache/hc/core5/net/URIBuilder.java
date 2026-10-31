@@ -1163,7 +1163,7 @@ public class URIBuilder {
             }
             if (!inputSegments.isEmpty()) {
                 final String lastSegment = inputSegments.get(inputSegments.size() - 1);
-                if (lastSegment.isEmpty()) {
+                if (lastSegment.isEmpty() || lastSegment.equals("..") || lastSegment.equals(".")) {
                     outputSegments.addLast("");
                 }
             }
