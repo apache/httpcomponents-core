@@ -42,6 +42,16 @@ import org.apache.hc.core5.util.Args;
 public class PathSegmentCodec {
 
     /**
+     * Splits URI path into a list of segments without decoding the segments.
+     *
+     * @param s URI path component.
+     * @return list of segments.
+     */
+    public static List<String> splitPath(final CharSequence s) {
+        return URIBuilder.splitPath(s);
+    }
+
+    /**
      * Returns a list of URI path segments.
      *
      * @param s URI path component.
@@ -63,6 +73,15 @@ public class PathSegmentCodec {
     }
 
     /**
+     * Optimizes path segments.
+     *
+     * @return list of optimized segments
+     */
+    public static List<String> optimizePathSegments(final List<String> segments) {
+        return URIBuilder.optimizePathSegments(segments);
+    }
+
+    /**
      * Returns a string consisting of joint encoded path segments.
      *
      * @param segments the segments.
@@ -74,6 +93,19 @@ public class PathSegmentCodec {
         final StringBuilder buf = new StringBuilder();
         URIBuilder.formatPath(buf, segments, false, charset);
         return buf.toString();
+    }
+
+    /**
+     * Copies encoded path segments into the given content buffer.
+     *
+     * @param buf content buffer.
+     * @param segments the segments.
+     * @param charset parameter charset.
+     */
+    public static void formatSegments(final StringBuilder buf, final Iterable<String> segments, final Charset charset) {
+        Args.notNull(buf, "Buffer");
+        Args.notNull(segments, "Segments");
+        URIBuilder.formatPath(buf, segments, false, charset);
     }
 
     /**

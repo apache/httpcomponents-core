@@ -1141,33 +1141,36 @@ public class URIBuilder {
         }
 
         if (this.pathSegments != null) {
-            final List<String> inputSegments = this.pathSegments;
-            if (!inputSegments.isEmpty()) {
-                final LinkedList<String> outputSegments = new LinkedList<>();
-                for (final String inputSegment : inputSegments) {
-                    if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
-                        if ("..".equals(inputSegment)) {
-                            if (!outputSegments.isEmpty()) {
-                                outputSegments.removeLast();
-                            }
-                        } else {
-                            outputSegments.addLast(inputSegment);
-                        }
-                    }
-                }
-                if (!inputSegments.isEmpty()) {
-                    final String lastSegment = inputSegments.get(inputSegments.size() - 1);
-                    if (lastSegment.isEmpty()) {
-                        outputSegments.addLast("");
-                    }
-                }
-                this.pathSegments = outputSegments;
-            } else {
-                this.pathSegments = Collections.singletonList("");
-            }
+            this.pathSegments = optimizePathSegments(this.pathSegments);
         }
 
         return this;
+    }
+
+    static List<String> optimizePathSegments(final List<String> inputSegments) {
+        if (!inputSegments.isEmpty()) {
+            final LinkedList<String> outputSegments = new LinkedList<>();
+            for (final String inputSegment : inputSegments) {
+                if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
+                    if ("..".equals(inputSegment)) {
+                        if (!outputSegments.isEmpty()) {
+                            outputSegments.removeLast();
+                        }
+                    } else {
+                        outputSegments.addLast(inputSegment);
+                    }
+                }
+            }
+            if (!inputSegments.isEmpty()) {
+                final String lastSegment = inputSegments.get(inputSegments.size() - 1);
+                if (lastSegment.isEmpty()) {
+                    outputSegments.addLast("");
+                }
+            }
+            return outputSegments;
+        } else {
+            return Collections.singletonList("");
+        }
     }
 
     /**
