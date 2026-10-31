@@ -899,6 +899,12 @@ class TestURIBuilder {
                 new URIBuilder("file:../../.././").optimize().build().toASCIIString());
         Assertions.assertEquals("http://host/",
                 new URIBuilder("http://host/../../.././").optimize().build().toASCIIString());
+        Assertions.assertEquals("http://host/a/",
+                new URIBuilder("http://host/a/b/..").optimize().build().toASCIIString());
+        Assertions.assertEquals("http://host/a/b/",
+                new URIBuilder("http://host/a/b/.").optimize().build().toASCIIString());
+        Assertions.assertEquals("http://host/a/b/..../...",
+                new URIBuilder("http://host/a/b/..../...").optimize().build().toASCIIString());
         Assertions.assertThrows(URISyntaxException.class, () -> new URIBuilder("http:///../../.././").optimize().build().toASCIIString());
     }
 
