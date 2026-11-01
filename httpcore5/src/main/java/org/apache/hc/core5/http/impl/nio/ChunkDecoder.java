@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BufferedHeader;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -128,6 +129,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 separator = this.lineBuf.length();
             }
             final String s = this.lineBuf.substringTrimmed(0, separator);
+            if (MessageSupport.isSignedOrEmpty(s)) {
+                throw new MalformedChunkCodingException("Bad chunk header: " + s);
+            }
             try {
                 this.chunkSize = Long.parseLong(s, 16);
             } catch (final NumberFormatException e) {

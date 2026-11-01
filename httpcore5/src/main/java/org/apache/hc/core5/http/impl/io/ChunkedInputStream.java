@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -269,6 +270,9 @@ public class ChunkedInputStream extends InputStream {
                 separator = lineBuffer.length();
             }
             final String s = this.lineBuffer.substringTrimmed(0, separator);
+            if (MessageSupport.isSignedOrEmpty(s)) {
+                throw new MalformedChunkCodingException("Bad chunk header: " + s);
+            }
             try {
                 return Long.parseLong(s, 16);
             } catch (final NumberFormatException e) {

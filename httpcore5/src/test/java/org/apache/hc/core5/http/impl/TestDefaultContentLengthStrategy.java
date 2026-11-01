@@ -154,6 +154,15 @@ class TestDefaultContentLengthStrategy {
     }
 
     @Test
+    void testEntityWithPlusSignedContentLength() {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Content-Length", "+5");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
     void testEntityNoContentDelimiter() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();

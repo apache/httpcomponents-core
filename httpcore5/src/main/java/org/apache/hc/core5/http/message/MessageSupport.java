@@ -735,6 +735,13 @@ public class MessageSupport {
     /**
      * @since 5.5
      */
+    public static boolean isSignedOrEmpty(final String s) {
+        return s == null || s.isEmpty() || s.charAt(0) == '+' || s.charAt(0) == '-';
+    }
+
+    /**
+     * @since 5.5
+     */
     public static long getContentLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
         if (message.countHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
@@ -743,12 +750,11 @@ public class MessageSupport {
         final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         if (contentLengthHeader != null) {
             final String s = contentLengthHeader.getValue();
+            if (isSignedOrEmpty(s)) {
+                throw new ProtocolException("Invalid content length: " + s);
+            }
             try {
-                final long len = Long.parseLong(s);
-                if (len < 0) {
-                    throw new ProtocolException("Negative content length: " + s);
-                }
-                return len;
+                return Long.parseLong(s);
             } catch (final NumberFormatException e) {
                 throw new ProtocolException("Invalid content length: " + s);
             }
