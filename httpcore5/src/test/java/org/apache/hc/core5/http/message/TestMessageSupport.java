@@ -571,6 +571,57 @@ class TestMessageSupport {
     }
 
     @Test
+    void testMessageWithPlusSignedContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "+5");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithEmptyContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testIsSignedOrEmpty() {
+        Assertions.assertTrue(MessageSupport.isSignedOrEmpty(null));
+        Assertions.assertTrue(MessageSupport.isSignedOrEmpty(""));
+        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("+5"));
+        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("-5"));
+        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("-0"));
+        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("5"));
+        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("0005"));
+        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("a+"));
+    }
+
+    @Test
+    void testMessageWithMinusZeroContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "-0");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithOverflowContentLength() {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "99999999999999999999");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                MessageSupport.getContentLength(message));
+    }
+
+    @Test
+    void testMessageWithLeadingZerosContentLength() throws Exception {
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "005");
+        Assertions.assertEquals(5, MessageSupport.getContentLength(message));
+    }
+
+    @Test
     void testMessageWithMultipleContentLength() throws Exception {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "100");

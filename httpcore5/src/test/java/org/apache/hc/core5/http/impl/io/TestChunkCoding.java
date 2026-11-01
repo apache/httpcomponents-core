@@ -219,6 +219,60 @@ class TestChunkCoding {
         }
     }
 
+    @Test
+    void testCorruptChunkedInputStreamSignedSize() throws IOException {
+        final String s = "+5\r\n01234\r\n0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
+        }
+    }
+
+    @Test
+    void testCorruptChunkedInputStreamMinusZeroSize() throws IOException {
+        final String s = "-0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
+        }
+    }
+
+    @Test
+    void testCorruptChunkedInputStreamOverflowSize() throws IOException {
+        final String s = "FFFFFFFFFFFFFFFFF\r\n01234\r\n0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
+        }
+    }
+
+    @Test
+    void testChunkedInputStreamSurroundingWhitespaceSize() throws IOException {
+        final String s = " 5 \r\n01234\r\n0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            final byte[] tmp = new byte[5];
+            Assertions.assertEquals(5, in.read(tmp));
+            Assertions.assertEquals("01234", new String(tmp, StandardCharsets.US_ASCII));
+        }
+    }
+
+    @Test
+    void testChunkedInputStreamLeadingZerosSize() throws IOException {
+        final String s = "0005\r\n01234\r\n0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            final byte[] tmp = new byte[5];
+            Assertions.assertEquals(5, in.read(tmp));
+            Assertions.assertEquals("01234", new String(tmp, StandardCharsets.US_ASCII));
+        }
+    }
+
     // Negative chunk size
     @Test
     void testCorruptChunkedInputStreamNegativeSize() throws IOException {

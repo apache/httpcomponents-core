@@ -163,6 +163,66 @@ class TestChunkDecoder {
         Assertions.assertThrows(MalformedChunkCodingException.class, () -> decoder.read(dst));
     }
 
+    private static void decode(final String s) throws Exception {
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {s}, StandardCharsets.US_ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
+        final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, new BasicHttpTransportMetrics());
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
+        for (int i = 0; i < 10 && !decoder.isCompleted(); i++) {
+            dst.clear();
+            if (decoder.read(dst) == -1) {
+                break;
+            }
+        }
+    }
+
+    @Test
+    void testChunkSizeMinusOneRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("-1\r\n5\r\nhello\r\n0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizeNegativeRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("-5\r\nhello\r\n0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizePlusSignRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("+5\r\nhello\r\n0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizeMinusZeroRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("-0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizeBlankRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("  \r\nhello\r\n0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizeOverflowRejected() {
+        Assertions.assertThrows(MalformedChunkCodingException.class,
+                () -> decode("FFFFFFFFFFFFFFFFF\r\nhello\r\n0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkSizeSurroundingWhitespaceAccepted() throws Exception {
+        decode(" 5 \r\nhello\r\n0\r\n\r\n");
+    }
+
+    @Test
+    void testChunkSizeLeadingZerosAccepted() throws Exception {
+        decode("0005\r\nhello\r\n0\r\n\r\n");
+    }
+
     @Test
     void testIncompleteChunkDecoding() throws Exception {
         final String[] chunks = {
