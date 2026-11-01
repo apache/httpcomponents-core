@@ -78,11 +78,11 @@
       To be completely removed -->
     <animal.sniffer.skip>true</animal.sniffer.skip>
 
-    <conscrypt.version>2.7.0</conscrypt.version>
-    <jackson.version>3.2.3</jackson.version>
+    <conscrypt.version>2.8.0</conscrypt.version>
+    <jackson.version>3.2.4</jackson.version>
     <junit.version>5.14.4</junit.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
-    <mockito.version>4.11.0</mockito.version>
+    <mockito.version>5.24.0</mockito.version>
     <assertj.version>3.27.7</assertj.version>
     <slf4j.version>1.7.36</slf4j.version>
     <log4j.version>2.26.1</log4j.version>
