@@ -24,10 +24,11 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.hc.core5.http.structured;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,6 +129,29 @@ public final class StructuredFieldHeaders {
     }
 
     /**
+     * Parses the matching field lines as individual Structured Field Dictionary entries, preserving
+     * their wire order and repeated keys.
+     *
+     * @param headers the message headers.
+     * @param name the case-insensitive field name.
+     * @return the parsed entries in wire order, including repeated keys.
+     * @throws ParseException if any field line is invalid.
+     */
+    public static List<Map.Entry<String, StructuredFieldMember>> parseDictionaryEntries(
+            final MessageHeaders headers, final String name) throws ParseException {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        final List<Map.Entry<String, StructuredFieldMember>> entries = new ArrayList<>();
+        MessageSupport.parseElementListStrict(headers, name, (buffer, cursor) -> {
+            final Map<String, StructuredFieldMember> entry = new LinkedHashMap<>(1);
+            StructuredFieldParser.parseDictionaryElement(buffer, cursor, entry);
+            final Map.Entry<String, StructuredFieldMember> parsed = entry.entrySet().iterator().next();
+            entries.add(new AbstractMap.SimpleImmutableEntry<>(parsed.getKey(), parsed.getValue()));
+        });
+        return Collections.unmodifiableList(entries);
+    }
+
+    /**
      * Parses the matching field lines as a Structured Field Dictionary, reading each field line in
      * place and merging its members, without combining the values into a new buffer. A repeated key
      * keeps its last value.
@@ -139,11 +163,10 @@ public final class StructuredFieldHeaders {
      */
     public static StructuredFieldDictionary parseDictionary(final MessageHeaders headers, final String name)
             throws ParseException {
-        Args.notNull(headers, "Message headers");
-        Args.notBlank(name, "Header name");
         final Map<String, StructuredFieldMember> members = new LinkedHashMap<>();
-        MessageSupport.parseElementListStrict(headers, name, (buffer, cursor) ->
-                StructuredFieldParser.parseDictionaryElement(buffer, cursor, members));
+        for (final Map.Entry<String, StructuredFieldMember> entry : parseDictionaryEntries(headers, name)) {
+            members.put(entry.getKey(), entry.getValue());
+        }
         return StructuredFieldDictionary.copyOf(members);
     }
 
@@ -167,4 +190,5 @@ public final class StructuredFieldHeaders {
         StructuredFieldSerializer.serialize(buffer, value);
         return BufferedHeader.create(buffer);
     }
+
 }
