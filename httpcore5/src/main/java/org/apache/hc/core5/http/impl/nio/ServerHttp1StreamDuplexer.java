@@ -320,6 +320,12 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
     }
 
+    @Override
+    boolean rejectIncomingMessage(final HttpException ex) throws HttpException, IOException {
+        terminateExchange(ex);
+        return true;
+    }
+
     void terminateExchange(final HttpException ex) throws HttpException, IOException {
         suspendSessionInput();
         final ServerHttp1StreamHandler streamHandler;

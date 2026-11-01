@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import javax.net.ssl.SSLSocket;
@@ -890,6 +891,86 @@ abstract class ClassicIntegrationTest {
             Assertions.assertEquals(431, response1.getCode());
             EntityUtils.consume(response1.getEntity());
         }
+    }
+
+    @Test
+    void testRequestWithTransferEncodingAndContentLengthRejected() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final AtomicInteger handled = new AtomicInteger();
+        server.register("*", (request, response, context) -> {
+            handled.incrementAndGet();
+            response.setEntity(new StringEntity("ok", ContentType.TEXT_PLAIN));
+        });
+        server.start();
+
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+        final String raw = "POST / HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "Content-Length: 6\r\n"
+                + "Transfer-Encoding: chunked\r\n"
+                + "\r\n"
+                + "5\r\nAAAAA\r\n0\r\n\r\n"
+                + "GET /smuggled HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "\r\n";
+        final StringBuilder reply = new StringBuilder();
+        runWithSocket(host, 5000, socket -> {
+            try {
+                final OutputStream out = socket.getOutputStream();
+                out.write(raw.getBytes(StandardCharsets.ISO_8859_1));
+                out.flush();
+                final InputStream in = socket.getInputStream();
+                final byte[] buf = new byte[1024];
+                int n;
+                // The read times out unless the server closes the connection
+                while ((n = in.read(buf)) != -1) {
+                    reply.append(new String(buf, 0, n, StandardCharsets.ISO_8859_1));
+                }
+            } catch (final IOException ex) {
+                Assertions.fail("Connection was not closed by the server: " + ex);
+            }
+        });
+        Assertions.assertTrue(reply.toString().startsWith("HTTP/1.1 400 "), reply.toString());
+        Assertions.assertEquals(1, reply.toString().split("HTTP/1\\.1 ", -1).length - 1, reply.toString());
+        Assertions.assertEquals(0, handled.get());
+    }
+
+    @Test
+    void testRequestWithUnsupportedTransferEncodingRejected() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final AtomicInteger handled = new AtomicInteger();
+        server.register("*", (request, response, context) -> {
+            handled.incrementAndGet();
+            response.setEntity(new StringEntity("ok", ContentType.TEXT_PLAIN));
+        });
+        server.start();
+
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+        final String raw = "POST / HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "Transfer-Encoding: gzip\r\n"
+                + "\r\n"
+                + "xxxx";
+        final StringBuilder reply = new StringBuilder();
+        runWithSocket(host, 5000, socket -> {
+            try {
+                final OutputStream out = socket.getOutputStream();
+                out.write(raw.getBytes(StandardCharsets.ISO_8859_1));
+                out.flush();
+                final InputStream in = socket.getInputStream();
+                final byte[] buf = new byte[1024];
+                int n;
+                // The read times out unless the server closes the connection
+                while ((n = in.read(buf)) != -1) {
+                    reply.append(new String(buf, 0, n, StandardCharsets.ISO_8859_1));
+                }
+            } catch (final IOException ex) {
+                Assertions.fail("Connection was not closed by the server: " + ex);
+            }
+        });
+        Assertions.assertTrue(reply.toString().startsWith("HTTP/1.1 501 "), reply.toString());
+        Assertions.assertEquals(1, reply.toString().split("HTTP/1\\.1 ", -1).length - 1, reply.toString());
+        Assertions.assertEquals(0, handled.get());
     }
 
     @Test

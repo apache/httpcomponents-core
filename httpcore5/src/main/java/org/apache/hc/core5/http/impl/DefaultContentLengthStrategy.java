@@ -48,7 +48,9 @@ import org.apache.hc.core5.util.TextUtils;
  * The default implementation of the content length strategy. This class
  * will throw {@link ProtocolException} if it encounters an unsupported
  * transfer encoding, multiple {@code Content-Length} header
- * values or a malformed {@code Content-Length} header value.
+ * values, a malformed {@code Content-Length} header value or a message
+ * that carries both {@code Transfer-Encoding} and {@code Content-Length}
+ * headers.
  * <p>
  * This class recognizes "chunked" transfer-coding only.
  *
@@ -73,6 +75,10 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
         Args.notNull(message, "HTTP message");
         final Iterator<Header> it = message.headerIterator(HttpHeaders.TRANSFER_ENCODING);
         if (it.hasNext()) {
+            // Both headers may indicate request smuggling or response splitting
+            if (message.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
+                throw new ProtocolException("Transfer-Encoding and Content-Length headers are both present");
+            }
             final AtomicReference<Coding> codingRef = new AtomicReference<>();
             while (it.hasNext()) {
                 MessageSupport.parseTokens(it.next(), e -> {

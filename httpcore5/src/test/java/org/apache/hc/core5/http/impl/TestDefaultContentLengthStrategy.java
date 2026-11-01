@@ -163,6 +163,26 @@ class TestDefaultContentLengthStrategy {
     }
 
     @Test
+    void testEntityWithChunkTransferEncodingAndContentLength() {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Content-Length", "6");
+        message.addHeader("Transfer-Encoding", "chunked");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
+    void testEntityWithUnknownTransferEncodingAndContentLength() {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Content-Length", "6");
+        message.addHeader("Transfer-Encoding", "blah");
+        Assertions.assertThrows(ProtocolException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
     void testEntityNoContentDelimiter() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();

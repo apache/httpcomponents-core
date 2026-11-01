@@ -29,7 +29,10 @@ package org.apache.hc.core5.testing.nio;
 
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +40,9 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -960,6 +966,98 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         final HttpResponse response = result.head();
         Assertions.assertNotNull(response);
         Assertions.assertEquals(505, response.getCode());
+    }
+
+    @Test
+    void testRequestWithTransferEncodingAndContentLengthRejected() throws Exception {
+        final Http1TestServer server = resources.server();
+        final AtomicInteger handled = new AtomicInteger();
+        server.register("/hello", () -> {
+            handled.incrementAndGet();
+            return new SingleLineResponseHandler("Hi there");
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final String raw = "POST /hello HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "Content-Length: 6\r\n"
+                + "Transfer-Encoding: chunked\r\n"
+                + "\r\n"
+                + "5\r\nAAAAA\r\n0\r\n\r\n"
+                + "GET /hello HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "\r\n";
+        final StringBuilder reply = new StringBuilder();
+        try (final Socket plain = new Socket("localhost", serverEndpoint.getPort())) {
+            plain.setSoTimeout(5000);
+            final Socket socket;
+            if (scheme == URIScheme.HTTPS) {
+                final SSLSocket sslSocket = (SSLSocket) SSLTestContexts.createClientSSLContext()
+                        .getSocketFactory()
+                        .createSocket(plain, "localhost", plain.getPort(), true);
+                sslSocket.startHandshake();
+                socket = sslSocket;
+            } else {
+                socket = plain;
+            }
+            final OutputStream out = socket.getOutputStream();
+            out.write(raw.getBytes(StandardCharsets.ISO_8859_1));
+            out.flush();
+            final InputStream in = socket.getInputStream();
+            final byte[] buf = new byte[1024];
+            int n;
+            // The read times out unless the server closes the connection
+            while ((n = in.read(buf)) != -1) {
+                reply.append(new String(buf, 0, n, StandardCharsets.ISO_8859_1));
+            }
+        }
+        Assertions.assertTrue(reply.toString().startsWith("HTTP/1.1 400 "), reply.toString());
+        Assertions.assertEquals(1, reply.toString().split("HTTP/1\\.1 ", -1).length - 1, reply.toString());
+        Assertions.assertEquals(0, handled.get());
+    }
+
+    @Test
+    void testRequestWithUnsupportedTransferEncodingRejected() throws Exception {
+        final Http1TestServer server = resources.server();
+        final AtomicInteger handled = new AtomicInteger();
+        server.register("/hello", () -> {
+            handled.incrementAndGet();
+            return new SingleLineResponseHandler("Hi there");
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        final String raw = "POST /hello HTTP/1.1\r\n"
+                + "Host: localhost\r\n"
+                + "Transfer-Encoding: gzip\r\n"
+                + "\r\n"
+                + "xxxx";
+        final StringBuilder reply = new StringBuilder();
+        try (final Socket plain = new Socket("localhost", serverEndpoint.getPort())) {
+            plain.setSoTimeout(5000);
+            final Socket socket;
+            if (scheme == URIScheme.HTTPS) {
+                final SSLSocket sslSocket = (SSLSocket) SSLTestContexts.createClientSSLContext()
+                        .getSocketFactory()
+                        .createSocket(plain, "localhost", plain.getPort(), true);
+                sslSocket.startHandshake();
+                socket = sslSocket;
+            } else {
+                socket = plain;
+            }
+            final OutputStream out = socket.getOutputStream();
+            out.write(raw.getBytes(StandardCharsets.ISO_8859_1));
+            out.flush();
+            final InputStream in = socket.getInputStream();
+            final byte[] buf = new byte[1024];
+            int n;
+            // The read times out unless the server closes the connection
+            while ((n = in.read(buf)) != -1) {
+                reply.append(new String(buf, 0, n, StandardCharsets.ISO_8859_1));
+            }
+        }
+        Assertions.assertTrue(reply.toString().startsWith("HTTP/1.1 501 "), reply.toString());
+        Assertions.assertEquals(1, reply.toString().split("HTTP/1\\.1 ", -1).length - 1, reply.toString());
+        Assertions.assertEquals(0, handled.get());
     }
 
 }

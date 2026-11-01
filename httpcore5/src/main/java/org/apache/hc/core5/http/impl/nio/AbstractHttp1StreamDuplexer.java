@@ -261,6 +261,16 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
+    /**
+     * Gives a subclass the chance to answer a message whose framing cannot be determined.
+     *
+     * @return {@code true} if the message has been handled, {@code false} if
+     *   the exception should be propagated.
+     */
+    boolean rejectIncomingMessage(final HttpException ex) throws HttpException, IOException {
+        return false;
+    }
+
     IncomingMessage parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
         final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
         if (messageHead != null) {
@@ -299,7 +309,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     updateInputMetrics(messageHead, connMetrics);
                     final ContentDecoder contentDecoder;
                     if (handleIncomingMessage(messageHead)) {
-                        final long len = incomingContentStrategy.determineLength(messageHead);
+                        final long len;
+                        try {
+                            len = incomingContentStrategy.determineLength(messageHead);
+                        } catch (final HttpException ex) {
+                            if (rejectIncomingMessage(ex)) {
+                                break;
+                            }
+                            throw ex;
+                        }
                         contentDecoder = createContentDecoder(len, ioSession, inbuf, inTransportMetrics);
                         consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
                     } else {
