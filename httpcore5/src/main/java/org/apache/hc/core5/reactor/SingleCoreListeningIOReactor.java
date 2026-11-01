@@ -52,6 +52,8 @@ import org.apache.hc.core5.io.Closer;
 
 class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionAcceptor {
 
+    private static final long ACCEPT_BACK_OFF_MILLIS = 100;
+
     private final IOReactorConfig reactorConfig;
     private final Callback<ChannelEntry> callback;
     private final Queue<ListenerEndpointRequest> requestQueue;
@@ -120,7 +122,15 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
 
                 final ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                 for (;;) {
-                    final SocketChannel socketChannel = serverChannel.accept();
+                    final SocketChannel socketChannel;
+                    try {
+                        socketChannel = serverChannel.accept();
+                    } catch (final IOException ex) {
+                        // Typically descriptor exhaustion; the listener must outlive it.
+                        logException(ex);
+                        backOff();
+                        break;
+                    }
                     if (socketChannel == null) {
                         break;
                     }
@@ -133,6 +143,15 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
             final ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
             this.endpoints.remove(endpoint);
             key.attach(null);
+        }
+    }
+
+    private static void backOff() {
+        // The selector keeps reporting OP_ACCEPT while the failure persists.
+        try {
+            Thread.sleep(ACCEPT_BACK_OFF_MILLIS);
+        } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
         }
     }
 
