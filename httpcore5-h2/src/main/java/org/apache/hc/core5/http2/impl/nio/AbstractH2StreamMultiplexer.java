@@ -143,6 +143,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private EndpointDetails endpointDetails;
     private boolean goAwayReceived;
 
+    // Number of control-frame responses (PING/SETTINGS acks, WINDOW_UPDATE, RST_STREAM) currently
+    // held in the output queue awaiting a flush. Guarded by the IO session lock.
+    private int queuedControlFrames;
+
     private volatile boolean peerNoRfc7540Priorities;
 
 
@@ -307,9 +311,25 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             }
             outputBuffer.write(frame, ioSession);
         } else {
+            if (isControlFrame(frame)) {
+                final int maxControlFrames = localConfig.getMaxControlFrames();
+                if (maxControlFrames > 0 && queuedControlFrames >= maxControlFrames) {
+                    throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM,
+                            "Maximum number of outstanding control frames exceeded");
+                }
+                queuedControlFrames++;
+            }
             outputQueue.addLast(frame);
         }
         ioSession.setEvent(SelectionKey.OP_WRITE);
+    }
+
+    private static boolean isControlFrame(final RawFrame frame) {
+        final int type = frame.getType();
+        return type == FrameType.SETTINGS.getValue()
+                || type == FrameType.PING.getValue()
+                || type == FrameType.WINDOW_UPDATE.getValue()
+                || type == FrameType.RST_STREAM.getValue();
     }
 
     private void commitFrame(final RawFrame frame) throws IOException {
@@ -509,6 +529,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             while (outputBuffer.isEmpty()) {
                 final RawFrame frame = outputQueue.poll();
                 if (frame != null) {
+                    if (isControlFrame(frame)) {
+                        queuedControlFrames--;
+                    }
                     if (streamListener != null) {
                         streamListener.onFrameOutput(this, frame.getStreamId(), frame);
                     }

@@ -51,10 +51,11 @@ public class H2Config {
     private final int maxHeaderListSize;
     private final boolean compressionEnabled;
     private final int maxContinuations;
+    private final int maxControlFrames;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean compressionEnabled, final int maxContinuations) {
+             final boolean compressionEnabled, final int maxContinuations, final int maxControlFrames) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -64,6 +65,7 @@ public class H2Config {
         this.maxHeaderListSize = maxHeaderListSize;
         this.compressionEnabled = compressionEnabled;
         this.maxContinuations = maxContinuations;
+        this.maxControlFrames = maxControlFrames;
     }
 
     public int getHeaderTableSize() {
@@ -98,6 +100,19 @@ public class H2Config {
         return maxContinuations;
     }
 
+    /**
+     * Returns the maximum number of control frames (PING and SETTINGS acknowledgements, WINDOW_UPDATE
+     * and RST_STREAM frames generated in response to peer frames) that may be pending output before
+     * the connection is closed. A GOAWAY carrying {@code ENHANCE_YOUR_CALM} is sent when the output
+     * still permits it; a peer that stops reading forces an immediate close instead. A value of zero
+     * disables the limit.
+     *
+     * @since 5.5
+     */
+    public int getMaxControlFrames() {
+        return maxControlFrames;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -109,6 +124,7 @@ public class H2Config {
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
                 .append(", compressionEnabled=").append(this.compressionEnabled)
                 .append(", maxContinuations=").append(this.maxContinuations)
+                .append(", maxControlFrames=").append(this.maxControlFrames)
                 .append("]");
         return builder.toString();
     }
@@ -122,6 +138,7 @@ public class H2Config {
     private static final int INIT_MAX_FRAME_SIZE = FrameConsts.MIN_FRAME_SIZE;
     private static final int INIT_WINDOW_SIZE = 65535;
     private static final int INIT_CONCURRENT_STREAM = 250;
+    private static final int INIT_MAX_CONTROL_FRAMES = 1000;
 
     public static H2Config.Builder initial() {
         return new Builder()
@@ -142,7 +159,9 @@ public class H2Config {
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setCompressionEnabled(config.isCompressionEnabled());
+                .setCompressionEnabled(config.isCompressionEnabled())
+                .setMaxContinuations(config.getMaxContinuations())
+                .setMaxControlFrames(config.getMaxControlFrames());
     }
 
     public static class Builder {
@@ -155,6 +174,7 @@ public class H2Config {
         private int maxHeaderListSize;
         private boolean compressionEnabled;
         private int maxContinuations;
+        private int maxControlFrames;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -165,6 +185,7 @@ public class H2Config {
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
             this.compressionEnabled = true;
             this.maxContinuations = 100;
+            this.maxControlFrames = INIT_MAX_CONTROL_FRAMES;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -215,6 +236,21 @@ public class H2Config {
             return this;
         }
 
+        /**
+         * Sets the maximum number of control frames (PING and SETTINGS acknowledgements, WINDOW_UPDATE
+         * and RST_STREAM frames generated in response to peer frames) that may be pending output before
+         * the connection is closed. A GOAWAY carrying {@code ENHANCE_YOUR_CALM} is sent when the output
+         * still permits it; a peer that stops reading forces an immediate close instead. A value of zero
+         * disables the limit.
+         *
+         * @since 5.5
+         */
+        public Builder setMaxControlFrames(final int maxControlFrames) {
+            Args.notNegative(maxControlFrames, "Max control frames");
+            this.maxControlFrames = maxControlFrames;
+            return this;
+        }
+
         public H2Config build() {
             return new H2Config(
                     headerTableSize,
@@ -224,7 +260,8 @@ public class H2Config {
                     maxFrameSize,
                     maxHeaderListSize,
                     compressionEnabled,
-                    maxContinuations);
+                    maxContinuations,
+                    maxControlFrames);
         }
 
     }
