@@ -36,6 +36,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tests for {@link BasicLineParser}.
@@ -310,6 +312,30 @@ class TestBasicLineParser {
         buffer.clear();
         buffer.append("header : blah");
         Assertions.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Content-Length", "X_Custom", "X.Custom", "X-1", "a", "ABCxyz09",
+            "!#$%&'*+-.^_`|~"})
+    void testTokenHeaderName(final String name) throws Exception {
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append(name);
+        buf.append(": value");
+        Assertions.assertEquals(name, parser.parseHeader(buf).getName());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Foo Bar", "Foo\tBar", "X\u0001Y", "X\u0000Y", "Foo\rBar", "Foo\nBar", "Foo\u007f",
+            "F\u00e9", "F\u0100", "F\u0080",
+            "Foo;", "Foo(", "Foo)", "Foo,", "Foo/", "Foo<", "Foo=", "Foo>", "Foo?", "Foo@",
+            "Foo[", "Foo\\", "Foo]", "Foo{", "Foo}", "Foo\""})
+    void testNonTokenHeaderNameRejected(final String name) {
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append(name);
+        buf.append(": value");
+        Assertions.assertThrows(ParseException.class, () -> parser.parseHeader(buf));
     }
 
 }

@@ -193,6 +193,7 @@ public class BasicLineParser implements LineParser {
         if (cursor.getPos() == cursor.getLowerBound() || cursor.getPos() == cursor.getUpperBound() ||
                 buffer.charAt(cursor.getPos()) != ':' ||
                 TextUtils.isEmpty(name) ||
+                !FieldNameSupport.isToken(name) ||
                 Tokenizer.isWhitespace(buffer.charAt(cursor.getPos() - 1))) {
             throw new ParseException("Invalid header",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());

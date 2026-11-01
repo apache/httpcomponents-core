@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -147,5 +148,34 @@ class TestRequestParser {
         Assertions.assertEquals(3, headers.length);
     }
 
-}
+    @Test
+    void testObsFoldedHeaderValue() throws Exception {
+        final String s =
+                "GET / HTTP/1.1\r\n" +
+                "Host: localhost\r\n" +
+                "X-Fold: a\r\n" +
+                " \tb\r\n" +
+                "\r\n";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
+        final ClassicHttpRequest httprequest = new DefaultHttpRequestParser().parse(inBuffer, inputStream);
+        Assertions.assertEquals("a b", httprequest.getFirstHeader("X-Fold").getValue());
+    }
+
+    @Test
+    void testNonTokenHeaderNameRejected() {
+        for (final String name : new String[] {"Foo Bar", "X\u0001Y", "Foo\u007f", "Foo\tBar"}) {
+            final String s =
+                    "GET / HTTP/1.1\r\n" +
+                    "Host: localhost\r\n" +
+                    name + ": v\r\n" +
+                    "\r\n";
+            final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+            final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+            final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
+            Assertions.assertThrows(ParseException.class, () -> parser.parse(inBuffer, inputStream));
+        }
+    }
+
+}

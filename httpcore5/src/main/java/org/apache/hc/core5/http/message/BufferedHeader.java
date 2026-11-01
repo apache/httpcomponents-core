@@ -98,7 +98,7 @@ public class BufferedHeader implements FormattedHeader, Serializable {
             throw new ParseException("Invalid header", buffer, 0, buffer.length(), colon - 1);
         }
         final String s = buffer.substringTrimmed(0, colon);
-        if (s.isEmpty()) {
+        if (s.isEmpty() || !FieldNameSupport.isToken(s)) {
             throw new ParseException("Invalid header", buffer, 0, buffer.length(), colon);
         }
         this.buffer = buffer;
