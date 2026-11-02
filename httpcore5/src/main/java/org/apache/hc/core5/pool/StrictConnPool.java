@@ -596,6 +596,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         } finally {
             this.lock.unlock();
         }
+        fireCallbacks();
     }
 
     /**
@@ -615,6 +616,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         } finally {
             this.lock.unlock();
         }
+        fireCallbacks();
     }
 
     private void purgePoolMap() {
