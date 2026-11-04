@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -87,6 +88,33 @@ final class TestPoolPendingRequestExpiry {
             final ExecutionException ex = assertThrows(ExecutionException.class,
                     () -> pending.get(5, TimeUnit.SECONDS));
             assertInstanceOf(TimeoutException.class, ex.getCause());
+        } finally {
+            pool.close(CloseMode.IMMEDIATE);
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(PoolConcurrencyPolicy.class)
+    void closeExpiredFailsExpiredRequestQueuedBehindLiveRequest(final PoolConcurrencyPolicy policy) throws Exception {
+        final TestingClock clock = new TestingClock(0L);
+        final ManagedConnPool<String, PoolTestSupport.DummyConn> pool =
+                PoolTestSupport.createPool(policy, 1, 1, clock);
+        try {
+            final PoolEntry<String, PoolTestSupport.DummyConn> leased =
+                    pool.lease("r1", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+            assertNotNull(leased);
+            final Future<PoolEntry<String, PoolTestSupport.DummyConn>> live =
+                    pool.lease("r1", null, Timeout.ofMinutes(1), null);
+            final Future<PoolEntry<String, PoolTestSupport.DummyConn>> expired =
+                    pool.lease("r1", null, Timeout.ofMilliseconds(100), null);
+
+            clock.advanceMillis(10_000L);
+            pool.closeExpired();
+
+            final ExecutionException ex = assertThrows(ExecutionException.class,
+                    () -> expired.get(5, TimeUnit.SECONDS));
+            assertInstanceOf(TimeoutException.class, ex.getCause());
+            assertFalse(live.isDone(), "Request that has not expired must stay pending");
         } finally {
             pool.close(CloseMode.IMMEDIATE);
         }
