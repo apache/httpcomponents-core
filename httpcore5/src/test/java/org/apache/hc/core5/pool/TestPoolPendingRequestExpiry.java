@@ -26,9 +26,11 @@
  */
 package org.apache.hc.core5.pool;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -94,6 +96,51 @@ final class TestPoolPendingRequestExpiry {
             final ExecutionException ex = assertThrows(ExecutionException.class,
                     () -> pending.get(5, TimeUnit.SECONDS));
             assertInstanceOf(TimeoutException.class, ex.getCause());
+        } finally {
+            pool.close(CloseMode.IMMEDIATE);
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(PoolConcurrencyPolicy.class)
+    void closeExpiredFailsExpiredRequestQueuedBehindLiveRequest(final PoolConcurrencyPolicy policy) throws Exception {
+        final ManagedConnPool<String, FakeConnection> pool = createPool(policy);
+        try {
+            final PoolEntry<String, FakeConnection> leased =
+                    pool.lease("r1", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+            assertNotNull(leased);
+            final Future<PoolEntry<String, FakeConnection>> live =
+                    pool.lease("r1", null, Timeout.ofMinutes(1), null);
+            final Future<PoolEntry<String, FakeConnection>> expired =
+                    pool.lease("r1", null, Timeout.ofMilliseconds(100), null);
+
+            Thread.sleep(150);
+            pool.closeExpired();
+
+            final ExecutionException ex = assertThrows(ExecutionException.class,
+                    () -> expired.get(5, TimeUnit.SECONDS));
+            assertInstanceOf(TimeoutException.class, ex.getCause());
+            assertFalse(live.isDone(), "Request that has not expired must stay pending");
+        } finally {
+            pool.close(CloseMode.IMMEDIATE);
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(PoolConcurrencyPolicy.class)
+    void expiredPendingRequestIsDoneAfterEviction(final PoolConcurrencyPolicy policy) throws Exception {
+        final ManagedConnPool<String, FakeConnection> pool = createPool(policy);
+        try {
+            pool.lease("r1", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+            final Future<PoolEntry<String, FakeConnection>> pending =
+                    pool.lease("r1", null, Timeout.ofMilliseconds(100), null);
+
+            Thread.sleep(150);
+            pool.closeExpired();
+
+            if (policy != PoolConcurrencyPolicy.OFFLOCK) {
+                assertTrue(pending.isDone(), "Future must be completed by the eviction call itself");
+            }
         } finally {
             pool.close(CloseMode.IMMEDIATE);
         }
