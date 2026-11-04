@@ -642,6 +642,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             }
             releaseSeqNum.incrementAndGet();
             servicePendingRequests(RequestServiceStrategy.ALL);
+            // servicePendingRequests stops at the first request it cannot serve,
+            // so expired requests queued behind it would stay pending.
+            validatePendingRequests();
         }
 
         public void enumLeased(final Callback<PoolEntry<T, C>> callback) {
