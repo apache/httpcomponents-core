@@ -71,7 +71,7 @@ public final class EntityUtils {
      * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed. The process is done, <i>quietly</i> , without throwing any IOException.
      *
-     * @param entity the entity to consume.
+     * @param entity the entity to consume, may be null.
      *
      * @since 4.2
      */
@@ -87,8 +87,8 @@ public final class EntityUtils {
      * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed.
      *
-     * @param entity the entity to consume.
-     * @throws IOException if an error occurs reading the input stream
+     * @param entity the entity to consume, may be null.
+     * @throws IOException if an error occurs reading the input stream.
      *
      * @since 4.1
      */
@@ -126,7 +126,8 @@ public final class EntityUtils {
      * @return byte array containing the entity content. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws IOException if an error occurs reading the input stream
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
+     * @throws NullPointerException if the entity is null.
      *
      * @deprecated Use {@link #toByteArray(HttpEntity, int)}
      */
@@ -157,7 +158,8 @@ public final class EntityUtils {
      * @param maxResultLength
      *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
      * @throws IOException if an error occurs reading the input stream
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
+     * @throws NullPointerException if the entity is null.
      */
     public static byte[] toByteArray(final HttpEntity entity, final int maxResultLength) throws IOException {
         Args.notNull(entity, "HttpEntity");
@@ -242,13 +244,13 @@ public final class EntityUtils {
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity,
      * or if the entity provided charset is invalid or not available.
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named entity's charset is not available in
      * this instance of the Java virtual machine and no defaultCharset is provided.
+     * @throws NullPointerException if the entity is null.
      *
      * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
@@ -268,13 +270,13 @@ public final class EntityUtils {
      * or if the entity provided charset is invalid or not available.
      * @param maxResultLength
      *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named entity's charset is not available in
      * this instance of the Java virtual machine and no defaultCharset is provided.
+     * @throws NullPointerException if the entity is null.
      */
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset, final int maxResultLength) throws IOException, ParseException {
@@ -304,13 +306,13 @@ public final class EntityUtils {
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     * @throws NullPointerException if the entity is null.
      */
     public static String toString(
             final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
@@ -326,13 +328,13 @@ public final class EntityUtils {
      * @param defaultCharset character set to be applied if none found in the entity
      * @param maxResultLength
      *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     * @throws NullPointerException if the entity is null.
      *
      * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
@@ -348,12 +350,13 @@ public final class EntityUtils {
      * failing that, "UTF-8" is used.
      *
      * @param entity the entity to convert to a string; must not be null
-     * @return String containing the content.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException if the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     * @throws NullPointerException if the entity is null.
      *
      * @deprecated Use {@link #toString(HttpEntity, Charset, int)}.
      */
@@ -370,12 +373,13 @@ public final class EntityUtils {
      * @param entity the entity to convert to a string; must not be null
      * @param maxResultLength
      *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
-     * @return String containing the content.
+     * @return the entity content as a String; may be null if {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IllegalArgumentException the content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
+     * @throws NullPointerException if the entity is null.
      */
     public static String toString(final HttpEntity entity, final int maxResultLength) throws IOException, ParseException {
         Args.notNull(entity, "HttpEntity");
@@ -394,6 +398,7 @@ public final class EntityUtils {
      * @return a list of {@link NameValuePair} as built from the URI's query portion.
      * @throws IOException
      *             If there was an exception getting the entity's data.
+     * @throws NullPointerException if the entity is null.
      *
      * @deprecated Use {@link #parse(HttpEntity, int)}
      */
@@ -416,6 +421,7 @@ public final class EntityUtils {
      * @return a list of {@link NameValuePair} as built from the URI's query portion.
      * @throws IOException
      *             If there was an exception getting the entity's data.
+     * @throws NullPointerException if the entity is null.
      */
     public static List<NameValuePair> parse(final HttpEntity entity, final int maxStreamLength) throws IOException {
         Args.notNull(entity, "HttpEntity");
