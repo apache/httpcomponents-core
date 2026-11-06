@@ -38,7 +38,6 @@ module depends on Jackson 3 and requires Java 17.
 
 Protocol conformance
 --------------------
-- 
 - [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110) - HTTP Semantics
 - [RFC 9112](https://datatracker.ietf.org/doc/html/rfc9112) - Hypertext Transfer Protocol Version 1.1 (HTTP/1.1)
 - [RFC 9113](https://datatracker.ietf.org/doc/html/rfc9113) - Hypertext Transfer Protocol Version 2 (HTTP/2)
