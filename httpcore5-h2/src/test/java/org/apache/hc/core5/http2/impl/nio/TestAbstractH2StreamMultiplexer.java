@@ -156,6 +156,23 @@ class TestAbstractH2StreamMultiplexer {
             this.streamHandlerSupplier = streamHandlerSupplier;
         }
 
+        public H2StreamMultiplexerImpl(
+                final ProtocolIOSession ioSession,
+                final FrameFactory frameFactory,
+                final StreamIdGenerator idGenerator,
+                final HttpProcessor httpProcessor,
+                final CharCodingConfig charCodingConfig,
+                final H2Config h2Config,
+                final H2StreamListener streamListener,
+                final Supplier<H2StreamHandler> streamHandlerSupplier,
+                final Timeout validateAfterInactivity,
+                final Timeout pingAckTimeout,
+                final H2ControlFrameRateLimiter controlFrameRateLimiter) {
+            super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                    validateAfterInactivity, pingAckTimeout, controlFrameRateLimiter);
+            this.streamHandlerSupplier = streamHandlerSupplier;
+        }
+
         @Override
         void validateSetting(final H2Param param, final int value) throws H2ConnectionException {
         }
@@ -2547,4 +2564,41 @@ class TestAbstractH2StreamMultiplexer {
                 ArgumentMatchers.anyBoolean());
     }
 
+
+    @Test
+    void testMalformedSettingsAfterOverheadLimitReportsFrameSizeError() throws Exception {
+        // A limiter without tokens that cannot refill: the multiplexer takes its timestamps
+        // from System#nanoTime(), which is always earlier than the one used here.
+        final H2ControlFrameRateLimiter limiter = new H2ControlFrameRateLimiter(1, 1);
+        Assertions.assertTrue(limiter.accept(Long.MAX_VALUE));
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.ODD,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                H2Config.custom().build(),
+                h2StreamListener,
+                () -> streamHandler,
+                null,
+                Timeout.ofSeconds(5),
+                limiter);
+
+        final RawFrame malformed = new RawFrame(
+                FrameType.SETTINGS.getValue(), 0, 0, ByteBuffer.wrap(new byte[1]));
+        final H2ConnectionException frameSizeError = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> feedFrame(mux, malformed));
+        Assertions.assertEquals(H2Error.FRAME_SIZE_ERROR,
+                H2Error.getByCode(frameSizeError.getCode()));
+
+        final RawFrame valid = new RawFrame(
+                FrameType.SETTINGS.getValue(), 0, 0, ByteBuffer.allocate(0));
+        final H2ConnectionException overheadError = Assertions.assertThrows(
+                H2ConnectionException.class,
+                () -> feedFrame(mux, valid));
+        Assertions.assertEquals(H2Error.ENHANCE_YOUR_CALM,
+                H2Error.getByCode(overheadError.getCode()));
+    }
 }

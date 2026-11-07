@@ -104,6 +104,8 @@ import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
 
+    private final H2ControlFrameRateLimiter controlFrameRateLimiter;
+
     private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
@@ -188,6 +190,21 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final H2StreamListener streamListener,
             final Timeout validateAfterInactivity,
             final Timeout pingAckTimeout) {
+        this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
+                validateAfterInactivity, pingAckTimeout, new H2ControlFrameRateLimiter());
+    }
+
+    AbstractH2StreamMultiplexer(
+            final ProtocolIOSession ioSession,
+            final FrameFactory frameFactory,
+            final StreamIdGenerator idGenerator,
+            final HttpProcessor httpProcessor,
+            final CharCodingConfig charCodingConfig,
+            final H2Config h2Config,
+            final H2StreamListener streamListener,
+            final Timeout validateAfterInactivity,
+            final Timeout pingAckTimeout,
+            final H2ControlFrameRateLimiter controlFrameRateLimiter) {
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -216,6 +233,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.lastActivityTime = System.currentTimeMillis();
         this.validateAfterInactivity = validateAfterInactivity;
         this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
+        this.controlFrameRateLimiter = Args.notNull(controlFrameRateLimiter, "Control frame rate limiter");
     }
 
     @Override
@@ -976,7 +994,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         pingHandler.consumeResponse(ping);
                     }
                 } else {
-                    final ByteBuffer pong = ByteBuffer.allocate(ping.remaining());
+                    if (!controlFrameRateLimiter.accept(System.nanoTime())) {
+                    throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM, "Excessive HTTP/2 PING / SETTINGS frames");
+                }
+                final ByteBuffer pong = ByteBuffer.allocate(ping.remaining());
                     pong.put(ping);
                     pong.flip();
                     final RawFrame response = frameFactory.createPingAck(pong);
@@ -1005,10 +1026,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     }
                 } else {
                     final ByteBuffer payload = frame.getPayload();
+                    if (payload != null && (payload.remaining() % 6) != 0) {
+                        throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR,
+                                "Invalid SETTINGS payload");
+                    }
+                    if (!controlFrameRateLimiter.accept(System.nanoTime())) {
+                        throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM,
+                                "Excessive HTTP/2 PING / SETTINGS frames");
+                    }
                     if (payload != null) {
-                        if ((payload.remaining() % 6) != 0) {
-                            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid SETTINGS payload");
-                        }
                         consumeSettingsFrame(payload);
                         remoteSettingState = SettingsHandshake.TRANSMITTED;
                     }
