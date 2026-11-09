@@ -1451,6 +1451,191 @@ class TestAbstractH2StreamMultiplexer {
 
         Assertions.assertDoesNotThrow(() -> streamMultiplexer.onInput(ByteBuffer.wrap(writableChannel.toByteArray())));
     }
+
+    // RFC 9113 section 6.8: the server first announces the maximum stream ID,
+    // then waits for an RTT probe ACK before sending the actual last-stream-id.
+    @Test
+    void testServerGracefulShutdownSendsTwoGoAwayFrames() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer buffer = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.when(protocolIOSession.poll()).thenReturn(
+                org.apache.hc.core5.http.nio.command.ShutdownCommand.GRACEFUL, null);
+
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler);
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+        writes.clear();
+
+        mux.onOutput();
+        final List<FrameStub> firstFrames = parseFrames(concat(writes));
+        final List<FrameStub> firstGoAway = firstFrames.stream().filter(FrameStub::isGoAway)
+                .collect(java.util.stream.Collectors.toList());
+        Assertions.assertEquals(1, firstGoAway.size());
+        Assertions.assertEquals(Integer.MAX_VALUE,
+                ByteBuffer.wrap(firstGoAway.get(0).payload).getInt() & Integer.MAX_VALUE);
+        final FrameStub ping = firstFrames.stream().filter(f -> f.isPing() && !f.isAck())
+                .findFirst().orElseThrow(AssertionError::new);
+        Assertions.assertTrue(mux.isOpen(), "Server must accept in-flight streams until RTT barrier");
+        Mockito.verify(protocolIOSession, Mockito.never())
+                .setSocketTimeout(ArgumentMatchers.any());
+
+        // Simulate an in-flight peer stream reaching the server after the first GOAWAY.
+        final H2StreamChannel channel = mux.createChannel(1);
+        mux.createStream(channel, streamHandler);
+
+        feedFrame(mux, new RawFrame(FrameType.PING.getValue(), FrameFlag.ACK.getValue(),
+                0, ByteBuffer.wrap(ping.payload)));
+        mux.onOutput();
+        final List<FrameStub> finalGoAway = parseFrames(concat(writes)).stream()
+                .filter(FrameStub::isGoAway).collect(java.util.stream.Collectors.toList());
+        Assertions.assertEquals(2, finalGoAway.size());
+        Assertions.assertEquals(1,
+                ByteBuffer.wrap(finalGoAway.get(1).payload).getInt() & Integer.MAX_VALUE);
+        Assertions.assertFalse(mux.isOpen());
+    }
+
+    @Test
+    void testClientGracefulShutdownStillUsesSingleGoAway() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer buffer = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.when(protocolIOSession.poll()).thenReturn(
+                org.apache.hc.core5.http.nio.command.ShutdownCommand.GRACEFUL, null);
+
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler);
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+        writes.clear();
+
+        mux.onOutput();
+        final List<FrameStub> frames = parseFrames(concat(writes));
+        Assertions.assertEquals(1, frames.stream().filter(FrameStub::isGoAway).count());
+        Assertions.assertFalse(frames.stream().anyMatch(f -> f.isPing() && !f.isAck()));
+    }
+
+    @Test
+    void testServerGracefulShutdownDeadlineOnOutputSendsFinalGoAway() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer buffer = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.when(protocolIOSession.poll()).thenReturn(
+                org.apache.hc.core5.http.nio.command.ShutdownCommand.GRACEFUL, null);
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler, null, Timeout.ofNanoseconds(1));
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+        writes.clear();
+
+        mux.onOutput();
+        final H2Stream active = mux.createStream(mux.createChannel(1), streamHandler);
+        Assertions.assertTrue(active.isActive());
+        // A subsequent I/O event sees the expired monotonic deadline, without
+        // changing the reactor socket timeout or needing a background timer.
+        mux.onOutput();
+
+        final List<FrameStub> goAways = parseFrames(concat(writes)).stream()
+                .filter(FrameStub::isGoAway)
+                .collect(java.util.stream.Collectors.toList());
+        Assertions.assertEquals(2, goAways.size());
+        Assertions.assertEquals(Integer.MAX_VALUE,
+                ByteBuffer.wrap(goAways.get(0).payload).getInt() & Integer.MAX_VALUE);
+        Assertions.assertEquals(1,
+                ByteBuffer.wrap(goAways.get(1).payload).getInt() & Integer.MAX_VALUE);
+        Assertions.assertTrue(active.isActive(), "Accepted requests must survive probe expiry");
+        Assertions.assertFalse(mux.isOpen());
+        Mockito.verify(protocolIOSession, Mockito.never()).setSocketTimeout(ArgumentMatchers.any());
+    }
+
+    @Test
+    void testServerGracefulShutdownInvalidPingAckDoesNotComplete() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer buffer = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.when(protocolIOSession.poll()).thenReturn(
+                org.apache.hc.core5.http.nio.command.ShutdownCommand.GRACEFUL, null);
+
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler);
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+        writes.clear();
+
+        mux.onOutput();
+        final H2Stream active = mux.createStream(mux.createChannel(1), streamHandler);
+        feedFrame(mux, new RawFrame(FrameType.PING.getValue(), FrameFlag.ACK.getValue(),
+                0, ByteBuffer.wrap(new byte[8])));
+        mux.onOutput();
+        Assertions.assertEquals(1, parseFrames(concat(writes)).stream()
+                .filter(FrameStub::isGoAway).count(),
+                "Wrong ACK must not finish the GOAWAY exchange before the deadline");
+        Assertions.assertTrue(mux.isOpen());
+        Assertions.assertTrue(active.isActive());
+        Mockito.verify(protocolIOSession, Mockito.never()).setSocketTimeout(ArgumentMatchers.any());
+    }
+
+    @Test
+    void testServerGracefulShutdownPreservesConfiguredSocketTimeout() throws Exception {
+        final List<byte[]> writes = new ArrayList<>();
+        Mockito.when(protocolIOSession.write(ArgumentMatchers.any(ByteBuffer.class)))
+                .thenAnswer(inv -> {
+                    final ByteBuffer buffer = inv.getArgument(0, ByteBuffer.class);
+                    final byte[] copy = new byte[buffer.remaining()];
+                    buffer.get(copy);
+                    writes.add(copy);
+                    return copy.length;
+                });
+        Mockito.when(protocolIOSession.poll()).thenReturn(
+                org.apache.hc.core5.http.nio.command.ShutdownCommand.GRACEFUL, null);
+        final H2StreamMultiplexerImpl mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN,
+                httpProcessor, CharCodingConfig.DEFAULT, H2Config.DEFAULT,
+                h2StreamListener, () -> streamHandler);
+        mux.onConnect();
+        completeSettingsHandshake(mux);
+        mux.onOutput();
+
+        // An actual reactor inactivity timeout retains its original semantics,
+        // even if a GOAWAY RTT probe was pending.
+        mux.onTimeout(Timeout.ofSeconds(1));
+        Assertions.assertFalse(mux.isOpen());
+        Mockito.verify(protocolIOSession, Mockito.never()).setSocketTimeout(ArgumentMatchers.any());
+    }
+
     private static byte[] encodeFrame(final RawFrame frame) throws IOException {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(256);
         final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
