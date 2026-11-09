@@ -167,9 +167,9 @@ class TestAbstractH2StreamMultiplexer {
                 final Supplier<H2StreamHandler> streamHandlerSupplier,
                 final Timeout validateAfterInactivity,
                 final Timeout pingAckTimeout,
-                final H2ControlFrameRateLimiter controlFrameRateLimiter) {
+                final FrameLimitController frameLimitController) {
             super(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
-                    validateAfterInactivity, pingAckTimeout, controlFrameRateLimiter);
+                    validateAfterInactivity, pingAckTimeout, frameLimitController);
             this.streamHandlerSupplier = streamHandlerSupplier;
         }
 
@@ -2569,8 +2569,11 @@ class TestAbstractH2StreamMultiplexer {
     void testMalformedSettingsAfterOverheadLimitReportsFrameSizeError() throws Exception {
         // A limiter without tokens that cannot refill: the multiplexer takes its timestamps
         // from System#nanoTime(), which is always earlier than the one used here.
-        final H2ControlFrameRateLimiter limiter = new H2ControlFrameRateLimiter(1, 1);
-        Assertions.assertTrue(limiter.accept(Long.MAX_VALUE));
+        final FrameLimitController limiter = new FrameLimitController(
+                1, 1,
+                FrameLimitController.RST_STREAM_CAPACITY, FrameLimitController.RST_STREAM_REFILL_PER_SECOND,
+                FrameLimitController.RST_STREAM_MAX_AGE_NANOS);
+        Assertions.assertTrue(limiter.acceptControlFrame(Long.MAX_VALUE));
 
         final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
                 protocolIOSession,
@@ -2601,4 +2604,57 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertEquals(H2Error.ENHANCE_YOUR_CALM,
                 H2Error.getByCode(overheadError.getCode()));
     }
+    @Test
+    void testRapidResetRejectsExcessivePeerCancellations() throws Exception {
+        final H2Config config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN, httpProcessor,
+                CharCodingConfig.DEFAULT, config, h2StreamListener, () -> streamHandler,
+                null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final ByteArrayBuffer headerBlock = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBlock, Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "localhost")), config.isCompressionEnabled());
+
+        for (final int streamId : new int[] {1, 3}) {
+            final RawFrame headers = FRAME_FACTORY.createHeaders(streamId,
+                    ByteBuffer.wrap(headerBlock.array(), 0, headerBlock.length()), true, true);
+            mux.onInput(ByteBuffer.wrap(encodeFrame(headers)));
+            final RawFrame reset = FRAME_FACTORY.createResetStream(streamId, H2Error.CANCEL);
+            if (streamId == 1) {
+                Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(reset))));
+            } else {
+                final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class,
+                        () -> mux.onInput(ByteBuffer.wrap(encodeFrame(reset))));
+                Assertions.assertEquals(H2Error.ENHANCE_YOUR_CALM, H2Error.getByCode(ex.getCode()));
+            }
+        }
+    }
+
+    @Test
+    void testResetOfLocallyInitiatedStreamsDoesNotExhaustRemoteLimit() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.ODD, httpProcessor,
+                CharCodingConfig.DEFAULT, H2Config.custom().build(), h2StreamListener,
+                () -> streamHandler, null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        for (final int streamId : new int[] {1, 3}) {
+            mux.createStream(mux.createChannel(streamId), streamHandler);
+            final RawFrame reset = FRAME_FACTORY.createResetStream(streamId, H2Error.CANCEL);
+            Assertions.assertDoesNotThrow(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(reset))));
+        }
+    }
+
+
 }
