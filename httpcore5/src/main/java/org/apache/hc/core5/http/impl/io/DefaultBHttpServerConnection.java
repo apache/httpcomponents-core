@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -193,8 +194,14 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+        final OutputStream outStream = createContentOutputStream(
+                len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
+        try {
             entity.writeTo(outStream);
+            outStream.close();
+        } catch (final IOException | RuntimeException ex) {
+            close(CloseMode.IMMEDIATE);
+            throw ex;
         }
     }
 }

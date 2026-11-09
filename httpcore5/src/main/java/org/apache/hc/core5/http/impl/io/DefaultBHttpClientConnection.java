@@ -61,6 +61,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
 import org.apache.hc.core5.http.message.MessageSupport;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -209,7 +210,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException();
         }
-        try (final OutputStream outStream = createContentOutputStream(
+        final OutputStream outStream = createContentOutputStream(
                 len, this.outbuffer, new OutputStream() {
 
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
@@ -281,14 +282,21 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
                         socketOutputStream.close();
                     }
 
-                }, entity.getTrailers())) {
+                }, entity.getTrailers());
+        try {
             entity.writeTo(outStream);
+            outStream.close();
         } catch (final ResponseOutOfOrderException ex) {
-            if (len > 0) {
+            if (len != 0) {
                 this.consistent = false;
             }
+        } catch (final IOException | RuntimeException ex) {
+            this.consistent = false;
+            close(CloseMode.IMMEDIATE);
+            throw ex;
         }
     }
+
 
     @Override
     public boolean isConsistent() {
