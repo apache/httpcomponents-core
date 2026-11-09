@@ -108,6 +108,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
+    // The GOAWAY probe needs one round trip only. The bound keeps its expiry, which the I/O
+    // reactor reports no sooner than its next timeout check, well within the five seconds
+    // a graceful reactor shutdown grants before it terminates the remaining sessions.
+    private static final Timeout MAX_GRACEFUL_SHUTDOWN_PING_TIMEOUT = Timeout.ofSeconds(1);
+
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
@@ -129,6 +134,15 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private final AtomicInteger connOutputWindow;
     private final AtomicInteger outputRequests;
     private final H2StreamListener streamListener;
+    private final boolean serverSide;
+
+    // A server sends an initial GOAWAY before determining its final last-stream-id.
+    private final Timeout gracefulShutdownPingTimeout;
+    private boolean gracefulShutdownAwaitingPing;
+    private boolean gracefulShutdownPingAcknowledged;
+    private long gracefulShutdownPingStartedNanos;
+    // Session timeout to restore once the GOAWAY probe is over.
+    private Timeout gracefulShutdownSocketTimeout;
 
     private ConnectionHandshake connState = ConnectionHandshake.READY;
     private SettingsHandshake localSettingState = SettingsHandshake.READY;
@@ -209,6 +223,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.streams = new H2Streams(idGenerator);
+        // Server-generated stream IDs are even (RFC 9113, section 5.1.1).
+        this.serverSide = idGenerator.isSameSide(2);
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
@@ -234,6 +250,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.validateAfterInactivity = validateAfterInactivity;
         this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
         this.frameLimitController = Args.notNull(frameLimitController, "Frame limit controller");
+        this.gracefulShutdownPingTimeout = this.pingAckTimeout.compareTo(MAX_GRACEFUL_SHUTDOWN_PING_TIMEOUT) > 0 ?
+                MAX_GRACEFUL_SHUTDOWN_PING_TIMEOUT : this.pingAckTimeout;
     }
 
     @Override
@@ -490,6 +508,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
+        if (gracefulShutdownDeadlineReached()) {
+            completeGracefulShutdown();
+        }
         if (connState == ConnectionHandshake.SHUTDOWN) {
             ioSession.clearEvent(SelectionKey.OP_READ);
         } else {
@@ -519,6 +540,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onOutput() throws HttpException, IOException {
+        if (gracefulShutdownAwaitingPing
+                && (gracefulShutdownPingAcknowledged || gracefulShutdownDeadlineReached())) {
+            completeGracefulShutdown();
+        }
         ioSession.getLock().lock();
         try {
             if (!outputBuffer.isEmpty()) {
@@ -666,6 +691,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onTimeout(final Timeout timeout) throws HttpException, IOException {
+        if (gracefulShutdownAwaitingPing && !gracefulShutdownPingTimeout.isDisabled()) {
+            // The session timeout has been shortened to bound the GOAWAY probe. Its expiry
+            // ends the probe and does not mean that the connection has been idle for too long.
+            completeGracefulShutdown();
+            return;
+        }
+        gracefulShutdownAwaitingPing = false;
+        gracefulShutdownPingAcknowledged = false;
         connState = ConnectionHandshake.SHUTDOWN;
 
         final RawFrame goAway;
@@ -685,6 +718,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     public final void onDisconnect() {
+        gracefulShutdownAwaitingPing = false;
+        gracefulShutdownPingAcknowledged = false;
         for (;;) {
             final AsyncPingHandler pingHandler = pingHandlers.poll();
             if (pingHandler != null) {
@@ -699,15 +734,58 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private void executeShutdown(final ShutdownCommand shutdownCommand) throws IOException {
         if (shutdownCommand.getType() == CloseMode.IMMEDIATE) {
+            endGracefulShutdownProbe();
             streams.shutdownAndReleaseAll();
             connState = ConnectionHandshake.SHUTDOWN;
-        } else {
-            if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
+        } else if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0 && !gracefulShutdownAwaitingPing) {
+            if (serverSide) {
+                // RFC 9113, section 6.8: announce shutdown first, then allow one RTT
+                // for requests that were already in flight before fixing last-stream-id.
+                final RawFrame goAway = frameFactory.createGoAway(Integer.MAX_VALUE, H2Error.NO_ERROR, "Graceful shutdown");
+                commitFrame(goAway);
+                gracefulShutdownAwaitingPing = true;
+                gracefulShutdownPingStartedNanos = System.nanoTime();
+                if (!gracefulShutdownPingTimeout.isDisabled()) {
+                    // A silent peer generates no I/O events. The session timeout is the only
+                    // timer the I/O reactor provides, so it bounds the probe until it is over.
+                    gracefulShutdownSocketTimeout = ioSession.getSocketTimeout();
+                    ioSession.setSocketTimeout(gracefulShutdownPingTimeout);
+                }
+                executePing(new PingCommand(new BasicPingHandler(result -> {
+                    if (result && gracefulShutdownAwaitingPing) {
+                        gracefulShutdownPingAcknowledged = true;
+                        requestSessionOutput();
+                    }
+                })));
+            } else {
+                // Client-side shutdown keeps its existing single-GOAWAY behavior.
                 final RawFrame goAway = frameFactory.createGoAway(streams.getLastRemoteId(), H2Error.NO_ERROR, "Graceful shutdown");
                 commitFrame(goAway);
                 connState = streams.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
             }
         }
+    }
+
+    private boolean gracefulShutdownDeadlineReached() {
+        return gracefulShutdownAwaitingPing && !gracefulShutdownPingTimeout.isDisabled()
+                && System.nanoTime() - gracefulShutdownPingStartedNanos >= gracefulShutdownPingTimeout.toNanoseconds();
+    }
+
+    private void endGracefulShutdownProbe() {
+        if (gracefulShutdownAwaitingPing) {
+            gracefulShutdownAwaitingPing = false;
+            gracefulShutdownPingAcknowledged = false;
+            if (!gracefulShutdownPingTimeout.isDisabled()) {
+                ioSession.setSocketTimeout(gracefulShutdownSocketTimeout);
+            }
+        }
+    }
+
+    private void completeGracefulShutdown() throws IOException {
+        endGracefulShutdownProbe();
+        final RawFrame goAway = frameFactory.createGoAway(streams.getLastRemoteId(), H2Error.NO_ERROR, "Graceful shutdown");
+        commitFrame(goAway);
+        connState = streams.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
     }
 
     private void executePing(final PingCommand pingCommand) throws IOException {
