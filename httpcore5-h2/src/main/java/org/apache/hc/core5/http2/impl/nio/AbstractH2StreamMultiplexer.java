@@ -104,7 +104,7 @@ import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnection {
 
-    private final H2ControlFrameRateLimiter controlFrameRateLimiter;
+    private final FrameLimitController frameLimitController;
 
     private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024;
 
@@ -191,7 +191,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final Timeout validateAfterInactivity,
             final Timeout pingAckTimeout) {
         this(ioSession, frameFactory, idGenerator, httpProcessor, charCodingConfig, h2Config, streamListener,
-                validateAfterInactivity, pingAckTimeout, new H2ControlFrameRateLimiter());
+                validateAfterInactivity, pingAckTimeout, new FrameLimitController());
     }
 
     AbstractH2StreamMultiplexer(
@@ -204,7 +204,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final H2StreamListener streamListener,
             final Timeout validateAfterInactivity,
             final Timeout pingAckTimeout,
-            final H2ControlFrameRateLimiter controlFrameRateLimiter) {
+            final FrameLimitController frameLimitController) {
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -233,7 +233,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.lastActivityTime = System.currentTimeMillis();
         this.validateAfterInactivity = validateAfterInactivity;
         this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
-        this.controlFrameRateLimiter = Args.notNull(controlFrameRateLimiter, "Control frame rate limiter");
+        this.frameLimitController = Args.notNull(frameLimitController, "Frame limit controller");
     }
 
     @Override
@@ -970,6 +970,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 final H2Stream stream = streams.lookupSeen(streamId);
                 if (stream != null) {
                     final int errorCode = payload.getInt();
+                    // Only newly activated peer-initiated streams count. Valid resets of
+                    // long-lived or locally initiated streams remain unaffected.
+                    if (streams.isOtherSide(streamId) && !stream.isReserved() && !stream.isClosed()
+                            && !frameLimitController.acceptRapidReset(stream.getActivatedAtNanos(), nowNanos)) {
+                        throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM, "Excessive rapid HTTP/2 stream resets");
+                    }
                     if (errorCode == H2Error.NO_ERROR.getCode() && allowGracefulAbort(stream)) {
                         stream.abortGracefully();
                         requestSessionOutput();
@@ -994,10 +1000,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         pingHandler.consumeResponse(ping);
                     }
                 } else {
-                    if (!controlFrameRateLimiter.accept(System.nanoTime())) {
-                    throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM, "Excessive HTTP/2 PING / SETTINGS frames");
-                }
-                final ByteBuffer pong = ByteBuffer.allocate(ping.remaining());
+                    if (!frameLimitController.acceptControlFrame(System.nanoTime())) {
+                        throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM, "Excessive HTTP/2 PING / SETTINGS frames");
+                    }
+                    final ByteBuffer pong = ByteBuffer.allocate(ping.remaining());
                     pong.put(ping);
                     pong.flip();
                     final RawFrame response = frameFactory.createPingAck(pong);
@@ -1030,7 +1036,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                         throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR,
                                 "Invalid SETTINGS payload");
                     }
-                    if (!controlFrameRateLimiter.accept(System.nanoTime())) {
+                    if (!frameLimitController.acceptControlFrame(System.nanoTime())) {
                         throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM,
                                 "Excessive HTTP/2 PING / SETTINGS frames");
                     }

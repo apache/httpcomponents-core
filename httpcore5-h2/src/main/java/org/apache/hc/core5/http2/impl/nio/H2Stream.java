@@ -63,6 +63,7 @@ class H2Stream implements StreamControl {
     private volatile boolean remoteClosed;
 
     private volatile long lastActivityNanos;
+    private volatile long activatedAtNanos;
 
     private volatile Timeout idleTimeout;
     private volatile PriorityValue priorityValue;
@@ -112,7 +113,12 @@ class H2Stream implements StreamControl {
     void activate() {
         reserved = false;
         touch();
+        activatedAtNanos = lastActivityNanos;
         triggerOpen();
+    }
+
+    long getActivatedAtNanos() {
+        return activatedAtNanos;
     }
 
     AtomicInteger getOutputWindow() {
