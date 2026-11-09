@@ -28,7 +28,9 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
@@ -208,6 +210,29 @@ class TestDefaultBHttpServerConnection {
 
         final HttpEntity entity = request.getEntity();
         Assertions.assertNull(entity);
+    }
+
+    @Test
+    void testChunkedEntityFailureDoesNotTerminateMessage() throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
+        conn.bind(socket);
+
+        final HttpEntity entity = Mockito.mock(HttpEntity.class);
+        Mockito.doAnswer(invocation -> {
+            final OutputStream out = invocation.getArgument(0);
+            out.write("123".getBytes(StandardCharsets.US_ASCII));
+            throw new EOFException("source stream failed");
+        }).when(entity).writeTo(Mockito.any(OutputStream.class));
+
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.setEntity(entity);
+        conn.sendResponseHeader(response);
+        Assertions.assertThrows(EOFException.class, () -> conn.sendResponseEntity(response));
+        Assertions.assertFalse(conn.isOpen());
+        Assertions.assertFalse(new String(outStream.toByteArray(), StandardCharsets.US_ASCII)
+                .endsWith("0\r\n\r\n"));
     }
 
     @Test
