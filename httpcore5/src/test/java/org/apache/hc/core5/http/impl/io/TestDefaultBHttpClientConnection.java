@@ -28,7 +28,9 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
@@ -228,6 +230,67 @@ class TestDefaultBHttpClientConnection {
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
         Assertions.assertInstanceOf(IdentityInputStream.class, content);
+    }
+
+    @Test
+    void testEarlyResponseDoesNotAbortConnection() throws Exception {
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final ByteArrayInputStream input = new ByteArrayInputStream(
+                "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
+                        .getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getOutputStream()).thenReturn(output);
+        Mockito.when(socket.getInputStream()).thenReturn(input);
+
+        final org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy strategy =
+                Mockito.mock(org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy.class);
+        Mockito.when(strategy.isEarlyResponseDetected(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(true);
+
+        conn = new DefaultBHttpClientConnection(
+                Http1Config.DEFAULT, null, null,
+                DefaultContentLengthStrategy.INSTANCE,
+                DefaultContentLengthStrategy.INSTANCE,
+                strategy,
+                DefaultHttpRequestWriterFactory.INSTANCE,
+                DefaultHttpResponseParserFactory.INSTANCE);
+        conn.bind(socket);
+
+        final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/stuff");
+        request.addHeader("Transfer-Encoding", "chunked");
+        request.setEntity(new ByteArrayEntity(new byte[16384], ContentType.TEXT_PLAIN, true));
+
+        conn.sendRequestHeader(request);
+        Assertions.assertDoesNotThrow(() -> conn.sendRequestEntity(request));
+        Assertions.assertTrue(conn.isOpen());
+        Assertions.assertFalse(conn.isConsistent());
+        Assertions.assertEquals(400, conn.receiveResponseHeader().getCode());
+        Assertions.assertFalse(new String(output.toByteArray(), StandardCharsets.US_ASCII)
+                .endsWith("0\r\n\r\n"));
+    }
+
+    @Test
+    void testChunkedEntityFailureDoesNotTerminateMessage() throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
+        conn.bind(socket);
+
+        final HttpEntity entity = Mockito.mock(HttpEntity.class);
+        Mockito.doAnswer(invocation -> {
+            final OutputStream out = invocation.getArgument(0);
+            out.write("123".getBytes(StandardCharsets.US_ASCII));
+            throw new EOFException("source stream failed");
+        }).when(entity).writeTo(Mockito.any(OutputStream.class));
+
+        final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/stuff");
+        request.addHeader("Transfer-Encoding", "chunked");
+        request.setEntity(entity);
+        conn.sendRequestHeader(request);
+        Assertions.assertThrows(EOFException.class, () -> conn.sendRequestEntity(request));
+        Assertions.assertFalse(conn.isConsistent());
+        Assertions.assertFalse(conn.isOpen());
+        Assertions.assertFalse(new String(outStream.toByteArray(), StandardCharsets.US_ASCII)
+                .endsWith("0\r\n\r\n"));
     }
 
     @Test
