@@ -771,6 +771,26 @@ class TestURIBuilder {
     }
 
     @Test
+    void testAppendToPathWithTrailingSlash() throws Exception {
+        Assertions.assertEquals(URI.create("https://somehost/api"),
+                new URIBuilder("https://somehost/").appendPath("api").build());
+        Assertions.assertEquals(URI.create("https://somehost/api/v1/resources/idA"),
+                new URIBuilder("https://somehost/api/").appendPath("v1/resources").appendPath("idA").build());
+        Assertions.assertEquals(URI.create("https://somehost/api/v1/"),
+                new URIBuilder("https://somehost").setPath("/api/").appendPath("/v1/").build());
+        Assertions.assertEquals(URI.create("https://somehost/api/"),
+                new URIBuilder("https://somehost/api/").appendPath("/").build());
+    }
+
+    @Test
+    void testAppendSegmentsToPathWithTrailingSlash() throws Exception {
+        Assertions.assertEquals(URI.create("http://myhost/api/v3/products"),
+                new URIBuilder("http://myhost/").appendPathSegments("api", "v3", "products").build());
+        Assertions.assertEquals(URI.create("http://myhost/api/v3/customers"),
+                new URIBuilder("http://myhost/api/").appendPathSegments(Arrays.asList("v3", "customers")).build());
+    }
+
+    @Test
     void testNoAuthorityAndPathSegments() throws Exception {
         final URI uri = new URIBuilder()
                 .setScheme("file")

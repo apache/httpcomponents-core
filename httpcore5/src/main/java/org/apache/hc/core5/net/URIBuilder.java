@@ -717,6 +717,9 @@ public class URIBuilder {
         if (pathSegments != null && !pathSegments.isEmpty()) {
             if (this.pathSegments == null) {
                 this.pathSegments = new ArrayList<>();
+            } else if (!this.pathSegments.isEmpty() && this.pathSegments.get(this.pathSegments.size() - 1).isEmpty()) {
+                // Path ending with a slash: append after the slash instead of producing '//'
+                this.pathSegments.remove(this.pathSegments.size() - 1);
             }
             this.pathSegments.addAll(pathSegments);
             this.encodedSchemeSpecificPart = null;
