@@ -527,21 +527,22 @@ public final class ContentType implements Serializable {
         if (params.length == 0) {
             return this;
         }
-        final Map<String, String> paramMap = new LinkedHashMap<>();
+        // parameter names are case-insensitive
+        final Map<String, NameValuePair> paramMap = new LinkedHashMap<>();
         if (this.params != null) {
             for (final NameValuePair param: this.params) {
-                paramMap.put(param.getName(), param.getValue());
+                paramMap.put(TextUtils.toLowerCase(param.getName()), param);
             }
         }
         for (final NameValuePair param: params) {
-            paramMap.put(param.getName(), param.getValue());
+            paramMap.put(TextUtils.toLowerCase(param.getName()), param);
         }
         final List<NameValuePair> newParams = new ArrayList<>(paramMap.size() + 1);
         if (this.charset != null && !paramMap.containsKey(CHARSET)) {
             newParams.add(new BasicNameValuePair(CHARSET, this.charset.name()));
         }
-        for (final Map.Entry<String, String> entry: paramMap.entrySet()) {
-            newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        for (final NameValuePair param: paramMap.values()) {
+            newParams.add(new BasicNameValuePair(param.getName(), param.getValue()));
         }
         return create(this.getMimeType(), newParams.toArray(EMPTY_NAME_VALUE_PAIR_ARRAY), true);
     }
