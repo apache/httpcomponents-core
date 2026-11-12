@@ -199,6 +199,20 @@ class TestContentType {
     }
 
     @Test
+    void testWithParamsNameCaseInsensitive() {
+        final ContentType contentType = ContentType.parse("text/plain; Charset=UTF-8");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+
+        final ContentType added = contentType.withParameters(new BasicNameValuePair("p", "blah"));
+        Assertions.assertThat(added.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+        Assertions.assertThat(added.toString()).isEqualTo("text/plain; Charset=UTF-8; p=blah");
+
+        final ContentType replaced = contentType.withParameters(new BasicNameValuePair("charset", "US-ASCII"));
+        Assertions.assertThat(replaced.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(replaced.toString()).isEqualTo("text/plain; charset=US-ASCII");
+    }
+
+    @Test
     void testParseLenientIgnoresIllegalCharsetName() {
         final ContentType contentType = ContentType.parseLenient("text/event-stream;charset=ISO-8859-1'");
         Assertions.assertThat(contentType).isNotNull();
