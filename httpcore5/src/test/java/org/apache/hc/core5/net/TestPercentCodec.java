@@ -27,12 +27,11 @@
 
 package org.apache.hc.core5.net;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -48,7 +47,7 @@ class TestPercentCodec {
         PercentCodec.encode(buf, "blah!", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, " ~ ", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, "huh?", StandardCharsets.UTF_8);
-        assertEquals("blah%21%20~%20huh%3F", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("blah%21%20~%20huh%3F");
     }
 
     @Test
@@ -56,29 +55,29 @@ class TestPercentCodec {
         final BitSet safeChars = new BitSet(256);
         safeChars.set(' ');
         final PercentCodec codec = new PercentCodec(safeChars, true);
-        assertEquals(" %c3%bc%22%25", codec.encode(" ü\"%"));
-        assertEquals("%C3%BC", PercentCodec.RFC3986.encode("ü"));
+        Assertions.assertThat(codec.encode(" ü\"%")).isEqualTo(" %c3%bc%22%25");
+        Assertions.assertThat(PercentCodec.RFC3986.encode("ü")).isEqualTo("%C3%BC");
     }
 
     @Test
     void testDecoding() {
-        assertEquals("blah! ~ huh?", PercentCodec.decode("blah%21%20~%20huh%3F", StandardCharsets.UTF_8));
-        assertEquals("blah!+~ huh?", PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8));
-        assertEquals("blah! ~ huh?", PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8, true));
+        Assertions.assertThat(PercentCodec.decode("blah%21%20~%20huh%3F", StandardCharsets.UTF_8)).isEqualTo("blah! ~ huh?");
+        Assertions.assertThat(PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8)).isEqualTo("blah!+~ huh?");
+        Assertions.assertThat(PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8, true)).isEqualTo("blah! ~ huh?");
     }
 
     @Test
     void testDecodingPartialContent() {
-        assertEquals("blah! %", PercentCodec.decode("blah%21%20%", StandardCharsets.UTF_8));
-        assertEquals("blah! %a", PercentCodec.decode("blah%21%20%a", StandardCharsets.UTF_8));
-        assertEquals("blah! %wa", PercentCodec.decode("blah%21%20%wa", StandardCharsets.UTF_8));
+        Assertions.assertThat(PercentCodec.decode("blah%21%20%", StandardCharsets.UTF_8)).isEqualTo("blah! %");
+        Assertions.assertThat(PercentCodec.decode("blah%21%20%a", StandardCharsets.UTF_8)).isEqualTo("blah! %a");
+        Assertions.assertThat(PercentCodec.decode("blah%21%20%wa", StandardCharsets.UTF_8)).isEqualTo("blah! %wa");
     }
 
     @ParameterizedTest
     @MethodSource("params")
     void testRfc5987EncodingDecoding(final String input, final String expected) {
-        assertEquals(expected, PercentCodec.RFC5987.encode(input));
-        assertEquals(input, PercentCodec.RFC5987.decode(expected));
+        Assertions.assertThat(PercentCodec.RFC5987.encode(input)).isEqualTo(expected);
+        Assertions.assertThat(PercentCodec.RFC5987.decode(expected)).isEqualTo(input);
     }
 
     static Stream<Object[]> params() {
@@ -97,7 +96,7 @@ class TestPercentCodec {
     @Test
     void verifyRfc5987EncodingandDecoding() {
         final String s = "!\"$£%^&*()_-+={[}]:@~;'#,./<>?\\|✓éèæðŃœ";
-        assertEquals(s, PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)));
+        Assertions.assertThat(PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s))).isEqualTo(s);
     }
 
     @Test
@@ -107,44 +106,38 @@ class TestPercentCodec {
         // - '%' MUST be percent-encoded.
         // - Octets that are valid token characters MUST NOT be percent-encoded (except '%').
         // - Uppercase hex digits MUST be used.
-        assertEquals("h2", PercentCodec.HTTP_TOKEN.encode("h2"));
-        assertEquals("http%2F1.1", PercentCodec.HTTP_TOKEN.encode("http/1.1"));
-        assertEquals("%25", PercentCodec.HTTP_TOKEN.encode("%"));
-        assertEquals("foo+bar", PercentCodec.HTTP_TOKEN.encode("foo+bar"));
-        assertEquals("!#$&'*+-.^_`|~", PercentCodec.HTTP_TOKEN.encode("!#$&'*+-.^_`|~"));
-        assertEquals("foo bar", PercentCodec.HTTP_TOKEN.decode("foo%20bar"));
-        assertEquals("ws/é", PercentCodec.HTTP_TOKEN.decode("ws%2F%C3%A9"));
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.encode("h2")).isEqualTo("h2");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.encode("http/1.1")).isEqualTo("http%2F1.1");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.encode("%")).isEqualTo("%25");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.encode("foo+bar")).isEqualTo("foo+bar");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.encode("!#$&'*+-.^_`|~")).isEqualTo("!#$&'*+-.^_`|~");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.decode("foo%20bar")).isEqualTo("foo bar");
+        Assertions.assertThat(PercentCodec.HTTP_TOKEN.decode("ws%2F%C3%A9")).isEqualTo("ws/é");
     }
 
     @Test
     void testPercentCodecEncodeIsNotRfc7639Canonical() {
         // PercentCodec.encode(..) uses RFC 3986 UNRESERVED as the safe set.
         // This percent-encodes valid RFC 7230 tchar like '+', '*', '!', '|', which RFC 7639 forbids.
-        assertEquals("foo%2Bbar", PercentCodec.encode("foo+bar", StandardCharsets.UTF_8));
-        assertEquals("%2A", PercentCodec.encode("*", StandardCharsets.UTF_8));
-        assertEquals("%21", PercentCodec.encode("!", StandardCharsets.UTF_8));
-        assertEquals("%7C", PercentCodec.encode("|", StandardCharsets.UTF_8));
+        Assertions.assertThat(PercentCodec.encode("foo+bar", StandardCharsets.UTF_8)).isEqualTo("foo%2Bbar");
+        Assertions.assertThat(PercentCodec.encode("*", StandardCharsets.UTF_8)).isEqualTo("%2A");
+        Assertions.assertThat(PercentCodec.encode("!", StandardCharsets.UTF_8)).isEqualTo("%21");
+        Assertions.assertThat(PercentCodec.encode("|", StandardCharsets.UTF_8)).isEqualTo("%7C");
     }
 
     @Test
     void decodeIllegalChars() {
-        assertEquals(
-                "1?2?3?4",
-                PercentCodec.decode("1\u012E2\u012E3\u012E4", StandardCharsets.UTF_8));
+        Assertions.assertThat(PercentCodec.decode("1\u012E2\u012E3\u012E4", StandardCharsets.UTF_8)).isEqualTo("1?2?3?4");
     }
 
     @Test
     void testDecodeDoesNotCombineEscapedBytesAcrossLiteralCharacters() {
-        assertEquals(
-                "\uFFFDx\uFFFD",
-                PercentCodec.decode("%C3x%A4", StandardCharsets.UTF_8));
+        Assertions.assertThat(PercentCodec.decode("%C3x%A4", StandardCharsets.UTF_8)).isEqualTo("\uFFFDx\uFFFD");
     }
 
     @Test
     void testEncodeHonorsUtf16Charset() {
-        assertEquals(
-                "%FE%FF%00a%00b%00c",
-                PercentCodec.encode("abc", StandardCharsets.UTF_16));
+        Assertions.assertThat(PercentCodec.encode("abc", StandardCharsets.UTF_16)).isEqualTo("%FE%FF%00a%00b%00c");
 
     }
 

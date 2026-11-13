@@ -102,7 +102,7 @@ import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.testing.extension.ExecutorResource;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -153,12 +153,12 @@ abstract class HttpIntegrationTest {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity1 = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi there", entity1);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity1).isEqualTo("Hi there");
         }
     }
 
@@ -189,12 +189,12 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("Hi there", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Hi there");
         }
     }
 
@@ -222,15 +222,15 @@ abstract class HttpIntegrationTest {
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
             final String s = result.body();
-            Assertions.assertNotNull(s);
+            Assertions.assertThat(s).isNotNull();
             final StringTokenizer t = new StringTokenizer(s, "\r\n");
             while (t.hasMoreTokens()) {
-                Assertions.assertEquals("0123456789abcdef", t.nextToken());
+                Assertions.assertThat(t.nextToken()).isEqualTo("0123456789abcdef");
             }
         }
     }
@@ -262,15 +262,15 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
             final String entity = result.body();
-            Assertions.assertNotNull(entity);
+            Assertions.assertThat(entity).isNotNull();
             final StringTokenizer t = new StringTokenizer(entity, "\r\n");
             while (t.hasMoreTokens()) {
-                Assertions.assertEquals("0123456789abcdef", t.nextToken());
+                Assertions.assertThat(t.nextToken()).isEqualTo("0123456789abcdef");
             }
         }
     }
@@ -298,12 +298,12 @@ abstract class HttpIntegrationTest {
                     new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity1 = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi back", entity1);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity1).isEqualTo("Hi back");
         }
     }
 
@@ -334,12 +334,12 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("Hi back", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Hi back");
         }
     }
 
@@ -370,15 +370,15 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
             final String entity = result.body();
-            Assertions.assertNotNull(entity);
+            Assertions.assertThat(entity).isNotNull();
             final StringTokenizer t = new StringTokenizer(entity, "\r\n");
             while (t.hasMoreTokens()) {
-                Assertions.assertEquals("0123456789abcdef", t.nextToken());
+                Assertions.assertThat(t.nextToken()).isEqualTo("0123456789abcdef");
             }
         }
     }
@@ -406,13 +406,13 @@ abstract class HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response = result.head();
         final String entity = result.body();
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-        Assertions.assertNotNull(entity);
-        Assertions.assertEquals("", entity);
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity).isEqualTo("");
     }
 
     @Test
@@ -444,12 +444,12 @@ abstract class HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response = result.head();
         final String entity = result.body();
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-        Assertions.assertEquals(content, entity);
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(entity).isEqualTo(content);
     }
 
     @Test
@@ -475,12 +475,12 @@ abstract class HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response = result.head();
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body = result.body();
-        Assertions.assertTrue(body == null || body.isEmpty());
+        Assertions.assertThat(body == null || body.isEmpty()).isTrue();
     }
 
     @Test
@@ -506,11 +506,11 @@ abstract class HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response = result.head();
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-        Assertions.assertNull(result.body());
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(result.body()).isNull();
     }
 
     @Test
@@ -541,12 +541,12 @@ abstract class HttpIntegrationTest {
         for (int i = 0; i < REQ_NUM; i++) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-            Assertions.assertEquals("hi-" + i, entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+            Assertions.assertThat(entity).isEqualTo("hi-" + i);
         }
     }
 
@@ -573,12 +573,12 @@ abstract class HttpIntegrationTest {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity1 = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi back", entity1);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity1).isEqualTo("Hi back");
         }
     }
 
@@ -607,12 +607,12 @@ abstract class HttpIntegrationTest {
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("Welcome", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Welcome");
         }
     }
 
@@ -639,11 +639,11 @@ abstract class HttpIntegrationTest {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertNull(result.body());
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(result.body()).isNull();
         }
     }
 
@@ -674,11 +674,11 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertNull(result.body());
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(result.body()).isNull();
         }
     }
 
@@ -723,7 +723,7 @@ abstract class HttpIntegrationTest {
                 }
                 final StringTokenizer t1 = new StringTokenizer(buffer.toString(), "\r\n");
                 while (t1.hasMoreTokens()) {
-                    Assertions.assertEquals("0123456789abcd", t1.nextToken());
+                    Assertions.assertThat(t1.nextToken()).isEqualTo("0123456789abcd");
                 }
             }
         }
@@ -775,15 +775,15 @@ abstract class HttpIntegrationTest {
         requestProducer.blockWaiting().execute();
 
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
         final String s1 = result1.body();
-        Assertions.assertNotNull(s1);
+        Assertions.assertThat(s1).isNotNull();
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
+            Assertions.assertThat(t1.nextToken()).isEqualTo("0123456789abcdef");
         }
     }
 
@@ -843,15 +843,15 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
         final String s1 = result1.body();
-        Assertions.assertNotNull(s1);
+        Assertions.assertThat(s1).isNotNull();
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
+            Assertions.assertThat(t1.nextToken()).isEqualTo("0123456789abcdef");
         }
     }
 
@@ -931,13 +931,13 @@ abstract class HttpIntegrationTest {
                     new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 100000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result1);
+            Assertions.assertThat(result1).isNotNull();
             final HttpResponse response1 = result1.head();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-            Assertions.assertEquals("You shall not pass", result1.body());
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+            Assertions.assertThat(result1.body()).isEqualTo("You shall not pass");
 
-            Assertions.assertTrue(streamEndpoint.isOpen());
+            Assertions.assertThat(streamEndpoint.isOpen()).isTrue();
         }
         final BasicHttpRequest request1 = BasicRequestBuilder.post()
                 .setHttpHost(target)
@@ -950,11 +950,11 @@ abstract class HttpIntegrationTest {
                         ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-        Assertions.assertEquals("You shall not pass", result1.body());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+        Assertions.assertThat(result1.body()).isEqualTo("You shall not pass");
     }
 
     @Test
@@ -1014,11 +1014,11 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("All is well", result1.body());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
+        Assertions.assertThat(result1.body()).isEqualTo("All is well");
 
         final BasicHttpRequest request2 = BasicRequestBuilder.post()
                 .setHttpHost(target)
@@ -1028,11 +1028,11 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result2);
+        Assertions.assertThat(result2).isNotNull();
         final HttpResponse response2 = result2.head();
-        Assertions.assertNotNull(response2);
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
-        Assertions.assertEquals("You shall not pass", result2.body());
+        Assertions.assertThat(response2).isNotNull();
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+        Assertions.assertThat(result2.body()).isEqualTo("You shall not pass");
     }
 
     @Test
@@ -1127,11 +1127,11 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("All is well", result.body());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(result.body()).isEqualTo("All is well");
         }
     }
 
@@ -1166,12 +1166,12 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response1 = result.head();
         final String entity1 = result.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(500, response1.getCode());
-        Assertions.assertEquals("Boom", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(500);
+        Assertions.assertThat(entity1).isEqualTo("Boom");
     }
 
     @Test
@@ -1218,22 +1218,22 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(entityConsumer), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hello back with some trailers", result1.body());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
+        Assertions.assertThat(result1.body()).isEqualTo("Hello back with some trailers");
 
         final List<Header> trailers = entityConsumer.getTrailers();
-        Assertions.assertNotNull(trailers);
-        Assertions.assertEquals(2, trailers.size());
+        Assertions.assertThat(trailers).isNotNull();
+        Assertions.assertThat(trailers.size()).isEqualTo(2);
         final Map<String, String> map = new HashMap<>();
         for (final Header header: trailers) {
             map.put(TextUtils.toLowerCase(header.getName()), header.getValue());
         }
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
-        Assertions.assertEquals("MD5", map.get("digest-algo"));
-        Assertions.assertEquals(digest, map.get("digest"));
+        Assertions.assertThat(map.get("digest-algo")).isEqualTo("MD5");
+        Assertions.assertThat(map.get("digest")).isEqualTo(digest);
     }
 
     @Test
@@ -1258,12 +1258,12 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response1 = result.head();
         final String entity1 = result.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(404, response1.getCode());
-        Assertions.assertEquals("Resource not found", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(404);
+        Assertions.assertThat(entity1).isEqualTo("Resource not found");
     }
 
     @Test
@@ -1298,11 +1298,11 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response1 = result.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(204, response1.getCode());
-        Assertions.assertNull(result.body());
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(204);
+        Assertions.assertThat(result.body()).isNull();
     }
 
     @Test
@@ -1378,12 +1378,12 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response1 = result.head();
         final String entity1 = result.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
-        Assertions.assertEquals("Boom!!!", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
+        Assertions.assertThat(entity1).isEqualTo("Boom!!!");
     }
 
     @Test @Disabled
@@ -1456,11 +1456,11 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("All is well", result.body());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(result.body()).isEqualTo("All is well");
         }
     }
 
@@ -1525,11 +1525,11 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertTrue(result.body().startsWith("All is well"));
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(result.body().startsWith("All is well")).isTrue();
         }
     }
 
@@ -1593,10 +1593,10 @@ abstract class HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
         }
     }
 
@@ -1638,11 +1638,11 @@ abstract class HttpIntegrationTest {
                 new BasicRequestProducer(request, entityProducer),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(431, response1.getCode());
-        Assertions.assertTrue(result1.body().contains("Maximum") && result1.body().contains("exceeded"));
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(431);
+        Assertions.assertThat(result1.body().contains("Maximum") && result1.body().contains("exceeded")).isTrue();
     }
 
 }

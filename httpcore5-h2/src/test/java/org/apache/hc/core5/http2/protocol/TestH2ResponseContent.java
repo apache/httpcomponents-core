@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2ResponseContent {
@@ -46,8 +46,8 @@ class TestH2ResponseContent {
         final BasicEntityDetails entity = new BasicEntityDetails(10, ContentType.TEXT_PLAIN);
         H2ResponseContent.INSTANCE.process(response, entity, context);
 
-        Assertions.assertTrue(response.containsHeader(HttpHeaders.CONTENT_TYPE));
-        Assertions.assertFalse(response.containsHeader(HttpHeaders.CONTENT_LENGTH));
+        Assertions.assertThat(response.containsHeader(HttpHeaders.CONTENT_TYPE)).isTrue();
+        Assertions.assertThat(response.containsHeader(HttpHeaders.CONTENT_LENGTH)).isFalse();
     }
 
     @Test
@@ -59,7 +59,7 @@ class TestH2ResponseContent {
         final BasicEntityDetails entity = new BasicEntityDetails(5, ContentType.TEXT_PLAIN);
         H2ResponseContent.INSTANCE.process(response, entity, context);
 
-        Assertions.assertEquals("5", response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+        Assertions.assertThat(response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue()).isEqualTo("5");
     }
 
 }

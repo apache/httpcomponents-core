@@ -30,7 +30,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.hc.core5.http.HttpHost;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestReactorBasics {
@@ -39,50 +39,50 @@ class TestReactorBasics {
     void channelEntryToString() throws Exception {
         try (SocketChannel channel = SocketChannel.open()) {
             final ChannelEntry entry = new ChannelEntry(channel, "att");
-            Assertions.assertTrue(entry.toString().contains("attachment=att"));
+            Assertions.assertThat(entry.toString().contains("attachment=att")).isTrue();
         }
     }
 
     @Test
     void eventMaskConstantsMatchSelectionKey() {
-        Assertions.assertEquals(SelectionKey.OP_READ, EventMask.READ);
-        Assertions.assertEquals(SelectionKey.OP_WRITE, EventMask.WRITE);
-        Assertions.assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, EventMask.READ_WRITE);
+        Assertions.assertThat(EventMask.READ).isEqualTo(SelectionKey.OP_READ);
+        Assertions.assertThat(EventMask.WRITE).isEqualTo(SelectionKey.OP_WRITE);
+        Assertions.assertThat(EventMask.READ_WRITE).isEqualTo(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
     @Test
     void endpointParametersExposeValues() {
         final EndpointParameters params = new EndpointParameters("https", "example.com", 8443, "tag");
-        Assertions.assertEquals("https", params.getScheme());
-        Assertions.assertEquals("example.com", params.getHostName());
-        Assertions.assertEquals(8443, params.getPort());
-        Assertions.assertEquals("tag", params.getAttachment());
+        Assertions.assertThat(params.getScheme()).isEqualTo("https");
+        Assertions.assertThat(params.getHostName()).isEqualTo("example.com");
+        Assertions.assertThat(params.getPort()).isEqualTo(8443);
+        Assertions.assertThat(params.getAttachment()).isEqualTo("tag");
 
         final EndpointParameters fromHost = new EndpointParameters(new HttpHost("http", "localhost", 80), null);
-        Assertions.assertEquals("http", fromHost.getScheme());
-        Assertions.assertEquals("localhost", fromHost.getHostName());
-        Assertions.assertEquals(80, fromHost.getPort());
+        Assertions.assertThat(fromHost.getScheme()).isEqualTo("http");
+        Assertions.assertThat(fromHost.getHostName()).isEqualTo("localhost");
+        Assertions.assertThat(fromHost.getPort()).isEqualTo(80);
     }
 
     @Test
     void ioReactorShutdownExceptionKeepsMessage() {
         final IOReactorShutdownException ex = new IOReactorShutdownException("down");
-        Assertions.assertEquals("down", ex.getMessage());
+        Assertions.assertThat(ex.getMessage()).isEqualTo("down");
     }
 
     @Test
     void ioReactorStatusValuesPresent() {
-        Assertions.assertNotNull(IOReactorStatus.INACTIVE);
-        Assertions.assertNotNull(IOReactorStatus.ACTIVE);
-        Assertions.assertNotNull(IOReactorStatus.SHUTTING_DOWN);
-        Assertions.assertNotNull(IOReactorStatus.SHUT_DOWN);
-        Assertions.assertNotEquals(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE);
+        Assertions.assertThat(IOReactorStatus.INACTIVE).isNotNull();
+        Assertions.assertThat(IOReactorStatus.ACTIVE).isNotNull();
+        Assertions.assertThat(IOReactorStatus.SHUTTING_DOWN).isNotNull();
+        Assertions.assertThat(IOReactorStatus.SHUT_DOWN).isNotNull();
+        Assertions.assertThat(IOReactorStatus.ACTIVE).isNotEqualTo(IOReactorStatus.INACTIVE);
     }
 
     @Test
     void commandPriorityEnumValuesPresent() {
-        Assertions.assertNotNull(Command.Priority.NORMAL);
-        Assertions.assertNotNull(Command.Priority.IMMEDIATE);
+        Assertions.assertThat(Command.Priority.NORMAL).isNotNull();
+        Assertions.assertThat(Command.Priority.IMMEDIATE).isNotNull();
     }
 
 }

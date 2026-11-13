@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,7 +50,7 @@ class TestH2RequestValidateHost {
 
         H2RequestValidateHost.INSTANCE.process(request, null, context);
 
-        Assertions.assertNotNull(request.getAuthority());
+        Assertions.assertThat(request.getAuthority()).isNotNull();
     }
 
     @Test
@@ -62,7 +62,7 @@ class TestH2RequestValidateHost {
 
         H2RequestValidateHost.INSTANCE.process(request, null, context);
 
-        Assertions.assertNull(request.getAuthority());
+        Assertions.assertThat(request.getAuthority()).isNull();
     }
 
     @Test
@@ -88,8 +88,8 @@ class TestH2RequestValidateHost {
         final HttpContext context = Mockito.mock(HttpContext.class);
         Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
-                H2RequestValidateHost.INSTANCE.process(request, null, context));
+        Assertions.assertThatThrownBy(() ->
+                H2RequestValidateHost.INSTANCE.process(request, null, context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -115,8 +115,8 @@ class TestH2RequestValidateHost {
         final HttpContext context = Mockito.mock(HttpContext.class);
         Mockito.when(context.getProtocolVersion()).thenReturn(HttpVersion.HTTP_2);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
-                H2RequestValidateHost.INSTANCE.process(request, null, context));
+        Assertions.assertThatThrownBy(() ->
+                H2RequestValidateHost.INSTANCE.process(request, null, context)).isInstanceOf(ProtocolException.class);
     }
 
 }

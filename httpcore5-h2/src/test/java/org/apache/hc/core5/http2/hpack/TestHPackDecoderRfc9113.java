@@ -35,7 +35,8 @@ import java.util.List;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestHPackDecoderRfc9113 {
@@ -54,9 +55,9 @@ class TestHPackDecoderRfc9113 {
 
         final List<Header> decoded = decoder.decodeHeaders(asByteBuffer(block));
 
-        Assertions.assertEquals(1, decoded.size());
-        Assertions.assertEquals(header.getName(), decoded.get(0).getName());
-        Assertions.assertEquals(header.getValue(), decoded.get(0).getValue());
+        Assertions.assertThat(decoded.size()).isEqualTo(1);
+        Assertions.assertThat(decoded.get(0).getName()).isEqualTo(header.getName());
+        Assertions.assertThat(decoded.get(0).getValue()).isEqualTo(header.getValue());
     }
 
     @Test
@@ -72,8 +73,10 @@ class TestHPackDecoderRfc9113 {
         decoder.setMaxListSize(headerSize(first) - 1);
 
         final ByteBuffer src = asByteBuffer(oversizedBlock);
-        Assertions.assertThrows(HeaderListConstraintException.class, () -> decoder.decodeHeaders(src));
-        Assertions.assertFalse(src.hasRemaining(), "The entire field block must be processed");
+        Assertions.assertThatThrownBy(() ->
+                        decoder.decodeHeaders(src))
+                .isInstanceOf(HeaderListConstraintException.class);
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("The entire field block must be processed").isFalse();
 
         // The encoder will represent the second header using the dynamic table.
         // Decoding it proves that the oversized block updated the decoder's
@@ -84,9 +87,9 @@ class TestHPackDecoderRfc9113 {
         decoder.setMaxListSize(Integer.MAX_VALUE);
         final List<Header> decoded = decoder.decodeHeaders(asByteBuffer(indexedBlock));
 
-        Assertions.assertEquals(1, decoded.size());
-        Assertions.assertEquals(second.getName(), decoded.get(0).getName());
-        Assertions.assertEquals(second.getValue(), decoded.get(0).getValue());
+        Assertions.assertThat(decoded.size()).isEqualTo(1);
+        Assertions.assertThat(decoded.get(0).getName()).isEqualTo(second.getName());
+        Assertions.assertThat(decoded.get(0).getValue()).isEqualTo(second.getValue());
     }
 
     @Test
@@ -104,14 +107,12 @@ class TestHPackDecoderRfc9113 {
         final HPackDecoder decoder = new HPackDecoder(TABLE_SIZE, StandardCharsets.US_ASCII);
         decoder.setMaxListSize(headerSize(header) - 1);
 
-        final HPackException exception = Assertions.assertThrows(
-                HPackException.class,
-                () -> decoder.decodeHeaders(asByteBuffer(block)));
+        final HPackException exception = Assertions.assertThatThrownBy(() ->
+                        decoder.decodeHeaders(asByteBuffer(block)))
+                .isInstanceOf(HPackException.class).asInstanceOf(InstanceOfAssertFactories.type(HPackException.class)).actual();
 
-        Assertions.assertFalse(exception instanceof HeaderListConstraintException);
-        Assertions.assertEquals(
-                "Dynamic table size update must appear at the beginning of a header block",
-                exception.getMessage());
+        Assertions.assertThat(exception instanceof HeaderListConstraintException).isFalse();
+        Assertions.assertThat(exception.getMessage()).isEqualTo("Dynamic table size update must appear at the beginning of a header block");
     }
 
     private static int headerSize(final Header header) {

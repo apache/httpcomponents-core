@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestInternalConnectChannel {
@@ -89,8 +89,8 @@ class TestInternalConnectChannel {
                     IOReactorConfig.DEFAULT)) {
                 connectChannel.onTimeout(Timeout.ofMilliseconds(1));
 
-                Assertions.assertTrue(failure.get() instanceof SocketTimeoutException);
-                Assertions.assertFalse(channel.isOpen());
+                Assertions.assertThat(failure.get() instanceof SocketTimeoutException).isTrue();
+                Assertions.assertThat(channel.isOpen()).isFalse();
             }
         }
     }
@@ -126,7 +126,7 @@ class TestInternalConnectChannel {
                     null,
                     null,
                     IOReactorConfig.DEFAULT)) {
-                Assertions.assertTrue(connectChannel.toString().contains("remoteEndpoint"));
+                Assertions.assertThat(connectChannel.toString().contains("remoteEndpoint")).isTrue();
             }
         }
     }

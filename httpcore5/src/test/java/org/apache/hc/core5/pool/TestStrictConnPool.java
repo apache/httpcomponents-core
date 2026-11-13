@@ -43,7 +43,8 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.DeadlineTimeoutException;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -54,26 +55,26 @@ class TestStrictConnPool {
     void testEmptyPool() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10)) {
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
-            Assertions.assertEquals(10, totals.getMax());
-            Assertions.assertEquals(Collections.emptySet(), pool.getRoutes());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
+            Assertions.assertThat(totals.getMax()).isEqualTo(10);
+            Assertions.assertThat(pool.getRoutes()).isEqualTo(Collections.emptySet());
             final PoolStats stats = pool.getStats("somehost");
-            Assertions.assertEquals(0, stats.getAvailable());
-            Assertions.assertEquals(0, stats.getLeased());
-            Assertions.assertEquals(0, stats.getPending());
-            Assertions.assertEquals(2, stats.getMax());
-            Assertions.assertEquals("[leased: 0][available: 0][pending: 0]", pool.toString());
+            Assertions.assertThat(stats.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(stats.getLeased()).isEqualTo(0);
+            Assertions.assertThat(stats.getPending()).isEqualTo(0);
+            Assertions.assertThat(stats.getMax()).isEqualTo(2);
+            Assertions.assertThat(pool.toString()).isEqualTo("[leased: 0][available: 0][pending: 0]");
         }
     }
 
     @Test
     void testInvalidConstruction() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                new StrictConnPool<String, HttpConnection>(-1, 1));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                new StrictConnPool<String, HttpConnection>(1, -1));
+        Assertions.assertThatThrownBy(() ->
+                new StrictConnPool<String, HttpConnection>(-1, 1)).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                new StrictConnPool<String, HttpConnection>(1, -1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -88,13 +89,13 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
 
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
+            Assertions.assertThat(entry2).isNotNull();
             entry2.assignConnection(conn2);
             final PoolEntry<String, HttpConnection> entry3 = future3.get();
-            Assertions.assertNotNull(entry3);
+            Assertions.assertThat(entry3).isNotNull();
             entry3.assignConnection(conn3);
 
             pool.release(entry1, true);
@@ -105,9 +106,9 @@ class TestStrictConnPool {
             Mockito.verify(conn3, Mockito.times(1)).close(CloseMode.GRACEFUL);
 
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(2, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(2);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
         }
     }
 
@@ -144,7 +145,7 @@ class TestStrictConnPool {
                     });
                 }
 
-                Assertions.assertTrue(latch.await(5, TimeUnit.MINUTES));
+                Assertions.assertThat(latch.await(5, TimeUnit.MINUTES)).isTrue();
             } finally {
                 executorService.shutdownNow();
             }
@@ -159,18 +160,18 @@ class TestStrictConnPool {
     @Test
     void testLeaseInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10)) {
-            Assertions.assertThrows(NullPointerException.class, () ->
-                    pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null));
-            Assertions.assertThrows(NullPointerException.class, () ->
-                    pool.lease("somehost", null, null, null));
+            Assertions.assertThatThrownBy(() ->
+                    pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null)).isInstanceOf(NullPointerException.class);
+            Assertions.assertThatThrownBy(() ->
+                    pool.lease("somehost", null, null, null)).isInstanceOf(NullPointerException.class);
     }
     }
 
     @Test
     void testReleaseUnknownEntry() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
-                Assertions.assertThrows(IllegalStateException.class, () ->
-                    pool.release(new PoolEntry<>("somehost"), true));
+            Assertions.assertThatThrownBy(() ->
+                    pool.release(new PoolEntry<>("somehost"), true)).isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -190,13 +191,13 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
 
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
+            Assertions.assertThat(entry2).isNotNull();
             entry2.assignConnection(conn2);
             final PoolEntry<String, HttpConnection> entry3 = future3.get();
-            Assertions.assertNotNull(entry3);
+            Assertions.assertThat(entry3).isNotNull();
             entry3.assignConnection(conn3);
 
             pool.release(entry1, true);
@@ -204,9 +205,9 @@ class TestStrictConnPool {
             pool.release(entry3, true);
 
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(3, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(3);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
 
             final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", null);
@@ -215,43 +216,43 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future8 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future9 = pool.lease("otherhost", null);
 
-            Assertions.assertTrue(future4.isDone());
+            Assertions.assertThat(future4.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry4 = future4.get();
-            Assertions.assertNotNull(entry4);
-            Assertions.assertSame(conn2, entry4.getConnection());
+            Assertions.assertThat(entry4).isNotNull();
+            Assertions.assertThat(entry4.getConnection()).isSameAs(conn2);
 
-            Assertions.assertTrue(future5.isDone());
+            Assertions.assertThat(future5.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry5 = future5.get();
-            Assertions.assertNotNull(entry5);
-            Assertions.assertSame(conn1, entry5.getConnection());
+            Assertions.assertThat(entry5).isNotNull();
+            Assertions.assertThat(entry5.getConnection()).isSameAs(conn1);
 
-            Assertions.assertTrue(future6.isDone());
+            Assertions.assertThat(future6.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry6 = future6.get();
-            Assertions.assertNotNull(entry6);
-            Assertions.assertSame(conn3, entry6.getConnection());
+            Assertions.assertThat(entry6).isNotNull();
+            Assertions.assertThat(entry6.getConnection()).isSameAs(conn3);
 
-            Assertions.assertFalse(future7.isDone());
-            Assertions.assertFalse(future8.isDone());
-            Assertions.assertFalse(future9.isDone());
+            Assertions.assertThat(future7.isDone()).isFalse();
+            Assertions.assertThat(future8.isDone()).isFalse();
+            Assertions.assertThat(future9.isDone()).isFalse();
 
             pool.release(entry4, true);
             pool.release(entry5, false);
             pool.release(entry6, true);
 
-            Assertions.assertTrue(future7.isDone());
+            Assertions.assertThat(future7.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry7 = future7.get();
-            Assertions.assertNotNull(entry7);
-            Assertions.assertSame(conn2, entry7.getConnection());
+            Assertions.assertThat(entry7).isNotNull();
+            Assertions.assertThat(entry7.getConnection()).isSameAs(conn2);
 
-            Assertions.assertTrue(future8.isDone());
+            Assertions.assertThat(future8.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry8 = future8.get();
-            Assertions.assertNotNull(entry8);
-            Assertions.assertNull(entry8.getConnection());
+            Assertions.assertThat(entry8).isNotNull();
+            Assertions.assertThat(entry8.getConnection()).isNull();
 
-            Assertions.assertTrue(future9.isDone());
+            Assertions.assertThat(future9.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry9 = future9.get();
-            Assertions.assertNotNull(entry9);
-            Assertions.assertSame(conn3, entry9.getConnection());
+            Assertions.assertThat(entry9).isNotNull();
+            Assertions.assertThat(entry9.getConnection()).isSameAs(conn3);
         }
     }
 
@@ -273,43 +274,43 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
             final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("otherhost", null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
-            Assertions.assertFalse(entry1.hasConnection());
+            Assertions.assertThat(entry1).isNotNull();
+            Assertions.assertThat(entry1.hasConnection()).isFalse();
             entry1.assignConnection(conn1);
-            Assertions.assertTrue(future2.isDone());
+            Assertions.assertThat(future2.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
-            Assertions.assertFalse(entry2.hasConnection());
+            Assertions.assertThat(entry2).isNotNull();
+            Assertions.assertThat(entry2.hasConnection()).isFalse();
             entry2.assignConnection(conn2);
 
-            Assertions.assertFalse(future3.isDone());
-            Assertions.assertFalse(future4.isDone());
+            Assertions.assertThat(future3.isDone()).isFalse();
+            Assertions.assertThat(future4.isDone()).isFalse();
 
             PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(2, totals.getLeased());
-            Assertions.assertEquals(2, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(2);
+            Assertions.assertThat(totals.getPending()).isEqualTo(2);
 
             pool.release(entry1, true);
             pool.release(entry2, true);
 
-            Assertions.assertTrue(future3.isDone());
+            Assertions.assertThat(future3.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry3 = future3.get();
-            Assertions.assertNotNull(entry3);
-            Assertions.assertFalse(entry3.hasConnection());
+            Assertions.assertThat(entry3).isNotNull();
+            Assertions.assertThat(entry3.hasConnection()).isFalse();
             entry3.assignConnection(conn3);
-            Assertions.assertTrue(future4.isDone());
+            Assertions.assertThat(future4.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry4 = future4.get();
-            Assertions.assertNotNull(entry4);
-            Assertions.assertFalse(entry4.hasConnection());
+            Assertions.assertThat(entry4).isNotNull();
+            Assertions.assertThat(entry4.hasConnection()).isFalse();
             entry4.assignConnection(conn4);
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(2, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(2);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
 
             final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future6 = pool.lease("otherhost", null);
@@ -317,29 +318,29 @@ class TestStrictConnPool {
             pool.release(entry3, true);
             pool.release(entry4, true);
 
-            Assertions.assertTrue(future5.isDone());
+            Assertions.assertThat(future5.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry5 = future5.get();
-            Assertions.assertNotNull(entry5);
-            Assertions.assertFalse(entry5.hasConnection());
+            Assertions.assertThat(entry5).isNotNull();
+            Assertions.assertThat(entry5.hasConnection()).isFalse();
             entry5.assignConnection(conn5);
-            Assertions.assertTrue(future6.isDone());
+            Assertions.assertThat(future6.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry6 = future6.get();
-            Assertions.assertNotNull(entry6);
-            Assertions.assertTrue(entry6.hasConnection());
-            Assertions.assertSame(conn4, entry6.getConnection());
+            Assertions.assertThat(entry6).isNotNull();
+            Assertions.assertThat(entry6.hasConnection()).isTrue();
+            Assertions.assertThat(entry6.getConnection()).isSameAs(conn4);
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(2, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(2);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
 
             pool.release(entry5, true);
             pool.release(entry6, true);
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(2, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(2);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
         }
     }
 
@@ -355,19 +356,19 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
             entry1.assignConnection(conn1);
-            Assertions.assertNotNull(entry1);
-            Assertions.assertTrue(future2.isDone());
+            Assertions.assertThat(entry1).isNotNull();
+            Assertions.assertThat(future2.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
+            Assertions.assertThat(entry2).isNotNull();
             entry2.assignConnection(conn2);
 
             PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(2, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(2);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
 
             entry1.updateState("some-stuff");
             pool.release(entry1, true);
@@ -377,33 +378,33 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", "some-stuff");
             final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("somehost", "some-stuff");
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry3 = future3.get();
-            Assertions.assertNotNull(entry3);
-            Assertions.assertSame(conn2, entry3.getConnection());
-            Assertions.assertTrue(future4.isDone());
+            Assertions.assertThat(entry3).isNotNull();
+            Assertions.assertThat(entry3.getConnection()).isSameAs(conn2);
+            Assertions.assertThat(future4.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry4 = future4.get();
-            Assertions.assertNotNull(entry4);
-            Assertions.assertSame(conn1, entry4.getConnection());
+            Assertions.assertThat(entry4).isNotNull();
+            Assertions.assertThat(entry4.getConnection()).isSameAs(conn1);
 
             pool.release(entry3, true);
             pool.release(entry4, true);
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(2, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(2);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
 
             final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", "some-other-stuff");
 
-            Assertions.assertTrue(future5.isDone());
+            Assertions.assertThat(future5.isDone()).isTrue();
 
             Mockito.verify(conn2).close(CloseMode.GRACEFUL);
             Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.any());
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(1, totals.getAvailable());
-            Assertions.assertEquals(1, totals.getLeased());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(1);
         }
     }
 
@@ -415,9 +416,9 @@ class TestStrictConnPool {
 
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
 
             entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
@@ -427,17 +428,17 @@ class TestStrictConnPool {
 
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
 
-            Assertions.assertTrue(future2.isDone());
+            Assertions.assertThat(future2.isDone()).isTrue();
 
             Mockito.verify(conn1).close(CloseMode.GRACEFUL);
 
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(1, totals.getLeased());
-            Assertions.assertEquals(Collections.singleton("somehost"), pool.getRoutes());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(1);
+            Assertions.assertThat(pool.getRoutes()).isEqualTo(Collections.singleton("somehost"));
             final PoolStats stats = pool.getStats("somehost");
-            Assertions.assertEquals(0, stats.getAvailable());
-            Assertions.assertEquals(1, stats.getLeased());
+            Assertions.assertThat(stats.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(stats.getLeased()).isEqualTo(1);
         }
     }
 
@@ -451,13 +452,13 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
-            Assertions.assertTrue(future2.isDone());
+            Assertions.assertThat(future2.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
+            Assertions.assertThat(entry2).isNotNull();
             entry2.assignConnection(conn2);
 
             entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
@@ -474,13 +475,13 @@ class TestStrictConnPool {
             Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.any());
 
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(1, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
             final PoolStats stats = pool.getStats("somehost");
-            Assertions.assertEquals(1, stats.getAvailable());
-            Assertions.assertEquals(0, stats.getLeased());
-            Assertions.assertEquals(0, stats.getPending());
+            Assertions.assertThat(stats.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(stats.getLeased()).isEqualTo(0);
+            Assertions.assertThat(stats.getPending()).isEqualTo(0);
         }
     }
 
@@ -494,13 +495,13 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
-            Assertions.assertTrue(future2.isDone());
+            Assertions.assertThat(future2.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry2 = future2.get();
-            Assertions.assertNotNull(entry2);
+            Assertions.assertThat(entry2).isNotNull();
             entry2.assignConnection(conn2);
 
             entry1.updateState(null);
@@ -517,26 +518,26 @@ class TestStrictConnPool {
             Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.any());
 
             PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(1, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
             PoolStats stats = pool.getStats("somehost");
-            Assertions.assertEquals(1, stats.getAvailable());
-            Assertions.assertEquals(0, stats.getLeased());
-            Assertions.assertEquals(0, stats.getPending());
+            Assertions.assertThat(stats.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(stats.getLeased()).isEqualTo(0);
+            Assertions.assertThat(stats.getPending()).isEqualTo(0);
 
             pool.closeIdle(TimeValue.of(-1, TimeUnit.MILLISECONDS));
 
             Mockito.verify(conn2).close(CloseMode.GRACEFUL);
 
             totals = pool.getTotalStats();
-            Assertions.assertEquals(0, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
+            Assertions.assertThat(totals.getPending()).isEqualTo(0);
             stats = pool.getStats("somehost");
-            Assertions.assertEquals(0, stats.getAvailable());
-            Assertions.assertEquals(0, stats.getLeased());
-            Assertions.assertEquals(0, stats.getPending());
+            Assertions.assertThat(stats.getAvailable()).isEqualTo(0);
+            Assertions.assertThat(stats.getLeased()).isEqualTo(0);
+            Assertions.assertThat(stats.getPending()).isEqualTo(0);
         }
     }
 
@@ -550,19 +551,19 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
             final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(conn1);
-            Assertions.assertFalse(future2.isDone());
-            Assertions.assertFalse(future3.isDone());
+            Assertions.assertThat(future2.isDone()).isFalse();
+            Assertions.assertThat(future3.isDone()).isFalse();
 
             Thread.sleep(100);
 
             pool.validatePendingRequests();
 
-            Assertions.assertFalse(future2.isDone());
-            Assertions.assertTrue(future3.isDone());
+            Assertions.assertThat(future2.isDone()).isFalse();
+            Assertions.assertThat(future3.isDone()).isTrue();
         }
     }
 
@@ -593,9 +594,9 @@ class TestStrictConnPool {
         // Attempt to get a connection while lock is held
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
-        final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
-                future2.get());
-        Assertions.assertInstanceOf(DeadlineTimeoutException.class, executionException.getCause());
+        final ExecutionException executionException = Assertions.assertThatThrownBy(() ->
+                future2.get()).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(executionException.getCause()).isInstanceOf(DeadlineTimeoutException.class);
         holdInternalLock.interrupt(); // Cleanup
     }
 
@@ -612,8 +613,10 @@ class TestStrictConnPool {
         // Attempt to get a connection while lock is held and thread is interrupted
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
-        Assertions.assertTrue(Thread.interrupted());
-        Assertions.assertThrows(CancellationException.class, () -> future2.get());
+        Assertions.assertThat(Thread.interrupted()).isTrue();
+        Assertions.assertThatThrownBy(() ->
+                        future2.get())
+                .isInstanceOf(CancellationException.class);
         holdInternalLock.interrupt(); // Cleanup
     }
 
@@ -624,9 +627,9 @@ class TestStrictConnPool {
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null,
                     Timeout.ofMilliseconds(0), null);
 
-            Assertions.assertTrue(future1.isDone());
+            Assertions.assertThat(future1.isDone()).isTrue();
             final PoolEntry<String, HttpConnection> entry1 = future1.get();
-            Assertions.assertNotNull(entry1);
+            Assertions.assertThat(entry1).isNotNull();
             entry1.assignConnection(Mockito.mock(HttpConnection.class));
 
             final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null,
@@ -636,27 +639,29 @@ class TestStrictConnPool {
             pool.release(entry1, true);
 
             final PoolStats totals = pool.getTotalStats();
-            Assertions.assertEquals(1, totals.getAvailable());
-            Assertions.assertEquals(0, totals.getLeased());
+            Assertions.assertThat(totals.getAvailable()).isEqualTo(1);
+            Assertions.assertThat(totals.getLeased()).isEqualTo(0);
         }
     }
 
     @Test
     void testGetStatsInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
-            Assertions.assertThrows(NullPointerException.class, () -> pool.getStats(null));
+            Assertions.assertThatThrownBy(() ->
+                            pool.getStats(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 
     @Test
     void testSetMaxInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
-            Assertions.assertThrows(IllegalArgumentException.class, () ->
-                    pool.setMaxTotal(-1));
-            Assertions.assertThrows(NullPointerException.class, () ->
-                    pool.setMaxPerRoute(null, 1));
-            Assertions.assertThrows(IllegalArgumentException.class, () ->
-                    pool.setDefaultMaxPerRoute(-1));
+            Assertions.assertThatThrownBy(() ->
+                    pool.setMaxTotal(-1)).isInstanceOf(IllegalArgumentException.class);
+            Assertions.assertThatThrownBy(() ->
+                    pool.setMaxPerRoute(null, 1)).isInstanceOf(NullPointerException.class);
+            Assertions.assertThatThrownBy(() ->
+                    pool.setDefaultMaxPerRoute(-1)).isInstanceOf(IllegalArgumentException.class);
     }
     }
 
@@ -664,11 +669,11 @@ class TestStrictConnPool {
     void testSetMaxPerRoute() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
             pool.setMaxPerRoute("somehost", 1);
-            Assertions.assertEquals(1, pool.getMaxPerRoute("somehost"));
+            Assertions.assertThat(pool.getMaxPerRoute("somehost")).isEqualTo(1);
             pool.setMaxPerRoute("somehost", 0);
-            Assertions.assertEquals(0, pool.getMaxPerRoute("somehost"));
+            Assertions.assertThat(pool.getMaxPerRoute("somehost")).isEqualTo(0);
             pool.setMaxPerRoute("somehost", -1);
-            Assertions.assertEquals(2, pool.getMaxPerRoute("somehost"));
+            Assertions.assertThat(pool.getMaxPerRoute("somehost")).isEqualTo(2);
         }
     }
 
@@ -676,7 +681,9 @@ class TestStrictConnPool {
     void testShutdown() {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
         pool.close(CloseMode.GRACEFUL);
-        Assertions.assertThrows(IllegalStateException.class, () -> pool.lease("somehost", null));
+        Assertions.assertThatThrownBy(() ->
+                        pool.lease("somehost", null))
+                .isInstanceOf(IllegalStateException.class);
         // Ignored if shut down
         pool.release(new PoolEntry<>("somehost"), true);
     }

@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHuffmanDecoderCompatibility {
@@ -60,8 +60,8 @@ class TestHuffmanDecoderCompatibility {
     private static void assertSameResult(final LegacyHuffmanDecoder legacy, final byte[] encoded) throws Exception {
         final Result expected = decodeLegacy(legacy, encoded);
         final Result actual = decodeDfa(encoded);
-        Assertions.assertEquals(expected.failed, actual.failed);
-        Assertions.assertArrayEquals(expected.output, actual.output);
+        Assertions.assertThat(actual.failed).isEqualTo(expected.failed);
+        Assertions.assertThat(actual.output).containsExactly(expected.output);
     }
 
     private static Result decodeLegacy(final LegacyHuffmanDecoder legacy, final byte[] encoded) {

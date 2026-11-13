@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -50,19 +50,23 @@ class TestBasicHeaderElementIterator {
         final Iterator<HeaderElement> hei = new BasicHeaderElementIterator(
                 new BasicHeaderIterator(headers, "Name"));
 
-        Assertions.assertTrue(hei.hasNext());
+        Assertions.assertThat(hei.hasNext()).isTrue();
         HeaderElement elem = hei.next();
-        Assertions.assertEquals("value0", elem.getName(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("value0");
 
-        Assertions.assertTrue(hei.hasNext());
+        Assertions.assertThat(hei.hasNext()).isTrue();
         elem = hei.next();
-        Assertions.assertEquals("value1", elem.getName(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("value1");
 
-        Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThat(hei.hasNext()).isFalse();
+        Assertions.assertThatThrownBy(() ->
+                        hei.next())
+                .isInstanceOf(NoSuchElementException.class);
 
-        Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThat(hei.hasNext()).isFalse();
+        Assertions.assertThatThrownBy(() ->
+                        hei.next())
+                .isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -76,16 +80,16 @@ class TestBasicHeaderElementIterator {
                 new BasicHeaderIterator(headers, "Name"));
 
         HeaderElement elem = hei.next();
-        Assertions.assertEquals("value0", elem.getName(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("value0");
         elem = hei.next();
-        Assertions.assertEquals("value1", elem.getName(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("value1");
         elem = hei.next();
-        Assertions.assertEquals("cookie1", elem.getName(), "The two header values must be equal");
-        Assertions.assertEquals("1", elem.getValue(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("cookie1");
+        Assertions.assertThat(elem.getValue()).withFailMessage("The two header values must be equal").isEqualTo("1");
 
         elem = hei.next();
-        Assertions.assertEquals("cookie2", elem.getName(), "The two header values must be equal");
-        Assertions.assertEquals("2", elem.getValue(), "The two header values must be equal");
+        Assertions.assertThat(elem.getName()).withFailMessage("The two header values must be equal").isEqualTo("cookie2");
+        Assertions.assertThat(elem.getValue()).withFailMessage("The two header values must be equal").isEqualTo("2");
     }
 
     @Test
@@ -99,10 +103,14 @@ class TestBasicHeaderElementIterator {
         final Iterator<HeaderElement> hei = new BasicHeaderElementIterator(
                 new BasicHeaderIterator(headers, "Name"));
 
-        Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
-        Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThat(hei.hasNext()).isFalse();
+        Assertions.assertThatThrownBy(() ->
+                        hei.next())
+                .isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThat(hei.hasNext()).isFalse();
+        Assertions.assertThatThrownBy(() ->
+                        hei.next())
+                .isInstanceOf(NoSuchElementException.class);
     }
 
 }

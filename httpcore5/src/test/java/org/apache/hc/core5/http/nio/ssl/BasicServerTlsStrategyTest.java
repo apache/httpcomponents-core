@@ -27,9 +27,8 @@
 
 package org.apache.hc.core5.http.nio.ssl;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +48,7 @@ class BasicServerTlsStrategyTest {
     @Test
     void test_valid_tls_strategy_creation_with_verifier() {
         final BasicServerTlsStrategy strategy = new BasicServerTlsStrategy(sslSessionVerifier);
-        assertNotNull(strategy);
+        Assertions.assertThat(strategy).isNotNull();
     }
 
 }

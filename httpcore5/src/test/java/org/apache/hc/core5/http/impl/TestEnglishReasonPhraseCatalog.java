@@ -31,7 +31,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.apache.hc.core5.http.HttpStatus;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,9 +45,9 @@ class TestEnglishReasonPhraseCatalog {
     void testReasonPhrases() throws IllegalAccessException {
     final Field[] publicFields = HttpStatus.class.getFields();
 
-    Assertions.assertNotNull( publicFields );
+        Assertions.assertThat(publicFields).isNotNull();
 
-    Assertions.assertTrue( publicFields.length > 0 );
+        Assertions.assertThat(publicFields.length > 0).isTrue();
 
     for (final Field f : publicFields) {
         final int modifiers = f.getModifiers();
@@ -60,8 +60,8 @@ class TestEnglishReasonPhraseCatalog {
             final int iValue = f.getInt(null);
             final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
-            Assertions.assertNotNull("text is null for HttpStatus." + f.getName(), text);
-            Assertions.assertTrue(text.length() > 0);
+            Assertions.assertThat("text is null for HttpStatus." + f.getName()).withFailMessage(text).isNotNull();
+            Assertions.assertThat(text.length() > 0).isTrue();
         }
     }
     }
@@ -69,12 +69,12 @@ class TestEnglishReasonPhraseCatalog {
 
     @Test
     void testStatusInvalid() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EnglishReasonPhraseCatalog.INSTANCE.getReason(99, null));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EnglishReasonPhraseCatalog.INSTANCE.getReason(600, null));
+        Assertions.assertThatThrownBy(() ->
+                EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null)).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                EnglishReasonPhraseCatalog.INSTANCE.getReason(99, null)).isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                EnglishReasonPhraseCatalog.INSTANCE.getReason(600, null)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

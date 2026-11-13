@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDefaultH2ResponseConverter {
@@ -51,14 +51,14 @@ class TestDefaultH2ResponseConverter {
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         final HttpResponse response = converter.convert(headers);
-        Assertions.assertNotNull(response );
-        Assertions.assertEquals(200, response .getCode());
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(200);
         final Header[] allHeaders = response.getHeaders();
-        Assertions.assertEquals(2, allHeaders.length);
-        Assertions.assertEquals("location", allHeaders[0].getName());
-        Assertions.assertEquals("http://www.example.com/", allHeaders[0].getValue());
-        Assertions.assertEquals("custom123", allHeaders[1].getName());
-        Assertions.assertEquals("value", allHeaders[1].getValue());
+        Assertions.assertThat(allHeaders.length).isEqualTo(2);
+        Assertions.assertThat(allHeaders[0].getName()).isEqualTo("location");
+        Assertions.assertThat(allHeaders[0].getValue()).isEqualTo("http://www.example.com/");
+        Assertions.assertThat(allHeaders[1].getName()).isEqualTo("custom123");
+        Assertions.assertThat(allHeaders[1].getValue()).isEqualTo("value");
     }
 
     @Test
@@ -69,8 +69,9 @@ class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header name ':Status' is invalid (header name contains uppercase characters)");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header name ':Status' is invalid (header name contains uppercase characters)").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -81,7 +82,9 @@ class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -91,8 +94,9 @@ class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Mandatory response header ':status' not found");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Mandatory response header ':status' not found").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -104,8 +108,9 @@ class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Unsupported response header ':custom'");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Unsupported response header ':custom'").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -117,8 +122,9 @@ class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Multiple ':status' response headers are illegal");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Multiple ':status' response headers are illegal").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -130,14 +136,14 @@ class TestDefaultH2ResponseConverter {
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         final List<Header> headers = converter.convert(response);
 
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(2, headers.size());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.size()).isEqualTo(2);
         final Header header1 = headers.get(0);
-        Assertions.assertEquals(":status", header1.getName());
-        Assertions.assertEquals("200", header1.getValue());
+        Assertions.assertThat(header1.getName()).isEqualTo(":status");
+        Assertions.assertThat(header1.getValue()).isEqualTo("200");
         final Header header2 = headers.get(1);
-        Assertions.assertEquals("custom123", header2.getName());
-        Assertions.assertEquals("Value", header2.getValue());
+        Assertions.assertThat(header2.getName()).isEqualTo("custom123");
+        Assertions.assertThat(header2.getValue()).isEqualTo("Value");
     }
 
     @Test
@@ -146,8 +152,9 @@ class TestDefaultH2ResponseConverter {
         response.addHeader("Custom123", "Value");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
-                "Response status 99 is invalid");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(response))
+                .withFailMessage("Response status 99 is invalid").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -156,8 +163,9 @@ class TestDefaultH2ResponseConverter {
         response.addHeader(":custom", "stuff");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
-                "Header name ':custom' is invalid");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(response))
+                .withFailMessage("Header name ':custom' is invalid").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -171,14 +179,14 @@ class TestDefaultH2ResponseConverter {
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         final HttpResponse response = converter.convert(headers);
-        Assertions.assertNotNull(response );
-        Assertions.assertEquals(200, response .getCode());
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(200);
         final Header[] allHeaders = response.getHeaders();
-        Assertions.assertEquals(2, allHeaders.length);
-        Assertions.assertEquals("location", allHeaders[0].getName());
-        Assertions.assertEquals("http://www.example.com/", allHeaders[0].getValue());
-        Assertions.assertEquals("cookie", allHeaders[1].getName());
-        Assertions.assertEquals("a=b; c=d; e=f", allHeaders[1].getValue());
+        Assertions.assertThat(allHeaders.length).isEqualTo(2);
+        Assertions.assertThat(allHeaders[0].getName()).isEqualTo("location");
+        Assertions.assertThat(allHeaders[0].getValue()).isEqualTo("http://www.example.com/");
+        Assertions.assertThat(allHeaders[1].getName()).isEqualTo("cookie");
+        Assertions.assertThat(allHeaders[1].getValue()).isEqualTo("a=b; c=d; e=f");
     }
 
     @Test
@@ -186,20 +194,26 @@ class TestDefaultH2ResponseConverter {
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
 
         // Demonstrate why Integer.parseInt(...) is insufficient (it accepts non-3-digit formats).
-        final int parsedPlus = Assertions.assertDoesNotThrow(() -> Integer.parseInt("+200"));
-        Assertions.assertEquals(200, parsedPlus);
+        final int parsedPlus = Integer.parseInt("+200");
+        Assertions.assertThat(parsedPlus).isEqualTo(200);
 
-        final int parsedLeadingZero = Assertions.assertDoesNotThrow(() -> Integer.parseInt("0200"));
-        Assertions.assertEquals(200, parsedLeadingZero);
+        final int parsedLeadingZero = Integer.parseInt("0200");
+        Assertions.assertThat(parsedLeadingZero).isEqualTo(200);
 
         // Converter must be strict: :status is exactly 3 digits, in range 100..599.
-        Assertions.assertThrows(HttpException.class,
-                () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "+200"))));
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "0200"))));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(Collections.singletonList(new BasicHeader(":status", "+200"))))
+                .isInstanceOf(HttpException.class);
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(Collections.singletonList(new BasicHeader(":status", "0200"))))
+                .isInstanceOf(HttpException.class);
 
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "099"))));
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(Collections.singletonList(new BasicHeader(":status", "600"))));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(Collections.singletonList(new BasicHeader(":status", "099"))))
+                .isInstanceOf(HttpException.class);
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(Collections.singletonList(new BasicHeader(":status", "600"))))
+                .isInstanceOf(HttpException.class);
     }
 
 }
-

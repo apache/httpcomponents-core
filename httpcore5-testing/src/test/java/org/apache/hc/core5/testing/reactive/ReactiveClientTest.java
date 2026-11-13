@@ -73,7 +73,8 @@ import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.reactive.Reactive3TestUtils.StreamDescription;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.reactivestreams.Publisher;
@@ -140,7 +141,7 @@ abstract class ReactiveClientTest {
         }
         writableByteChannel.close();
         final byte[] output = byteArrayOutputStream.toByteArray();
-        Assertions.assertArrayEquals(input, output);
+        Assertions.assertThat(output).containsExactly(input);
     }
 
     private BasicRequestProducer getRequestProducer(final InetSocketAddress address, final ReactiveEntityProducer producer) {
@@ -163,8 +164,8 @@ abstract class ReactiveClientTest {
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
         final StreamDescription desc = Reactive3TestUtils.consumeStream(response.body()).blockingGet();
 
-        Assertions.assertEquals(expectedLength, desc.length);
-        Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
+        Assertions.assertThat(desc.length).isEqualTo(expectedLength);
+        Assertions.assertThat(TextUtils.toHexString(desc.md.digest())).isEqualTo(expectedHash.get());
     }
 
     @Test
@@ -189,8 +190,8 @@ abstract class ReactiveClientTest {
                     .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
             final StreamDescription desc = Reactive3TestUtils.consumeStream(response.body()).blockingGet();
 
-            Assertions.assertEquals(expectedLength, desc.length);
-            Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
+            Assertions.assertThat(desc.length).isEqualTo(expectedLength);
+            Assertions.assertThat(TextUtils.toHexString(desc.md.digest())).isEqualTo(expectedHash.get());
         }
     }
 
@@ -208,10 +209,10 @@ abstract class ReactiveClientTest {
 
         final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
-        Assertions.assertInstanceOf(HttpStreamResetException.class, exception.getCause());
-        Assertions.assertSame(exceptionThrown, exception.getCause().getCause());
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(exception.getCause()).isInstanceOf(HttpStreamResetException.class);
+        Assertions.assertThat(exception.getCause().getCause()).isSameAs(exceptionThrown);
     }
 
     @Test
@@ -227,14 +228,14 @@ abstract class ReactiveClientTest {
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
 
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
-        Assertions.assertTrue(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit())).isTrue();
         final Throwable cause = exception.getCause();
         if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_1) {
-            Assertions.assertInstanceOf(SocketTimeoutException.class, cause, "Expected SocketTimeoutException, but got " + cause.getClass().getName());
+            Assertions.assertThat(cause).withFailMessage("Expected SocketTimeoutException, but got " + cause.getClass().getName()).isInstanceOf(SocketTimeoutException.class);
         } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-            Assertions.assertInstanceOf(HttpStreamResetException.class, cause, format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()));
+            Assertions.assertThat(cause).withFailMessage(format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName())).isInstanceOf(HttpStreamResetException.class);
         } else {
             Assertions.fail("Unknown HttpVersionPolicy: " + versionPolicy);
         }
@@ -263,14 +264,14 @@ abstract class ReactiveClientTest {
                 .take(3)
                 .toList()
                 .blockingGet();
-        Assertions.assertEquals(3, outputBuffers.size());
-        Assertions.assertTrue(responsePublisherWasCancelled.get(), "The response subscription should have been cancelled");
-        final Exception exception = Assertions.assertThrows(Exception.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
-        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
-        Assertions.assertInstanceOf(HttpStreamResetException.class, exception.getCause());
-        Assertions.assertTrue(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
-        Assertions.assertNull(requestStreamError.get());
+        Assertions.assertThat(outputBuffers.size()).isEqualTo(3);
+        Assertions.assertThat(responsePublisherWasCancelled.get()).withFailMessage("The response subscription should have been cancelled").isTrue();
+        final Exception exception = Assertions.assertThatThrownBy(() ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit())).isInstanceOf(Exception.class).asInstanceOf(InstanceOfAssertFactories.type(Exception.class)).actual();
+        Assertions.assertThat(exception instanceof CancellationException || exception instanceof ExecutionException).isTrue();
+        Assertions.assertThat(exception.getCause()).isInstanceOf(HttpStreamResetException.class);
+        Assertions.assertThat(requestPublisherCancellation.await(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit())).isTrue();
+        Assertions.assertThat(requestStreamError.get()).isNull();
     }
 
     private InetSocketAddress startServer() throws IOException, InterruptedException, ExecutionException {

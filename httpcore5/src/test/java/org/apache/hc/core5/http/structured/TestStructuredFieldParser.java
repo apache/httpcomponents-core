@@ -33,7 +33,7 @@ import java.util.Arrays;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Tokenizer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestStructuredFieldParser {
@@ -50,53 +50,54 @@ class TestStructuredFieldParser {
         assertItem("%\"f%c3%bc%c3%bc\"", StructuredFieldType.DISPLAY_STRING, "füü");
 
         final StructuredFieldBareItem bytes = StructuredFieldParser.parseItem(":aGVsbG8=:").getBareItem();
-        Assertions.assertEquals(StructuredFieldType.BYTE_SEQUENCE, bytes.getType());
-        Assertions.assertArrayEquals("hello".getBytes(StandardCharsets.US_ASCII), bytes.getByteSequenceValue());
+        Assertions.assertThat(bytes.getType()).isEqualTo(StructuredFieldType.BYTE_SEQUENCE);
+        Assertions.assertThat(bytes.getByteSequenceValue())
+                .containsExactly("hello".getBytes(StandardCharsets.US_ASCII));
     }
 
     @Test
     void testListAndInnerList() throws Exception {
         final StructuredFieldList list = StructuredFieldParser.parseList(
                 "sugar, (tea \"with milk\";q=0.7);fresh, rum;proof=40");
-        Assertions.assertEquals(3, list.size());
-        Assertions.assertEquals("sugar", ((StructuredFieldItem) list.get(0)).getBareItem().getTextValue());
+        Assertions.assertThat(list.size()).isEqualTo(3);
+        Assertions.assertThat(((StructuredFieldItem) list.get(0)).getBareItem().getTextValue()).isEqualTo("sugar");
         final StructuredFieldInnerList inner = (StructuredFieldInnerList) list.get(1);
-        Assertions.assertEquals(2, inner.size());
-        Assertions.assertEquals(new BigDecimal("0.7"), inner.get(1).getParameters().get("q").getDecimalValue());
-        Assertions.assertTrue(inner.getParameters().get("fresh").getBooleanValue());
-        Assertions.assertEquals(40L, ((StructuredFieldItem) list.get(2)).getParameters().get("proof").getLongValue());
+        Assertions.assertThat(inner.size()).isEqualTo(2);
+        Assertions.assertThat(inner.get(1).getParameters().get("q").getDecimalValue()).isEqualTo(new BigDecimal("0.7"));
+        Assertions.assertThat(inner.getParameters().get("fresh").getBooleanValue()).isTrue();
+        Assertions.assertThat(((StructuredFieldItem) list.get(2)).getParameters().get("proof").getLongValue()).isEqualTo(40L);
     }
 
     @Test
     void testDictionaryAndDuplicateReplacement() throws Exception {
         final StructuredFieldDictionary dictionary = StructuredFieldParser.parseDictionary(
                 "a=?0, b, c;foo=bar, a=(1 2);valid");
-        Assertions.assertEquals(3, dictionary.size());
-        Assertions.assertEquals("a", dictionary.getName(0));
-        Assertions.assertTrue(dictionary.get("a") instanceof StructuredFieldInnerList);
-        Assertions.assertTrue(((StructuredFieldItem) dictionary.get("b")).getBareItem().getBooleanValue());
-        Assertions.assertEquals("bar", ((StructuredFieldItem) dictionary.get("c"))
-                .getParameters().get("foo").getTextValue());
+        Assertions.assertThat(dictionary.size()).isEqualTo(3);
+        Assertions.assertThat(dictionary.getName(0)).isEqualTo("a");
+        Assertions.assertThat(dictionary.get("a") instanceof StructuredFieldInnerList).isTrue();
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("b")).getBareItem().getBooleanValue()).isTrue();
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("c"))
+                .getParameters().get("foo").getTextValue()).isEqualTo("bar");
     }
 
     @Test
     void testDuplicateParameterReplacementPreservesPosition() throws Exception {
         final StructuredFieldParameters parameters = StructuredFieldParser.parseItem("token;a=1;b=2;a=3")
                 .getParameters();
-        Assertions.assertEquals(2, parameters.size());
-        Assertions.assertEquals("a", parameters.getName(0));
-        Assertions.assertEquals(3L, parameters.get("a").getLongValue());
+        Assertions.assertThat(parameters.size()).isEqualTo(2);
+        Assertions.assertThat(parameters.getName(0)).isEqualTo("a");
+        Assertions.assertThat(parameters.get("a").getLongValue()).isEqualTo(3L);
     }
 
     @Test
     void testMultipleFieldLines() throws Exception {
         final StructuredFieldList list = StructuredFieldParser.parseListLines(Arrays.asList("one, two", "three"));
-        Assertions.assertEquals(3, list.size());
-        Assertions.assertEquals("one, two, three", StructuredFieldSerializer.serializeList(list));
+        Assertions.assertThat(list.size()).isEqualTo(3);
+        Assertions.assertThat(StructuredFieldSerializer.serializeList(list)).isEqualTo("one, two, three");
 
         final StructuredFieldDictionary dictionary = StructuredFieldParser.parseDictionaryLines(
                 Arrays.asList("a=1", "b=2"));
-        Assertions.assertEquals("a=1, b=2", StructuredFieldSerializer.serializeDictionary(dictionary));
+        Assertions.assertThat(StructuredFieldSerializer.serializeDictionary(dictionary)).isEqualTo("a=1, b=2");
     }
 
     @Test
@@ -104,8 +105,8 @@ class TestStructuredFieldParser {
         final String input = "xx 42 yy";
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(2, 6);
         final StructuredFieldItem item = StructuredFieldParser.parseItem(input, cursor);
-        Assertions.assertEquals(42L, item.getBareItem().getLongValue());
-        Assertions.assertEquals(6, cursor.getPos());
+        Assertions.assertThat(item.getBareItem().getLongValue()).isEqualTo(42L);
+        Assertions.assertThat(cursor.getPos()).isEqualTo(6);
     }
 
     @Test
@@ -117,19 +118,19 @@ class TestStructuredFieldParser {
             }
             listValue.append(i);
         }
-        Assertions.assertEquals(1024, StructuredFieldParser.parseList(listValue).size());
+        Assertions.assertThat(StructuredFieldParser.parseList(listValue).size()).isEqualTo(1024);
 
         final StringBuilder parameters = new StringBuilder("token");
         for (int i = 0; i < 256; i++) {
             parameters.append(";p").append(i);
         }
-        Assertions.assertEquals(256, StructuredFieldParser.parseItem(parameters).getParameters().size());
+        Assertions.assertThat(StructuredFieldParser.parseItem(parameters).getParameters().size()).isEqualTo(256);
     }
 
     private static void assertItem(
             final String encoded, final StructuredFieldType type, final Object expected) throws ParseException {
         final StructuredFieldBareItem item = StructuredFieldParser.parseItem(encoded).getBareItem();
-        Assertions.assertEquals(type, item.getType());
-        Assertions.assertEquals(expected, item.getValue());
+        Assertions.assertThat(item.getType()).isEqualTo(type);
+        Assertions.assertThat(item.getValue()).isEqualTo(expected);
     }
 }

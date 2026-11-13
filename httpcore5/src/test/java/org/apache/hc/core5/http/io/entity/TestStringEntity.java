@@ -32,7 +32,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -46,27 +46,29 @@ class TestStringEntity {
         try (final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN)) {
 
             final byte[] bytes = s.getBytes(StandardCharsets.US_ASCII);
-            Assertions.assertEquals(bytes.length, httpentity.getContentLength());
-            Assertions.assertNotNull(httpentity.getContent());
-            Assertions.assertTrue(httpentity.isRepeatable());
-            Assertions.assertFalse(httpentity.isStreaming());
+            Assertions.assertThat(httpentity.getContentLength()).isEqualTo(bytes.length);
+            Assertions.assertThat(httpentity.getContent()).isNotNull();
+            Assertions.assertThat(httpentity.isRepeatable()).isTrue();
+            Assertions.assertThat(httpentity.isStreaming()).isFalse();
         }
     }
 
     @Test
     void testNullConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () -> new StringEntity(null));
+        Assertions.assertThatThrownBy(() ->
+                        new StringEntity(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testDefaultContent() throws Exception {
         final String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
-        Assertions.assertEquals("text/csv; charset=US-ASCII", httpentity.getContentType());
+        Assertions.assertThat(httpentity.getContentType()).isEqualTo("text/csv; charset=US-ASCII");
         httpentity = new StringEntity(s, StandardCharsets.US_ASCII);
-        Assertions.assertEquals("text/plain; charset=US-ASCII", httpentity.getContentType());
+        Assertions.assertThat(httpentity.getContentType()).isEqualTo("text/plain; charset=US-ASCII");
         httpentity = new StringEntity(s);
-        Assertions.assertEquals("text/plain; charset=UTF-8", httpentity.getContentType());
+        Assertions.assertThat(httpentity.getContentType()).isEqualTo("text/plain; charset=UTF-8");
     }
 
     private static String constructString(final int [] unicodeChars) {
@@ -87,13 +89,13 @@ class TestStringEntity {
     void testNullCharset() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
-        Assertions.assertNotNull(httpentity.getContentType());
-        Assertions.assertEquals("text/plain", httpentity.getContentType());
-        Assertions.assertEquals(s, EntityUtils.toString(httpentity, 1024));
+        Assertions.assertThat(httpentity.getContentType()).isNotNull();
+        Assertions.assertThat(httpentity.getContentType()).isEqualTo("text/plain");
+        Assertions.assertThat(EntityUtils.toString(httpentity, 1024)).isEqualTo(s);
         httpentity = new StringEntity(s, (Charset) null);
-        Assertions.assertNotNull(httpentity.getContentType());
-        Assertions.assertEquals("text/plain", httpentity.getContentType());
-        Assertions.assertEquals(s, EntityUtils.toString(httpentity, 1024));
+        Assertions.assertThat(httpentity.getContentType()).isNotNull();
+        Assertions.assertThat(httpentity.getContentType()).isEqualTo("text/plain");
+        Assertions.assertThat(EntityUtils.toString(httpentity, 1024)).isEqualTo(s);
     }
 
     @Test
@@ -105,22 +107,24 @@ class TestStringEntity {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             httpentity.writeTo(out);
             byte[] bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
             out = new ByteArrayOutputStream();
             httpentity.writeTo(out);
             bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
-            Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            httpentity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 

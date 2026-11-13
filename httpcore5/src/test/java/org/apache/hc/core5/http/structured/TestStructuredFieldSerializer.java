@@ -36,24 +36,23 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BufferedHeader;
 import org.apache.hc.core5.http.message.HeaderGroup;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestStructuredFieldSerializer {
 
     @Test
     void testCanonicalNumbersAndDisplayString() {
-        Assertions.assertEquals("0.0", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0001"))));
-        Assertions.assertEquals("1.234", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2344"))));
-        Assertions.assertEquals("1.234", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2345"))));
-        Assertions.assertEquals("1.236", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2355"))));
-        Assertions.assertEquals("0.002", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("0.0015"))));
-        Assertions.assertEquals("0.002", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("0.0025"))));
-        Assertions.assertEquals("-0.002", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0015"))));
-        Assertions.assertEquals("-0.002", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0025"))));
-        Assertions.assertEquals("10.0", bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("9.9995"))));
-        Assertions.assertEquals("%\"F%c3%bc%c3%9fe %22%25%22\"",
-                bare(StructuredFieldBareItem.ofDisplayString("Füße \"%\"")));
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0001")))).isEqualTo("0.0");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2344")))).isEqualTo("1.234");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2345")))).isEqualTo("1.234");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("1.2355")))).isEqualTo("1.236");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("0.0015")))).isEqualTo("0.002");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("0.0025")))).isEqualTo("0.002");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0015")))).isEqualTo("-0.002");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("-0.0025")))).isEqualTo("-0.002");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDecimal(new BigDecimal("9.9995")))).isEqualTo("10.0");
+        Assertions.assertThat(bare(StructuredFieldBareItem.ofDisplayString("Füße \"%\""))).isEqualTo("%\"F%c3%bc%c3%9fe %22%25%22\"");
     }
 
     @Test
@@ -71,20 +70,18 @@ class TestStructuredFieldSerializer {
                         StructuredFieldItem.of(StructuredFieldBareItem.ofToken("joy")),
                         StructuredFieldItem.of(StructuredFieldBareItem.ofToken("sadness"))))
                 .build();
-        Assertions.assertEquals(
-                "available;valid;cached=?0;ttl=60, rating=1.5, feelings=(joy sadness)",
-                StructuredFieldSerializer.serializeDictionary(dictionary));
+        Assertions.assertThat(StructuredFieldSerializer.serializeDictionary(dictionary)).isEqualTo("available;valid;cached=?0;ttl=60, rating=1.5, feelings=(joy sadness)");
     }
 
     @Test
     void testEmptyContainersOmitField() throws Exception {
         final StructuredFieldList list = StructuredFieldList.of();
         final StructuredFieldDictionary dictionary = StructuredFieldDictionary.builder().build();
-        Assertions.assertNull(StructuredFieldSerializer.serializeList(list));
-        Assertions.assertNull(StructuredFieldSerializer.serializeDictionary(dictionary));
-        Assertions.assertNull(StructuredFieldHeaders.format("Example", list));
-        Assertions.assertTrue(StructuredFieldParser.parseList("").isEmpty());
-        Assertions.assertTrue(StructuredFieldParser.parseDictionary("").isEmpty());
+        Assertions.assertThat(StructuredFieldSerializer.serializeList(list)).isNull();
+        Assertions.assertThat(StructuredFieldSerializer.serializeDictionary(dictionary)).isNull();
+        Assertions.assertThat(StructuredFieldHeaders.format("Example", list)).isNull();
+        Assertions.assertThat(StructuredFieldParser.parseList("").isEmpty()).isTrue();
+        Assertions.assertThat(StructuredFieldParser.parseDictionary("").isEmpty()).isTrue();
     }
 
     @Test
@@ -93,12 +90,12 @@ class TestStructuredFieldSerializer {
         headers.addHeader(new BasicHeader("Example", "one, two"));
         headers.addHeader(new BasicHeader("EXAMPLE", "three"));
         final StructuredFieldList value = StructuredFieldHeaders.parseList(headers, "example");
-        Assertions.assertEquals(3, value.size());
+        Assertions.assertThat(value.size()).isEqualTo(3);
         final Header formatted = StructuredFieldHeaders.format("Example", value);
-        Assertions.assertNotNull(formatted);
-        Assertions.assertTrue(formatted instanceof BufferedHeader);
-        Assertions.assertEquals("one, two, three", formatted.getValue());
-        Assertions.assertEquals(value, StructuredFieldHeaders.parseList(formatted));
+        Assertions.assertThat(formatted).isNotNull();
+        Assertions.assertThat(formatted instanceof BufferedHeader).isTrue();
+        Assertions.assertThat(formatted.getValue()).isEqualTo("one, two, three");
+        Assertions.assertThat(StructuredFieldHeaders.parseList(formatted)).isEqualTo(value);
     }
 
     @Test
@@ -107,32 +104,31 @@ class TestStructuredFieldSerializer {
         headers.addHeader(bufferedHeader("Example: one, two"));
         headers.addHeader(bufferedHeader("Example: three"));
         final StructuredFieldList value = StructuredFieldHeaders.parseList(headers, "example");
-        Assertions.assertEquals(3, value.size());
-        Assertions.assertEquals("one, two, three",
-                StructuredFieldHeaders.format("Example", value).getValue());
+        Assertions.assertThat(value.size()).isEqualTo(3);
+        Assertions.assertThat(StructuredFieldHeaders.format("Example", value).getValue()).isEqualTo("one, two, three");
     }
 
     @Test
     void testMessageHeadersItemMustNotSpanFieldLines() throws Exception {
         final HeaderGroup single = new HeaderGroup();
         single.addHeader(new BasicHeader("Example", "10"));
-        Assertions.assertEquals(
-                StructuredFieldHeaders.parseItem(new BasicHeader("Example", "10")),
-                StructuredFieldHeaders.parseItem(single, "example"));
+        Assertions.assertThat(StructuredFieldHeaders.parseItem(single, "example")).isEqualTo(StructuredFieldHeaders.parseItem(new BasicHeader("Example", "10")));
 
         final HeaderGroup multiple = new HeaderGroup();
         multiple.addHeader(new BasicHeader("Example", "10"));
         multiple.addHeader(new BasicHeader("Example", "20"));
-        Assertions.assertThrows(ParseException.class,
-                () -> StructuredFieldHeaders.parseItem(multiple, "example"));
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldHeaders.parseItem(multiple, "example"))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
     void testMessageHeadersListMembersMustBeCommaSeparated() {
         final HeaderGroup headers = new HeaderGroup();
         headers.addHeader(new BasicHeader("Example", "a b"));
-        Assertions.assertThrows(ParseException.class,
-                () -> StructuredFieldHeaders.parseList(headers, "example"));
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldHeaders.parseList(headers, "example"))
+                .isInstanceOf(ParseException.class);
     }
 
     private static BufferedHeader bufferedHeader(final String line) {
@@ -149,7 +145,7 @@ class TestStructuredFieldSerializer {
                 .put("u", StructuredFieldItem.ofInteger(0))
                 .put("i", StructuredFieldItem.ofBoolean(true))
                 .build());
-        Assertions.assertEquals("Priority: u=0, i", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("Priority: u=0, i");
     }
 
     @Test
@@ -157,32 +153,41 @@ class TestStructuredFieldSerializer {
         final byte[] bytes = {1, 2, 3};
         final StructuredFieldBareItem item = StructuredFieldBareItem.ofByteSequence(bytes);
         bytes[0] = 9;
-        Assertions.assertArrayEquals(new byte[] {1, 2, 3}, item.getByteSequenceValue());
+        Assertions.assertThat(item.getByteSequenceValue())
+                .containsExactly(new byte[]{1, 2, 3});
         final byte[] returned = item.getByteSequenceValue();
         returned[0] = 8;
-        Assertions.assertArrayEquals(new byte[] {1, 2, 3}, item.getByteSequenceValue());
+        Assertions.assertThat(item.getByteSequenceValue())
+                .containsExactly(new byte[]{1, 2, 3});
 
         final StructuredFieldList list = StructuredFieldList.of(
                 StructuredFieldItem.of(StructuredFieldBareItem.ofInteger(1)));
-        Assertions.assertThrows(UnsupportedOperationException.class,
-                () -> list.getMembers().add(StructuredFieldItem.of(StructuredFieldBareItem.ofInteger(2))));
-        Assertions.assertEquals(list, StructuredFieldList.of(Arrays.asList(list.get(0))));
+        Assertions.assertThatThrownBy(() ->
+                        list.getMembers().add(StructuredFieldItem.of(StructuredFieldBareItem.ofInteger(2))))
+                .isInstanceOf(UnsupportedOperationException.class);
+        Assertions.assertThat(StructuredFieldList.of(Arrays.asList(list.get(0)))).isEqualTo(list);
     }
 
     @Test
     void testValidationAtConstructionBoundary() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldBareItem.ofInteger(1000000000000000L));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldBareItem.ofDecimal(new BigDecimal("999999999999.9995")));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldBareItem.ofString("é"));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldBareItem.ofToken("1token"));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldParameters.builder().putBoolean("Upper", true));
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldBareItem.ofDisplayString("\ud800"));
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldBareItem.ofInteger(1000000000000000L))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldBareItem.ofDecimal(new BigDecimal("999999999999.9995")))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldBareItem.ofString("é"))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldBareItem.ofToken("1token"))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldParameters.builder().putBoolean("Upper", true))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldBareItem.ofDisplayString("\ud800"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static String bare(final StructuredFieldBareItem item) {

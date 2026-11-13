@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.SocketModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -144,12 +144,12 @@ class TestConnPoolLeaseTimeout {
                 });
             }
 
-            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-            Assertions.assertTrue(n.get() <= 0);
-            Assertions.assertNull(unexpectedException.get());
+            Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
+            Assertions.assertThat(n.get() <= 0).isTrue();
+            Assertions.assertThat(unexpectedException.get()).isNull();
 
             final PoolStats stats = pool.getStats(route);
-            Assertions.assertEquals(0, stats.getLeased());
+            Assertions.assertThat(stats.getLeased()).isEqualTo(0);
 
         } finally {
             executorService.shutdownNow();

@@ -85,7 +85,7 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.ClassicTestResources;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -149,9 +149,9 @@ abstract class ClassicIntegrationTest {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
-                Assertions.assertEquals(expected.length, received.length);
+                Assertions.assertThat(received.length).isEqualTo(expected.length);
                 for (int i = 0; i < expected.length; i++) {
-                    Assertions.assertEquals(expected[i], received[i]);
+                    Assertions.assertThat(received[i]).isEqualTo(expected[i]);
                 }
             }
         }
@@ -204,9 +204,9 @@ abstract class ClassicIntegrationTest {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
-                Assertions.assertEquals(expected.length, received.length);
+                Assertions.assertThat(received.length).isEqualTo(expected.length);
                 for (int i = 0; i < expected.length; i++) {
-                    Assertions.assertEquals(expected[i], received[i]);
+                    Assertions.assertThat(received[i]).isEqualTo(expected[i]);
                 }
             }
         }
@@ -259,9 +259,9 @@ abstract class ClassicIntegrationTest {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
-                Assertions.assertEquals(expected.length, received.length);
+                Assertions.assertThat(received.length).isEqualTo(expected.length);
                 for (int i = 0; i < expected.length; i++) {
-                    Assertions.assertEquals(expected[i], received[i]);
+                    Assertions.assertThat(received[i]).isEqualTo(expected[i]);
                 }
             }
         }
@@ -315,9 +315,9 @@ abstract class ClassicIntegrationTest {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
-                Assertions.assertEquals(expected.length, received.length);
+                Assertions.assertThat(received.length).isEqualTo(expected.length);
                 for (int i = 0; i < expected.length; i++) {
-                    Assertions.assertEquals(expected[i], received[i]);
+                    Assertions.assertThat(received[i]).isEqualTo(expected[i]);
                 }
             }
         }
@@ -342,11 +342,11 @@ abstract class ClassicIntegrationTest {
         post.setVersion(HttpVersion.HTTP_1_0);
         post.setEntity(new ByteArrayEntity(new byte[] {'a', 'b', 'c'}, null, true));
 
-        Assertions.assertThrows(ProtocolException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 EntityUtils.consume(response.getEntity());
             }
-        });
+        }).isInstanceOf(ProtocolException.class);
     }
 
     /**
@@ -396,9 +396,9 @@ abstract class ClassicIntegrationTest {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
                 final byte[] expected = testData.get(r);
 
-                Assertions.assertEquals(expected.length, received.length);
+                Assertions.assertThat(received.length).isEqualTo(expected.length);
                 for (int i = 0; i < expected.length; i++) {
-                    Assertions.assertEquals(expected[i], received[i]);
+                    Assertions.assertThat(received[i]).isEqualTo(expected[i]);
                 }
             }
         }
@@ -459,13 +459,13 @@ abstract class ClassicIntegrationTest {
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 final HttpEntity responseEntity = response.getEntity();
-                Assertions.assertNotNull(responseEntity);
+                Assertions.assertThat(responseEntity).isNotNull();
                 EntityUtils.consume(responseEntity);
 
                 if (r >= 2) {
-                    Assertions.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getCode());
+                    Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_EXPECTATION_FAILED);
                 } else {
-                    Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+                    Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
                 }
             }
         }
@@ -586,20 +586,20 @@ abstract class ClassicIntegrationTest {
 
                 try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                     final HttpEntity entity = response.getEntity();
-                    Assertions.assertNotNull(entity);
+                    Assertions.assertThat(entity).isNotNull();
                     final InputStream inStream = entity.getContent();
                     final ContentType contentType = ContentType.parse(entity.getContentType());
                     final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
-                    Assertions.assertNotNull(inStream);
+                    Assertions.assertThat(inStream).isNotNull();
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, charset));
 
                     String line;
                     int count = 0;
                     while ((line = reader.readLine()) != null) {
-                        Assertions.assertEquals(pattern, line);
+                        Assertions.assertThat(line).isEqualTo(pattern);
                         count++;
                     }
-                    Assertions.assertEquals(n, count);
+                    Assertions.assertThat(count).isEqualTo(n);
                 }
             }
         }
@@ -629,9 +629,9 @@ abstract class ClassicIntegrationTest {
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals(0, received.length);
+            Assertions.assertThat(received.length).isEqualTo(0);
         }
     }
 
@@ -665,9 +665,9 @@ abstract class ClassicIntegrationTest {
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals(0, received.length);
+            Assertions.assertThat(received.length).isEqualTo(0);
         }
     }
 
@@ -701,7 +701,7 @@ abstract class ClassicIntegrationTest {
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_NOT_IMPLEMENTED);
         }
     }
 
@@ -724,7 +724,7 @@ abstract class ClassicIntegrationTest {
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
             try (final ClassicHttpResponse response = client.execute(host, get, context)) {
-                Assertions.assertNull(response.getEntity());
+                Assertions.assertThat(response.getEntity()).isNull();
             }
         }
     }
@@ -746,10 +746,10 @@ abstract class ClassicIntegrationTest {
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             if (response.getEntity() != null) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-                Assertions.assertEquals(0, received.length);
+                Assertions.assertThat(received.length).isEqualTo(0);
             }
         }
     }
@@ -771,9 +771,9 @@ abstract class ClassicIntegrationTest {
         post.setEntity(new ByteArrayEntity(new byte[0], ContentType.TEXT_PLAIN));
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals(0, received.length);
+            Assertions.assertThat(received.length).isEqualTo(0);
         }
     }
 
@@ -799,9 +799,9 @@ abstract class ClassicIntegrationTest {
         post.setEntity(new ByteArrayEntity(data, ContentType.APPLICATION_OCTET_STREAM));
 
         try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertArrayEquals(data, received);
+            Assertions.assertThat(received).containsExactly(data);
         }
     }
 
@@ -824,9 +824,9 @@ abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, ContentType.TEXT_PLAIN));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
                 final byte[] received = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-                Assertions.assertArrayEquals(data, received);
+                Assertions.assertThat(received).containsExactly(data);
             }
         }
     }
@@ -852,7 +852,7 @@ abstract class ClassicIntegrationTest {
         get1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
                 "1234567890123456789012345678901234567890");
         try (final ClassicHttpResponse response1 = client.execute(host, get1, context)) {
-            Assertions.assertEquals(431, response1.getCode());
+            Assertions.assertThat(response1.getCode()).isEqualTo(431);
             EntityUtils.consume(response1.getEntity());
         }
     }
@@ -887,7 +887,7 @@ abstract class ClassicIntegrationTest {
         post1.setEntity(new ByteArrayEntity(b, ContentType.TEXT_PLAIN));
 
         try (final ClassicHttpResponse response1 = client.execute(host, post1, context)) {
-            Assertions.assertEquals(431, response1.getCode());
+            Assertions.assertThat(response1.getCode()).isEqualTo(431);
             EntityUtils.consume(response1.getEntity());
         }
     }
@@ -945,9 +945,8 @@ abstract class ClassicIntegrationTest {
                 final long endTime = System.currentTimeMillis();
                 final long durationMillis = endTime - startTime;
                 // Assert that the timeout occurred around the socket timeout duration
-                Assertions.assertTrue(durationMillis >= socketTimeoutMillis && durationMillis < socketTimeoutMillis * 2,
-                        String.format("Socket timeout should occur around %dms (took %dms)",
-                                socketTimeoutMillis, durationMillis));
+                Assertions.assertThat(durationMillis >= socketTimeoutMillis && durationMillis < socketTimeoutMillis * 2).withFailMessage(String.format("Socket timeout should occur around %dms (took %dms)",
+                        socketTimeoutMillis, durationMillis)).isTrue();
             } catch (final IOException | HttpException e) {
                 Assertions.fail("IOException during request execution: " + e.getMessage());
             }

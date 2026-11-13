@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestInternalChannel {
@@ -97,8 +97,8 @@ class TestInternalChannel {
 
             channel.handleIOEvent(0);
 
-            Assertions.assertTrue(channel.closed.get());
-            Assertions.assertEquals(CloseMode.GRACEFUL, channel.closeMode.get());
+            Assertions.assertThat(channel.closed.get()).isTrue();
+            Assertions.assertThat(channel.closeMode.get()).isEqualTo(CloseMode.GRACEFUL);
         }
     }
 
@@ -109,9 +109,9 @@ class TestInternalChannel {
 
             channel.handleIOEvent(0);
 
-            Assertions.assertTrue(channel.closed.get());
-            Assertions.assertEquals(CloseMode.GRACEFUL, channel.closeMode.get());
-            Assertions.assertNotNull(channel.exceptionRef.get());
+            Assertions.assertThat(channel.closed.get()).isTrue();
+            Assertions.assertThat(channel.closeMode.get()).isEqualTo(CloseMode.GRACEFUL);
+            Assertions.assertThat(channel.exceptionRef.get()).isNotNull();
         }
     }
 
@@ -123,8 +123,8 @@ class TestInternalChannel {
 
             final boolean result = channel.checkTimeout(10);
 
-            Assertions.assertFalse(result);
-            Assertions.assertTrue(channel.timedOut.get());
+            Assertions.assertThat(result).isFalse();
+            Assertions.assertThat(channel.timedOut.get()).isTrue();
         }
     }
 
@@ -135,8 +135,8 @@ class TestInternalChannel {
 
             final boolean result = channel.checkTimeout(System.currentTimeMillis());
 
-            Assertions.assertTrue(result);
-            Assertions.assertFalse(channel.timedOut.get());
+            Assertions.assertThat(result).isTrue();
+            Assertions.assertThat(channel.timedOut.get()).isFalse();
         }
     }
 

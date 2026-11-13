@@ -27,7 +27,7 @@
 package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.Header;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -38,21 +38,23 @@ class TestBasicHeader {
     @Test
     void testConstructor() {
         final Header param = new BasicHeader("name", "value");
-        Assertions.assertEquals("name", param.getName());
-        Assertions.assertEquals("value", param.getValue());
+        Assertions.assertThat(param.getName()).isEqualTo("name");
+        Assertions.assertThat(param.getValue()).isEqualTo("value");
     }
 
     @Test
     void testInvalidName() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHeader(null, null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testToString() {
         final Header param1 = new BasicHeader("name1", "value1");
-        Assertions.assertEquals("name1: value1", param1.toString());
+        Assertions.assertThat(param1.toString()).isEqualTo("name1: value1");
         final Header param2 = new BasicHeader("name1", null);
-        Assertions.assertEquals("name1: ", param2.toString());
+        Assertions.assertThat(param2.toString()).isEqualTo("name1: ");
     }
 
 }

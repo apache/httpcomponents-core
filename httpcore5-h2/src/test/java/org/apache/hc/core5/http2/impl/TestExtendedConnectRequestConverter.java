@@ -26,10 +26,6 @@
  */
 package org.apache.hc.core5.http2.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +35,7 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
 import org.apache.hc.core5.net.URIAuthority;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestExtendedConnectRequestConverter {
@@ -54,10 +51,10 @@ class TestExtendedConnectRequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
-        assertNotNull(request);
-        assertEquals(Method.CONNECT.name(), request.getMethod());
-        assertEquals("/echo", request.getPath());
-        assertEquals("websocket", request.getFirstHeader(H2PseudoRequestHeaders.PROTOCOL).getValue());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.CONNECT.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/echo");
+        Assertions.assertThat(request.getFirstHeader(H2PseudoRequestHeaders.PROTOCOL).getValue()).isEqualTo("websocket");
     }
 
     @Test
@@ -76,6 +73,6 @@ class TestExtendedConnectRequestConverter {
                 break;
             }
         }
-        assertTrue(found);
+        Assertions.assertThat(found).isTrue();
     }
 }

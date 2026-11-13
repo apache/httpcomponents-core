@@ -29,7 +29,7 @@ package org.apache.hc.core5.http;
 
 
 import org.apache.hc.core5.util.Tokenizer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestProtocolVersion {
@@ -40,38 +40,50 @@ class TestProtocolVersion {
 
     @Test
     void testEqualsMajorMinor() {
-        Assertions.assertTrue(PROTOCOL_VERSION_0_0.equals(0, 0));
-        Assertions.assertTrue(PROTOCOL_VERSION_1_0.equals(1, 0));
-        Assertions.assertTrue(PROTOCOL_VERSION_1_2.equals(1, 2));
+        Assertions.assertThat(PROTOCOL_VERSION_0_0.equals(0, 0)).isTrue();
+        Assertions.assertThat(PROTOCOL_VERSION_1_0.equals(1, 0)).isTrue();
+        Assertions.assertThat(PROTOCOL_VERSION_1_2.equals(1, 2)).isTrue();
         //
-        Assertions.assertFalse(PROTOCOL_VERSION_1_2.equals(2, 0));
+        Assertions.assertThat(PROTOCOL_VERSION_1_2.equals(2, 0)).isFalse();
     }
 
     @Test
     void testParseBasic() throws Exception {
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), ProtocolVersion.parse("PROTO/1"));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), ProtocolVersion.parse("PROTO/1.1"));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 2), ProtocolVersion.parse("PROTO/1.2"));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 3), ProtocolVersion.parse("PROTO/1.3  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 0, 0), ProtocolVersion.parse("PROTO/000.0000  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 22, 356), ProtocolVersion.parse("PROTO/22.356"));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/1")).isEqualTo(new ProtocolVersion("PROTO", 1, 0));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/1.1")).isEqualTo(new ProtocolVersion("PROTO", 1, 1));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/1.2")).isEqualTo(new ProtocolVersion("PROTO", 1, 2));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/1.3  ")).isEqualTo(new ProtocolVersion("PROTO", 1, 3));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/000.0000  ")).isEqualTo(new ProtocolVersion("PROTO", 0, 0));
+        Assertions.assertThat(ProtocolVersion.parse("PROTO/22.356")).isEqualTo(new ProtocolVersion("PROTO", 22, 356));
     }
 
     @Test
     void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 2), ProtocolVersion.parse(" PROTO/1.2,0000", cursor, Tokenizer.delimiters(',')));
-        Assertions.assertEquals(10, cursor.getPos());
+        Assertions.assertThat(ProtocolVersion.parse(" PROTO/1.2,0000", cursor, Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 2));
+        Assertions.assertThat(cursor.getPos()).isEqualTo(10);
     }
 
     @Test
     void testParseFailure() {
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("/1"));
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse(" /1"));
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/"));
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1A"));
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1.A"));
-        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1.1 huh?"));
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse("/1"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse(" /1"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse("PROTO/"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse("PROTO/1A"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse("PROTO/1.A"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ProtocolVersion.parse("PROTO/1.1 huh?"))
+                .isInstanceOf(ParseException.class);
     }
 
 }

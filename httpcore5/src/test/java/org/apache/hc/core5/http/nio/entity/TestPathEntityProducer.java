@@ -32,7 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -48,7 +48,7 @@ class TestPathEntityProducer {
             final long expectedLength = 1L + Integer.MAX_VALUE;
             raFile.setLength(expectedLength);
             final PathEntityProducer fileEntityProducer = new PathEntityProducer(path, StandardOpenOption.READ);
-            Assertions.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            Assertions.assertThat(fileEntityProducer.getContentLength()).isEqualTo(expectedLength);
         }
     }
 

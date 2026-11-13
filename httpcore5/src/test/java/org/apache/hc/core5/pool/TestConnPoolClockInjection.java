@@ -26,17 +26,13 @@
  */
 package org.apache.hc.core5.pool;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -53,27 +49,27 @@ final class TestConnPoolClockInjection {
             final Future<PoolEntry<String, PoolTestSupport.DummyConn>> f1 =
                     pool.lease("r1", null, Timeout.ofSeconds(1), null);
             final PoolEntry<String, PoolTestSupport.DummyConn> e1 = f1.get(1, TimeUnit.SECONDS);
-            assertNotNull(e1);
+            Assertions.assertThat(e1).isNotNull();
 
             final PoolTestSupport.DummyConn conn = new PoolTestSupport.DummyConn();
             e1.assignConnection(conn);
             pool.release(e1, true);
 
             pool.closeIdle(TimeValue.ofMilliseconds(1));
-            assertFalse(conn.isClosed());
-            assertEquals(1, pool.getTotalStats().getAvailable());
-            assertEquals(0, pool.getTotalStats().getLeased());
-            assertEquals(0, pool.getTotalStats().getPending());
+            Assertions.assertThat(conn.isClosed()).isFalse();
+            Assertions.assertThat(pool.getTotalStats().getAvailable()).isEqualTo(1);
+            Assertions.assertThat(pool.getTotalStats().getLeased()).isEqualTo(0);
+            Assertions.assertThat(pool.getTotalStats().getPending()).isEqualTo(0);
 
             clock.advanceMillis(10_000L);
 
             pool.closeIdle(TimeValue.ofMilliseconds(1));
-            assertEquals(0, pool.getTotalStats().getAvailable());
-            assertEquals(0, pool.getTotalStats().getLeased());
-            assertEquals(0, pool.getTotalStats().getPending());
+            Assertions.assertThat(pool.getTotalStats().getAvailable()).isEqualTo(0);
+            Assertions.assertThat(pool.getTotalStats().getLeased()).isEqualTo(0);
+            Assertions.assertThat(pool.getTotalStats().getPending()).isEqualTo(0);
 
             if (policy != PoolConcurrencyPolicy.OFFLOCK) {
-                assertTrue(conn.isClosed());
+                Assertions.assertThat(conn.isClosed()).isTrue();
             }
         } finally {
             pool.close(CloseMode.IMMEDIATE);

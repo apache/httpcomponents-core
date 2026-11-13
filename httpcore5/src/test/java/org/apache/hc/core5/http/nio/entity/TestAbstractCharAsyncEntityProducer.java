@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.StreamChannel;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestAbstractCharAsyncEntityProducer {
@@ -89,22 +89,22 @@ class TestAbstractCharAsyncEntityProducer {
         final AsyncEntityProducer producer = new ChunkCharAsyncEntityProducer(
                 256, 0, ContentType.TEXT_PLAIN, "this", "this and that");
 
-        Assertions.assertEquals(-1, producer.getContentLength());
-        Assertions.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assertions.assertNull(producer.getContentEncoding());
+        Assertions.assertThat(producer.getContentLength()).isEqualTo(-1);
+        Assertions.assertThat(producer.getContentType()).isEqualTo(ContentType.TEXT_PLAIN.toString());
+        Assertions.assertThat(producer.getContentEncoding()).isNull();
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
 
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("this", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("this");
 
         producer.produce(streamChannel);
 
-        Assertions.assertFalse(byteChannel.isOpen());
-        Assertions.assertEquals("this and that", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isFalse();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("this and that");
     }
 
     @Test
@@ -117,20 +117,20 @@ class TestAbstractCharAsyncEntityProducer {
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
 
         producer.produce(streamChannel);
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("this and that", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("this and that");
 
         producer.produce(streamChannel);
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
 
         producer.produce(streamChannel);
-        Assertions.assertFalse(byteChannel.isOpen());
-        Assertions.assertEquals("all sorts of stuff", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isFalse();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("all sorts of stuff");
     }
 
 }

@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.structured.StructuredFieldBareItem;
 import org.apache.hc.core5.http.structured.StructuredFieldDictionary;
 import org.apache.hc.core5.http.structured.StructuredFieldItem;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDigestFields {
@@ -50,10 +50,9 @@ class TestDigestFields {
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(header);
 
         final StructuredFieldItem item = (StructuredFieldItem) dictionary.get("sha-256");
-        Assertions.assertNotNull(item);
-        Assertions.assertArrayEquals(
-                Base64.getDecoder().decode(encoded),
-                item.getBareItem().getByteSequenceValue());
+        Assertions.assertThat(item).isNotNull();
+        Assertions.assertThat(item.getBareItem().getByteSequenceValue())
+                .containsExactly(Base64.getDecoder().decode(encoded));
     }
 
     @Test
@@ -64,13 +63,11 @@ class TestDigestFields {
 
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(header);
 
-        Assertions.assertEquals(2, dictionary.size());
-        Assertions.assertArrayEquals(
-                new byte[]{1, 2, 3},
-                ((StructuredFieldItem) dictionary.get("sha-256")).getBareItem().getByteSequenceValue());
-        Assertions.assertArrayEquals(
-                new byte[]{4, 5, 6},
-                ((StructuredFieldItem) dictionary.get("sha-512")).getBareItem().getByteSequenceValue());
+        Assertions.assertThat(dictionary.size()).isEqualTo(2);
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("sha-256")).getBareItem().getByteSequenceValue())
+                .containsExactly(new byte[]{1, 2, 3});
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("sha-512")).getBareItem().getByteSequenceValue())
+                .containsExactly(new byte[]{4, 5, 6});
     }
 
     @Test
@@ -81,9 +78,9 @@ class TestDigestFields {
 
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(response, HttpHeaders.REPR_DIGEST);
 
-        Assertions.assertEquals(2, dictionary.size());
-        Assertions.assertNotNull(dictionary.get("sha-256"));
-        Assertions.assertNotNull(dictionary.get("sha-512"));
+        Assertions.assertThat(dictionary.size()).isEqualTo(2);
+        Assertions.assertThat(dictionary.get("sha-256")).isNotNull();
+        Assertions.assertThat(dictionary.get("sha-512")).isNotNull();
     }
 
     @Test
@@ -92,21 +89,25 @@ class TestDigestFields {
 
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(header);
 
-        Assertions.assertNotNull(dictionary.get("example-algorithm"));
+        Assertions.assertThat(dictionary.get("example-algorithm")).isNotNull();
     }
 
     @Test
     void testParseDigestRejectsNonByteSequence() {
         final Header header = new BasicHeader(HttpHeaders.CONTENT_DIGEST, "sha-256=123");
 
-        Assertions.assertThrows(ParseException.class, () -> DigestFields.parseDigest(header));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.parseDigest(header))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
     void testParseDigestRejectsInnerList() {
         final Header header = new BasicHeader(HttpHeaders.CONTENT_DIGEST, "sha-256=(:AQID:)");
 
-        Assertions.assertThrows(ParseException.class, () -> DigestFields.parseDigest(header));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.parseDigest(header))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
@@ -117,33 +118,36 @@ class TestDigestFields {
 
         final StructuredFieldDictionary dictionary = DigestFields.parsePreferences(header);
 
-        Assertions.assertEquals(3L,
-                ((StructuredFieldItem) dictionary.get("sha-512")).getBareItem().getLongValue());
-        Assertions.assertEquals(10L,
-                ((StructuredFieldItem) dictionary.get("sha-256")).getBareItem().getLongValue());
-        Assertions.assertEquals(0L,
-                ((StructuredFieldItem) dictionary.get("unixsum")).getBareItem().getLongValue());
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("sha-512")).getBareItem().getLongValue()).isEqualTo(3L);
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("sha-256")).getBareItem().getLongValue()).isEqualTo(10L);
+        Assertions.assertThat(((StructuredFieldItem) dictionary.get("unixsum")).getBareItem().getLongValue()).isEqualTo(0L);
     }
 
     @Test
     void testParseWantDigestRejectsBooleanShorthand() {
         final Header header = new BasicHeader(HttpHeaders.WANT_CONTENT_DIGEST, "sha-256");
 
-        Assertions.assertThrows(ParseException.class, () -> DigestFields.parsePreferences(header));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.parsePreferences(header))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
     void testParseWantDigestRejectsNegativePreference() {
         final Header header = new BasicHeader(HttpHeaders.WANT_CONTENT_DIGEST, "sha-256=-1");
 
-        Assertions.assertThrows(ParseException.class, () -> DigestFields.parsePreferences(header));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.parsePreferences(header))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
     void testParseWantDigestRejectsPreferenceGreaterThanTen() {
         final Header header = new BasicHeader(HttpHeaders.WANT_CONTENT_DIGEST, "sha-256=11");
 
-        Assertions.assertThrows(ParseException.class, () -> DigestFields.parsePreferences(header));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.parsePreferences(header))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
@@ -155,8 +159,8 @@ class TestDigestFields {
 
         final Header header = DigestFields.formatDigest(HttpHeaders.CONTENT_DIGEST, dictionary);
 
-        Assertions.assertEquals(HttpHeaders.CONTENT_DIGEST, header.getName());
-        Assertions.assertEquals("sha-256=:AQID:, sha-512=:BAUG:", header.getValue());
+        Assertions.assertThat(header.getName()).isEqualTo(HttpHeaders.CONTENT_DIGEST);
+        Assertions.assertThat(header.getValue()).isEqualTo("sha-256=:AQID:, sha-512=:BAUG:");
     }
 
     @Test
@@ -165,9 +169,9 @@ class TestDigestFields {
                 .put("sha-256", StructuredFieldBareItem.ofInteger(1))
                 .build();
 
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> DigestFields.formatDigest(HttpHeaders.CONTENT_DIGEST, dictionary));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.formatDigest(HttpHeaders.CONTENT_DIGEST, dictionary))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -180,8 +184,8 @@ class TestDigestFields {
 
         final Header header = DigestFields.formatPreferences(HttpHeaders.WANT_REPR_DIGEST, dictionary);
 
-        Assertions.assertEquals(HttpHeaders.WANT_REPR_DIGEST, header.getName());
-        Assertions.assertEquals("sha-512=3, sha-256=10, unixsum=0", header.getValue());
+        Assertions.assertThat(header.getName()).isEqualTo(HttpHeaders.WANT_REPR_DIGEST);
+        Assertions.assertThat(header.getValue()).isEqualTo("sha-512=3, sha-256=10, unixsum=0");
     }
 
     @Test
@@ -190,9 +194,9 @@ class TestDigestFields {
                 .put("sha-256", StructuredFieldBareItem.ofInteger(11))
                 .build();
 
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> DigestFields.formatPreferences(HttpHeaders.WANT_CONTENT_DIGEST, dictionary));
+        Assertions.assertThatThrownBy(() ->
+                        DigestFields.formatPreferences(HttpHeaders.WANT_CONTENT_DIGEST, dictionary))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -202,7 +206,7 @@ class TestDigestFields {
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(header);
         final Header formatted = DigestFields.formatDigest(HttpHeaders.CONTENT_DIGEST, dictionary);
 
-        Assertions.assertEquals("sha-256=:AQID:;foo=bar", formatted.getValue());
+        Assertions.assertThat(formatted.getValue()).isEqualTo("sha-256=:AQID:;foo=bar");
     }
 
     @Test
@@ -211,6 +215,6 @@ class TestDigestFields {
 
         final StructuredFieldDictionary dictionary = DigestFields.parseDigest(response, HttpHeaders.CONTENT_DIGEST);
 
-        Assertions.assertTrue(dictionary.isEmpty());
+        Assertions.assertThat(dictionary.isEmpty()).isTrue();
     }
 }

@@ -27,7 +27,7 @@
 package org.apache.hc.core5.http2.nio.command;
 
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,8 +38,8 @@ class TestPingCommand {
         final AsyncPingHandler handler = Mockito.mock(AsyncPingHandler.class);
         final PingCommand command = new PingCommand(handler);
 
-        Assertions.assertSame(handler, command.getHandler());
-        Assertions.assertTrue(command.cancel());
+        Assertions.assertThat(command.getHandler()).isSameAs(handler);
+        Assertions.assertThat(command.cancel()).isTrue();
 
         Mockito.verify(handler).cancel();
     }

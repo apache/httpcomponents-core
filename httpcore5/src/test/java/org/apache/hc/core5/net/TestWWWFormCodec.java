@@ -30,12 +30,12 @@ package org.apache.hc.core5.net;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.NameValuePairListMatcher;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestWWWFormCodec {
@@ -49,30 +49,49 @@ class TestWWWFormCodec {
 
     @Test
     void testParse() {
-        NameValuePairListMatcher.assertEmpty(parse(""));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name0"), new BasicNameValuePair("Name0", null));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name1=Value1"), new BasicNameValuePair("Name1", "Value1"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name2="), new BasicNameValuePair("Name2", ""));
-        NameValuePairListMatcher.assertEqualsTo(parse(" Name3  "), new BasicNameValuePair("Name3", null));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%204%21"), new BasicNameValuePair("Name4", "Value 4!"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%2B4%21"), new BasicNameValuePair("Name4", "Value+4!"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name4=Value%204%21%20%214"), new BasicNameValuePair("Name4", "Value 4! !4"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name5=aaa&Name6=bbb"),
-                new BasicNameValuePair("Name5", "aaa"),
-                new BasicNameValuePair("Name6", "bbb"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
-                new BasicNameValuePair("Name7", "aaa"),
-                new BasicNameValuePair("Name7", "b,b"),
-                new BasicNameValuePair("Name7", "ccc"));
-        NameValuePairListMatcher.assertEqualsTo(parse("Name8=xx%2C%20%20yy%20%20%2Czz"), new BasicNameValuePair("Name8", "xx,  yy  ,zz"));
-        NameValuePairListMatcher.assertEqualsTo(parse("price=10%20%E2%82%AC"), new BasicNameValuePair("price", "10 \u20AC"));
-        NameValuePairListMatcher.assertEqualsTo(parse("a=b\"c&d=e"),
-                new BasicNameValuePair("a", "b\"c"),
-                new BasicNameValuePair("d", "e"));
-        NameValuePairListMatcher.assertEqualsTo(parse("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
-                        "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)),
-                new BasicNameValuePair("russian", RU_HELLO),
-                new BasicNameValuePair("swiss", CH_HELLO));
+        Assertions.assertThat(parse(""))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Collections.emptyList());
+        Assertions.assertThat(parse("Name0"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name0", null)));
+        Assertions.assertThat(parse("Name1=Value1"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name1", "Value1")));
+        Assertions.assertThat(parse("Name2="))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name2", "")));
+        Assertions.assertThat(parse(" Name3  "))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name3", null)));
+        Assertions.assertThat(parse("Name4=Value%204%21"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name4", "Value 4!")));
+        Assertions.assertThat(parse("Name4=Value%2B4%21"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name4", "Value+4!")));
+        Assertions.assertThat(parse("Name4=Value%204%21%20%214"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name4", "Value 4! !4")));
+        Assertions.assertThat(parse("Name5=aaa&Name6=bbb"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name5", "aaa"), Assertions.tuple("Name6", "bbb")));
+        Assertions.assertThat(parse("Name7=aaa&Name7=b%2Cb&Name7=ccc"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name7", "aaa"), Assertions.tuple("Name7", "b,b"), Assertions.tuple("Name7", "ccc")));
+        Assertions.assertThat(parse("Name8=xx%2C%20%20yy%20%20%2Czz"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("Name8", "xx,  yy  ,zz")));
+        Assertions.assertThat(parse("price=10%20%E2%82%AC"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("price", "10 \u20AC")));
+        Assertions.assertThat(parse("a=b\"c&d=e"))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("a", "b\"c"), Assertions.tuple("d", "e")));
+        Assertions.assertThat(parse("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+                        "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)))
+                .extracting(nvp -> Assertions.tuple(nvp.getName(), nvp.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("russian", RU_HELLO), Assertions.tuple("swiss", CH_HELLO)));
     }
 
     private static String format(final NameValuePair... nvps) {
@@ -81,25 +100,25 @@ class TestWWWFormCodec {
 
     @Test
     void testFormat() {
-        Assertions.assertEquals("Name0", format(new BasicNameValuePair("Name0", null)));
-        Assertions.assertEquals("Name1=Value1", format(new BasicNameValuePair("Name1", "Value1")));
-        Assertions.assertEquals("Name2=", format(new BasicNameValuePair("Name2", "")));
-        Assertions.assertEquals("Name4=Value+4%26", format(new BasicNameValuePair("Name4", "Value 4&")));
-        Assertions.assertEquals("Name4=Value%2B4%26", format(new BasicNameValuePair("Name4", "Value+4&")));
-        Assertions.assertEquals("Name4=Value+4%26+%3D4", format(new BasicNameValuePair("Name4", "Value 4& =4")));
-        Assertions.assertEquals("Name5=aaa&Name6=bbb", format(
+        Assertions.assertThat(format(new BasicNameValuePair("Name0", null))).isEqualTo("Name0");
+        Assertions.assertThat(format(new BasicNameValuePair("Name1", "Value1"))).isEqualTo("Name1=Value1");
+        Assertions.assertThat(format(new BasicNameValuePair("Name2", ""))).isEqualTo("Name2=");
+        Assertions.assertThat(format(new BasicNameValuePair("Name4", "Value 4&"))).isEqualTo("Name4=Value+4%26");
+        Assertions.assertThat(format(new BasicNameValuePair("Name4", "Value+4&"))).isEqualTo("Name4=Value%2B4%26");
+        Assertions.assertThat(format(new BasicNameValuePair("Name4", "Value 4& =4"))).isEqualTo("Name4=Value+4%26+%3D4");
+        Assertions.assertThat(format(
                 new BasicNameValuePair("Name5", "aaa"),
-                new BasicNameValuePair("Name6", "bbb")));
-        Assertions.assertEquals("Name7=aaa&Name7=b%2Cb&Name7=ccc", format(
+                new BasicNameValuePair("Name6", "bbb"))).isEqualTo("Name5=aaa&Name6=bbb");
+        Assertions.assertThat(format(
                 new BasicNameValuePair("Name7", "aaa"),
                 new BasicNameValuePair("Name7", "b,b"),
                 new BasicNameValuePair("Name7", "ccc")
-        ));
-        Assertions.assertEquals("Name8=xx%2C++yy++%2Czz", format(new BasicNameValuePair("Name8", "xx,  yy  ,zz")));
-        Assertions.assertEquals("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
-                "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8), format(
+        )).isEqualTo("Name7=aaa&Name7=b%2Cb&Name7=ccc");
+        Assertions.assertThat(format(new BasicNameValuePair("Name8", "xx,  yy  ,zz"))).isEqualTo("Name8=xx%2C++yy++%2Czz");
+        Assertions.assertThat(format(
                 new BasicNameValuePair("russian", RU_HELLO),
-                new BasicNameValuePair("swiss", CH_HELLO)));
+                new BasicNameValuePair("swiss", CH_HELLO))).isEqualTo("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+                "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8));
     }
 
 }

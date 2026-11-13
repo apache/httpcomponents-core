@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestAbstractBinAsyncEntityConsumer {
@@ -85,11 +85,12 @@ class TestAbstractBinAsyncEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
 
-        Assertions.assertNull(consumer.getContent());
+        Assertions.assertThat(consumer.getContent()).isNull();
         consumer.streamEnd(null);
 
-        Assertions.assertArrayEquals(new byte[] {'1', '2', '3', '4', '5'}, consumer.getContent());
-        Assertions.assertEquals(1L, countingCallback.getCount());
+        Assertions.assertThat(consumer.getContent())
+                .containsExactly(new byte[]{'1', '2', '3', '4', '5'});
+        Assertions.assertThat(countingCallback.getCount()).isEqualTo(1L);
     }
 
 }

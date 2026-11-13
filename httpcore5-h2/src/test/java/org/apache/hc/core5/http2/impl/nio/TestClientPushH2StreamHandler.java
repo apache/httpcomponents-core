@@ -41,7 +41,8 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,24 +76,24 @@ class TestClientPushH2StreamHandler {
 
     @Test
     void consumePromiseRefusedWhenFactoryReturnsNull() throws Exception {
-        final H2StreamResetException ex = Assertions.assertThrows(H2StreamResetException.class, () ->
+        final H2StreamResetException ex = Assertions.assertThatThrownBy(() ->
                 handler.consumePromise(java.util.Arrays.asList(
                         new BasicHeader(":method", "GET"),
                         new BasicHeader(":scheme", "https"),
                         new BasicHeader(":authority", "example.com"),
-                        new BasicHeader(":path", "/"))));
-        Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ex.getCode());
+                        new BasicHeader(":path", "/")))).isInstanceOf(H2StreamResetException.class).asInstanceOf(InstanceOfAssertFactories.type(H2StreamResetException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.REFUSED_STREAM.getCode());
     }
 
     @Test
     void consumeDataRejectedBeforeBody() {
-        Assertions.assertThrows(ProtocolException.class, () ->
-                handler.consumeData(ByteBuffer.allocate(0), true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeData(ByteBuffer.allocate(0), true)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void updateCapacityFailsWithoutHandler() {
-        Assertions.assertThrows(IllegalStateException.class, handler::updateInputCapacity);
+        Assertions.assertThatThrownBy(handler::updateInputCapacity).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -126,8 +127,8 @@ class TestClientPushH2StreamHandler {
                 new BasicHeader("content-length", "12"));
         handler.consumeHeader(responseHeaders, false);
         handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
-        Assertions.assertThrows(ProtocolException.class, () ->
-                handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2 }), true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeData(ByteBuffer.wrap(new byte[]{0, 1, 2}), true)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -142,8 +143,8 @@ class TestClientPushH2StreamHandler {
         final List<Header> responseHeaders = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("content-length", "12"));
-        Assertions.assertThrows(ProtocolException.class, () ->
-                handler.consumeHeader(responseHeaders, true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeHeader(responseHeaders, true)).isInstanceOf(ProtocolException.class);
     }
 
 
@@ -179,9 +180,9 @@ class TestClientPushH2StreamHandler {
                 new BasicHeader(":authority", "example.com"),
                 new BasicHeader(":path", "/")));
 
-        Assertions.assertThrows(ProtocolException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 handler.consumeHeader(Arrays.asList(
-                        new BasicHeader(":status", "103")), true));
+                        new BasicHeader(":status", "103")), true)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -217,9 +218,9 @@ class TestClientPushH2StreamHandler {
         handler.consumeHeader(Arrays.asList(
                 new BasicHeader(":status", "200")), false);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 handler.consumeHeader(Arrays.asList(
-                        new BasicHeader("x-checksum", "abc123")), false));
+                        new BasicHeader("x-checksum", "abc123")), false)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -236,9 +237,9 @@ class TestClientPushH2StreamHandler {
                 new BasicHeader("content-length", "3")), false);
         handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1 }), false);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 handler.consumeHeader(Arrays.asList(
-                        new BasicHeader("x-checksum", "abc123")), true));
+                        new BasicHeader("x-checksum", "abc123")), true)).isInstanceOf(ProtocolException.class);
     }
 
 

@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -53,16 +53,22 @@ class TestServerPushH2StreamHandler {
     @Test
     void defaults() {
         final ServerPushH2StreamHandler handler = newHandler();
-        Assertions.assertNull(handler.getPushHandlerFactory());
-        Assertions.assertTrue(handler.isOutputReady());
+        Assertions.assertThat(handler.getPushHandlerFactory()).isNull();
+        Assertions.assertThat(handler.isOutputReady()).isTrue();
     }
 
     @Test
     void consumesAreRejected() {
         final ServerPushH2StreamHandler handler = newHandler();
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumePromise(null));
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(null, true));
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeData(ByteBuffer.allocate(0), true));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumePromise(null))
+                .isInstanceOf(ProtocolException.class);
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(null, true))
+                .isInstanceOf(ProtocolException.class);
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeData(ByteBuffer.allocate(0), true))
+                .isInstanceOf(ProtocolException.class);
     }
 
 }

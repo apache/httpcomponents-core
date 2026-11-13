@@ -31,7 +31,7 @@ import java.util.Locale;
 
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class HttpResponseWrapperTest {
@@ -41,15 +41,15 @@ class HttpResponseWrapperTest {
         final HttpResponse response1 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
         final HttpResponseWrapper httpResponseWrapper1 = new HttpResponseWrapper(response1);
 
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, httpResponseWrapper1.getCode());
+        Assertions.assertThat(httpResponseWrapper1.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
         final HttpResponseWrapper httpResponseWrapper2 = new HttpResponseWrapper(response2);
-        Assertions.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, httpResponseWrapper2.getCode());
-        Assertions.assertEquals("whatever", httpResponseWrapper2.getReasonPhrase());
+        Assertions.assertThat(httpResponseWrapper2.getCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        Assertions.assertThat(httpResponseWrapper2.getReasonPhrase()).isEqualTo("whatever");
 
         httpResponseWrapper2.setReasonPhrase("another-whatever");
-        Assertions.assertEquals("another-whatever", httpResponseWrapper2.getReasonPhrase());
+        Assertions.assertThat(httpResponseWrapper2.getReasonPhrase()).isEqualTo("another-whatever");
     }
 
     @Test
@@ -57,20 +57,22 @@ class HttpResponseWrapperTest {
         final HttpResponse response1 = new BasicHttpResponse(200, "OK");
         final HttpResponseWrapper httpResponseWrapper1 = new HttpResponseWrapper(response1);
 
-        Assertions.assertEquals(200, httpResponseWrapper1.getCode());
+        Assertions.assertThat(httpResponseWrapper1.getCode()).isEqualTo(200);
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
         final HttpResponseWrapper httpResponseWrapper2 = new HttpResponseWrapper(response2);
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, httpResponseWrapper2.getCode());
+        Assertions.assertThat(httpResponseWrapper2.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
 
         final HttpResponse response3 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
         final HttpResponseWrapper httpResponseWrapper3 = new HttpResponseWrapper(response3);
-        Assertions.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, httpResponseWrapper3.getCode());
-        Assertions.assertEquals("whatever", httpResponseWrapper3.getReasonPhrase());
+        Assertions.assertThat(httpResponseWrapper3.getCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        Assertions.assertThat(httpResponseWrapper3.getReasonPhrase()).isEqualTo("whatever");
 
         final HttpResponse response4 = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
         final HttpResponseWrapper httpResponseWrapper4 = new HttpResponseWrapper(response4);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> httpResponseWrapper4.setCode(-23));
+        Assertions.assertThatThrownBy(() ->
+                        httpResponseWrapper4.setCode(-23))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -78,7 +80,7 @@ class HttpResponseWrapperTest {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         final HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper(response);
         httpResponseWrapper.setLocale(Locale.US);
-        Assertions.assertEquals("US", httpResponseWrapper.getLocale().getCountry());
+        Assertions.assertThat(httpResponseWrapper.getLocale().getCountry()).isEqualTo("US");
     }
 
 }

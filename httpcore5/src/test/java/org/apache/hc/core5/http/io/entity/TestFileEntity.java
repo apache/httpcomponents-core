@@ -33,7 +33,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -48,19 +48,21 @@ class TestFileEntity {
         tmpfile.deleteOnExit();
         try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
 
-            Assertions.assertEquals(tmpfile.length(), httpentity.getContentLength());
+            Assertions.assertThat(httpentity.getContentLength()).isEqualTo(tmpfile.length());
             try (InputStream content = httpentity.getContent()) {
-                Assertions.assertNotNull(content);
+                Assertions.assertThat(content).isNotNull();
             }
-            Assertions.assertTrue(httpentity.isRepeatable());
-            Assertions.assertFalse(httpentity.isStreaming());
-            Assertions.assertTrue(tmpfile.delete(), "Failed to delete " + tmpfile);
+            Assertions.assertThat(httpentity.isRepeatable()).isTrue();
+            Assertions.assertThat(httpentity.isStreaming()).isFalse();
+            Assertions.assertThat(tmpfile.delete()).withFailMessage("Failed to delete " + tmpfile).isTrue();
         }
     }
 
     @Test
     void testNullConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () -> new FileEntity(null, ContentType.TEXT_PLAIN));
+        Assertions.assertThatThrownBy(() ->
+                        new FileEntity(null, ContentType.TEXT_PLAIN))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -80,14 +82,16 @@ class TestFileEntity {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             httpentity.writeTo(out);
             final byte[] bytes = out.toByteArray();
-            Assertions.assertNotNull(bytes);
-            Assertions.assertEquals(tmpfile.length(), bytes.length);
+            Assertions.assertThat(bytes).isNotNull();
+            Assertions.assertThat(bytes.length).isEqualTo(tmpfile.length());
             for (int i = 0; i < 4; i++) {
-                Assertions.assertEquals(i, bytes[i]);
+                Assertions.assertThat(bytes[i]).isEqualTo((byte) i);
             }
-            Assertions.assertTrue(tmpfile.delete(), "Failed to delete: " + tmpfile);
+            Assertions.assertThat(tmpfile.delete()).withFailMessage("Failed to delete: " + tmpfile).isTrue();
 
-            Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            httpentity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 

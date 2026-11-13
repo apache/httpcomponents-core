@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestCompletedFuture {
@@ -35,9 +35,9 @@ class TestCompletedFuture {
     void testCompleted() {
         final Object result = new Object();
         final CompletedFuture<Object> future = new CompletedFuture<>(result);
-        Assertions.assertSame(result, future.get());
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThat(future.get()).isSameAs(result);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
         future.cancel(true);
         future.cancel();
     }

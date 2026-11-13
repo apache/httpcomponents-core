@@ -41,7 +41,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -72,11 +72,11 @@ class TestReactiveDataConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{ '3' }));
         consumer.streamEnd(null);
 
-        Assertions.assertTrue(complete.await(1, TimeUnit.SECONDS), "Stream did not finish before timeout");
-        Assertions.assertEquals(3, output.size());
-        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '1' }), output.get(0));
-        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '2' }), output.get(1));
-        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '3' }), output.get(2));
+        Assertions.assertThat(complete.await(1, TimeUnit.SECONDS)).withFailMessage("Stream did not finish before timeout").isTrue();
+        Assertions.assertThat(output.size()).isEqualTo(3);
+        Assertions.assertThat(output.get(0)).isEqualTo(ByteBuffer.wrap(new byte[]{'1'}));
+        Assertions.assertThat(output.get(1)).isEqualTo(ByteBuffer.wrap(new byte[]{'2'}));
+        Assertions.assertThat(output.get(2)).isEqualTo(ByteBuffer.wrap(new byte[]{'3'}));
     }
 
     @Test
@@ -89,7 +89,7 @@ class TestReactiveDataConsumer {
         final Exception ex = new RuntimeException();
         consumer.failed(ex);
 
-        Assertions.assertSame(ex, single.blockingGet().get(0).getError());
+        Assertions.assertThat(single.blockingGet().get(0).getError()).isSameAs(ex);
     }
 
     @Test
@@ -114,8 +114,8 @@ class TestReactiveDataConsumer {
             }
         });
 
-        Assertions.assertThrows(HttpStreamResetException.class, () ->
-            consumer.consume(ByteBuffer.wrap(new byte[1024])));
+        Assertions.assertThatThrownBy(() ->
+                consumer.consume(ByteBuffer.wrap(new byte[1024]))).isInstanceOf(HttpStreamResetException.class);
     }
 
     @Test
@@ -126,7 +126,7 @@ class TestReactiveDataConsumer {
         final AtomicInteger lastIncrement = new AtomicInteger(-1);
         final CapacityChannel channel = lastIncrement::set;
         consumer.updateCapacity(channel);
-        Assertions.assertEquals(-1, lastIncrement.get(), "CapacityChannel#update should not have been invoked yet");
+        Assertions.assertThat(lastIncrement.get()).withFailMessage("CapacityChannel#update should not have been invoked yet").isEqualTo(-1);
 
         final AtomicInteger received = new AtomicInteger(0);
         final AtomicReference<Subscription> subscription = new AtomicReference<>();
@@ -156,13 +156,13 @@ class TestReactiveDataConsumer {
         consumer.consume(data.duplicate());
 
         subscription.get().request(1);
-        Assertions.assertEquals(1024, lastIncrement.get());
+        Assertions.assertThat(lastIncrement.get()).isEqualTo(1024);
 
         subscription.get().request(2);
-        Assertions.assertEquals(2 * 1024, lastIncrement.get());
+        Assertions.assertThat(lastIncrement.get()).isEqualTo(2 * 1024);
 
         subscription.get().request(99);
-        Assertions.assertEquals(1024, lastIncrement.get());
+        Assertions.assertThat(lastIncrement.get()).isEqualTo(1024);
     }
 
     @Test
@@ -177,7 +177,7 @@ class TestReactiveDataConsumer {
         consumer.consume(data.duplicate());
         consumer.streamEnd(null);
 
-        Assertions.assertEquals(3L, Flowable.fromPublisher(consumer).count().blockingGet().longValue());
+        Assertions.assertThat(Flowable.fromPublisher(consumer).count().blockingGet().longValue()).isEqualTo(3L);
     }
 
     @Test
@@ -195,7 +195,7 @@ class TestReactiveDataConsumer {
             .materialize()
             .singleOrError()
             .blockingGet();
-        Assertions.assertSame(ex, result.getError());
+        Assertions.assertThat(result.getError()).isSameAs(ex);
     }
 
     @Test
@@ -214,7 +214,7 @@ class TestReactiveDataConsumer {
                 .materialize()
                 .singleOrError()
                 .blockingGet();
-        Assertions.assertFalse(result.isOnError());
-        Assertions.assertTrue(result.isOnComplete());
+        Assertions.assertThat(result.isOnError()).isFalse();
+        Assertions.assertThat(result.isOnComplete()).isTrue();
     }
 }

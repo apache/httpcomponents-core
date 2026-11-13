@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -61,9 +61,9 @@ class TestSessionInOutBuffers {
         outbuffer.writeLine(line, out);
         outbuffer.flush(out);
 
-        Assertions.assertEquals("X-Test: ok??X-Injected: yes????\t\u00e9\u20ac\r\n",
-                new String(out.toByteArray(), StandardCharsets.UTF_8));
-        Assertions.assertEquals(original, line.toString());
+        Assertions.assertThat(new String(out.toByteArray(), StandardCharsets.UTF_8))
+                .isEqualTo("X-Test: ok??X-Injected: yes????\t\u00e9\u20ac\r\n");
+        Assertions.assertThat(line.toString()).isEqualTo(original);
     }
 
     @Test
@@ -76,8 +76,8 @@ class TestSessionInOutBuffers {
         outbuffer.writeLine(line, out);
         outbuffer.flush(out);
 
-        Assertions.assertEquals("X-Test: ok??X-Injected: yes\r\n",
-                new String(out.toByteArray(), StandardCharsets.ISO_8859_1));
+        Assertions.assertThat(new String(out.toByteArray(), StandardCharsets.ISO_8859_1))
+                .isEqualTo("X-Test: ok??X-Injected: yes\r\n");
     }
 
     @Test
@@ -94,28 +94,28 @@ class TestSessionInOutBuffers {
         outbuffer.write(payload, outputStream);
         outbuffer.flush(outputStream);
 
-        Assertions.assertArrayEquals(payload, outputStream.toByteArray());
+        Assertions.assertThat(outputStream.toByteArray()).containsExactly(payload);
     }
 
     @Test
     void testBasicBufferProperties() throws Exception {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { 1, 2 , 3});
-        Assertions.assertEquals(16, inBuffer.capacity());
-        Assertions.assertEquals(16, inBuffer.available());
-        Assertions.assertEquals(0, inBuffer.length());
+        Assertions.assertThat(inBuffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(inBuffer.available()).isEqualTo(16);
+        Assertions.assertThat(inBuffer.length()).isEqualTo(0);
         inBuffer.read(inputStream);
-        Assertions.assertEquals(14, inBuffer.available());
-        Assertions.assertEquals(2, inBuffer.length());
+        Assertions.assertThat(inBuffer.available()).isEqualTo(14);
+        Assertions.assertThat(inBuffer.length()).isEqualTo(2);
 
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Assertions.assertEquals(16, outbuffer.capacity());
-        Assertions.assertEquals(16, outbuffer.available());
-        Assertions.assertEquals(0, outbuffer.length());
+        Assertions.assertThat(outbuffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(outbuffer.available()).isEqualTo(16);
+        Assertions.assertThat(outbuffer.length()).isEqualTo(0);
         outbuffer.write(new byte[] {1, 2, 3}, outputStream);
-        Assertions.assertEquals(13, outbuffer.available());
-        Assertions.assertEquals(3, outbuffer.length());
+        Assertions.assertThat(outbuffer.available()).isEqualTo(13);
+        Assertions.assertThat(outbuffer.length()).isEqualTo(3);
     }
 
     @Test
@@ -152,7 +152,7 @@ class TestSessionInOutBuffers {
         for (final String teststr : teststrs) {
             expected += teststr.length() + 2/*CRLF*/;
         }
-        Assertions.assertEquals(expected, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(expected);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -160,16 +160,16 @@ class TestSessionInOutBuffers {
         for (final String teststr : teststrs) {
             chbuffer.clear();
             inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(teststr, chbuffer.toString());
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(teststr);
         }
 
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         tmetrics = inBuffer.getMetrics();
         final long bytesRead = tmetrics.getBytesTransferred();
-        Assertions.assertEquals(expected, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(expected);
     }
 
     @Test
@@ -187,7 +187,7 @@ class TestSessionInOutBuffers {
         outbuffer.flush(outputStream);
 
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(8);
 
         final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 14; i++) {
@@ -198,7 +198,7 @@ class TestSessionInOutBuffers {
         outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
         outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8 + 14 + 2, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(8 + 14 + 2);
 
         buffer.setLength(0);
         for (int i = 0; i < 15; i++) {
@@ -209,7 +209,7 @@ class TestSessionInOutBuffers {
         outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
         outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8 + 14 + 2 + 15 + 2 , bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(8 + 14 + 2 + 15 + 2);
 
         buffer.setLength(0);
         for (int i = 0; i < 16; i++) {
@@ -220,12 +220,12 @@ class TestSessionInOutBuffers {
         outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
         outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(8 + 14 + 2 + 15 + 2 + 16 + 2);
 
         outbuffer.write(new byte[] {'a'}, outputStream);
         outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -233,36 +233,36 @@ class TestSessionInOutBuffers {
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("a", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("a");
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("");
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("\r", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("\r");
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("");
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(s1, chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo(s1);
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(s2, chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo(s2);
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(s3, chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo(s3);
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("a", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("a");
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         final long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(bytesWritten, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(bytesWritten);
     }
 
     @Test
@@ -298,7 +298,7 @@ class TestSessionInOutBuffers {
         for (final String teststr : teststrs) {
             expected += teststr.length() + 2/*CRLF*/;
         }
-        Assertions.assertEquals(expected, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(expected);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -306,14 +306,14 @@ class TestSessionInOutBuffers {
         for (final String teststr : teststrs) {
             chbuffer.clear();
             inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(teststr, chbuffer.toString());
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(teststr);
         }
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         final long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(expected, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(expected);
     }
 
     @Test
@@ -338,22 +338,22 @@ class TestSessionInOutBuffers {
         }
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(out.length, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(out.length);
 
         final byte[] tmp = outputStream.toByteArray();
-        Assertions.assertEquals(out.length, tmp.length);
+        Assertions.assertThat(tmp.length).isEqualTo(out.length);
         for (int i = 0; i < out.length; i++) {
-            Assertions.assertEquals(out[i], tmp[i]);
+            Assertions.assertThat(tmp[i]).isEqualTo(out[i]);
         }
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
 
         // these read operations will have no effect
-        Assertions.assertEquals(0, inBuffer.read(null, 0, 10, inputStream));
-        Assertions.assertEquals(0, inBuffer.read(null, inputStream));
+        Assertions.assertThat(inBuffer.read(null, 0, 10, inputStream)).isEqualTo(0);
+        Assertions.assertThat(inBuffer.read(null, inputStream)).isEqualTo(0);
         long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(0, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(0);
 
         final byte[] in = new byte[40];
         off = 0;
@@ -371,12 +371,12 @@ class TestSessionInOutBuffers {
             remaining -= readLen;
         }
         for (int i = 0; i < out.length; i++) {
-            Assertions.assertEquals(out[i], in[i]);
+            Assertions.assertThat(in[i]).isEqualTo(out[i]);
         }
-        Assertions.assertEquals(-1, inBuffer.read(tmp, inputStream));
-        Assertions.assertEquals(-1, inBuffer.read(tmp, inputStream));
+        Assertions.assertThat(inBuffer.read(tmp, inputStream)).isEqualTo(-1);
+        Assertions.assertThat(inBuffer.read(tmp, inputStream)).isEqualTo(-1);
         bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(out.length, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(out.length);
     }
 
     @Test
@@ -393,12 +393,12 @@ class TestSessionInOutBuffers {
         }
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(out.length, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(out.length);
 
         final byte[] tmp = outputStream.toByteArray();
-        Assertions.assertEquals(out.length, tmp.length);
+        Assertions.assertThat(tmp.length).isEqualTo(out.length);
         for (int i = 0; i < out.length; i++) {
-            Assertions.assertEquals(out[i], tmp[i]);
+            Assertions.assertThat(tmp[i]).isEqualTo(out[i]);
         }
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -408,12 +408,12 @@ class TestSessionInOutBuffers {
             in[i] = (byte)inBuffer.read(inputStream);
         }
         for (int i = 0; i < out.length; i++) {
-            Assertions.assertEquals(out[i], in[i]);
+            Assertions.assertThat(in[i]).isEqualTo(out[i]);
         }
-        Assertions.assertEquals(-1, inBuffer.read(inputStream));
-        Assertions.assertEquals(-1, inBuffer.read(inputStream));
+        Assertions.assertThat(inBuffer.read(inputStream)).isEqualTo(-1);
+        Assertions.assertThat(inBuffer.read(inputStream)).isEqualTo(-1);
         final long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(out.length, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(out.length);
     }
 
     @Test
@@ -451,14 +451,14 @@ class TestSessionInOutBuffers {
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inBuffer1.readLine(chbuffer, inputStream1);
         final long bytesRead = inBuffer1.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(60, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(60);
 
         // 15 char limit
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(5, 15);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         chbuffer.clear();
-        Assertions.assertThrows(MessageConstraintException.class, () ->
-                inBuffer2.readLine(chbuffer, inputStream2));
+        Assertions.assertThatThrownBy(() ->
+                inBuffer2.readLine(chbuffer, inputStream2)).isInstanceOf(MessageConstraintException.class);
     }
 
     @Test
@@ -471,14 +471,14 @@ class TestSessionInOutBuffers {
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inBuffer1.readLine(chbuffer, inputStream1);
         final long bytesRead = inBuffer1.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(13, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(13);
 
         // 10 char limit
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(25, 10);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         chbuffer.clear();
-        Assertions.assertThrows(MessageConstraintException.class, () ->
-                inBuffer2.readLine(chbuffer, inputStream2));
+        Assertions.assertThatThrownBy(() ->
+                inBuffer2.readLine(chbuffer, inputStream2)).isInstanceOf(MessageConstraintException.class);
     }
 
     @Test //HTTPCORE-472
@@ -489,7 +489,7 @@ class TestSessionInOutBuffers {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inBuffer1.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("012345678", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("012345678");
     }
 
     @Test
@@ -498,12 +498,12 @@ class TestSessionInOutBuffers {
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(128);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
-        Assertions.assertEquals('a', inBuffer1.read(inputStream));
-        Assertions.assertEquals('b', inBuffer1.read(inputStream));
-        Assertions.assertEquals('c', inBuffer1.read(inputStream));
-        Assertions.assertEquals('\r', inBuffer1.read(inputStream));
+        Assertions.assertThat(inBuffer1.read(inputStream)).isEqualTo('a');
+        Assertions.assertThat(inBuffer1.read(inputStream)).isEqualTo('b');
+        Assertions.assertThat(inBuffer1.read(inputStream)).isEqualTo('c');
+        Assertions.assertThat(inBuffer1.read(inputStream)).isEqualTo('\r');
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        Assertions.assertEquals(0, inBuffer1.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer1.readLine(chbuffer, inputStream)).isEqualTo(0);
     }
 
     static final int[] SWISS_GERMAN_HELLO = {
@@ -551,7 +551,7 @@ class TestSessionInOutBuffers {
         final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2) +
                 (s2.getBytes(StandardCharsets.UTF_8).length + 2) +
                 (s3.getBytes(StandardCharsets.UTF_8).length + 2)) * 10L;
-        Assertions.assertEquals(expected, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(expected);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -559,20 +559,20 @@ class TestSessionInOutBuffers {
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(s1, chbuffer.toString());
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(s1);
             chbuffer.clear();
             inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(s2, chbuffer.toString());
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(s2);
             chbuffer.clear();
             inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(s3, chbuffer.toString());
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(s3);
         }
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         final long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(expected, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(expected);
     }
 
     @Test
@@ -599,7 +599,7 @@ class TestSessionInOutBuffers {
 
         chbuffer.clear();
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals(s, chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo(s);
     }
 
     @Test
@@ -620,7 +620,7 @@ class TestSessionInOutBuffers {
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)) * 10L + 2;
-        Assertions.assertEquals(expected, bytesWritten);
+        Assertions.assertThat(bytesWritten).isEqualTo(expected);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
@@ -628,17 +628,17 @@ class TestSessionInOutBuffers {
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             final int len = inBuffer.readLine(chbuffer, inputStream);
-            Assertions.assertEquals(len, SWISS_GERMAN_HELLO.length);
-            Assertions.assertEquals(s1, chbuffer.toString());
+            Assertions.assertThat(SWISS_GERMAN_HELLO.length).isEqualTo(len);
+            Assertions.assertThat(chbuffer.toString()).isEqualTo(s1);
         }
         chbuffer.clear();
-        Assertions.assertEquals(0, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(0);
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         chbuffer.clear();
-        Assertions.assertEquals(-1, inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThat(inBuffer.readLine(chbuffer, inputStream)).isEqualTo(-1);
         final long bytesRead = inBuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(expected, bytesRead);
+        Assertions.assertThat(bytesRead).isEqualTo(expected);
     }
 
     @Test
@@ -651,8 +651,8 @@ class TestSessionInOutBuffers {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         chbuffer.append(s);
-        Assertions.assertThrows(CharacterCodingException.class, () ->
-                outbuffer.writeLine(chbuffer, outputStream));
+        Assertions.assertThatThrownBy(() ->
+                outbuffer.writeLine(chbuffer, outputStream)).isInstanceOf(CharacterCodingException.class);
     }
 
     @Test
@@ -668,7 +668,7 @@ class TestSessionInOutBuffers {
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
         final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
-        Assertions.assertEquals("This text contains a circumflex ? !!!\r\n", result);
+        Assertions.assertThat(result).isEqualTo("This text contains a circumflex ? !!!\r\n");
     }
 
     @Test
@@ -684,7 +684,7 @@ class TestSessionInOutBuffers {
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
         final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
-        Assertions.assertEquals("This text contains a circumflex  !!!\r\n", result);
+        Assertions.assertThat(result).isEqualTo("This text contains a circumflex  !!!\r\n");
     }
 
     @Test
@@ -696,8 +696,8 @@ class TestSessionInOutBuffers {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, decoder);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
-        Assertions.assertThrows(CharacterCodingException.class, () ->
-                inBuffer.readLine(chbuffer, inputStream));
+        Assertions.assertThatThrownBy(() ->
+                inBuffer.readLine(chbuffer, inputStream)).isInstanceOf(CharacterCodingException.class);
     }
 
     @Test
@@ -710,7 +710,7 @@ class TestSessionInOutBuffers {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("Gr\ufffdezi_z\ufffdm\ufffd");
     }
 
     @Test
@@ -723,8 +723,7 @@ class TestSessionInOutBuffers {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         inBuffer.readLine(chbuffer, inputStream);
-        Assertions.assertEquals("Grezi_zm", chbuffer.toString());
+        Assertions.assertThat(chbuffer.toString()).isEqualTo("Grezi_zm");
     }
 
 }
-

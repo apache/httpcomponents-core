@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -43,106 +43,113 @@ class TestContentType {
     @Test
     void testApplicationZipCompressed() {
         final ContentType contentType = ContentType.create("application/x-zip-compressed");
-        Assertions.assertEquals(contentType.toString(), ContentType.APPLICATION_ZIP_COMPRESSED.toString());
-        Assertions.assertTrue(contentType.isSameMimeType(ContentType.APPLICATION_ZIP_COMPRESSED));
-        Assertions.assertTrue(ContentType.APPLICATION_ZIP_COMPRESSED.isSameMimeType(contentType));
+        Assertions.assertThat(ContentType.APPLICATION_ZIP_COMPRESSED.toString()).isEqualTo(contentType.toString());
+        Assertions.assertThat(contentType.isSameMimeType(ContentType.APPLICATION_ZIP_COMPRESSED)).isTrue();
+        Assertions.assertThat(ContentType.APPLICATION_ZIP_COMPRESSED.isSameMimeType(contentType)).isTrue();
     }
 
     @Test
     void testBasis() throws Exception {
         final ContentType contentType = ContentType.create("text/plain", "US-ASCII");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=US-ASCII");
     }
 
     @Test
     void testWithCharset() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=US-ASCII");
         contentType = contentType.withCharset(StandardCharsets.UTF_8);
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals("UTF-8", contentType.getCharset().name());
-        Assertions.assertEquals("text/plain; charset=UTF-8", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset().name()).isEqualTo("UTF-8");
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=UTF-8");
     }
 
     @Test
     void testWithCharsetString() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=US-ASCII");
         contentType = contentType.withCharset(StandardCharsets.UTF_8);
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=UTF-8", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=UTF-8");
     }
 
     @Test
     void testLowCaseText() throws Exception {
         final ContentType contentType = ContentType.create("Text/Plain", "ascii");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
     }
 
     @Test
     void testCreateInvalidInput() {
-        Assertions.assertThrows(NullPointerException.class, () -> ContentType.create(null, (String) null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ContentType.create("  ", (String) null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ContentType.create("stuff;", (String) null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> ContentType.create("text/plain", ","));
+        Assertions.assertThatThrownBy(() ->
+                        ContentType.create(null, (String) null))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ContentType.create("  ", (String) null))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ContentType.create("stuff;", (String) null))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ContentType.create("text/plain", ","))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testParse() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=ascii", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=ascii");
     }
 
     @Test
     void testParseMultiparam() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"; " +
                 "p0 ; p1 = \"blah-blah\"  ; p2 = \" yada yada \" ");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=ascii; p0; p1=blah-blah; p2=\" yada yada \"",
-                contentType.toString());
-        Assertions.assertNull(contentType.getParameter("p0"));
-        Assertions.assertEquals("blah-blah", contentType.getParameter("p1"));
-        Assertions.assertEquals(" yada yada ", contentType.getParameter("p2"));
-        Assertions.assertNull(contentType.getParameter("p3"));
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=ascii; p0; p1=blah-blah; p2=\" yada yada \"");
+        Assertions.assertThat(contentType.getParameter("p0")).isNull();
+        Assertions.assertThat(contentType.getParameter("p1")).isEqualTo("blah-blah");
+        Assertions.assertThat(contentType.getParameter("p2")).isEqualTo(" yada yada ");
+        Assertions.assertThat(contentType.getParameter("p3")).isNull();
     }
 
     @Test
     void testParseEmptyCharset() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertNull(contentType.getCharset());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isNull();
     }
 
     @Test
     void testParseDefaultCharset() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertNull(contentType.getCharset());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset(StandardCharsets.US_ASCII));
-        Assertions.assertNull(contentType.getCharset(null));
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isNull();
+        Assertions.assertThat(contentType.getCharset(StandardCharsets.US_ASCII)).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.getCharset(null)).isNull();
         //
-        Assertions.assertNull(ContentType.getCharset(contentType, null));
-        Assertions.assertEquals(StandardCharsets.US_ASCII, ContentType.getCharset(contentType, StandardCharsets.US_ASCII));
+        Assertions.assertThat(ContentType.getCharset(contentType, null)).isNull();
+        Assertions.assertThat(ContentType.getCharset(contentType, StandardCharsets.US_ASCII)).isEqualTo(StandardCharsets.US_ASCII);
     }
 
     @Test
     void testParseEmptyValue() throws Exception {
-        Assertions.assertNull(ContentType.parse(null));
-        Assertions.assertNull(ContentType.parse(""));
-        Assertions.assertNull(ContentType.parse("   "));
-        Assertions.assertNull(ContentType.parse(";"));
-        Assertions.assertNull(ContentType.parse("="));
+        Assertions.assertThat(ContentType.parse(null)).isNull();
+        Assertions.assertThat(ContentType.parse("")).isNull();
+        Assertions.assertThat(ContentType.parse("   ")).isNull();
+        Assertions.assertThat(ContentType.parse(";")).isNull();
+        Assertions.assertThat(ContentType.parse("=")).isNull();
     }
 
     @Test
@@ -151,14 +158,14 @@ class TestContentType {
                 new BasicNameValuePair("p", "this"),
                 new BasicNameValuePair("p", "that")};
         final ContentType contentType = ContentType.create("text/plain", params);
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=UTF-8; p=this; p=that");
         Arrays.setAll(params, i -> null);
-        Assertions.assertEquals("this", contentType.getParameter("p"));
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
+        Assertions.assertThat(contentType.getParameter("p")).isEqualTo("this");
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=UTF-8; p=this; p=that");
     }
 
     @Test
@@ -167,44 +174,44 @@ class TestContentType {
                 new BasicNameValuePair("charset", "UTF-8"),
                 new BasicNameValuePair("p", "this"),
                 new BasicNameValuePair("p", "that"));
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.UTF_8);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=UTF-8; p=this; p=that");
 
         contentType = contentType.withParameters(
                 new BasicNameValuePair("charset", "ascii"),
                 new BasicNameValuePair("p", "this and that"));
-        Assertions.assertEquals("text/plain", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
-        Assertions.assertEquals("text/plain; charset=ascii; p=\"this and that\"", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/plain");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.US_ASCII);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/plain; charset=ascii; p=\"this and that\"");
 
         contentType = ContentType.create("text/blah").withParameters(
                 new BasicNameValuePair("p", "blah"));
-        Assertions.assertEquals("text/blah", contentType.getMimeType());
-        Assertions.assertNull(contentType.getCharset());
-        Assertions.assertEquals("text/blah; p=blah", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/blah");
+        Assertions.assertThat(contentType.getCharset()).isNull();
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/blah; p=blah");
 
         contentType = ContentType.create("text/blah", StandardCharsets.ISO_8859_1).withParameters(
                 new BasicNameValuePair("p", "blah"));
-        Assertions.assertEquals("text/blah", contentType.getMimeType());
-        Assertions.assertEquals(StandardCharsets.ISO_8859_1, contentType.getCharset());
-        Assertions.assertEquals("text/blah; charset=ISO-8859-1; p=blah", contentType.toString());
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/blah");
+        Assertions.assertThat(contentType.getCharset()).isEqualTo(StandardCharsets.ISO_8859_1);
+        Assertions.assertThat(contentType.toString()).isEqualTo("text/blah; charset=ISO-8859-1; p=blah");
     }
 
     @Test
     void testParseLenientIgnoresIllegalCharsetName() {
         final ContentType contentType = ContentType.parseLenient("text/event-stream;charset=ISO-8859-1'");
-        Assertions.assertNotNull(contentType);
-        Assertions.assertEquals("text/event-stream", contentType.getMimeType());
-        Assertions.assertNull(contentType.getCharset());
-        Assertions.assertEquals("ISO-8859-1'", contentType.getParameter("charset"));
+        Assertions.assertThat(contentType).isNotNull();
+        Assertions.assertThat(contentType.getMimeType()).isEqualTo("text/event-stream");
+        Assertions.assertThat(contentType.getCharset()).isNull();
+        Assertions.assertThat(contentType.getParameter("charset")).isEqualTo("ISO-8859-1'");
     }
 
     @Test
     void testParseLenientIgnoresUnsupportedCharset() {
         final ContentType contentType = ContentType.parseLenient("text/plain; charset=__no_such_charset__");
-        Assertions.assertNotNull(contentType);
-        Assertions.assertNull(contentType.getCharset());
+        Assertions.assertThat(contentType).isNotNull();
+        Assertions.assertThat(contentType.getCharset()).isNull();
     }
 
 

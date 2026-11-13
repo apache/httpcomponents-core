@@ -28,10 +28,10 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
-import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -41,7 +41,7 @@ import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -87,7 +87,7 @@ class TestServerHttpProtocolNegotiationStarter {
 
         final Object handler = starter.createHandler(ioSession, endpoint);
 
-        Assertions.assertTrue(handler instanceof ServerH2PrefaceHandler);
+        Assertions.assertThat(handler instanceof ServerH2PrefaceHandler).isTrue();
         Mockito.verify(ioSession).registerProtocol(Mockito.eq(ApplicationProtocol.HTTP_1_1.id), Mockito.any());
         Mockito.verify(ioSession).registerProtocol(Mockito.eq(ApplicationProtocol.HTTP_2.id), Mockito.any());
         Mockito.verify(tlsStrategy).upgrade(ioSession, endpoint, HttpVersionPolicy.FORCE_HTTP_2, Timeout.ofSeconds(1), null);
@@ -106,7 +106,7 @@ class TestServerHttpProtocolNegotiationStarter {
         final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
         final Object handler = starter.createHandler(ioSession, null);
 
-        Assertions.assertTrue(handler instanceof ServerHttp1IOEventHandler);
+        Assertions.assertThat(handler instanceof ServerHttp1IOEventHandler).isTrue();
     }
 
     @Test
@@ -122,7 +122,7 @@ class TestServerHttpProtocolNegotiationStarter {
         final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
         final Object handler = starter.createHandler(ioSession, null);
 
-        Assertions.assertTrue(handler instanceof HttpProtocolNegotiator);
+        Assertions.assertThat(handler instanceof HttpProtocolNegotiator).isTrue();
     }
 
 }

@@ -27,47 +27,44 @@
 
 package org.apache.hc.core5.http.io.entity;
 
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class TestNullEntity {
 
     @Test
     void testLength() {
-        assertEquals(0, NullEntity.INSTANCE.getContentLength());
+        Assertions.assertThat(NullEntity.INSTANCE.getContentLength()).isEqualTo(0);
     }
 
     @Test
     void testContentType() {
-        assertNull(NullEntity.INSTANCE.getContentType());
+        Assertions.assertThat(NullEntity.INSTANCE.getContentType()).isNull();
     }
 
     @Test
     void testContentEncoding() {
-        assertNull(NullEntity.INSTANCE.getContentEncoding());
+        Assertions.assertThat(NullEntity.INSTANCE.getContentEncoding()).isNull();
     }
 
     @Test
     void testTrailerNames() {
-        assertEquals(Collections.emptySet(), NullEntity.INSTANCE.getTrailerNames());
+        Assertions.assertThat(NullEntity.INSTANCE.getTrailerNames()).isEqualTo(Collections.emptySet());
     }
 
     @Test
     void testContentStream() throws IOException {
         try (InputStream content = NullEntity.INSTANCE.getContent()) {
-            assertEquals(-1, content.read());
+            Assertions.assertThat(content.read()).isEqualTo(-1);
         }
         // Closing the resource should have no impact
         try (InputStream content = NullEntity.INSTANCE.getContent()) {
-            assertEquals(-1, content.read());
+            Assertions.assertThat(content.read()).isEqualTo(-1);
         }
     }
 
@@ -75,16 +72,16 @@ class TestNullEntity {
     void testWriteTo() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         NullEntity.INSTANCE.writeTo(baos);
-        assertEquals(0, baos.size());
+        Assertions.assertThat(baos.size()).isEqualTo(0);
     }
 
     @Test
     void testIsStreaming() {
-        assertFalse(NullEntity.INSTANCE.isStreaming());
+        Assertions.assertThat(NullEntity.INSTANCE.isStreaming()).isFalse();
     }
 
     @Test
     void testIsChunked() {
-        assertFalse(NullEntity.INSTANCE.isChunked());
+        Assertions.assertThat(NullEntity.INSTANCE.isChunked()).isFalse();
     }
 }

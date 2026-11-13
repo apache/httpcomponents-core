@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestFifoBuffer {
@@ -43,47 +43,47 @@ class TestFifoBuffer {
         final HPackHeader h4 = new HPackHeader("h", "4");
 
         for (int i = 0; i < 20; i++) {
-            Assertions.assertEquals(0, fifoBuffer.size());
-            Assertions.assertSame(null, fifoBuffer.getFirst());
-            Assertions.assertSame(null, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(0);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(null);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(null);
             fifoBuffer.addFirst(h1);
-            Assertions.assertSame(h1, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
-            Assertions.assertEquals(1, fifoBuffer.size());
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h1);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(1);
             fifoBuffer.addFirst(h2);
-            Assertions.assertEquals(2, fifoBuffer.size());
-            Assertions.assertSame(h2, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(2);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h2);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
             fifoBuffer.addFirst(h3);
-            Assertions.assertEquals(3, fifoBuffer.size());
-            Assertions.assertSame(h3, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(3);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h3);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
             fifoBuffer.addFirst(h4);
-            Assertions.assertEquals(4, fifoBuffer.size());
-            Assertions.assertSame(h4, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(4);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
 
-            Assertions.assertSame(h4, fifoBuffer.get(0));
-            Assertions.assertSame(h3, fifoBuffer.get(1));
-            Assertions.assertSame(h2, fifoBuffer.get(2));
-            Assertions.assertSame(h1, fifoBuffer.get(3));
+            Assertions.assertThat(fifoBuffer.get(0)).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.get(1)).isSameAs(h3);
+            Assertions.assertThat(fifoBuffer.get(2)).isSameAs(h2);
+            Assertions.assertThat(fifoBuffer.get(3)).isSameAs(h1);
 
             fifoBuffer.removeLast();
-            Assertions.assertEquals(3, fifoBuffer.size());
-            Assertions.assertSame(h4, fifoBuffer.getFirst());
-            Assertions.assertSame(h2, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(3);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h2);
             fifoBuffer.removeLast();
-            Assertions.assertEquals(2, fifoBuffer.size());
-            Assertions.assertSame(h4, fifoBuffer.getFirst());
-            Assertions.assertSame(h3, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(2);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h3);
             fifoBuffer.removeLast();
-            Assertions.assertEquals(1, fifoBuffer.size());
-            Assertions.assertSame(h4, fifoBuffer.getFirst());
-            Assertions.assertSame(h4, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(1);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h4);
             fifoBuffer.removeLast();
-            Assertions.assertEquals(0, fifoBuffer.size());
-            Assertions.assertSame(null, fifoBuffer.getFirst());
-            Assertions.assertSame(null, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(0);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(null);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(null);
         }
     }
 
@@ -105,30 +105,30 @@ class TestFifoBuffer {
                 fifoBuffer.removeLast();
             }
 
-            Assertions.assertEquals(0, fifoBuffer.size());
-            Assertions.assertSame(null, fifoBuffer.getFirst());
-            Assertions.assertSame(null, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(0);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(null);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(null);
             fifoBuffer.addFirst(h1);
-            Assertions.assertSame(h1, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
-            Assertions.assertEquals(1, fifoBuffer.size());
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h1);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(1);
             fifoBuffer.addFirst(h2);
-            Assertions.assertEquals(2, fifoBuffer.size());
-            Assertions.assertSame(h2, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(2);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h2);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
             fifoBuffer.addFirst(h3);
-            Assertions.assertEquals(3, fifoBuffer.size());
-            Assertions.assertSame(h3, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(3);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h3);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
             fifoBuffer.addFirst(h4);
-            Assertions.assertEquals(4, fifoBuffer.size());
-            Assertions.assertSame(h4, fifoBuffer.getFirst());
-            Assertions.assertSame(h1, fifoBuffer.getLast());
+            Assertions.assertThat(fifoBuffer.size()).isEqualTo(4);
+            Assertions.assertThat(fifoBuffer.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.getLast()).isSameAs(h1);
 
-            Assertions.assertSame(h4, fifoBuffer.get(0));
-            Assertions.assertSame(h3, fifoBuffer.get(1));
-            Assertions.assertSame(h2, fifoBuffer.get(2));
-            Assertions.assertSame(h1, fifoBuffer.get(3));
+            Assertions.assertThat(fifoBuffer.get(0)).isSameAs(h4);
+            Assertions.assertThat(fifoBuffer.get(1)).isSameAs(h3);
+            Assertions.assertThat(fifoBuffer.get(2)).isSameAs(h2);
+            Assertions.assertThat(fifoBuffer.get(3)).isSameAs(h1);
         }
     }
 

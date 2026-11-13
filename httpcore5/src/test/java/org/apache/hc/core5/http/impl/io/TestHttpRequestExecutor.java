@@ -27,14 +27,17 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Method;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -43,14 +46,11 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.util.List;
 
 class TestHttpRequestExecutor {
 
@@ -61,43 +61,43 @@ class TestHttpRequestExecutor {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(null, conn, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, null, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, conn, null);
-        });
+        }).isInstanceOf(NullPointerException.class);
 
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(null, httprocessor, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, null, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, httprocessor, null);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(null, httprocessor, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, null, context);
-        });
-        Assertions.assertThrows(NullPointerException.class, () -> {
+        }).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, httprocessor, null);
-        });
+        }).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -124,8 +124,8 @@ class TestHttpRequestExecutor {
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
-        Assertions.assertSame(request, context.getRequest());
-        Assertions.assertSame(response, context.getResponse());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
+        Assertions.assertThat(context.getResponse()).isSameAs(response);
     }
 
     @Test
@@ -157,20 +157,20 @@ class TestHttpRequestExecutor {
         final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
         Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), ArgumentMatchers.eq(conn), ArgumentMatchers.eq(context));
         final List<HttpResponse> infos = responseCaptor.getAllValues();
-        Assertions.assertNotNull(infos);
-        Assertions.assertEquals(2, infos.size());
+        Assertions.assertThat(infos).isNotNull();
+        Assertions.assertThat(infos.size()).isEqualTo(2);
         final HttpResponse info1 = infos.get(0);
-        Assertions.assertNotNull(info1);
-        Assertions.assertEquals(110, info1.getCode());
+        Assertions.assertThat(info1).isNotNull();
+        Assertions.assertThat(info1.getCode()).isEqualTo(110);
         final HttpResponse info2 = infos.get(1);
-        Assertions.assertNotNull(info2);
-        Assertions.assertEquals(111, info2.getCode());
+        Assertions.assertThat(info2).isNotNull();
+        Assertions.assertThat(info2.getCode()).isEqualTo(111);
 
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
-        Assertions.assertSame(request, context.getRequest());
-        Assertions.assertSame(response, context.getResponse());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
+        Assertions.assertThat(context.getResponse()).isSameAs(response);
     }
 
     @Test
@@ -350,14 +350,14 @@ class TestHttpRequestExecutor {
         final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
         Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), ArgumentMatchers.eq(conn), ArgumentMatchers.eq(context));
         final List<HttpResponse> infos = responseCaptor.getAllValues();
-        Assertions.assertNotNull(infos);
-        Assertions.assertEquals(2, infos.size());
+        Assertions.assertThat(infos).isNotNull();
+        Assertions.assertThat(infos.size()).isEqualTo(2);
         final HttpResponse info1 = infos.get(0);
-        Assertions.assertNotNull(info1);
-        Assertions.assertEquals(110, info1.getCode());
+        Assertions.assertThat(info1).isNotNull();
+        Assertions.assertThat(info1.getCode()).isEqualTo(110);
         final HttpResponse info2 = infos.get(1);
-        Assertions.assertNotNull(info2);
-        Assertions.assertEquals(111, info2.getCode());
+        Assertions.assertThat(info2).isNotNull();
+        Assertions.assertThat(info2.getCode()).isEqualTo(111);
 
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
@@ -403,7 +403,9 @@ class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         Mockito.doThrow(new IOException("Oopsie")).when(conn).sendRequestHeader(request);
-        Assertions.assertThrows(IOException.class, () -> executor.execute(request, conn, context));
+        Assertions.assertThatThrownBy(() ->
+                        executor.execute(request, conn, context))
+                .isInstanceOf(IOException.class);
         Mockito.verify(conn).close(CloseMode.IMMEDIATE);
     }
 
@@ -416,7 +418,9 @@ class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         Mockito.doThrow(new RuntimeException("Oopsie")).when(conn).receiveResponseHeader();
-        Assertions.assertThrows(RuntimeException.class, () -> executor.execute(request, conn, context));
+        Assertions.assertThatThrownBy(() ->
+                        executor.execute(request, conn, context))
+                .isInstanceOf(RuntimeException.class);
         Mockito.verify(conn).close(CloseMode.IMMEDIATE);
     }
 
@@ -429,7 +433,9 @@ class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         Mockito.doThrow(new HttpException("Oopsie")).when(conn).receiveResponseHeader();
-        Assertions.assertThrows(HttpException.class, () -> executor.execute(request, conn, context));
+        Assertions.assertThatThrownBy(() ->
+                        executor.execute(request, conn, context))
+                .isInstanceOf(HttpException.class);
         Mockito.verify(conn).close();
     }
 

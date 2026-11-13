@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -81,26 +81,26 @@ class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.of(10L, TimeUnit.MILLISECONDS), clock);
 
-        Assertions.assertEquals("route1", entry1.getRoute());
-        Assertions.assertEquals(0, entry1.getUpdated());
-        Assertions.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
+        Assertions.assertThat(entry1.getRoute()).isEqualTo("route1");
+        Assertions.assertThat(entry1.getUpdated()).isEqualTo(0);
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(Deadline.MIN_VALUE);
 
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         final long now = System.currentTimeMillis();
-        Assertions.assertEquals("route1", entry1.getRoute());
-        Assertions.assertTrue(now >= entry1.getUpdated());
-        Assertions.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
-        Assertions.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline().getValue());
+        Assertions.assertThat(entry1.getRoute()).isEqualTo("route1");
+        Assertions.assertThat(now >= entry1.getUpdated()).isTrue();
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(entry1.getValidityDeadline());
+        Assertions.assertThat(entry1.getValidityDeadline().getValue()).isEqualTo(entry1.getUpdated() + 10L);
 
         entry1.discardConnection(CloseMode.IMMEDIATE);
-        Assertions.assertEquals(0, entry1.getUpdated());
-        Assertions.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
+        Assertions.assertThat(entry1.getUpdated()).isEqualTo(0);
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(Deadline.MIN_VALUE);
     }
 
     @Test
     void testNullConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new PoolEntry<String, HttpConnection>(null));
+        Assertions.assertThatThrownBy(() ->
+                new PoolEntry<String, HttpConnection>(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -108,8 +108,8 @@ class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, clock);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
-        Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getValidityDeadline());
-        Assertions.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
+        Assertions.assertThat(entry1.getValidityDeadline()).isEqualTo(Deadline.MAX_VALUE);
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(entry1.getValidityDeadline());
     }
 
     @Test
@@ -117,29 +117,29 @@ class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, clock);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
-        Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(Deadline.MAX_VALUE);
         entry1.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assertions.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiryDeadline().getValue());
+        Assertions.assertThat(entry1.getExpiryDeadline().getValue()).isEqualTo(entry1.getUpdated() + 50L);
         entry1.updateExpiry(TimeValue.ZERO_MILLISECONDS);
-        Assertions.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
+        Assertions.assertThat(entry1.getExpiryDeadline()).isEqualTo(Deadline.MAX_VALUE);
 
         final PoolEntry<String, HttpConnection> entry2 = new PoolEntry<>(
                 "route1", TimeValue.of(100L, TimeUnit.MILLISECONDS), clock);
         entry2.assignConnection(Mockito.mock(HttpConnection.class));
         final Deadline validityDeadline = entry2.getValidityDeadline();
-        Assertions.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiryDeadline().getValue());
+        Assertions.assertThat(entry2.getExpiryDeadline().getValue()).isEqualTo(entry2.getUpdated() + 100L);
         entry2.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assertions.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiryDeadline().getValue());
+        Assertions.assertThat(entry2.getExpiryDeadline().getValue()).isEqualTo(entry2.getUpdated() + 50L);
         entry2.updateExpiry(TimeValue.of(150L, TimeUnit.MILLISECONDS));
-        Assertions.assertEquals(validityDeadline, entry2.getExpiryDeadline());
+        Assertions.assertThat(entry2.getExpiryDeadline()).isEqualTo(validityDeadline);
     }
 
     @Test
     void testInvalidExpiry() {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), clock);
-        Assertions.assertThrows(NullPointerException.class, () ->
-                entry.updateExpiry(null));
+        Assertions.assertThatThrownBy(() ->
+                entry.updateExpiry(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -147,7 +147,7 @@ class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(Long.MAX_VALUE, TimeUnit.MILLISECONDS), clock);
         entry.assignConnection(Mockito.mock(HttpConnection.class));
-        Assertions.assertEquals(Deadline.MAX_VALUE, entry.getValidityDeadline());
+        Assertions.assertThat(entry.getValidityDeadline()).isEqualTo(Deadline.MAX_VALUE);
     }
 
 }

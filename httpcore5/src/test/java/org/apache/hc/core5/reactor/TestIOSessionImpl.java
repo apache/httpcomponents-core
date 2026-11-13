@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestIOSessionImpl {
@@ -189,15 +189,15 @@ class TestIOSessionImpl {
                 session.enqueue(normal, Command.Priority.NORMAL);
                 session.enqueue(immediate, Command.Priority.IMMEDIATE);
 
-                Assertions.assertTrue(session.hasCommands());
-                Assertions.assertEquals(2, session.getPendingCommandCount());
-                Assertions.assertSame(immediate, session.poll());
-                Assertions.assertSame(normal, session.poll());
+                Assertions.assertThat(session.hasCommands()).isTrue();
+                Assertions.assertThat(session.getPendingCommandCount()).isEqualTo(2);
+                Assertions.assertThat(session.poll()).isSameAs(immediate);
+                Assertions.assertThat(session.poll()).isSameAs(normal);
 
-                Assertions.assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, key.interestOps());
+                Assertions.assertThat(key.interestOps()).isEqualTo(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             } finally {
                 session.close(CloseMode.IMMEDIATE);
-                Assertions.assertSame(session, closedRef.get());
+                Assertions.assertThat(closedRef.get()).isSameAs(session);
             }
         }
     }
@@ -216,7 +216,7 @@ class TestIOSessionImpl {
                 final TestCommand command = new TestCommand();
                 session.enqueue(command, Command.Priority.NORMAL);
 
-                Assertions.assertTrue(command.cancelled.get());
+                Assertions.assertThat(command.cancelled.get()).isTrue();
             } finally {
                 session.close(CloseMode.IMMEDIATE);
             }
@@ -233,13 +233,13 @@ class TestIOSessionImpl {
             final IOSessionImpl session = new IOSessionImpl("t", key, channel, null);
             try {
                 session.setEvent(SelectionKey.OP_WRITE);
-                Assertions.assertEquals(SelectionKey.OP_READ | SelectionKey.OP_WRITE, session.getEventMask());
+                Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
                 session.clearEvent(SelectionKey.OP_READ);
-                Assertions.assertEquals(SelectionKey.OP_WRITE, session.getEventMask());
+                Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_WRITE);
 
                 session.setEventMask(SelectionKey.OP_READ);
-                Assertions.assertEquals(SelectionKey.OP_READ, session.getEventMask());
+                Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_READ);
             } finally {
                 session.close(CloseMode.IMMEDIATE);
             }
@@ -256,7 +256,7 @@ class TestIOSessionImpl {
             final IOSessionImpl session = new IOSessionImpl("t", key, channel, null);
             session.close(CloseMode.IMMEDIATE);
 
-            Assertions.assertEquals(0, session.getEventMask());
+            Assertions.assertThat(session.getEventMask()).isEqualTo(0);
         }
     }
 
@@ -270,7 +270,7 @@ class TestIOSessionImpl {
             final IOSessionImpl session = new IOSessionImpl("t", key, channel, null);
             try {
                 final String text = session.toString();
-                Assertions.assertTrue(text.contains("ACTIVE"));
+                Assertions.assertThat(text.contains("ACTIVE")).isTrue();
             } finally {
                 session.close(CloseMode.IMMEDIATE);
             }
@@ -295,13 +295,13 @@ class TestIOSessionImpl {
 
             final int bytesWritten = session.write(src);
 
-            Assertions.assertEquals(content.length, bytesWritten);
-            Assertions.assertFalse(src.hasRemaining());
-            Assertions.assertEquals(3, mockChannel.writeSizes.size());
+            Assertions.assertThat(bytesWritten).isEqualTo(content.length);
+            Assertions.assertThat(src.hasRemaining()).isFalse();
+            Assertions.assertThat(mockChannel.writeSizes.size()).isEqualTo(3);
             for (final int size : mockChannel.writeSizes) {
-                Assertions.assertTrue(size <= 16 * 1024);
+                Assertions.assertThat(size <= 16 * 1024).isTrue();
             }
-            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+            Assertions.assertThat(mockChannel.toByteArray()).containsExactly(content);
         }
     }
 
@@ -320,10 +320,10 @@ class TestIOSessionImpl {
 
             final int bytesWritten = session.write(src);
 
-            Assertions.assertEquals(content.length, bytesWritten);
-            Assertions.assertEquals(1, mockChannel.writeSizes.size());
-            Assertions.assertEquals(content.length, mockChannel.writeSizes.get(0));
-            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+            Assertions.assertThat(bytesWritten).isEqualTo(content.length);
+            Assertions.assertThat(mockChannel.writeSizes.size()).isEqualTo(1);
+            Assertions.assertThat(mockChannel.writeSizes.get(0)).isEqualTo(content.length);
+            Assertions.assertThat(mockChannel.toByteArray()).containsExactly(content);
         }
     }
 
@@ -346,9 +346,9 @@ class TestIOSessionImpl {
 
             final int bytesWritten = session.write(src);
 
-            Assertions.assertEquals(contentSize, bytesWritten);
-            Assertions.assertEquals(1, mockChannel.writeSizes.size());
-            Assertions.assertEquals(contentSize, mockChannel.writeSizes.get(0));
+            Assertions.assertThat(bytesWritten).isEqualTo(contentSize);
+            Assertions.assertThat(mockChannel.writeSizes.size()).isEqualTo(1);
+            Assertions.assertThat(mockChannel.writeSizes.get(0)).isEqualTo(contentSize);
         }
     }
 
@@ -371,9 +371,9 @@ class TestIOSessionImpl {
 
             final int bytesWritten = session.write(src);
 
-            Assertions.assertEquals(content.length, bytesWritten);
-            Assertions.assertFalse(src.hasRemaining());
-            Assertions.assertArrayEquals(content, mockChannel.toByteArray());
+            Assertions.assertThat(bytesWritten).isEqualTo(content.length);
+            Assertions.assertThat(src.hasRemaining()).isFalse();
+            Assertions.assertThat(mockChannel.toByteArray()).containsExactly(content);
         }
     }
 
@@ -393,8 +393,8 @@ class TestIOSessionImpl {
 
             final int bytesWritten = session.write(src);
 
-            Assertions.assertEquals(0, bytesWritten);
-            Assertions.assertTrue(src.hasRemaining());
+            Assertions.assertThat(bytesWritten).isEqualTo(0);
+            Assertions.assertThat(src.hasRemaining()).isTrue();
         }
     }
 }

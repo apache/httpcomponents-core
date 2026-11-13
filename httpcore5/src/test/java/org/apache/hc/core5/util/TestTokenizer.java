@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,34 +57,34 @@ class TestTokenizer {
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assertions.assertFalse(cursor.atEnd());
-        Assertions.assertEquals(3, cursor.getPos());
+        Assertions.assertThat(cursor.atEnd()).isFalse();
+        Assertions.assertThat(cursor.getPos()).isEqualTo(3);
 
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyContent(raw, cursor, Tokenizer.delimiters(':'), strbuf1);
 
-        Assertions.assertFalse(cursor.atEnd());
-        Assertions.assertEquals(6, cursor.getPos());
-        Assertions.assertEquals("raw", strbuf1.toString());
-        Assertions.assertEquals(':', raw.charAt(cursor.getPos()));
+        Assertions.assertThat(cursor.atEnd()).isFalse();
+        Assertions.assertThat(cursor.getPos()).isEqualTo(6);
+        Assertions.assertThat(strbuf1.toString()).isEqualTo("raw");
+        Assertions.assertThat(raw.charAt(cursor.getPos())).isEqualTo(':');
         cursor.updatePos(cursor.getPos() + 1);
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assertions.assertFalse(cursor.atEnd());
-        Assertions.assertEquals(8, cursor.getPos());
+        Assertions.assertThat(cursor.atEnd()).isFalse();
+        Assertions.assertThat(cursor.getPos()).isEqualTo(8);
 
         final StringBuilder strbuf2 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf2);
 
-        Assertions.assertTrue(cursor.atEnd());
-        Assertions.assertEquals(" some stuff ", strbuf2.toString());
+        Assertions.assertThat(cursor.atEnd()).isTrue();
+        Assertions.assertThat(strbuf2.toString()).isEqualTo(" some stuff ");
 
         parser.copyQuotedContent(raw, cursor, strbuf2);
-        Assertions.assertTrue(cursor.atEnd());
+        Assertions.assertThat(cursor.atEnd()).isTrue();
 
         parser.skipWhiteSpace(raw, cursor);
-        Assertions.assertTrue(cursor.atEnd());
+        Assertions.assertThat(cursor.atEnd()).isTrue();
     }
 
     @Test
@@ -95,26 +95,26 @@ class TestTokenizer {
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assertions.assertFalse(cursor.atEnd());
-        Assertions.assertEquals(0, cursor.getPos());
+        Assertions.assertThat(cursor.atEnd()).isFalse();
+        Assertions.assertThat(cursor.getPos()).isEqualTo(0);
 
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyContent(raw, cursor, Tokenizer.delimiters(':'), strbuf1);
 
-        Assertions.assertFalse(cursor.atEnd());
-        Assertions.assertEquals("raw", strbuf1.toString());
-        Assertions.assertEquals(':', raw.charAt(cursor.getPos()));
+        Assertions.assertThat(cursor.atEnd()).isFalse();
+        Assertions.assertThat(strbuf1.toString()).isEqualTo("raw");
+        Assertions.assertThat(raw.charAt(cursor.getPos())).isEqualTo(':');
         cursor.updatePos(cursor.getPos() + 1);
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertThat(cursor.atEnd()).isFalse();
 
         final StringBuilder strbuf2 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf2);
 
-        Assertions.assertTrue(cursor.atEnd());
-        Assertions.assertEquals("\"some\\stuff\\", strbuf2.toString());
+        Assertions.assertThat(cursor.atEnd()).isTrue();
+        Assertions.assertThat(strbuf2.toString()).isEqualTo("\"some\\stuff\\");
     }
 
     @Test
@@ -124,7 +124,7 @@ class TestTokenizer {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf1);
-        Assertions.assertEquals("stuff and more stuff  ", strbuf1.toString());
+        Assertions.assertThat(strbuf1.toString()).isEqualTo("stuff and more stuff  ");
     }
 
     @Test
@@ -133,7 +133,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseToken(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff and some more stuff", result);
+        Assertions.assertThat(result).isEqualTo("stuff and some more stuff");
     }
 
     @Test
@@ -142,7 +142,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff and  some more  stuff  ;", result);
+        Assertions.assertThat(result).isEqualTo("stuff and  some more  stuff  ;");
     }
 
     @Test
@@ -151,7 +151,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuffmorestuff", result);
+        Assertions.assertThat(result).isEqualTo("stuffmorestuff");
     }
 
     @Test
@@ -160,7 +160,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff\"more\"stuff", result);
+        Assertions.assertThat(result).isEqualTo("stuff\"more\"stuff");
     }
 
     @Test
@@ -169,7 +169,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff\"more\";stuff", result);
+        Assertions.assertThat(result).isEqualTo("stuff\"more\";stuff");
     }
 
     @Test
@@ -178,7 +178,7 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff\"more\";\\stuff", result);
+        Assertions.assertThat(result).isEqualTo("stuff\"more\";\\stuff");
     }
 
     @Test
@@ -187,6 +187,6 @@ class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
-        Assertions.assertEquals("stuff\\", result);
+        Assertions.assertThat(result).isEqualTo("stuff\\");
     }
 }

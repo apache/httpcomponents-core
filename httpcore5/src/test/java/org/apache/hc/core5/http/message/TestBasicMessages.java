@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -48,161 +48,167 @@ class TestBasicMessages {
     @Test
     void testDefaultResponseConstructors() {
         final HttpResponse response1 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
-        Assertions.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response2.getCode());
-        Assertions.assertEquals("whatever", response2.getReasonPhrase());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        Assertions.assertThat(response2.getReasonPhrase()).isEqualTo("whatever");
     }
 
     @Test
     void testSetResponseStatus() {
         final HttpResponse response1 = new BasicHttpResponse(200, "OK");
-        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
 
         final HttpResponse response3 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
-        Assertions.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response3.getCode());
-        Assertions.assertEquals("whatever", response3.getReasonPhrase());
+        Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        Assertions.assertThat(response3.getReasonPhrase()).isEqualTo("whatever");
 
         final HttpResponse response4 = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> response4.setCode(-23));
+        Assertions.assertThatThrownBy(() ->
+                        response4.setCode(-23))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testDefaultRequestConstructors() {
         final HttpRequest request1 = new BasicHttpRequest("WHATEVER", "/");
-        Assertions.assertEquals("WHATEVER", request1.getMethod());
-        Assertions.assertEquals("/", request1.getPath());
+        Assertions.assertThat(request1.getMethod()).isEqualTo("WHATEVER");
+        Assertions.assertThat(request1.getPath()).isEqualTo("/");
 
         final HttpRequest request2 = new BasicHttpRequest(Method.GET, "/");
-        Assertions.assertEquals(Method.GET.name(), request2.getMethod());
-        Assertions.assertEquals("/", request2.getPath());
+        Assertions.assertThat(request2.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request2.getPath()).isEqualTo("/");
 
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new BasicHttpRequest(Method.GET, (URI) null));
+        Assertions.assertThatThrownBy(() ->
+                new BasicHttpRequest(Method.GET, (URI) null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testResponseBasics() {
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
-        Assertions.assertEquals(200, response.getCode());
-        Assertions.assertEquals("OK", response.getReasonPhrase());
+        Assertions.assertThat(response.getCode()).isEqualTo(200);
+        Assertions.assertThat(response.getReasonPhrase()).isEqualTo("OK");
     }
 
     @Test
     void testResponseStatusLineMutation() {
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
-        Assertions.assertEquals(200, response.getCode());
-        Assertions.assertEquals("OK", response.getReasonPhrase());
+        Assertions.assertThat(response.getCode()).isEqualTo(200);
+        Assertions.assertThat(response.getReasonPhrase()).isEqualTo("OK");
         response.setReasonPhrase("Kind of OK");
-        Assertions.assertEquals(200, response.getCode());
-        Assertions.assertEquals("Kind of OK", response.getReasonPhrase());
+        Assertions.assertThat(response.getCode()).isEqualTo(200);
+        Assertions.assertThat(response.getReasonPhrase()).isEqualTo("Kind of OK");
         response.setCode(299);
-        Assertions.assertEquals(299, response.getCode());
-        Assertions.assertNull(response.getReasonPhrase());
+        Assertions.assertThat(response.getCode()).isEqualTo(299);
+        Assertions.assertThat(response.getReasonPhrase()).isNull();
     }
 
     @Test
     void testResponseInvalidStatusCode() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new BasicHttpResponse(-200, "OK"));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpResponse(-200, "OK"))
+                .isInstanceOf(IllegalArgumentException.class);
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
-        Assertions.assertThrows(IllegalArgumentException.class, () -> response.setCode(-1));
+        Assertions.assertThatThrownBy(() ->
+                        response.setCode(-1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testRequestBasics() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/stuff");
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertNull(request.getAuthority());
-        Assertions.assertEquals(new URI("/stuff"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getAuthority()).isNull();
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("/stuff"));
     }
 
     @Test
     void testRequestWithRelativeURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("/stuff"));
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertNull(request.getAuthority());
-        Assertions.assertEquals(new URI("/stuff"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getAuthority()).isNull();
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("/stuff"));
     }
 
     @Test
     void testRequestWithAbsoluteURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://host:9443/stuff?param=value"));
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff?param=value", request.getPath());
-        Assertions.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
-        Assertions.assertEquals("https", request.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("host", 9443));
+        Assertions.assertThat(request.getScheme()).isEqualTo("https");
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
     }
 
     @Test
     void testRequestWithAbsoluteURIAsPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "https://host:9443/stuff?param=value");
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff?param=value", request.getPath());
-        Assertions.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
-        Assertions.assertEquals("https", request.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("host", 9443));
+        Assertions.assertThat(request.getScheme()).isEqualTo("https");
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
     }
 
     @Test
     void testRequestWithNoPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("http://host"));
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/", request.getPath());
-        Assertions.assertEquals(new URIAuthority("host"), request.getAuthority());
-        Assertions.assertEquals("http", request.getScheme());
-        Assertions.assertEquals(new URI("http://host/"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("host"));
+        Assertions.assertThat(request.getScheme()).isEqualTo("http");
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("http://host/"));
     }
 
     @Test
     void testRequestWithUserInfo() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff?param=value", request.getPath());
-        Assertions.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
-        Assertions.assertEquals("https", request.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("user:pwd", "host", 9443));
+        Assertions.assertThat(request.getScheme()).isEqualTo("https");
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
     }
 
     @Test
     void testRequestWithAuthority() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "/stuff");
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(new URIAuthority("somehost"), request.getAuthority());
-        Assertions.assertEquals(new URI("http://somehost/stuff"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("somehost"));
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("http://somehost/stuff"));
     }
 
     @Test
     void testRequestWithAuthorityRelativePath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("stuff", request.getPath());
-        Assertions.assertEquals(new URIAuthority("somehost"), request.getAuthority());
-        Assertions.assertEquals(new URI("http://somehost/stuff"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("stuff");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("somehost"));
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("http://somehost/stuff"));
     }
 
     @Test
     void testRequestHostWithReservedChars() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(new URIAuthority("someuser%21", "%21example%21.com", -1), request.getAuthority());
-        Assertions.assertEquals(new URI("http://%21example%21.com/stuff"), request.getUri());
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("someuser%21", "%21example%21.com", -1));
+        Assertions.assertThat(request.getUri()).isEqualTo(new URI("http://%21example%21.com/stuff"));
     }
 
     @Test
     void testRequestAbsoluteRequestUri() {
         final BasicHttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
-        Assertions.assertEquals("stuff", request.getRequestUri());
+        Assertions.assertThat(request.getRequestUri()).isEqualTo("stuff");
         request.setAbsoluteRequestUri(true);
-        Assertions.assertEquals("http://somehost/stuff", request.getRequestUri());
+        Assertions.assertThat(request.getRequestUri()).isEqualTo("http://somehost/stuff");
     }
 
     @Test
@@ -215,7 +221,7 @@ class TestBasicMessages {
                 .build();
 
         request.setUri(newUri);
-        Assertions.assertEquals(newUri, request.getUri());
+        Assertions.assertThat(request.getUri()).isEqualTo(newUri);
     }
 
 }

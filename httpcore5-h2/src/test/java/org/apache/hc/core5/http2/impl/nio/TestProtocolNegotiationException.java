@@ -28,7 +28,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestProtocolNegotiationException {
@@ -36,8 +36,8 @@ class TestProtocolNegotiationException {
     @Test
     void messageIsPreserved() {
         final ProtocolNegotiationException ex = new ProtocolNegotiationException("nope");
-        Assertions.assertEquals("nope", ex.getMessage());
-        Assertions.assertTrue(ex instanceof IOException);
+        Assertions.assertThat(ex.getMessage()).isEqualTo("nope");
+        Assertions.assertThat(ex instanceof IOException).isTrue();
     }
 
 }

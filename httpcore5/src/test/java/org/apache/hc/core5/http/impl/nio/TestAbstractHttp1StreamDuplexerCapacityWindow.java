@@ -32,7 +32,7 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.http.impl.nio.AbstractHttp1StreamDuplexer.CapacityWindow;
 import org.apache.hc.core5.reactor.IOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +55,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
     void testWindowUpdate() throws IOException {
         final CapacityWindow window = new CapacityWindow(0, ioSession);
         window.update(1);
-        Assertions.assertEquals(1, window.getWindow());
+        Assertions.assertThat(window.getWindow()).isEqualTo(1);
         Mockito.verify(ioSession).setEvent(ArgumentMatchers.eq(SelectionKey.OP_READ));
         Mockito.verifyNoMoreInteractions(ioSession);
     }
@@ -64,7 +64,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
     void testRemoveCapacity() {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.removeCapacity(1);
-        Assertions.assertEquals(0, window.getWindow());
+        Assertions.assertThat(window.getWindow()).isEqualTo(0);
         Mockito.verify(ioSession).clearEvent(ArgumentMatchers.eq(SelectionKey.OP_READ));
         Mockito.verifyNoMoreInteractions(ioSession);
     }
@@ -81,14 +81,14 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
     void windowCannotUnderflow() {
         final CapacityWindow window = new CapacityWindow(Integer.MIN_VALUE, ioSession);
         window.removeCapacity(1);
-        Assertions.assertEquals(Integer.MIN_VALUE, window.getWindow());
+        Assertions.assertThat(window.getWindow()).isEqualTo(Integer.MIN_VALUE);
     }
 
     @Test
     void windowCannotOverflow() throws IOException {
         final CapacityWindow window = new CapacityWindow(Integer.MAX_VALUE, ioSession);
         window.update(1);
-        Assertions.assertEquals(Integer.MAX_VALUE, window.getWindow());
+        Assertions.assertThat(window.getWindow()).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
@@ -96,7 +96,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.update(0);
         window.update(-1);
-        Assertions.assertEquals(1, window.getWindow());
+        Assertions.assertThat(window.getWindow()).isEqualTo(1);
         Mockito.verifyNoInteractions(ioSession);
     }
 }

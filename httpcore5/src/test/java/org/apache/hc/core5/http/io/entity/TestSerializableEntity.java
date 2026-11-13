@@ -33,7 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestSerializableEntity {
@@ -61,10 +61,10 @@ class TestSerializableEntity {
 
         try (final SerializableEntity httpentity = new SerializableEntity(serializableObj, null)) {
 
-            Assertions.assertEquals(-1, httpentity.getContentLength());
-            Assertions.assertNotNull(httpentity.getContent());
-            Assertions.assertTrue(httpentity.isRepeatable());
-            Assertions.assertFalse(httpentity.isStreaming());
+            Assertions.assertThat(httpentity.getContentLength()).isEqualTo(-1);
+            Assertions.assertThat(httpentity.getContent()).isNotNull();
+            Assertions.assertThat(httpentity.isRepeatable()).isTrue();
+            Assertions.assertThat(httpentity.isStreaming()).isFalse();
         }
     }
 
@@ -76,13 +76,15 @@ class TestSerializableEntity {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             httpentity.writeTo(out);
             final byte[] bytes = out.toByteArray();
-            Assertions.assertNotNull(bytes);
+            Assertions.assertThat(bytes).isNotNull();
             final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(bytes));
             final SerializableObject serIn = (SerializableObject) oin.readObject();
-            Assertions.assertEquals(4, serIn.intValue);
-            Assertions.assertEquals("Hello", serIn.stringValue);
+            Assertions.assertThat(serIn.intValue).isEqualTo(4);
+            Assertions.assertThat(serIn.stringValue).isEqualTo("Hello");
 
-            Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            httpentity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 

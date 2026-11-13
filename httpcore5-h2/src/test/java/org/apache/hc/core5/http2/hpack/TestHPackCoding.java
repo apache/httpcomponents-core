@@ -37,7 +37,8 @@ import java.util.List;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestHPackCoding {
@@ -48,21 +49,21 @@ class TestHPackCoding {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackEncoder.encodeInt(buffer, 5, 10, 0x0);
 
-        Assertions.assertEquals(1, buffer.length());
-        Assertions.assertEquals(0b00001010, buffer.byteAt(0) & 0xFF);
+        Assertions.assertThat(buffer.length()).isEqualTo(1);
+        Assertions.assertThat(buffer.byteAt(0) & 0xFF).isEqualTo(0b00001010);
 
         buffer.clear();
         HPackEncoder.encodeInt(buffer, 5, 1337, 0x0);
 
-        Assertions.assertEquals(3, buffer.length());
-        Assertions.assertEquals(0b00011111, buffer.byteAt(0) & 0xFF);
-        Assertions.assertEquals(0b10011010, buffer.byteAt(1) & 0xFF);
-        Assertions.assertEquals(0b00001010, buffer.byteAt(2) & 0xFF);
+        Assertions.assertThat(buffer.length()).isEqualTo(3);
+        Assertions.assertThat(buffer.byteAt(0) & 0xFF).isEqualTo(0b00011111);
+        Assertions.assertThat(buffer.byteAt(1) & 0xFF).isEqualTo(0b10011010);
+        Assertions.assertThat(buffer.byteAt(2) & 0xFF).isEqualTo(0b00001010);
 
         buffer.clear();
         HPackEncoder.encodeInt(buffer, 8, 42, 0x0);
-        Assertions.assertEquals(1, buffer.length());
-        Assertions.assertEquals(0b00101010, buffer.byteAt(0) & 0xFF);
+        Assertions.assertThat(buffer.length()).isEqualTo(1);
+        Assertions.assertThat(buffer.byteAt(0) & 0xFF).isEqualTo(0b00101010);
     }
 
     static ByteBuffer wrap(final ByteArrayBuffer src) {
@@ -89,17 +90,17 @@ class TestHPackCoding {
             buffer.clear();
 
             HPackEncoder.encodeInt(buffer, n, 10, 0x0);
-            Assertions.assertEquals(10, HPackDecoder.decodeInt(wrap(buffer), n));
+            Assertions.assertThat(HPackDecoder.decodeInt(wrap(buffer), n)).isEqualTo(10);
 
             buffer.clear();
 
             HPackEncoder.encodeInt(buffer, n, 123456, 0x0);
-            Assertions.assertEquals(123456, HPackDecoder.decodeInt(wrap(buffer), n));
+            Assertions.assertThat(HPackDecoder.decodeInt(wrap(buffer), n)).isEqualTo(123456);
 
             buffer.clear();
 
             HPackEncoder.encodeInt(buffer, n, Integer.MAX_VALUE, 0x0);
-            Assertions.assertEquals(Integer.MAX_VALUE, HPackDecoder.decodeInt(wrap(buffer), n));
+            Assertions.assertThat(HPackDecoder.decodeInt(wrap(buffer), n)).isEqualTo(Integer.MAX_VALUE);
         }
 
     }
@@ -108,7 +109,7 @@ class TestHPackCoding {
     void testIntegerCodingLimit() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(0x7f, 0x80, 0xff, 0xff, 0xff, 0x07);
-        Assertions.assertEquals(Integer.MAX_VALUE, HPackDecoder.decodeInt(src1, 7));
+        Assertions.assertThat(HPackDecoder.decodeInt(src1, 7)).isEqualTo(Integer.MAX_VALUE);
 
         final ByteBuffer src2 = createByteBuffer(0x7f, 0x80, 0xff, 0xff, 0xff, 0x08);
         try {
@@ -140,8 +141,8 @@ class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodePlainString(buffer, src);
-        Assertions.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII)).isEqualTo("custom-key");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
     }
 
     @Test
@@ -152,8 +153,8 @@ class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodePlainString(buffer, src);
-        Assertions.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
-        Assertions.assertEquals(4, src.remaining());
+        Assertions.assertThat(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII)).isEqualTo("custom-key");
+        Assertions.assertThat(src.remaining()).isEqualTo(4);
     }
 
     @Test
@@ -165,8 +166,8 @@ class TestHPackCoding {
         final ByteBuffer srcRO = src.asReadOnlyBuffer();
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodePlainString(buffer, srcRO);
-        Assertions.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
-        Assertions.assertEquals(4, srcRO.remaining());
+        Assertions.assertThat(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII)).isEqualTo("custom-key");
+        Assertions.assertThat(srcRO.remaining()).isEqualTo(4);
     }
 
     @Test
@@ -176,7 +177,9 @@ class TestHPackCoding {
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65);
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
-        Assertions.assertThrows(HPackException.class, () -> HPackDecoder.decodePlainString(buffer, src));
+        Assertions.assertThatThrownBy(() ->
+                        HPackDecoder.decodePlainString(buffer, src))
+                .isInstanceOf(HPackException.class);
     }
 
     @Test
@@ -186,9 +189,8 @@ class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodeHuffman(buffer, src);
-        Assertions.assertEquals("www.example.com",
-                new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII)).isEqualTo("www.example.com");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
     }
 
     private static ByteBuffer createByteBuffer(final String s, final Charset charset) {
@@ -202,7 +204,7 @@ class TestHPackCoding {
         HPackEncoder.encodeHuffman(buffer, createByteBuffer("www.example.com", StandardCharsets.US_ASCII));
         final ByteBuffer expected = createByteBuffer(
                 0xf1, 0xe3, 0xc2, 0xe5, 0xf2, 0x3a, 0x6b, 0xa0, 0xab, 0x90, 0xf4, 0xff);
-        Assertions.assertArrayEquals(toArray(expected), buffer.toByteArray());
+        Assertions.assertThat(buffer.toByteArray()).containsExactly(toArray(expected));
     }
 
     @Test
@@ -216,13 +218,13 @@ class TestHPackCoding {
 
         final StringBuilder strBuf = new StringBuilder();
         decoder.decodeString(wrap(buffer), strBuf);
-        Assertions.assertEquals("this and that", strBuf.toString());
+        Assertions.assertThat(strBuf.toString()).isEqualTo("this and that");
 
         buffer.clear();
         strBuf.setLength(0);
         encoder.encodeString(buffer, "this and that and Huffman", true);
         decoder.decodeString(wrap(buffer), strBuf);
-        Assertions.assertEquals("this and that and Huffman", strBuf.toString());
+        Assertions.assertThat(strBuf.toString()).isEqualTo("this and that and Huffman");
     }
 
     @Test
@@ -239,7 +241,7 @@ class TestHPackCoding {
             decoder.decodeString(wrap(buffer), strBuf);
             strBuf.delete(0,strBuf.length());
         }
-        Assertions.assertEquals(256, decoder.getTmpBufSize());
+        Assertions.assertThat(decoder.getTmpBufSize()).isEqualTo(256);
     }
 
     static final int SWISS_GERMAN_HELLO[] = {
@@ -286,7 +288,7 @@ class TestHPackCoding {
                     strBuf.setLength(0);
                     decoder.decodeString(wrap(buffer), strBuf);
                     final String helloBack = strBuf.toString();
-                    Assertions.assertEquals(hello, helloBack, "charset: " + charset + "; huffman: " + b);
+                    Assertions.assertThat(helloBack).withFailMessage("charset: " + charset + "; huffman: " + b).isEqualTo(hello);
                 }
             }
         }
@@ -314,7 +316,7 @@ class TestHPackCoding {
                     encoder.encodeString(buffer, hello, b);
                     decoder.decodeString(wrap(buffer), strBuf);
                     final String helloBack = strBuf.toString();
-                    Assertions.assertEquals(hello, helloBack, "charset: " + charset + "; huffman: " + b);
+                    Assertions.assertThat(helloBack).withFailMessage("charset: " + charset + "; huffman: " + b).isEqualTo(hello);
                 }
             }
         }
@@ -322,10 +324,10 @@ class TestHPackCoding {
 
     private static void assertHeaderEquals(final Header expected, final Header actual) {
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(expected.getName(), actual.getName(), "Header name");
-        Assertions.assertEquals(expected.getValue(), actual.getValue(), "Header value");
-        Assertions.assertEquals(expected.isSensitive(), actual.isSensitive(), "Header sensitive flag");
+        Assertions.assertThat(actual).isNotNull();
+        Assertions.assertThat(actual.getName()).withFailMessage("Header name").isEqualTo(expected.getName());
+        Assertions.assertThat(actual.getValue()).withFailMessage("Header value").isEqualTo(expected.getValue());
+        Assertions.assertThat(actual.isSensitive()).withFailMessage("Header sensitive flag").isEqualTo(expected.isSensitive());
     }
 
     @Test
@@ -339,9 +341,9 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final Header header = decoder.decodeLiteralHeader(src, HPackRepresentation.WITH_INDEXING);
         assertHeaderEquals(new BasicHeader("custom-key", "custom-header"), header);
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
 
-        Assertions.assertEquals(1, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(1);
         assertHeaderEquals(header, dynamicTable.getDynamicEntry(0));
     }
 
@@ -355,9 +357,9 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final Header header = decoder.decodeLiteralHeader(src, HPackRepresentation.WITHOUT_INDEXING);
         assertHeaderEquals(new BasicHeader(":path", "/sample/path"), header);
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
 
-        Assertions.assertEquals(0, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(0);
     }
 
     @Test
@@ -370,9 +372,9 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final Header header = decoder.decodeLiteralHeader(src, HPackRepresentation.NEVER_INDEXED);
         assertHeaderEquals(new BasicHeader("password", "secret", true), header);
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
 
-        Assertions.assertEquals(0, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(0);
     }
 
     @Test
@@ -384,9 +386,9 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final Header header = decoder.decodeIndexedHeader(src);
         assertHeaderEquals(new BasicHeader(":method", "GET"), header);
-        Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
+        Assertions.assertThat(src.hasRemaining()).withFailMessage("Decoding completed").isFalse();
 
-        Assertions.assertEquals(0, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(0);
     }
 
     @Test
@@ -400,32 +402,32 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final List<Header> headers1 = decoder.decodeHeaders(src1);
 
-        Assertions.assertEquals(4, headers1.size());
+        Assertions.assertThat(headers1.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers1.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "http"), headers1.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/"), headers1.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers1.get(3));
 
-        Assertions.assertEquals(1, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(1);
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
-        Assertions.assertEquals(57, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(57);
 
         final ByteBuffer src2 = createByteBuffer(
                 0x82, 0x86, 0x84, 0xbe, 0x58, 0x08, 0x6e, 0x6f, 0x2d, 0x63, 0x61, 0x63, 0x68, 0x65);
 
         final List<Header> headers2 = decoder.decodeHeaders(src2);
 
-        Assertions.assertEquals(5, headers2.size());
+        Assertions.assertThat(headers2.size()).isEqualTo(5);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers2.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "http"), headers2.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/"), headers2.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers2.get(3));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), headers2.get(4));
 
-        Assertions.assertEquals(2, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(2);
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
-        Assertions.assertEquals(110, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(110);
 
         final ByteBuffer src3 = createByteBuffer(
                 0x82, 0x87, 0x85, 0xbf, 0x40, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79,
@@ -433,18 +435,18 @@ class TestHPackCoding {
 
         final List<Header> headers3 = decoder.decodeHeaders(src3);
 
-        Assertions.assertEquals(5, headers3.size());
+        Assertions.assertThat(headers3.size()).isEqualTo(5);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers3.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "https"), headers3.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/index.html"), headers3.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers3.get(3));
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), headers3.get(4));
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(2));
-        Assertions.assertEquals(164, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(164);
     }
 
     @Test
@@ -457,32 +459,32 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final List<Header> headers1 = decoder.decodeHeaders(src1);
 
-        Assertions.assertEquals(4, headers1.size());
+        Assertions.assertThat(headers1.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers1.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "http"), headers1.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/"), headers1.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers1.get(3));
 
-        Assertions.assertEquals(1, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(1);
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
-        Assertions.assertEquals(57, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(57);
 
         final ByteBuffer src2 = createByteBuffer(
                 0x82, 0x86, 0x84, 0xbe, 0x58, 0x86, 0xa8, 0xeb, 0x10, 0x64, 0x9c, 0xbf);
 
         final List<Header> headers2 = decoder.decodeHeaders(src2);
 
-        Assertions.assertEquals(5, headers2.size());
+        Assertions.assertThat(headers2.size()).isEqualTo(5);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers2.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "http"), headers2.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/"), headers2.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers2.get(3));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), headers2.get(4));
 
-        Assertions.assertEquals(2, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(2);
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
-        Assertions.assertEquals(110, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(110);
 
         final ByteBuffer src3 = createByteBuffer(
                 0x82, 0x87, 0x85, 0xbf, 0x40, 0x88, 0x25, 0xa8, 0x49, 0xe9, 0x5b, 0xa9, 0x7d, 0x7f, 0x89, 0x25,
@@ -490,18 +492,18 @@ class TestHPackCoding {
 
         final List<Header> headers3 = decoder.decodeHeaders(src3);
 
-        Assertions.assertEquals(5, headers3.size());
+        Assertions.assertThat(headers3.size()).isEqualTo(5);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers3.get(0));
         assertHeaderEquals(new BasicHeader(":scheme", "https"), headers3.get(1));
         assertHeaderEquals(new BasicHeader(":path", "/index.html"), headers3.get(2));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), headers3.get(3));
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), headers3.get(4));
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(2));
-        Assertions.assertEquals(164, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(164);
     }
 
     @Test
@@ -519,37 +521,37 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final List<Header> headers1 = decoder.decodeHeaders(src1);
 
-        Assertions.assertEquals(4, headers1.size());
+        Assertions.assertThat(headers1.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "302"), headers1.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers1.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), headers1.get(2));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), headers1.get(3));
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final ByteBuffer src2 = createByteBuffer(
                 0x48, 0x03, 0x33, 0x30, 0x37, 0xc1, 0xc0, 0xbf);
 
         final List<Header> headers2 = decoder.decodeHeaders(src2);
 
-        Assertions.assertEquals(4, headers2.size());
+        Assertions.assertThat(headers2.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), headers2.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers2.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), headers2.get(2));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), headers2.get(3));
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(3));
 
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final ByteBuffer src3 = createByteBuffer(
                 0x88, 0xc1, 0x61, 0x1d, 0x4d, 0x6f, 0x6e, 0x2c, 0x20, 0x32, 0x31, 0x20, 0x4f, 0x63, 0x74, 0x20, 0x32,
@@ -561,7 +563,7 @@ class TestHPackCoding {
 
         final List<Header> headers3 = decoder.decodeHeaders(src3);
 
-        Assertions.assertEquals(6, headers3.size());
+        Assertions.assertThat(headers3.size()).isEqualTo(6);
         assertHeaderEquals(new BasicHeader(":status", "200"), headers3.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers3.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), headers3.get(2));
@@ -569,12 +571,12 @@ class TestHPackCoding {
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), headers3.get(4));
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), headers3.get(5));
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), dynamicTable.getDynamicEntry(2));
 
-        Assertions.assertEquals(215, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(215);
     }
 
     @Test
@@ -591,37 +593,37 @@ class TestHPackCoding {
         final HPackDecoder decoder = new HPackDecoder(dynamicTable, StandardCharsets.US_ASCII);
         final List<Header> headers1 = decoder.decodeHeaders(src1);
 
-        Assertions.assertEquals(4, headers1.size());
+        Assertions.assertThat(headers1.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "302"), headers1.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers1.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), headers1.get(2));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), headers1.get(3));
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final ByteBuffer src2 = createByteBuffer(
                 0x48, 0x83, 0x64, 0x0e, 0xff, 0xc1, 0xc0, 0xbf);
 
         final List<Header> headers2 = decoder.decodeHeaders(src2);
 
-        Assertions.assertEquals(4, headers2.size());
+        Assertions.assertThat(headers2.size()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), headers2.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers2.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), headers2.get(2));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), headers2.get(3));
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(3));
 
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final ByteBuffer src3 = createByteBuffer(
                 0x88, 0xc1, 0x61, 0x96, 0xd0, 0x7a, 0xbe, 0x94, 0x10, 0x54, 0xd4, 0x44, 0xa8, 0x20, 0x05, 0x95, 0x04,
@@ -632,7 +634,7 @@ class TestHPackCoding {
 
         final List<Header> headers3 = decoder.decodeHeaders(src3);
 
-        Assertions.assertEquals(6, headers3.size());
+        Assertions.assertThat(headers3.size()).isEqualTo(6);
         assertHeaderEquals(new BasicHeader(":status", "200"), headers3.get(0));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), headers3.get(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), headers3.get(2));
@@ -640,12 +642,12 @@ class TestHPackCoding {
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), headers3.get(4));
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), headers3.get(5));
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), dynamicTable.getDynamicEntry(2));
 
-        Assertions.assertEquals(215, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(215);
     }
 
     private static byte[] createByteArray(final int... bytes) {
@@ -671,7 +673,7 @@ class TestHPackCoding {
                 0x40, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x0d, 0x63, 0x75, 0x73,
                 0x74, 0x6f, 0x6d, 0x2d, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72);
 
-        Assertions.assertArrayEquals(expected, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected);
     }
 
     @Test
@@ -697,7 +699,7 @@ class TestHPackCoding {
 
         final byte[] expected = createByteArray(
                 0x04, 0x0c, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2f, 0x70, 0x61, 0x74, 0x68);
-        Assertions.assertArrayEquals(expected, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected);
     }
 
     @Test
@@ -713,7 +715,7 @@ class TestHPackCoding {
 
         final byte[] expected = createByteArray(
                 0x10, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x06, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74);
-        Assertions.assertArrayEquals(expected, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected);
     }
 
     @Test
@@ -726,7 +728,7 @@ class TestHPackCoding {
         encoder.encodeIndex(buf, 2);
 
         final byte[] expected = createByteArray(0x82);
-        Assertions.assertArrayEquals(expected, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected);
     }
 
     @Test
@@ -747,11 +749,11 @@ class TestHPackCoding {
         final byte[] expected1 = createByteArray(
                 0x82, 0x86, 0x84, 0x41, 0x0f, 0x77, 0x77, 0x77, 0x2e, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e,
                 0x63, 0x6f, 0x6d);
-        Assertions.assertArrayEquals(expected1, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected1);
 
-        Assertions.assertEquals(1, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(1);
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
-        Assertions.assertEquals(57, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(57);
 
         final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -765,12 +767,12 @@ class TestHPackCoding {
 
         final byte[] expected2 = createByteArray(
                 0x82, 0x86, 0x84, 0xbe, 0x58, 0x08, 0x6e, 0x6f, 0x2d, 0x63, 0x61, 0x63, 0x68, 0x65);
-        Assertions.assertArrayEquals(expected2, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected2);
 
-        Assertions.assertEquals(2, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(2);
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
-        Assertions.assertEquals(110, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(110);
 
         final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -785,13 +787,13 @@ class TestHPackCoding {
         final byte[] expected3 = createByteArray(
                 0x82, 0x87, 0x85, 0xbf, 0x40, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79,
                 0x0c, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x76, 0x61, 0x6c, 0x75, 0x65);
-        Assertions.assertArrayEquals(expected3, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected3);
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(2));
-        Assertions.assertEquals(164, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(164);
     }
 
     @Test
@@ -811,11 +813,11 @@ class TestHPackCoding {
 
         final byte[] expected1 = createByteArray(
                 0x82, 0x86, 0x84, 0x41, 0x8c, 0xf1, 0xe3, 0xc2, 0xe5, 0xf2, 0x3a, 0x6b, 0xa0, 0xab, 0x90, 0xf4, 0xff);
-        Assertions.assertArrayEquals(expected1, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected1);
 
-        Assertions.assertEquals(1, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(1);
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
-        Assertions.assertEquals(57, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(57);
 
         final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -829,12 +831,12 @@ class TestHPackCoding {
 
         final byte[] expected2 = createByteArray(
                 0x82, 0x86, 0x84, 0xbe, 0x58, 0x86, 0xa8, 0xeb, 0x10, 0x64, 0x9c, 0xbf);
-        Assertions.assertArrayEquals(expected2, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected2);
 
-        Assertions.assertEquals(2, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(2);
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
-        Assertions.assertEquals(110, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(110);
 
         final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -849,13 +851,13 @@ class TestHPackCoding {
         final byte[] expected3 = createByteArray(
                 0x82, 0x87, 0x85, 0xbf, 0x40, 0x88, 0x25, 0xa8, 0x49, 0xe9, 0x5b, 0xa9, 0x7d, 0x7f, 0x89, 0x25,
                 0xa8, 0x49, 0xe9, 0x5b, 0xb8, 0xe8, 0xb4, 0xbf);
-        Assertions.assertArrayEquals(expected3, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected3);
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("custom-key", "custom-value"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("cache-control", "no-cache"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(2));
-        Assertions.assertEquals(164, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(164);
     }
 
     @Test
@@ -880,14 +882,14 @@ class TestHPackCoding {
                 0x30, 0x3a, 0x31, 0x33, 0x3a, 0x32, 0x31, 0x20, 0x47, 0x4d, 0x54, 0x6e, 0x17, 0x68, 0x74, 0x74, 0x70,
                 0x73, 0x3a, 0x2f, 0x2f, 0x77, 0x77, 0x77, 0x2e, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63,
                 0x6f, 0x6d);
-        Assertions.assertArrayEquals(expected1, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected1);
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":status", "307"),
@@ -900,15 +902,15 @@ class TestHPackCoding {
 
         final byte[] expected2 = createByteArray(
                 0x48, 0x03, 0x33, 0x30, 0x37, 0xc1, 0xc0, 0xbf);
-        Assertions.assertArrayEquals(expected2, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected2);
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(3));
 
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final List<Header> headers3 = Arrays.asList(
         new BasicHeader(":status", "200"),
@@ -928,14 +930,14 @@ class TestHPackCoding {
                 0x48, 0x51, 0x4b, 0x42, 0x5a, 0x58, 0x4f, 0x51, 0x57, 0x45, 0x4f, 0x50, 0x49, 0x55, 0x41, 0x58, 0x51,
                 0x57, 0x45, 0x4f, 0x49, 0x55, 0x3b, 0x20, 0x6d, 0x61, 0x78, 0x2d, 0x61, 0x67, 0x65, 0x3d, 0x33, 0x36,
                 0x30, 0x30, 0x3b, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x3d, 0x31);
-        Assertions.assertArrayEquals(expected3, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected3);
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), dynamicTable.getDynamicEntry(2));
 
-        Assertions.assertEquals(215, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(215);
     }
 
     @Test
@@ -959,14 +961,14 @@ class TestHPackCoding {
                 0x10, 0x54, 0xd4, 0x44, 0xa8, 0x20, 0x05, 0x95, 0x04, 0x0b, 0x81, 0x66, 0xe0, 0x82, 0xa6, 0x2d, 0x1b,
                 0xff, 0x6e, 0x91, 0x9d, 0x29, 0xad, 0x17, 0x18, 0x63, 0xc7, 0x8f, 0x0b, 0x97, 0xc8, 0xe9, 0xae, 0x82,
                 0xae, 0x43, 0xd3);
-        Assertions.assertArrayEquals(expected1, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected1);
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":status", "307"),
@@ -979,15 +981,15 @@ class TestHPackCoding {
 
         final byte[] expected2 = createByteArray(
                 0x48, 0x83, 0x64, 0x0e, 0xff, 0xc1, 0xc0, 0xbf);
-        Assertions.assertArrayEquals(expected2, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected2);
 
-        Assertions.assertEquals(4, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(4);
         assertHeaderEquals(new BasicHeader(":status", "307"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("location", "https://www.example.com"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"), dynamicTable.getDynamicEntry(2));
         assertHeaderEquals(new BasicHeader("cache-control", "private"), dynamicTable.getDynamicEntry(3));
 
-        Assertions.assertEquals(222, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(222);
 
         final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":status", "200"),
@@ -1006,14 +1008,14 @@ class TestHPackCoding {
                 0x94, 0xe7, 0x82, 0x1d, 0xd7, 0xf2, 0xe6, 0xc7, 0xb3, 0x35, 0xdf, 0xdf, 0xcd, 0x5b, 0x39, 0x60, 0xd5,
                 0xaf, 0x27, 0x08, 0x7f, 0x36, 0x72, 0xc1, 0xab, 0x27, 0x0f, 0xb5, 0x29, 0x1f, 0x95, 0x87, 0x31, 0x60,
                 0x65, 0xc0, 0x03, 0xed, 0x4e, 0xe5, 0xb1, 0x06, 0x3d, 0x50, 0x07);
-        Assertions.assertArrayEquals(expected3, buf.toByteArray());
+        Assertions.assertThat(buf.toByteArray()).containsExactly(expected3);
 
-        Assertions.assertEquals(3, dynamicTable.dynamicLength());
+        Assertions.assertThat(dynamicTable.dynamicLength()).isEqualTo(3);
         assertHeaderEquals(new BasicHeader("set-cookie", "foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"), dynamicTable.getDynamicEntry(0));
         assertHeaderEquals(new BasicHeader("content-encoding", "gzip"), dynamicTable.getDynamicEntry(1));
         assertHeaderEquals(new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"), dynamicTable.getDynamicEntry(2));
 
-        Assertions.assertEquals(215, dynamicTable.getCurrentSize());
+        Assertions.assertThat(dynamicTable.getCurrentSize()).isEqualTo(215);
     }
 
     @Test
@@ -1033,8 +1035,8 @@ class TestHPackCoding {
         encoder1.encodeHeader(buffer, header);
         assertHeaderEquals(header, decoder1.decodeHeader(wrap(buffer)));
 
-        Assertions.assertEquals(1, outboundTable1.dynamicLength());
-        Assertions.assertEquals(1, inboundTable1.dynamicLength());
+        Assertions.assertThat(outboundTable1.dynamicLength()).isEqualTo(1);
+        Assertions.assertThat(inboundTable1.dynamicLength()).isEqualTo(1);
 
         assertHeaderEquals(header, outboundTable1.getDynamicEntry(0));
         assertHeaderEquals(header, inboundTable1.getDynamicEntry(0));
@@ -1052,8 +1054,8 @@ class TestHPackCoding {
         encoder2.encodeHeader(buffer, header);
         assertHeaderEquals(header, decoder2.decodeHeader(wrap(buffer)));
 
-        Assertions.assertEquals(0, outboundTable2.dynamicLength());
-        Assertions.assertEquals(0, inboundTable2.dynamicLength());
+        Assertions.assertThat(outboundTable2.dynamicLength()).isEqualTo(0);
+        Assertions.assertThat(inboundTable2.dynamicLength()).isEqualTo(0);
     }
 
     @Test
@@ -1071,14 +1073,14 @@ class TestHPackCoding {
                                 "123456789012345678901234567890123456789012345678901234567890")),
                 false);
 
-        Assertions.assertEquals(2, decoder.decodeHeaders(wrap(buf)).size());
+        Assertions.assertThat(decoder.decodeHeaders(wrap(buf)).size()).isEqualTo(2);
 
         decoder.setMaxListSize(1000000);
-        Assertions.assertEquals(2, decoder.decodeHeaders(wrap(buf)).size());
+        Assertions.assertThat(decoder.decodeHeaders(wrap(buf)).size()).isEqualTo(2);
 
         decoder.setMaxListSize(200);
-        Assertions.assertThrows(HeaderListConstraintException.class, () ->
-                decoder.decodeHeaders(wrap(buf)));
+        Assertions.assertThatThrownBy(() ->
+                decoder.decodeHeaders(wrap(buf))).isInstanceOf(HeaderListConstraintException.class);
     }
 
     @Test
@@ -1116,7 +1118,7 @@ class TestHPackCoding {
         //emulate receiving a settings frame from the receiver
         encoder.setMaxTableSize(Integer.MAX_VALUE);
         //actual table size should not change until we are able to send an update to the receiver
-        Assertions.assertEquals(4096, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(4096);
     }
 
     @Test
@@ -1135,10 +1137,10 @@ class TestHPackCoding {
         final int masked = firstByte & 0xe0;
 
         //first header field is table size update
-        Assertions.assertEquals(0x20, masked);
+        Assertions.assertThat(masked).isEqualTo(0x20);
 
         //update has new table size as value
-        Assertions.assertEquals(8192, HPackDecoder.decodeInt(wrap(buf), 5));
+        Assertions.assertThat(HPackDecoder.decodeInt(wrap(buf), 5)).isEqualTo(8192);
     }
 
     @Test
@@ -1149,7 +1151,7 @@ class TestHPackCoding {
         //this would cause us to send a new settings frame to the sender
         decoder.setMaxTableSize(Integer.MAX_VALUE);
         //actual table size should not change until sender sends us a table update
-        Assertions.assertEquals(4096, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(4096);
     }
 
     @Test
@@ -1163,7 +1165,7 @@ class TestHPackCoding {
 
         decoder.decodeHeaders(wrap(buf));
 
-        Assertions.assertEquals(8192, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(8192);
     }
 
     @Test
@@ -1175,7 +1177,9 @@ class TestHPackCoding {
         //emulate receiving header that illegally increases the table size above our max
         final ByteArrayBuffer buf = new ByteArrayBuffer(128);
         HPackEncoder.encodeInt(buf, 5, 8192, 0x20);
-        Assertions.assertThrows(HPackException.class, () -> decoder.decodeHeaders(wrap(buf)));
+        Assertions.assertThatThrownBy(() ->
+                        decoder.decodeHeaders(wrap(buf)))
+                .isInstanceOf(HPackException.class);
     }
 
     @Test
@@ -1188,8 +1192,10 @@ class TestHPackCoding {
                 0x20  // dynamic table size update (0) - illegal after first header field
         );
 
-        final HPackException ex = Assertions.assertThrows(HPackException.class, () -> decoder.decodeHeaders(src));
-        Assertions.assertTrue(ex.getMessage().contains("beginning of a header block"));
+        final HPackException ex = Assertions.assertThatThrownBy(() ->
+                        decoder.decodeHeaders(src))
+                .isInstanceOf(HPackException.class).asInstanceOf(InstanceOfAssertFactories.type(HPackException.class)).actual();
+        Assertions.assertThat(ex.getMessage().contains("beginning of a header block")).isTrue();
     }
 
     @Test
@@ -1204,9 +1210,9 @@ class TestHPackCoding {
         );
 
         final List<Header> headers = decoder.decodeHeaders(src);
-        Assertions.assertEquals(1, headers.size());
+        Assertions.assertThat(headers.size()).isEqualTo(1);
         assertHeaderEquals(new BasicHeader(":method", "GET"), headers.get(0));
-        Assertions.assertEquals(10, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(10);
     }
 
     @Test
@@ -1220,16 +1226,18 @@ class TestHPackCoding {
                 0x20  // dynamic table size update (0) - illegal after first header field
         );
 
-        final HPackException ex = Assertions.assertThrows(HPackException.class, () -> decoder.decodeHeaders(src));
-        Assertions.assertTrue(ex.getMessage().contains("beginning of a header block"));
+        final HPackException ex = Assertions.assertThatThrownBy(() ->
+                        decoder.decodeHeaders(src))
+                .isInstanceOf(HPackException.class).asInstanceOf(InstanceOfAssertFactories.type(HPackException.class)).actual();
+        Assertions.assertThat(ex.getMessage().contains("beginning of a header block")).isTrue();
     }
 
     @Test
     void testIntegerDecodingOverflow() {
         // 7-bit prefix integer that mathematically decodes to Integer.MAX_VALUE + 127.
         // Without an overflow guard this wraps to a negative int and leaks into higher-level decoding.
-        Assertions.assertThrows(HPackException.class, () ->
-                HPackDecoder.decodeInt(createByteBuffer(0x7f, 0xff, 0xff, 0xff, 0xff, 0x07), 7));
+        Assertions.assertThatThrownBy(() ->
+                HPackDecoder.decodeInt(createByteBuffer(0x7f, 0xff, 0xff, 0xff, 0xff, 0x07), 7)).isInstanceOf(HPackException.class);
     }
 
 

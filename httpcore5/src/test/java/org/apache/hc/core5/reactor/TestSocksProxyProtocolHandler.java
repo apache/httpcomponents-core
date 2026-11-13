@@ -26,11 +26,6 @@
  */
 package org.apache.hc.core5.reactor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -49,6 +44,8 @@ import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestSocksProxyProtocolHandler {
@@ -84,37 +81,36 @@ class TestSocksProxyProtocolHandler {
         final SocksProxyProtocolHandler handler = new SocksProxyProtocolHandler(null, sessionRequest, null, reactorConfig);
 
         final TestIOSession session = new TestIOSession();
-        assertEquals(0, session.getEventMask());
+        Assertions.assertThat(session.getEventMask()).isEqualTo(0);
 
         // 1) Client sends auth methods
         handler.connected(session);
-        assertEquals(SelectionKey.OP_WRITE, session.getEventMask());
+        Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_WRITE);
 
         handler.outputReady(session);
-        assertEquals(SelectionKey.OP_READ, session.getEventMask());
+        Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_READ);
 
         // 2) Server replies: VER=5, METHOD=NO_AUTH(0)
         handler.inputReady(session, ByteBuffer.wrap(new byte[]{0x05, 0x00}));
-        assertEquals(SelectionKey.OP_WRITE, session.getEventMask());
+        Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_WRITE);
 
         // 3) Client sends CONNECT, then expects 2 bytes: VER + REP
         handler.outputReady(session);
-        assertEquals(SelectionKey.OP_READ, session.getEventMask());
+        Assertions.assertThat(session.getEventMask()).isEqualTo(SelectionKey.OP_READ);
 
         // 4) Now simulate proxy closing the TCP connection: read() returns -1.
-        final ConnectionClosedException ex = assertThrows(
-                ConnectionClosedException.class,
-                () -> handler.inputReady(session, null),
-                "EOF during SOCKS handshake must fail the exchange");
+        final ConnectionClosedException ex = Assertions.assertThatThrownBy(() ->
+                        handler.inputReady(session, null))
+                .withFailMessage("EOF during SOCKS handshake must fail the exchange").isInstanceOf(ConnectionClosedException.class).asInstanceOf(InstanceOfAssertFactories.type(ConnectionClosedException.class)).actual();
 
         // This is what the reactor would do: route the exception to the handler.
         handler.exception(session, ex);
 
-        assertTrue(sessionRequest.isDone(), "Session request future must be completed");
-        final ExecutionException ee = assertThrows(ExecutionException.class, sessionRequest::get);
-        assertSame(ex, ee.getCause(), "Cause must be the original EOF/close exception");
+        Assertions.assertThat(sessionRequest.isDone()).withFailMessage("Session request future must be completed").isTrue();
+        final ExecutionException ee = Assertions.assertThatThrownBy(sessionRequest::get).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(ee.getCause()).withFailMessage("Cause must be the original EOF/close exception").isSameAs(ex);
 
-        assertEquals(CloseMode.IMMEDIATE, session.getLastCloseMode(), "Session must be closed immediately");
+        Assertions.assertThat(session.getLastCloseMode()).withFailMessage("Session must be closed immediately").isEqualTo(CloseMode.IMMEDIATE);
     }
 
     private static final class TestIOSession implements IOSession {

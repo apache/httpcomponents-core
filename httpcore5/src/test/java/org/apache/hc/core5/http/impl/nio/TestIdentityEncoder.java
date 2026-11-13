@@ -38,8 +38,8 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -70,17 +70,17 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
         encoder.complete();
 
-        Assertions.assertTrue(encoder.isCompleted());
-        Assertions.assertEquals(5, metrics.getBytesTransferred());
+        Assertions.assertThat(encoder.isCompleted()).isTrue();
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(5);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff", s);
-        Assertions.assertEquals("[identity; completed: true]", encoder.toString());
+        Assertions.assertThat(s).isEqualTo("stuff");
+        Assertions.assertThat(encoder.toString()).isEqualTo("[identity; completed: true]");
     }
 
     @Test
@@ -101,8 +101,8 @@ class TestIdentityEncoder {
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertTrue(encoder.isCompleted());
-        Assertions.assertEquals("stuff", s);
+        Assertions.assertThat(encoder.isCompleted()).isTrue();
+        Assertions.assertThat(s).isEqualTo("stuff");
     }
 
     @Test
@@ -117,7 +117,9 @@ class TestIdentityEncoder {
 
         final ByteBuffer wrapped = CodecTestUtils.wrap("more stuff");
 
-        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(wrapped));
+        Assertions.assertThatThrownBy(() ->
+                        encoder.write(wrapped))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -125,9 +127,15 @@ class TestIdentityEncoder {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
-        Assertions.assertThrows(NullPointerException.class, () -> new IdentityEncoder(null, null, null));
-        Assertions.assertThrows(NullPointerException.class, () -> new IdentityEncoder(channel, null, null));
-        Assertions.assertThrows(NullPointerException.class, () -> new IdentityEncoder(channel, outbuf, null));
+        Assertions.assertThatThrownBy(() ->
+                        new IdentityEncoder(null, null, null))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new IdentityEncoder(channel, null, null))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new IdentityEncoder(channel, outbuf, null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -157,8 +165,8 @@ class TestIdentityEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertFalse(encoder.isCompleted());
-        Assertions.assertEquals("stuff;more stuff", s);
+        Assertions.assertThat(encoder.isCompleted()).isFalse();
+        Assertions.assertThat(s).isEqualTo("stuff;more stuff");
     }
 
     @Test
@@ -186,8 +194,8 @@ class TestIdentityEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertFalse(encoder.isCompleted());
-        Assertions.assertEquals("stuff;more stuff", s);
+        Assertions.assertThat(encoder.isCompleted()).isFalse();
+        Assertions.assertThat(s).isEqualTo("stuff;more stuff");
     }
 
     @Test
@@ -220,8 +228,8 @@ class TestIdentityEncoder {
         }
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertFalse(encoder.isCompleted());
-        Assertions.assertEquals("header\r\nstuff;more stuff", s);
+        Assertions.assertThat(encoder.isCompleted()).isFalse();
+        Assertions.assertThat(s).isEqualTo("header\r\nstuff;more stuff");
     }
 
     @Test
@@ -254,8 +262,8 @@ class TestIdentityEncoder {
         }
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertFalse(encoder.isCompleted());
-        Assertions.assertEquals("head", s);
+        Assertions.assertThat(encoder.isCompleted()).isFalse();
+        Assertions.assertThat(s).isEqualTo("head");
     }
 
     @Test
@@ -268,18 +276,18 @@ class TestIdentityEncoder {
         chbuffer.append("header");
         outbuf.writeLine(chbuffer);
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 0);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assertions.assertEquals(13, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(13);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("header\r\nstuff", s);
+        Assertions.assertThat(s).isEqualTo("header\r\nstuff");
     }
 
     @Test
@@ -292,18 +300,18 @@ class TestIdentityEncoder {
         chbuffer.append("header");
         outbuf.writeLine(chbuffer);
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 32);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
-        Assertions.assertEquals(0, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(0);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("header\r\nstuff", s);
+        Assertions.assertThat(s).isEqualTo("header\r\nstuff");
     }
 
     @Test
@@ -313,20 +321,20 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 32);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("more stuff"))).isEqualTo(10);
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
-        Assertions.assertEquals(0, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(0);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff-more stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff-more stuff");
     }
 
     @Test
@@ -339,17 +347,17 @@ class TestIdentityEncoder {
         chbuffer.append("header");
         outbuf.writeLine(chbuffer);
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 2);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assertions.assertEquals(13, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(13);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
-        Assertions.assertEquals("header\r\nstuff", s);
+        Assertions.assertThat(s).isEqualTo("header\r\nstuff");
     }
 
     @Test
@@ -359,22 +367,22 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 1);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("more stuff"))).isEqualTo(10);
 
         Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(3)).flush(channel);
 
-        Assertions.assertEquals(18, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(18);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff---more stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff---more stuff");
     }
 
     @Test
@@ -384,22 +392,22 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 2);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("more stuff"))).isEqualTo(10);
 
         Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
-        Assertions.assertEquals(18, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(18);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff---more stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff---more stuff");
     }
 
     @Test
@@ -409,24 +417,24 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 3);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(2, encoder.write(CodecTestUtils.wrap("--")));
-        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("--"))).isEqualTo(2);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("more stuff"))).isEqualTo(10);
 
         Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(5)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
-        Assertions.assertEquals(21, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(21);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff------more stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff------more stuff");
     }
 
     @Test
@@ -436,20 +444,20 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(6, encoder.write(CodecTestUtils.wrap("-stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-stuff"))).isEqualTo(6);
 
         Mockito.verify(channel, Mockito.times(1)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assertions.assertEquals(8, metrics.getBytesTransferred());
-        Assertions.assertEquals(3, outbuf.length());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(8);
+        Assertions.assertThat(outbuf.length()).isEqualTo(3);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff-stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff-stuff");
     }
 
     @Test
@@ -459,20 +467,20 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(16, encoder.write(CodecTestUtils.wrap("-much more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-much more stuff"))).isEqualTo(16);
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assertions.assertEquals(21, metrics.getBytesTransferred());
-        Assertions.assertEquals(0, outbuf.length());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(21);
+        Assertions.assertThat(outbuf.length()).isEqualTo(0);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff-much more stuff", s);
+        Assertions.assertThat(s).isEqualTo("stuff-much more stuff");
     }
 
     @Test
@@ -482,27 +490,27 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 3);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(0, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(0, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(0);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("more stuff"))).isEqualTo(0);
 
         Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(6)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(4)).flush(channel);
 
-        Assertions.assertEquals(8, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(8);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff---", s);
-        Assertions.assertEquals(3, outbuf.length());
+        Assertions.assertThat(s).isEqualTo("stuff---");
+        Assertions.assertThat(outbuf.length()).isEqualTo(3);
     }
 
     @Test
@@ -512,22 +520,22 @@ class TestIdentityEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
-        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("much more stuff")));
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("stuff"))).isEqualTo(5);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("-"))).isEqualTo(1);
+        Assertions.assertThat(encoder.write(CodecTestUtils.wrap("much more stuff"))).isEqualTo(1);
 
         Mockito.verify(channel, Mockito.times(3)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assertions.assertEquals(8, metrics.getBytesTransferred());
+        Assertions.assertThat(metrics.getBytesTransferred()).isEqualTo(8);
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assertions.assertEquals("stuff--m", s);
-        Assertions.assertEquals(0, outbuf.length());
+        Assertions.assertThat(s).isEqualTo("stuff--m");
+        Assertions.assertThat(outbuf.length()).isEqualTo(0);
     }
 
 }

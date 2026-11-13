@@ -27,12 +27,12 @@
 package org.apache.hc.core5.http2.nio.support;
 
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.HttpRequestMapper;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,7 +50,7 @@ class TestDefaultAsyncPushConsumerFactory {
                 new BasicHttpRequest("GET", "/"),
                 HttpCoreContext.create());
 
-        Assertions.assertSame(consumer, result);
+        Assertions.assertThat(result).isSameAs(consumer);
     }
 
     @Test
@@ -64,7 +64,7 @@ class TestDefaultAsyncPushConsumerFactory {
                 new BasicHttpRequest("GET", "/"),
                 HttpCoreContext.create());
 
-        Assertions.assertNull(result);
+        Assertions.assertThat(result).isNull();
     }
 
     @Test
@@ -79,7 +79,7 @@ class TestDefaultAsyncPushConsumerFactory {
                 new BasicHttpRequest("GET", "/"),
                 HttpCoreContext.create());
 
-        Assertions.assertNull(result);
+        Assertions.assertThat(result).isNull();
     }
 
     @SuppressWarnings("unchecked")

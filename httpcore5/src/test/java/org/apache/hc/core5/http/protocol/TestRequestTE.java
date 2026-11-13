@@ -27,18 +27,13 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestRequestTE {
@@ -56,8 +51,8 @@ class TestRequestTE {
         final HttpRequestInterceptor interceptor = new RequestTE();
         interceptor.process(request, request.getEntity(), context);
 
-        assertNotNull(request.getHeader(HttpHeaders.TE));
-        assertEquals("trailers", request.getHeader(HttpHeaders.TE).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getValue()).isEqualTo("trailers");
     }
 
 
@@ -74,8 +69,8 @@ class TestRequestTE {
         final HttpRequestInterceptor interceptor = new RequestTE();
         interceptor.process(request, request.getEntity(), context);
 
-        assertNotNull(request.getHeader(HttpHeaders.TE));
-        assertEquals("trailers, deflate;q=0.5", request.getHeader(HttpHeaders.TE).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getValue()).isEqualTo("trailers, deflate;q=0.5");
     }
 
 
@@ -89,7 +84,7 @@ class TestRequestTE {
         interceptor.process(request, request.getEntity(), context);
 
         // No TE header, no validation should occur
-        assertNull(request.getHeader(HttpHeaders.TE));
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE)).isNull();
     }
 
     @Test
@@ -100,8 +95,8 @@ class TestRequestTE {
         request.setHeader(HttpHeaders.TE, "chunked");
 
         final HttpRequestInterceptor interceptor = new RequestTE();
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -112,8 +107,8 @@ class TestRequestTE {
         request.setHeader(HttpHeaders.TE, "invalid;q=abc");
 
         final HttpRequestInterceptor interceptor = new RequestTE();
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -129,9 +124,9 @@ class TestRequestTE {
         final HttpRequestInterceptor interceptor = new RequestTE();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(HttpHeaders.TE, request.getHeader(HttpHeaders.TE).getName());
-        assertNotNull(request.getHeader(HttpHeaders.TE));
-        assertEquals(teValue, request.getHeader(HttpHeaders.TE).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getName()).isEqualTo(HttpHeaders.TE);
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getValue()).isEqualTo(teValue);
     }
 
 
@@ -146,9 +141,9 @@ class TestRequestTE {
         final HttpRequestInterceptor interceptor = new RequestTE();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(HttpHeaders.TE, request.getHeader(HttpHeaders.TE).getName());
-        assertNotNull(request.getHeader(HttpHeaders.TE));
-        assertEquals("trailers", request.getHeader(HttpHeaders.TE).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getName()).isEqualTo(HttpHeaders.TE);
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.TE).getValue()).isEqualTo("trailers");
     }
 
     @Test
@@ -159,8 +154,8 @@ class TestRequestTE {
         request.setHeader(HttpHeaders.TE, "trailers");
 
         final HttpRequestInterceptor interceptor = new RequestTE();
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -173,8 +168,8 @@ class TestRequestTE {
         request.setHeader(HttpHeaders.CONNECTION, "keep-alive"); // Missing "TE"
 
         final HttpRequestInterceptor interceptor = new RequestTE();
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -190,8 +185,8 @@ class TestRequestTE {
         final HttpRequestInterceptor interceptor = new RequestTE();
         interceptor.process(request, request.getEntity(), context);
 
-        assertNotNull(request.getHeader(HttpHeaders.CONNECTION));
-        assertTrue(request.getHeader(HttpHeaders.CONNECTION).getValue().contains("TE"));
+        Assertions.assertThat(request.getHeader(HttpHeaders.CONNECTION)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.CONNECTION).getValue().contains("TE")).isTrue();
     }
 
 

@@ -39,7 +39,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -72,9 +72,9 @@ class TestH2ClientTlsStrategy {
         initializer.initialize(endpoint, sslEngine);
 
         final SSLParameters sslParameters = sslEngine.getSSLParameters();
-        Assertions.assertEquals(URIScheme.HTTPS.id, sslParameters.getEndpointIdentificationAlgorithm());
-        Assertions.assertArrayEquals(new String[] { ApplicationProtocol.HTTP_2.id },
-                sslParameters.getApplicationProtocols());
+        Assertions.assertThat(sslParameters.getEndpointIdentificationAlgorithm()).isEqualTo(URIScheme.HTTPS.id);
+        Assertions.assertThat(sslParameters.getApplicationProtocols())
+                .containsExactly(new String[]{ApplicationProtocol.HTTP_2.id});
     }
 
     @Test
@@ -87,7 +87,7 @@ class TestH2ClientTlsStrategy {
 
         final boolean upgraded = strategy.upgrade(tlsSession, host, null, null, null, Timeout.ofSeconds(1));
 
-        Assertions.assertFalse(upgraded);
+        Assertions.assertThat(upgraded).isFalse();
         Mockito.verifyNoInteractions(tlsSession);
     }
 

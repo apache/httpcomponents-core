@@ -29,12 +29,12 @@ package org.apache.hc.core5.reactive;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import io.reactivex.rxjava3.core.Flowable;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
-
-import io.reactivex.rxjava3.core.Flowable;
 
 class TestReactiveDataProducer {
     @Test
@@ -49,13 +49,13 @@ class TestReactiveDataProducer {
 
         producer.produce(streamChannel);
 
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("123456");
 
         producer.produce(streamChannel);
 
-        Assertions.assertFalse(byteChannel.isOpen());
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).isFalse();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
     }
 
     @Test
@@ -76,11 +76,11 @@ class TestReactiveDataProducer {
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
-        Assertions.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("12345");
 
-        final HttpStreamResetException exception = Assertions.assertThrows(HttpStreamResetException.class, () ->
-                producer.produce(streamChannel));
-        Assertions.assertInstanceOf(RuntimeException.class, exception.getCause(), "Expected published exception to be rethrown");
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        final HttpStreamResetException exception = Assertions.assertThatThrownBy(() ->
+                producer.produce(streamChannel)).isInstanceOf(HttpStreamResetException.class).asInstanceOf(InstanceOfAssertFactories.type(HttpStreamResetException.class)).actual();
+        Assertions.assertThat(exception.getCause()).withFailMessage("Expected published exception to be rethrown").isInstanceOf(RuntimeException.class);
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
     }
 }

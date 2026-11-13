@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,47 +61,47 @@ class TestBasicHeaderValueFormatter {
 
         buf.clear();
         this.formatter.formatNameValuePair(buf, param1, false);
-        Assertions.assertEquals("param=regular_stuff", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=regular_stuff");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param2, false);
-        Assertions.assertEquals("param=\"this\\\\that\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"this\\\\that\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param3, false);
-        Assertions.assertEquals("param=\"this,that\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"this,that\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param4, false);
-        Assertions.assertEquals("param=\"quote marks (\\\") must be escaped\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"quote marks (\\\") must be escaped\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param5, false);
-        Assertions.assertEquals("param=\"back slash (\\\\) must be escaped too\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"back slash (\\\\) must be escaped too\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param6, false);
-        Assertions.assertEquals("param=\"values with\tblanks must always be quoted\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"values with\tblanks must always be quoted\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param7, false);
-        Assertions.assertEquals("param", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param");
 
         buf.clear();
         this.formatter.formatNameValuePair(buf, param1, true);
-        Assertions.assertEquals("param=\"regular_stuff\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"regular_stuff\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param2, true);
-        Assertions.assertEquals("param=\"this\\\\that\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"this\\\\that\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param3, true);
-        Assertions.assertEquals("param=\"this,that\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"this,that\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param4, true);
-        Assertions.assertEquals("param=\"quote marks (\\\") must be escaped\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"quote marks (\\\") must be escaped\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param5, true);
-        Assertions.assertEquals("param=\"back slash (\\\\) must be escaped too\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"back slash (\\\\) must be escaped too\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param6, true);
-        Assertions.assertEquals("param=\"values with\tblanks must always be quoted\"", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"values with\tblanks must always be quoted\"");
         buf.clear();
         this.formatter.formatNameValuePair(buf, param7, true);
-        Assertions.assertEquals("param", buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param");
     }
 
     @Test
@@ -115,12 +115,10 @@ class TestBasicHeaderValueFormatter {
 
         buf.clear();
         this.formatter.formatParameters(buf, params, false);
-        Assertions.assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
-                buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"");
         buf.clear();
         this.formatter.formatParameters(buf, params, true);
-        Assertions.assertEquals("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"",
-                buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"");
     }
 
     @Test
@@ -135,8 +133,7 @@ class TestBasicHeaderValueFormatter {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
 
         this.formatter.formatHeaderElement(buf, element, false);
-        Assertions.assertEquals("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param",
-                buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param");
     }
 
     @Test
@@ -155,9 +152,9 @@ class TestBasicHeaderValueFormatter {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
 
         this.formatter.formatElements(buf, elements, false);
-        Assertions.assertEquals("name1=value1; param=regular_stuff, name2=value2; " +
+        Assertions.assertThat(buf.toString()).isEqualTo("name1=value1; param=regular_stuff, name2=value2; " +
              "param=\"this\\\\that\", name3=value3; param=\"this,that\", " +
-             "name4=value4; param, name5", buf.toString());
+                "name4=value4; param, name5");
     }
 
 
@@ -169,22 +166,22 @@ class TestBasicHeaderValueFormatter {
         final HeaderElement element = new BasicHeaderElement("name1", "value1", (NameValuePair[]) null);
         final HeaderElement[] elements = new HeaderElement[] {element};
 
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatNameValuePair(null, param, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatNameValuePair(buf, null, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatParameters(null, params, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatParameters(buf, null, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatHeaderElement(null, element, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatHeaderElement(buf, null, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatElements(null, elements, false));
-        Assertions.assertThrows(NullPointerException.class, () ->
-                formatter.formatElements(buf, null, false));
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatNameValuePair(null, param, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatNameValuePair(buf, null, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatParameters(null, params, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatParameters(buf, null, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatHeaderElement(null, element, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatHeaderElement(buf, null, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatElements(null, elements, false)).isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                formatter.formatElements(buf, null, false)).isInstanceOf(NullPointerException.class);
     }
 
 }

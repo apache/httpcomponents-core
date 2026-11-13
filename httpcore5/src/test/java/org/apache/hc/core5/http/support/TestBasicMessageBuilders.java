@@ -27,14 +27,10 @@
 
 package org.apache.hc.core5.http.support;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import org.apache.hc.core5.http.HeaderMatcher;
-import org.apache.hc.core5.http.HeadersMatcher;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
@@ -44,7 +40,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -55,153 +51,204 @@ class TestBasicMessageBuilders {
     @Test
     void testResponseBasics() {
         final BasicResponseBuilder builder = BasicResponseBuilder.create(200);
-        Assertions.assertEquals(200, builder.getStatus());
-        Assertions.assertNull(builder.getHeaders());
-        Assertions.assertNull(builder.getVersion());
+        Assertions.assertThat(builder.getStatus()).isEqualTo(200);
+        Assertions.assertThat(builder.getHeaders()).isNull();
+        Assertions.assertThat(builder.getVersion()).isNull();
 
         final BasicHttpResponse r1 = builder.build();
-        Assertions.assertNotNull(r1);
-        Assertions.assertEquals(200, r1.getCode());
-        Assertions.assertNull(r1.getVersion());
+        Assertions.assertThat(r1).isNotNull();
+        Assertions.assertThat(r1.getCode()).isEqualTo(200);
+        Assertions.assertThat(r1.getVersion()).isNull();
 
         builder.setStatus(500);
         builder.setVersion(HttpVersion.HTTP_1_0);
-        Assertions.assertEquals(500, builder.getStatus());
-        Assertions.assertEquals(HttpVersion.HTTP_1_0, builder.getVersion());
+        Assertions.assertThat(builder.getStatus()).isEqualTo(500);
+        Assertions.assertThat(builder.getVersion()).isEqualTo(HttpVersion.HTTP_1_0);
 
         final BasicHttpResponse r2 = builder.build();
-        Assertions.assertEquals(500, r2.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_1_0, r2.getVersion());
+        Assertions.assertThat(r2.getCode()).isEqualTo(500);
+        Assertions.assertThat(r2.getVersion()).isEqualTo(HttpVersion.HTTP_1_0);
 
         builder.addHeader("h1", "v1");
         builder.addHeader("h1", "v2");
         builder.addHeader("h2", "v2");
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
-        HeadersMatcher.assertSame(builder.getHeaders("h1"),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"));
-        HeaderMatcher.assertSame(builder.getFirstHeader("h1"), "h1", "v1");
-        HeaderMatcher.assertSame(builder.getLastHeader("h1"), "h1", "v2");
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2")));
+        Assertions.assertThat(builder.getFirstHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v1"));
+        Assertions.assertThat(builder.getLastHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v2"));
 
         final BasicHttpResponse r3 = builder.build();
-        HeadersMatcher.assertSame(r3.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
-        HeadersMatcher.assertSame(r3.getHeaders("h1"),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"));
-        HeaderMatcher.assertSame(r3.getFirstHeader("h1"), "h1", "v1");
-        HeaderMatcher.assertSame(r3.getLastHeader("h1"), "h1", "v2");
+        Assertions.assertThat(r3.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
+        Assertions.assertThat(r3.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2")));
+        Assertions.assertThat(r3.getFirstHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v1"));
+        Assertions.assertThat(r3.getLastHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v2"));
 
         builder.removeHeader(new BasicHeader("h1", "v2"));
-        HeadersMatcher.assertSame(builder.getHeaders("h1"), new BasicHeader("h1", "v1"));
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1")));
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h2", "v2")));
 
         final BasicHttpResponse r4 = builder.build();
-        HeadersMatcher.assertSame(r4.getHeaders("h1"), new BasicHeader("h1", "v1"));
-        HeadersMatcher.assertSame(r4.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(r4.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1")));
+        Assertions.assertThat(r4.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h2", "v2")));
 
         builder.removeHeaders("h1");
-        HeadersMatcher.assertSame(builder.getHeaders("h1"));
-        HeadersMatcher.assertSame(builder.getHeaders(), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList());
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h2", "v2")));
 
         final BasicHttpResponse r5 = builder.build();
-        HeadersMatcher.assertSame(r5.getHeaders("h1"));
-        HeadersMatcher.assertSame(r5.getHeaders(), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(r5.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList());
+        Assertions.assertThat(r5.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h2", "v2")));
     }
 
     @Test
     void testRequestBasics() throws Exception {
         final BasicRequestBuilder builder = BasicRequestBuilder.get();
-        Assertions.assertEquals(URI.create("/"), builder.getUri());
-        Assertions.assertEquals("GET", builder.getMethod());
-        Assertions.assertNull(builder.getScheme());
-        Assertions.assertNull(builder.getAuthority());
-        Assertions.assertNull(builder.getPath());
-        Assertions.assertNull(builder.getHeaders());
-        Assertions.assertNull(builder.getVersion());
-        Assertions.assertNull(builder.getCharset());
-        Assertions.assertNull(builder.getParameters());
+        Assertions.assertThat(builder.getUri()).isEqualTo(URI.create("/"));
+        Assertions.assertThat(builder.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(builder.getScheme()).isNull();
+        Assertions.assertThat(builder.getAuthority()).isNull();
+        Assertions.assertThat(builder.getPath()).isNull();
+        Assertions.assertThat(builder.getHeaders()).isNull();
+        Assertions.assertThat(builder.getVersion()).isNull();
+        Assertions.assertThat(builder.getCharset()).isNull();
+        Assertions.assertThat(builder.getParameters()).isNull();
 
         final BasicHttpRequest r1 = builder.build();
-        Assertions.assertNotNull(r1);
-        Assertions.assertEquals("GET", r1.getMethod());
-        Assertions.assertNull(r1.getScheme());
-        Assertions.assertNull(r1.getAuthority());
-        Assertions.assertNull(r1.getPath());
-        Assertions.assertEquals(URI.create("/"), r1.getUri());
-        Assertions.assertNull(r1.getVersion());
+        Assertions.assertThat(r1).isNotNull();
+        Assertions.assertThat(r1.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(r1.getScheme()).isNull();
+        Assertions.assertThat(r1.getAuthority()).isNull();
+        Assertions.assertThat(r1.getPath()).isNull();
+        Assertions.assertThat(r1.getUri()).isEqualTo(URI.create("/"));
+        Assertions.assertThat(r1.getVersion()).isNull();
 
         builder.setUri(URI.create("http://host:1234/blah?param=value"));
         builder.setVersion(HttpVersion.HTTP_1_1);
-        Assertions.assertEquals("http", builder.getScheme());
-        Assertions.assertEquals(new URIAuthority("host", 1234), builder.getAuthority());
-        Assertions.assertEquals("/blah?param=value", builder.getPath());
-        Assertions.assertEquals(URI.create("http://host:1234/blah?param=value"), builder.getUri());
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, builder.getVersion());
+        Assertions.assertThat(builder.getScheme()).isEqualTo("http");
+        Assertions.assertThat(builder.getAuthority()).isEqualTo(new URIAuthority("host", 1234));
+        Assertions.assertThat(builder.getPath()).isEqualTo("/blah?param=value");
+        Assertions.assertThat(builder.getUri()).isEqualTo(URI.create("http://host:1234/blah?param=value"));
+        Assertions.assertThat(builder.getVersion()).isEqualTo(HttpVersion.HTTP_1_1);
 
         final BasicHttpRequest r2 = builder.build();
-        Assertions.assertEquals("GET", r2.getMethod());
-        Assertions.assertEquals("http", r2.getScheme());
-        Assertions.assertEquals(new URIAuthority("host", 1234), r2.getAuthority());
-        Assertions.assertEquals("/blah?param=value", r2.getPath());
-        Assertions.assertEquals(URI.create("http://host:1234/blah?param=value"), r2.getUri());
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, builder.getVersion());
+        Assertions.assertThat(r2.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(r2.getScheme()).isEqualTo("http");
+        Assertions.assertThat(r2.getAuthority()).isEqualTo(new URIAuthority("host", 1234));
+        Assertions.assertThat(r2.getPath()).isEqualTo("/blah?param=value");
+        Assertions.assertThat(r2.getUri()).isEqualTo(URI.create("http://host:1234/blah?param=value"));
+        Assertions.assertThat(builder.getVersion()).isEqualTo(HttpVersion.HTTP_1_1);
 
         builder.setCharset(StandardCharsets.US_ASCII);
         builder.addParameter("param1", "value1");
         builder.addParameter("param2", null);
         builder.addParameters(new BasicNameValuePair("param3", "value3"), new BasicNameValuePair("param4", null));
 
-        Assertions.assertEquals(builder.getParameters(), Arrays.asList(
+        Assertions.assertThat(Arrays.asList(
                 new BasicNameValuePair("param1", "value1"), new BasicNameValuePair("param2", null),
                 new BasicNameValuePair("param3", "value3"), new BasicNameValuePair("param4", null)
-        ));
-        Assertions.assertEquals(URI.create("http://host:1234/blah?param=value"), builder.getUri());
+        )).isEqualTo(builder.getParameters());
+        Assertions.assertThat(builder.getUri()).isEqualTo(URI.create("http://host:1234/blah?param=value"));
 
         final BasicHttpRequest r3 = builder.build();
-        Assertions.assertEquals("GET", r3.getMethod());
-        Assertions.assertEquals("http", r3.getScheme());
-        Assertions.assertEquals(new URIAuthority("host", 1234), r3.getAuthority());
-        Assertions.assertEquals("/blah?param=value&param1=value1&param2&param3=value3&param4", r3.getPath());
-        Assertions.assertEquals(URI.create("http://host:1234/blah?param=value&param1=value1&param2&param3=value3&param4"),
-                r3.getUri());
+        Assertions.assertThat(r3.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(r3.getScheme()).isEqualTo("http");
+        Assertions.assertThat(r3.getAuthority()).isEqualTo(new URIAuthority("host", 1234));
+        Assertions.assertThat(r3.getPath()).isEqualTo("/blah?param=value&param1=value1&param2&param3=value3&param4");
+        Assertions.assertThat(r3.getUri()).isEqualTo(URI.create("http://host:1234/blah?param=value&param1=value1&param2&param3=value3&param4"));
 
         builder.addHeader("h1", "v1");
         builder.addHeader("h1", "v2");
         builder.addHeader("h2", "v2");
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
-        HeadersMatcher.assertSame(builder.getHeaders("h1"),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"));
-        HeaderMatcher.assertSame(builder.getFirstHeader("h1"), "h1", "v1");
-        HeaderMatcher.assertSame(builder.getLastHeader("h1"), "h1", "v2");
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2")));
+        Assertions.assertThat(builder.getFirstHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v1"));
+        Assertions.assertThat(builder.getLastHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v2"));
 
         final BasicHttpRequest r4 = builder.build();
-        HeadersMatcher.assertSame(r4.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
-        HeadersMatcher.assertSame(r4.getHeaders("h1"),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"));
-        HeaderMatcher.assertSame(r4.getFirstHeader("h1"), "h1", "v1");
-        HeaderMatcher.assertSame(r4.getLastHeader("h1"), "h1", "v2");
+        Assertions.assertThat(r4.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
+        Assertions.assertThat(r4.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2")));
+        Assertions.assertThat(r4.getFirstHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v1"));
+        Assertions.assertThat(r4.getLastHeader("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Assertions.tuple("h1", "v2"));
 
         builder.removeHeader(new BasicHeader("h1", "v2"));
-        HeadersMatcher.assertSame(builder.getHeaders("h1"), new BasicHeader("h1", "v1"));
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1")));
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h2", "v2")));
 
         final BasicHttpRequest r5 = builder.build();
-        HeadersMatcher.assertSame(r5.getHeaders("h1"), new BasicHeader("h1", "v1"));
-        HeadersMatcher.assertSame(r5.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(r5.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1")));
+        Assertions.assertThat(r5.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h2", "v2")));
 
         builder.removeHeaders("h1");
-        HeadersMatcher.assertSame(builder.getHeaders("h1"));
-        HeadersMatcher.assertSame(builder.getHeaders(), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList());
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h2", "v2")));
 
         final BasicHttpRequest r6 = builder.build();
-        HeadersMatcher.assertSame(r6.getHeaders("h1"));
-        HeadersMatcher.assertSame(r6.getHeaders(), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(r6.getHeaders("h1"))
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList());
+        Assertions.assertThat(r6.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h2", "v2")));
     }
 
     @Test
@@ -213,10 +260,11 @@ class TestBasicMessageBuilders {
         response.setVersion(HttpVersion.HTTP_2);
 
         final BasicResponseBuilder builder = BasicResponseBuilder.copy(response);
-        Assertions.assertEquals(400, builder.getStatus());
-        Assertions.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getStatus()).isEqualTo(400);
+        Assertions.assertThat(builder.getVersion()).isEqualTo(HttpVersion.HTTP_2);
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
     }
 
     @Test
@@ -228,20 +276,21 @@ class TestBasicMessageBuilders {
         request.setVersion(HttpVersion.HTTP_2);
 
         final BasicRequestBuilder builder = BasicRequestBuilder.copy(request);
-        Assertions.assertEquals("GET", builder.getMethod());
-        Assertions.assertEquals("https", builder.getScheme());
-        Assertions.assertEquals(new URIAuthority("host", 3456), builder.getAuthority());
-        Assertions.assertEquals("/stuff?blah", builder.getPath());
-        Assertions.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
-        HeadersMatcher.assertSame(builder.getHeaders(),
-                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2"));
+        Assertions.assertThat(builder.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(builder.getScheme()).isEqualTo("https");
+        Assertions.assertThat(builder.getAuthority()).isEqualTo(new URIAuthority("host", 3456));
+        Assertions.assertThat(builder.getPath()).isEqualTo("/stuff?blah");
+        Assertions.assertThat(builder.getVersion()).isEqualTo(HttpVersion.HTTP_2);
+        Assertions.assertThat(builder.getHeaders())
+                .extracting(header -> Assertions.tuple(header.getName(), header.getValue()))
+                .isEqualTo(Arrays.asList(Assertions.tuple("h1", "v1"), Assertions.tuple("h1", "v2"), Assertions.tuple("h2", "v2")));
     }
 
     @Test
     void testIDNIntegration() {
         final String url = "http://müller.example.com:8080/path";
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create(url));
-        assertEquals(new URIAuthority("xn--mller-kva.example.com", 8080), request.getAuthority());
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("xn--mller-kva.example.com", 8080));
     }
 
 }

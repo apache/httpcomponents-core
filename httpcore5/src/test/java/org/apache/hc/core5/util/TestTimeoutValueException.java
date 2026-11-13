@@ -27,14 +27,13 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestTimeoutValueException {
 
     @Test
     void testMessage() {
-        Assertions.assertEquals("Timeout deadline: 1000 MILLISECONDS, actual: 2000 MILLISECONDS",
-                TimeoutValueException.fromMilliseconds(1000, 2000).getMessage());
+        Assertions.assertThat(TimeoutValueException.fromMilliseconds(1000, 2000).getMessage()).isEqualTo("Timeout deadline: 1000 MILLISECONDS, actual: 2000 MILLISECONDS");
     }
 }
