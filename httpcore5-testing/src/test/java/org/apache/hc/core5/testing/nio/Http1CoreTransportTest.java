@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -66,6 +65,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -158,33 +158,33 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body1 = message1.body();
-        Assertions.assertEquals("some stuff", body1);
+        Assertions.assertThat(body1).isEqualTo("some stuff");
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/no-keep-alive/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message2);
+        Assertions.assertThat(message2).isNotNull();
         final HttpResponse response2 = message2.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body2 = message2.body();
-        Assertions.assertEquals("some other stuff", body2);
+        Assertions.assertThat(body2).isEqualTo("some other stuff");
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/no-keep-alive/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message3);
+        Assertions.assertThat(message3).isNotNull();
         final HttpResponse response3 = message3.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
+        Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body3 = message3.body();
-        Assertions.assertEquals("some more stuff", body3);
+        Assertions.assertThat(body3).isEqualTo("some more stuff");
     }
 
 }

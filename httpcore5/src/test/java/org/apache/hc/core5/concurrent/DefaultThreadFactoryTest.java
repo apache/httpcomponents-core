@@ -30,7 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class DefaultThreadFactoryTest {
@@ -40,9 +40,9 @@ class DefaultThreadFactoryTest {
         final ThreadFactory defaultThreadFactory = new DefaultThreadFactory("I/O server dispatch", true);
         final CountDownLatch lockHeld = new CountDownLatch(1);
         final Thread thread = defaultThreadFactory.newThread(lockHeld::countDown);
-        Assertions.assertNotNull(thread);
+        Assertions.assertThat(thread).isNotNull();
         thread.start();
-        Assertions.assertTrue(lockHeld.await(15, TimeUnit.SECONDS));
+        Assertions.assertThat(lockHeld.await(15, TimeUnit.SECONDS)).isTrue();
     }
 
 }

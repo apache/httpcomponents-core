@@ -26,10 +26,6 @@
  */
 package org.apache.hc.core5.http2.impl.nio;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.io.ByteArrayInputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -37,6 +33,8 @@ import java.nio.channels.ReadableByteChannel;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.RawFrame;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestFrameInputBuffer {
@@ -63,8 +61,10 @@ class TestFrameInputBuffer {
         final FrameInputBuffer inBuf = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
 
-        final H2ConnectionException ex = assertThrows(H2ConnectionException.class, () -> inBuf.read(ch));
-        assertEquals(H2Error.FRAME_SIZE_ERROR.getCode(), ex.getCode());
+        final H2ConnectionException ex = Assertions.assertThatThrownBy(() ->
+                        inBuf.read(ch))
+                .isInstanceOf(H2ConnectionException.class).asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.FRAME_SIZE_ERROR.getCode());
     }
 
     @Test
@@ -81,8 +81,8 @@ class TestFrameInputBuffer {
         final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
 
         final RawFrame rawFrame = inBuf.read(ch);
-        assertNotNull(rawFrame);
-        assertEquals(0x80, rawFrame.getFlags());
+        Assertions.assertThat(rawFrame).isNotNull();
+        Assertions.assertThat(rawFrame.getFlags()).isEqualTo(0x80);
     }
 
     @Test
@@ -103,8 +103,8 @@ class TestFrameInputBuffer {
         final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
 
         final RawFrame rawFrame = inBuf.read(ch);
-        assertNotNull(rawFrame);
-        assertEquals(1, rawFrame.getStreamId());
+        Assertions.assertThat(rawFrame).isNotNull();
+        Assertions.assertThat(rawFrame.getStreamId()).isEqualTo(1);
     }
 
     @Test
@@ -120,14 +120,14 @@ class TestFrameInputBuffer {
         final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
 
         final RawFrame rawFrame = inBuf.read(ch);
-        assertNotNull(rawFrame);
-        assertEquals(0x0a, rawFrame.getType());
-        assertEquals(0x08, rawFrame.getFlags());
-        assertEquals(1, rawFrame.getStreamId());
-        assertEquals(1, rawFrame.getLength());
-        assertNotNull(rawFrame.getPayload());
-        assertEquals(1, rawFrame.getPayload().remaining());
-        assertEquals(0x2a, rawFrame.getPayload().get() & 0xff);
+        Assertions.assertThat(rawFrame).isNotNull();
+        Assertions.assertThat(rawFrame.getType()).isEqualTo(0x0a);
+        Assertions.assertThat(rawFrame.getFlags()).isEqualTo(0x08);
+        Assertions.assertThat(rawFrame.getStreamId()).isEqualTo(1);
+        Assertions.assertThat(rawFrame.getLength()).isEqualTo(1);
+        Assertions.assertThat(rawFrame.getPayload()).isNotNull();
+        Assertions.assertThat(rawFrame.getPayload().remaining()).isEqualTo(1);
+        Assertions.assertThat(rawFrame.getPayload().get() & 0xff).isEqualTo(0x2a);
     }
 
     @Test
@@ -143,7 +143,9 @@ class TestFrameInputBuffer {
 
         final FrameInputBuffer inBuf = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannel ch = Channels.newChannel(new ByteArrayInputStream(frame));
-        final H2ConnectionException ex = assertThrows(H2ConnectionException.class, () -> inBuf.read(ch));
-        assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+        final H2ConnectionException ex = Assertions.assertThatThrownBy(() ->
+                        inBuf.read(ch))
+                .isInstanceOf(H2ConnectionException.class).asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.PROTOCOL_ERROR.getCode());
     }
 }

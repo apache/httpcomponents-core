@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.message.StatusLine.StatusClass;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -39,49 +39,49 @@ class TestBasicStatusLine {
     @Test
     void testGetStatusClass() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
-        Assertions.assertEquals(StatusClass.INFORMATIONAL, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.INFORMATIONAL);
 
         statusLine = new StatusLine(new BasicHttpResponse(200, "OK"));
-        Assertions.assertEquals(StatusClass.SUCCESSFUL, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.SUCCESSFUL);
 
         statusLine = new StatusLine(new BasicHttpResponse(302, "Found"));
-        Assertions.assertEquals(StatusClass.REDIRECTION, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.REDIRECTION);
 
         statusLine = new StatusLine(new BasicHttpResponse(409, "Conflict"));
-        Assertions.assertEquals(StatusClass.CLIENT_ERROR, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.CLIENT_ERROR);
 
         statusLine = new StatusLine(new BasicHttpResponse(502, "Bad Gateway"));
-        Assertions.assertEquals(StatusClass.SERVER_ERROR, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.SERVER_ERROR);
 
         statusLine = new StatusLine(new BasicHttpResponse(999, "Not a status"));
-        Assertions.assertEquals(StatusClass.OTHER, statusLine.getStatusClass());
+        Assertions.assertThat(statusLine.getStatusClass()).isEqualTo(StatusClass.OTHER);
     }
 
     @Test
     void testGetStatusShorthand() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
-        Assertions.assertTrue(statusLine.isInformational());
-        Assertions.assertFalse(statusLine.isSuccessful());
-        Assertions.assertFalse(statusLine.isError());
+        Assertions.assertThat(statusLine.isInformational()).isTrue();
+        Assertions.assertThat(statusLine.isSuccessful()).isFalse();
+        Assertions.assertThat(statusLine.isError()).isFalse();
 
         statusLine = new StatusLine(new BasicHttpResponse(200, "OK"));
-        Assertions.assertTrue(statusLine.isSuccessful());
-        Assertions.assertFalse(statusLine.isRedirection());
-        Assertions.assertFalse(statusLine.isError());
+        Assertions.assertThat(statusLine.isSuccessful()).isTrue();
+        Assertions.assertThat(statusLine.isRedirection()).isFalse();
+        Assertions.assertThat(statusLine.isError()).isFalse();
 
         statusLine = new StatusLine(new BasicHttpResponse(302, "Found"));
-        Assertions.assertTrue(statusLine.isRedirection());
-        Assertions.assertFalse(statusLine.isClientError());
-        Assertions.assertFalse(statusLine.isError());
+        Assertions.assertThat(statusLine.isRedirection()).isTrue();
+        Assertions.assertThat(statusLine.isClientError()).isFalse();
+        Assertions.assertThat(statusLine.isError()).isFalse();
 
         statusLine = new StatusLine(new BasicHttpResponse(409, "Conflict"));
-        Assertions.assertTrue(statusLine.isClientError());
-        Assertions.assertTrue(statusLine.isError());
-        Assertions.assertFalse(statusLine.isServerError());
+        Assertions.assertThat(statusLine.isClientError()).isTrue();
+        Assertions.assertThat(statusLine.isError()).isTrue();
+        Assertions.assertThat(statusLine.isServerError()).isFalse();
 
         statusLine = new StatusLine(new BasicHttpResponse(502, "Bad Gateway"));
-        Assertions.assertTrue(statusLine.isServerError());
-        Assertions.assertTrue(statusLine.isError());
-        Assertions.assertFalse(statusLine.isSuccessful());
+        Assertions.assertThat(statusLine.isServerError()).isTrue();
+        Assertions.assertThat(statusLine.isError()).isTrue();
+        Assertions.assertThat(statusLine.isSuccessful()).isFalse();
     }
 }

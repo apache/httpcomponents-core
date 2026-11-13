@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class HttpRequestWrapperTest {
@@ -44,28 +44,28 @@ class HttpRequestWrapperTest {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
 
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff", httpRequestWrapper.getPath());
-        Assertions.assertNull(httpRequestWrapper.getAuthority());
-        Assertions.assertEquals(new URI("/stuff"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isNull();
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("/stuff"));
         httpRequestWrapper.setPath("/another-stuff");
-        Assertions.assertEquals("/another-stuff", httpRequestWrapper.getPath());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/another-stuff");
     }
 
     @Test
     void testDefaultRequestConstructors() {
         final HttpRequest request1 = new BasicHttpRequest("WHATEVER", "/");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request1);
-        Assertions.assertEquals("WHATEVER", httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/", httpRequestWrapper.getPath());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo("WHATEVER");
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/");
 
         final HttpRequest request2 = new BasicHttpRequest(Method.GET, "/");
         final HttpRequestWrapper httpRequestWrapper2 = new HttpRequestWrapper(request2);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper2.getMethod());
-        Assertions.assertEquals("/", httpRequestWrapper2.getPath());
+        Assertions.assertThat(httpRequestWrapper2.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper2.getPath()).isEqualTo("/");
 
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new BasicHttpRequest(Method.GET, (URI) null));
+        Assertions.assertThatThrownBy(() ->
+                new BasicHttpRequest(Method.GET, (URI) null)).isInstanceOf(NullPointerException.class);
     }
 
 
@@ -73,69 +73,69 @@ class HttpRequestWrapperTest {
     void testRequestWithRelativeURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("/stuff"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff", httpRequestWrapper.getPath());
-        Assertions.assertNull(httpRequestWrapper.getAuthority());
-        Assertions.assertEquals(new URI("/stuff"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isNull();
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("/stuff"));
     }
 
     @Test
     void testRequestWithAbsoluteURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://host:9443/stuff?param=value"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff?param=value", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("host", 9443), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals("https", httpRequestWrapper.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("host", 9443));
+        Assertions.assertThat(httpRequestWrapper.getScheme()).isEqualTo("https");
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
         httpRequestWrapper.setScheme(URIScheme.HTTP.id);
-        Assertions.assertEquals("http", httpRequestWrapper.getScheme());
+        Assertions.assertThat(httpRequestWrapper.getScheme()).isEqualTo("http");
     }
 
     @Test
     void testRequestWithAbsoluteURIAsPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "https://host:9443/stuff?param=value");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff?param=value", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("host", 9443), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals("https", httpRequestWrapper.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("host", 9443));
+        Assertions.assertThat(httpRequestWrapper.getScheme()).isEqualTo("https");
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
     }
 
     @Test
     void testRequestWithNoPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("http://host"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("host"), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals("http", httpRequestWrapper.getScheme());
-        Assertions.assertEquals(new URI("http://host/"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("host"));
+        Assertions.assertThat(httpRequestWrapper.getScheme()).isEqualTo("http");
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("http://host/"));
     }
 
     @Test
     void testRequestWithUserInfo() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff?param=value", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("user:pwd", "host", 9443), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals("https", httpRequestWrapper.getScheme());
-        Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff?param=value");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("user:pwd", "host", 9443));
+        Assertions.assertThat(httpRequestWrapper.getScheme()).isEqualTo("https");
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("https://host:9443/stuff?param=value"));
     }
 
     @Test
     void testRequestWithAuthority() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "/stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("somehost"), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals(new URI("http://somehost/stuff"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("somehost"));
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("http://somehost/stuff"));
 
         httpRequestWrapper.setAuthority(new URIAuthority("newHost"));
-        Assertions.assertEquals(new URIAuthority("newHost"), httpRequestWrapper.getAuthority());
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("newHost"));
 
     }
 
@@ -143,20 +143,20 @@ class HttpRequestWrapperTest {
     void testRequestWithAuthorityRelativePath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("stuff", httpRequestWrapper.getPath());
-        Assertions.assertEquals("stuff", httpRequestWrapper.getRequestUri());
-        Assertions.assertEquals(new URIAuthority("somehost"), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals(new URI("http://somehost/stuff"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("stuff");
+        Assertions.assertThat(httpRequestWrapper.getRequestUri()).isEqualTo("stuff");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("somehost"));
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("http://somehost/stuff"));
     }
 
     @Test
     void testRequestHostWithReservedChars() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
-        Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
-        Assertions.assertEquals("/stuff", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("someuser%21", "%21example%21.com", -1), httpRequestWrapper.getAuthority());
-        Assertions.assertEquals(new URI("http://%21example%21.com/stuff"), httpRequestWrapper.getUri());
+        Assertions.assertThat(httpRequestWrapper.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(httpRequestWrapper.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(httpRequestWrapper.getAuthority()).isEqualTo(new URIAuthority("someuser%21", "%21example%21.com", -1));
+        Assertions.assertThat(httpRequestWrapper.getUri()).isEqualTo(new URI("http://%21example%21.com/stuff"));
     }
 }

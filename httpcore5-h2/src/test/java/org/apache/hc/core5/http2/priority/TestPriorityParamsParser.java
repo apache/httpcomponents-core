@@ -26,10 +26,7 @@
  */
 package org.apache.hc.core5.http2.priority;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 final class TestPriorityParamsParser {
@@ -37,30 +34,30 @@ final class TestPriorityParamsParser {
     @Test
     void captures_presence_correctly() {
         final PriorityParams p1 = PriorityParamsParser.parse("u=1");
-        assertEquals(1, p1.getUrgency());
-        assertNull(p1.getIncremental());
+        Assertions.assertThat(p1.getUrgency()).isEqualTo(1);
+        Assertions.assertThat(p1.getIncremental()).isNull();
 
         final PriorityParams p2 = PriorityParamsParser.parse("i");
-        assertNull(p2.getUrgency());
-        assertEquals(Boolean.TRUE, p2.getIncremental());
+        Assertions.assertThat(p2.getUrgency()).isNull();
+        Assertions.assertThat(p2.getIncremental()).isEqualTo(Boolean.TRUE);
 
         final PriorityParams p3 = PriorityParamsParser.parse("u=5, i");
-        assertEquals(5, p3.getUrgency());
-        assertEquals(Boolean.TRUE, p3.getIncremental());
+        Assertions.assertThat(p3.getUrgency()).isEqualTo(5);
+        Assertions.assertThat(p3.getIncremental()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
     void ignores_unknown_and_out_of_range() {
         final PriorityParams p = PriorityParamsParser.parse("foo=bar, u=9, i=?0");
-        assertNull(p.getUrgency());                 // out-of-range ignored => absent
-        assertEquals(Boolean.FALSE, p.getIncremental());
+        Assertions.assertThat(p.getUrgency()).isNull();                 // out-of-range ignored => absent
+        Assertions.assertThat(p.getIncremental()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
     void toValueWithDefaults_applies_defaults() {
         final PriorityParams p = PriorityParamsParser.parse("i");
         final PriorityValue v = p.toValueWithDefaults();
-        assertEquals(3, v.getUrgency());
-        assertTrue(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(v.isIncremental()).isTrue();
     }
 }

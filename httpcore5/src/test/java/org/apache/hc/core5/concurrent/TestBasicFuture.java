@@ -26,13 +26,8 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.time.Duration;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,7 +37,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.util.TimeoutValueException;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -54,7 +49,7 @@ class TestBasicFuture {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
-        Assertions.assertFalse(future.isDone());
+        Assertions.assertThat(future.isDone()).isFalse();
 
         final Object result = new Object();
         final Exception boom = new Exception();
@@ -64,9 +59,9 @@ class TestBasicFuture {
         Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback, Mockito.never()).cancelled();
 
-        Assertions.assertSame(result, future.get());
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThat(future.get()).isSameAs(result);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
 
     }
 
@@ -75,7 +70,7 @@ class TestBasicFuture {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
-        Assertions.assertFalse(future.isDone());
+        Assertions.assertThat(future.isDone()).isFalse();
 
         final Object result = new Object();
         final Exception boom = new Exception();
@@ -85,9 +80,9 @@ class TestBasicFuture {
         Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback, Mockito.never()).cancelled();
 
-        Assertions.assertSame(result, future.get(1, TimeUnit.MILLISECONDS));
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThat(future.get(1, TimeUnit.MILLISECONDS)).isSameAs(result);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
     }
 
     @Test
@@ -102,10 +97,12 @@ class TestBasicFuture {
         Mockito.verify(callback).failed(boom);
         Mockito.verify(callback, Mockito.never()).cancelled();
 
-        final ExecutionException ex = assertThrows(ExecutionException.class, future::get);
-        Assertions.assertSame(boom, ex.getCause());
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThatThrownBy(future::get)
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .isSameAs(boom);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
     }
 
     @Test
@@ -121,9 +118,9 @@ class TestBasicFuture {
         Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback).cancelled();
 
-        assertThrows(CancellationException.class, future::get);
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertTrue(future.isCancelled());
+        Assertions.assertThatThrownBy(future::get).isInstanceOf(CancellationException.class);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isTrue();
     }
 
     @Test
@@ -140,9 +137,9 @@ class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        Assertions.assertSame(result, future.get(60, TimeUnit.SECONDS));
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThat(future.get(60, TimeUnit.SECONDS)).isSameAs(result);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
     }
 
     @Test
@@ -159,11 +156,12 @@ class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        final ExecutionException ex = assertThrows(ExecutionException.class, () ->
-                future.get(60, TimeUnit.SECONDS));
-        Assertions.assertSame(boom, ex.getCause());
-        Assertions.assertTrue(future.isDone());
-        Assertions.assertFalse(future.isCancelled());
+        Assertions.assertThatThrownBy(() -> future.get(60, TimeUnit.SECONDS))
+                .isInstanceOf(ExecutionException.class)
+                .cause()
+                .isSameAs(boom);
+        Assertions.assertThat(future.isDone()).isTrue();
+        Assertions.assertThat(future.isCancelled()).isFalse();
     }
 
     @Test
@@ -179,8 +177,8 @@ class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        assertThrows(CancellationException.class, () ->
-                future.get(60, TimeUnit.SECONDS));
+        Assertions.assertThatThrownBy(() -> future.get(60, TimeUnit.SECONDS))
+                .isInstanceOf(CancellationException.class);
     }
 
     @Test
@@ -197,15 +195,15 @@ class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        assertThrows(TimeoutException.class, () ->
-                future.get(1, TimeUnit.MILLISECONDS));
+        Assertions.assertThatThrownBy(() -> future.get(1, TimeUnit.MILLISECONDS))
+                .isInstanceOf(TimeoutException.class);
     }
 
     @Test
     void testAsyncNegativeTimeout() {
         final BasicFuture<Object> future = new BasicFuture<>(null);
-        assertThrows(TimeoutValueException.class, () ->
-                future.get(-1, TimeUnit.MILLISECONDS));
+        Assertions.assertThatThrownBy(() -> future.get(-1, TimeUnit.MILLISECONDS))
+                .isInstanceOf(TimeoutValueException.class);
     }
 
     @Test
@@ -232,13 +230,13 @@ class TestBasicFuture {
 
         // Verify that the first operation won and the other two failed.
         if (completedSuccessfully.get()) {
-            assertEquals(expectedResult, future.get());
+            Assertions.assertThat(future.get()).isEqualTo(expectedResult);
         } else if (failedSuccessfully.get()) {
-            assertThrows(ExecutionException.class, future::get);
+            Assertions.assertThatThrownBy(future::get).isInstanceOf(ExecutionException.class);
         } else if (cancelledSuccessfully.get()) {
-            assertThrows(CancellationException.class, future::get);
+            Assertions.assertThatThrownBy(future::get).isInstanceOf(CancellationException.class);
         } else {
-            fail("No operation was successful on the future.");
+            Assertions.fail("No operation was successful on the future.");
         }
 
         // Shutdown the executor.
@@ -246,13 +244,13 @@ class TestBasicFuture {
     }
 
     @Test
-    void testGetWithTimeout() {
-        final AtomicBoolean isFutureCompleted = new AtomicBoolean();
+    void testGetWithTimeout() throws Exception {
+        final CountDownLatch futureCompleted = new CountDownLatch(1);
 
         final FutureCallback<String> callback = new FutureCallbackAdapter<String>() {
             @Override
             public void completed(final String result) {
-                isFutureCompleted.set(true);
+                futureCompleted.countDown();
             }
 
         };
@@ -261,18 +259,7 @@ class TestBasicFuture {
 
         new Thread(() -> future.completed("test")).start();
 
-        // Poll until the future is completed or timeout
-        assertTimeoutPreemptively(Duration.ofMillis(200), () -> {
-            while (!isFutureCompleted.get()) {
-                // This loop will spin until the future is completed or the assertTimeoutPreemptively times out.
-                Thread.yield();
-            }
-
-            try {
-                assertEquals("test", future.get(1, TimeUnit.SECONDS));
-            } catch (final ExecutionException | TimeoutException e) {
-                fail("Test failed due to exception: " + e.getMessage());
-            }
-        });
+        Assertions.assertThat(futureCompleted.await(200, TimeUnit.MILLISECONDS)).isTrue();
+        Assertions.assertThat(future.get(1, TimeUnit.SECONDS)).isEqualTo("test");
     }
 }

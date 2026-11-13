@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -82,7 +82,7 @@ class TestServerHttp1UpgradeHandler {
             }
         });
 
-        Assertions.assertSame(ioSession, completed.get());
+        Assertions.assertThat(completed.get()).isSameAs(ioSession);
         Mockito.verify(ioSession, Mockito.times(2)).upgrade(Mockito.any());
     }
 

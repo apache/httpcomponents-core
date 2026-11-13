@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -80,26 +80,26 @@ class TestTlsCiphers {
     @Test
     void testCipherTLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384() {
         final String cipherSuite = "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384";
-        Assertions.assertTrue(TlsCiphers.isH2Blacklisted(cipherSuite));
-        Assertions.assertTrue(TlsCiphers.isWeak(cipherSuite));
+        Assertions.assertThat(TlsCiphers.isH2Blacklisted(cipherSuite)).isTrue();
+        Assertions.assertThat(TlsCiphers.isWeak(cipherSuite)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource
     void testExcludeH2Blacklisted(final String strongCipherSuite) {
-        Assertions.assertFalse(TlsCiphers.isH2Blacklisted(strongCipherSuite), strongCipherSuite);
-        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
+        Assertions.assertThat(TlsCiphers.isH2Blacklisted(strongCipherSuite)).withFailMessage(strongCipherSuite).isFalse();
+        Assertions.assertThat(TlsCiphers.isWeak(strongCipherSuite)).withFailMessage(strongCipherSuite).isFalse();
    }
 
     @ParameterizedTest
     @MethodSource
     void testExcludeWeak(final String strongCipherSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(strongCipherSuite)).withFailMessage(strongCipherSuite).isTrue();
     }
 
     @Test
     void testExcludeWeakNull() {
-        Assertions.assertNull(TlsCiphers.excludeWeak((String[]) null));
+        Assertions.assertThat(TlsCiphers.excludeWeak((String[]) null)).isNull();
     }
 
     /**
@@ -115,9 +115,9 @@ class TestTlsCiphers {
     @MethodSource("org.apache.hc.core5.http.ssl.TlsCiphers#getH2Blacklisted()")
     void testH2BlacklistedIsWeak(final String h2BlacklistedCipherSuite) {
         // Sanity assert
-        Assertions.assertTrue(TlsCiphers.isH2Blacklisted(h2BlacklistedCipherSuite), h2BlacklistedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isH2Blacklisted(h2BlacklistedCipherSuite)).withFailMessage(h2BlacklistedCipherSuite).isTrue();
         // Test
-        Assertions.assertTrue(TlsCiphers.isWeak(h2BlacklistedCipherSuite), h2BlacklistedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(h2BlacklistedCipherSuite)).withFailMessage(h2BlacklistedCipherSuite).isTrue();
     }
 
     /**
@@ -191,7 +191,7 @@ class TestTlsCiphers {
             "TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384", // RFC6367
     })
     void testRfc10015Section5_1_DhDepreacted(final String deprecatedCipherSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(deprecatedCipherSuite), deprecatedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(deprecatedCipherSuite)).withFailMessage(deprecatedCipherSuite).isTrue();
     }
 
     /**
@@ -242,7 +242,7 @@ class TestTlsCiphers {
             "TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384",   // RFC6367
     })
     void testRfc10015Section5_2_EcdhDiscouraged(final String discouragedCipherSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(discouragedCipherSuite), discouragedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(discouragedCipherSuite)).withFailMessage(discouragedCipherSuite).isTrue();
     }
 
     /**
@@ -323,7 +323,7 @@ class TestTlsCiphers {
             "TLS_PSK_DHE_WITH_AES_256_CCM_8",            // RFC6655
     })
     void testRfc10015Section5_3_DheDeprecated(final String deprecatedCipherSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(deprecatedCipherSuite), deprecatedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(deprecatedCipherSuite)).withFailMessage(deprecatedCipherSuite).isTrue();
     }
 
     /**
@@ -387,7 +387,7 @@ class TestTlsCiphers {
             "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256", // RFC7905
     })
     void testRfc10015Section5_4_RsaDeprecated(final String deprecatedCipherSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(deprecatedCipherSuite), deprecatedCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(deprecatedCipherSuite)).withFailMessage(deprecatedCipherSuite).isTrue();
     }
 
     @ParameterizedTest
@@ -411,7 +411,7 @@ class TestTlsCiphers {
             "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256", // RFC8442
     })
     void testStrongCipherSuites(final String strongCipherSuite) {
-        Assertions.assertFalse(TlsCiphers.isWeak(strongCipherSuite), strongCipherSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(strongCipherSuite)).withFailMessage(strongCipherSuite).isFalse();
     }
 
     @ParameterizedTest
@@ -433,7 +433,7 @@ class TestTlsCiphers {
             "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
     })
     void testWeakCiphersDisabledByDefault(final String weakCiphersSuite) {
-        Assertions.assertTrue(TlsCiphers.isWeak(weakCiphersSuite), weakCiphersSuite);
+        Assertions.assertThat(TlsCiphers.isWeak(weakCiphersSuite)).withFailMessage(weakCiphersSuite).isTrue();
     }
 
 }

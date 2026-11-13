@@ -39,8 +39,8 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,8 +71,8 @@ class TestDefaultListeningIOReactor {
         ioReactor.start();
 
         Set<ListenerEndpoint> endpoints = ioReactor.getEndpoints();
-        Assertions.assertNotNull(endpoints);
-        Assertions.assertEquals(0, endpoints.size());
+        Assertions.assertThat(endpoints).isNotNull();
+        Assertions.assertThat(endpoints.size()).isEqualTo(0);
 
         final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         final ListenerEndpoint endpoint1 = future1.get();
@@ -82,22 +82,22 @@ class TestDefaultListeningIOReactor {
         final int port = ((InetSocketAddress) endpoint2.getAddress()).getPort();
 
         endpoints = ioReactor.getEndpoints();
-        Assertions.assertNotNull(endpoints);
-        Assertions.assertEquals(2, endpoints.size());
+        Assertions.assertThat(endpoints).isNotNull();
+        Assertions.assertThat(endpoints.size()).isEqualTo(2);
 
         endpoint1.close();
 
         endpoints = ioReactor.getEndpoints();
-        Assertions.assertNotNull(endpoints);
-        Assertions.assertEquals(1, endpoints.size());
+        Assertions.assertThat(endpoints).isNotNull();
+        Assertions.assertThat(endpoints.size()).isEqualTo(1);
 
         final ListenerEndpoint endpoint = endpoints.iterator().next();
 
-        Assertions.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
+        Assertions.assertThat(((InetSocketAddress) endpoint.getAddress()).getPort()).isEqualTo(port);
 
         ioReactor.close(CloseMode.GRACEFUL);
         ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
-        Assertions.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
+        Assertions.assertThat(ioReactor.getStatus()).isEqualTo(IOReactorStatus.SHUT_DOWN);
     }
 
     @Test
@@ -109,11 +109,13 @@ class TestDefaultListeningIOReactor {
         final int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 
         final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(port));
-        Assertions.assertThrows(ExecutionException.class, () -> future2.get());
+        Assertions.assertThatThrownBy(() ->
+                        future2.get())
+                .isInstanceOf(ExecutionException.class);
         ioReactor.close(CloseMode.GRACEFUL);
         ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
 
-        Assertions.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
+        Assertions.assertThat(ioReactor.getStatus()).isEqualTo(IOReactorStatus.SHUT_DOWN);
     }
 
 }

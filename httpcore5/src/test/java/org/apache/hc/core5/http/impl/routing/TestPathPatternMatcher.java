@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.impl.routing;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestPathPatternMatcher {
@@ -36,27 +36,27 @@ class TestPathPatternMatcher {
     void testPathMatching() {
         final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
 
-        Assertions.assertTrue(matcher.match("/*", "/foo/request"));
-        Assertions.assertTrue(matcher.match("/foo/*", "/foo/request"));
-        Assertions.assertTrue(matcher.match("/foo/req*", "/foo/request"));
-        Assertions.assertTrue(matcher.match("/foo/request", "/foo/request"));
-        Assertions.assertFalse(matcher.match("/foo/request", "/foo/requesta"));
-        Assertions.assertFalse(matcher.match("/foo/*", "foo/request"));
-        Assertions.assertFalse(matcher.match("/foo/*", "/bar/foo"));
-        Assertions.assertTrue(matcher.match("*/action.do", "/xxxxx/action.do"));
-        Assertions.assertTrue(matcher.match("*/foo/action.do", "/xxxxx/foo/action.do"));
-        Assertions.assertFalse(matcher.match("*.do", "foo.dont"));
+        Assertions.assertThat(matcher.match("/*", "/foo/request")).isTrue();
+        Assertions.assertThat(matcher.match("/foo/*", "/foo/request")).isTrue();
+        Assertions.assertThat(matcher.match("/foo/req*", "/foo/request")).isTrue();
+        Assertions.assertThat(matcher.match("/foo/request", "/foo/request")).isTrue();
+        Assertions.assertThat(matcher.match("/foo/request", "/foo/requesta")).isFalse();
+        Assertions.assertThat(matcher.match("/foo/*", "foo/request")).isFalse();
+        Assertions.assertThat(matcher.match("/foo/*", "/bar/foo")).isFalse();
+        Assertions.assertThat(matcher.match("*/action.do", "/xxxxx/action.do")).isTrue();
+        Assertions.assertThat(matcher.match("*/foo/action.do", "/xxxxx/foo/action.do")).isTrue();
+        Assertions.assertThat(matcher.match("*.do", "foo.dont")).isFalse();
     }
 
     @Test
     void testBetterMatch() {
         final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
 
-        Assertions.assertTrue(matcher.isBetter("/a*", "/*"));
-        Assertions.assertTrue(matcher.isBetter("/a*", "*"));
-        Assertions.assertTrue(matcher.isBetter("/*", "*"));
-        Assertions.assertTrue(matcher.isBetter("/a/b*", "/a*"));
-        Assertions.assertTrue(matcher.isBetter("/a/*", "/a/b"));
+        Assertions.assertThat(matcher.isBetter("/a*", "/*")).isTrue();
+        Assertions.assertThat(matcher.isBetter("/a*", "*")).isTrue();
+        Assertions.assertThat(matcher.isBetter("/*", "*")).isTrue();
+        Assertions.assertThat(matcher.isBetter("/a/b*", "/a*")).isTrue();
+        Assertions.assertThat(matcher.isBetter("/a/*", "/a/b")).isTrue();
     }
 
 }

@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.HeaderGroup;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDefaultContentLengthStrategy {
@@ -70,7 +70,7 @@ class TestDefaultContentLengthStrategy {
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
 
-        Assertions.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
+        Assertions.assertThat(lenStrategy.determineLength(message)).isEqualTo(ContentLengthStrategy.CHUNKED);
     }
 
     @Test
@@ -79,7 +79,7 @@ class TestDefaultContentLengthStrategy {
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", ",,Chunked,,");
 
-        Assertions.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
+        Assertions.assertThat(lenStrategy.determineLength(message)).isEqualTo(ContentLengthStrategy.CHUNKED);
     }
 
     @Test
@@ -87,8 +87,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked,Chunked");
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(NotImplementedException.class);
     }
 
     @Test
@@ -96,8 +96,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "blah");
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(NotImplementedException.class);
     }
 
     @Test
@@ -105,8 +105,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "blah, chunked");
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(NotImplementedException.class);
     }
 
     @Test
@@ -114,8 +114,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "chunked,blah");
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(NotImplementedException.class);
     }
 
     @Test
@@ -123,8 +123,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(NotImplementedException.class);
     }
 
     @Test
@@ -132,7 +132,7 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "100");
-        Assertions.assertEquals(100, lenStrategy.determineLength(message));
+        Assertions.assertThat(lenStrategy.determineLength(message)).isEqualTo(100);
     }
 
     @Test
@@ -140,8 +140,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "whatever");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -149,8 +149,8 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "-10");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() ->
+                lenStrategy.determineLength(message)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -158,16 +158,15 @@ class TestDefaultContentLengthStrategy {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "+5");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                lenStrategy.determineLength(message));
+        Assertions.assertThatThrownBy(() -> lenStrategy.determineLength(message))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testEntityNoContentDelimiter() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
-        Assertions.assertEquals(ContentLengthStrategy.UNDEFINED, lenStrategy.determineLength(message));
+        Assertions.assertThat(lenStrategy.determineLength(message)).isEqualTo(ContentLengthStrategy.UNDEFINED);
     }
 
 }
-

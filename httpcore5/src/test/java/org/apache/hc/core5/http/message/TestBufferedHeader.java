@@ -34,7 +34,7 @@ import java.io.ObjectOutputStream;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -48,10 +48,10 @@ class TestBufferedHeader {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         final BufferedHeader header = new BufferedHeader(buf, false);
-        Assertions.assertEquals("name", header.getName());
-        Assertions.assertEquals("value", header.getValue());
-        Assertions.assertSame(buf, header.getBuffer());
-        Assertions.assertEquals(5, header.getValuePos());
+        Assertions.assertThat(header.getName()).isEqualTo("name");
+        Assertions.assertThat(header.getValue()).isEqualTo("value");
+        Assertions.assertThat(header.getBuffer()).isSameAs(buf);
+        Assertions.assertThat(header.getValuePos()).isEqualTo(5);
     }
 
     @Test
@@ -67,8 +67,8 @@ class TestBufferedHeader {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final BufferedHeader clone = (BufferedHeader) inStream.readObject();
-        Assertions.assertEquals(orig.getName(), clone.getName());
-        Assertions.assertEquals(orig.getValue(), clone.getValue());
+        Assertions.assertThat(clone.getName()).isEqualTo(orig.getName());
+        Assertions.assertThat(clone.getValue()).isEqualTo(orig.getValue());
     }
 
     @Test
@@ -76,25 +76,39 @@ class TestBufferedHeader {
         final CharArrayBuffer buf = new CharArrayBuffer(16);
         buf.clear();
         buf.append("");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append("blah");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append(":");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append("   :");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append(": blah");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append(" : blah");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, false))
+                .isInstanceOf(ParseException.class);
         buf.clear();
         buf.append("header : blah");
-        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, true));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHeader(buf, true))
+                .isInstanceOf(ParseException.class);
     }
 
     @Test
@@ -103,20 +117,20 @@ class TestBufferedHeader {
         buf.clear();
         buf.append("name:  blah\0blah  ");
         final BufferedHeader header1 = new BufferedHeader(buf, false);
-        Assertions.assertEquals("name", header1.getName());
-        Assertions.assertEquals("blah blah", header1.getValue());
+        Assertions.assertThat(header1.getName()).isEqualTo("name");
+        Assertions.assertThat(header1.getValue()).isEqualTo("blah blah");
 
         buf.clear();
         buf.append("name:  blah\rblah  ");
         final BufferedHeader header2 = new BufferedHeader(buf, false);
-        Assertions.assertEquals("name", header2.getName());
-        Assertions.assertEquals("blah blah", header2.getValue());
+        Assertions.assertThat(header2.getName()).isEqualTo("name");
+        Assertions.assertThat(header2.getValue()).isEqualTo("blah blah");
 
         buf.clear();
         buf.append("name:  blah\nblah  ");
         final BufferedHeader header3 = new BufferedHeader(buf, false);
-        Assertions.assertEquals("name", header3.getName());
-        Assertions.assertEquals("blah blah", header3.getValue());
+        Assertions.assertThat(header3.getName()).isEqualTo("name");
+        Assertions.assertThat(header3.getValue()).isEqualTo("blah blah");
     }
 
 }

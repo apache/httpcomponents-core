@@ -27,10 +27,6 @@
 
 package org.apache.hc.core5.ssl;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -41,6 +37,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class SSLContextsTest {
@@ -48,22 +45,22 @@ class SSLContextsTest {
     @Test
     void createDefault() {
         final SSLContext sslContext = SSLContexts.createDefault();
-        assertAll(
-                () -> assertNotNull(sslContext),
-                () -> assertEquals("Default", sslContext.getProtocol()),
-                () -> assertNotNull(sslContext.getProvider())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(sslContext).isNotNull();
+            softly.assertThat(sslContext.getProtocol()).isEqualTo("Default");
+            softly.assertThat(sslContext.getProvider()).isNotNull();
+        });
     }
 
     @Test
     @SuppressWarnings("deprecation")
     void createSystemDefault() {
         final SSLContext sslContext = SSLContexts.createSystemDefault();
-        assertAll(
-                () -> assertNotNull(sslContext),
-                () -> assertEquals("Default", sslContext.getProtocol()),
-                () -> assertNotNull(sslContext.getProvider())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(sslContext).isNotNull();
+            softly.assertThat(sslContext.getProtocol()).isEqualTo("Default");
+            softly.assertThat(sslContext.getProvider()).isNotNull();
+        });
     }
 
     @Test
@@ -80,10 +77,10 @@ class SSLContextsTest {
                 .loadKeyMaterial((KeyStore) null, null, null)
                 .build();
 
-        assertAll(
-                () -> assertNotNull(sslContext),
-                () -> assertEquals(SSLContextBuilder.TLS, sslContext.getProtocol()),
-                () -> assertEquals("SunJSSE", sslContext.getProvider().getName())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(sslContext).isNotNull();
+            softly.assertThat(sslContext.getProtocol()).isEqualTo(SSLContextBuilder.TLS);
+            softly.assertThat(sslContext.getProvider().getName()).isEqualTo("SunJSSE");
+        });
     }
 }

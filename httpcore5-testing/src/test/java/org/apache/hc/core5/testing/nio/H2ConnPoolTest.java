@@ -54,7 +54,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.extension.nio.H2MultiplexingRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -133,12 +133,12 @@ class H2ConnPoolTest {
         for (int i = 0; i < n; i++) {
             connPool.getSession(target, TIMEOUT, latch);
         }
-        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertThat(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
 
         requester.initiateShutdown();
         requester.awaitShutdown(TIMEOUT);
 
-        Assertions.assertEquals(1, clientConnCount.get());
+        Assertions.assertThat(clientConnCount.get()).isEqualTo(1);
     }
 
     @Test
@@ -158,7 +158,7 @@ class H2ConnPoolTest {
         requester.initiateShutdown();
         requester.awaitShutdown(TIMEOUT);
 
-        Assertions.assertEquals(0, clientConnCount.get());
+        Assertions.assertThat(clientConnCount.get()).isEqualTo(0);
     }
 
 }

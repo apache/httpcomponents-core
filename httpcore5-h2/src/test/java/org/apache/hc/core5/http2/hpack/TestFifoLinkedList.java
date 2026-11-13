@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestFifoLinkedList {
@@ -43,49 +43,49 @@ class TestFifoLinkedList {
         final HPackHeader h4 = new HPackHeader("h", "4");
 
         for (int i = 0; i < 5; i++) {
-            Assertions.assertEquals(0, fifoLinkedList.size());
-            Assertions.assertSame(null, fifoLinkedList.getFirst());
-            Assertions.assertSame(null, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(0);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(null);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(null);
 
             fifoLinkedList.addFirst(h1);
-            Assertions.assertEquals(1, fifoLinkedList.size());
-            Assertions.assertSame(h1, fifoLinkedList.getFirst());
-            Assertions.assertSame(h1, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(1);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h1);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h1);
 
             fifoLinkedList.addFirst(h2);
-            Assertions.assertEquals(2, fifoLinkedList.size());
-            Assertions.assertSame(h2, fifoLinkedList.getFirst());
-            Assertions.assertSame(h1, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(2);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h2);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h1);
 
             fifoLinkedList.addFirst(h3);
-            Assertions.assertEquals(3, fifoLinkedList.size());
-            Assertions.assertSame(h3, fifoLinkedList.getFirst());
-            Assertions.assertSame(h1, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(3);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h3);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h1);
 
             fifoLinkedList.addFirst(h4);
-            Assertions.assertEquals(4, fifoLinkedList.size());
-            Assertions.assertSame(h4, fifoLinkedList.getFirst());
-            Assertions.assertSame(h1, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(4);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h1);
 
             fifoLinkedList.removeLast();
-            Assertions.assertEquals(3, fifoLinkedList.size());
-            Assertions.assertSame(h4, fifoLinkedList.getFirst());
-            Assertions.assertSame(h2, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(3);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h2);
 
             fifoLinkedList.removeLast();
-            Assertions.assertEquals(2, fifoLinkedList.size());
-            Assertions.assertSame(h4, fifoLinkedList.getFirst());
-            Assertions.assertSame(h3, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(2);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h3);
 
             fifoLinkedList.removeLast();
-            Assertions.assertEquals(1, fifoLinkedList.size());
-            Assertions.assertSame(h4, fifoLinkedList.getFirst());
-            Assertions.assertSame(h4, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(1);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(h4);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(h4);
 
             fifoLinkedList.removeLast();
-            Assertions.assertEquals(0, fifoLinkedList.size());
-            Assertions.assertSame(null, fifoLinkedList.getFirst());
-            Assertions.assertSame(null, fifoLinkedList.getLast());
+            Assertions.assertThat(fifoLinkedList.size()).isEqualTo(0);
+            Assertions.assertThat(fifoLinkedList.getFirst()).isSameAs(null);
+            Assertions.assertThat(fifoLinkedList.getLast()).isSameAs(null);
         }
     }
 
@@ -104,58 +104,58 @@ class TestFifoLinkedList {
         final FifoLinkedList.InternalNode node3 = fifoLinkedList.addFirst(h3);
         final FifoLinkedList.InternalNode node4 = fifoLinkedList.addFirst(h4);
 
-        Assertions.assertEquals(0, fifoLinkedList.getIndex(node4));
-        Assertions.assertEquals(1, fifoLinkedList.getIndex(node3));
-        Assertions.assertEquals(2, fifoLinkedList.getIndex(node2));
-        Assertions.assertEquals(3, fifoLinkedList.getIndex(node1));
+        Assertions.assertThat(fifoLinkedList.getIndex(node4)).isEqualTo(0);
+        Assertions.assertThat(fifoLinkedList.getIndex(node3)).isEqualTo(1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node2)).isEqualTo(2);
+        Assertions.assertThat(fifoLinkedList.getIndex(node1)).isEqualTo(3);
 
-        Assertions.assertEquals(4, fifoLinkedList.size());
-        Assertions.assertSame(h4, fifoLinkedList.get(0));
-        Assertions.assertSame(h3, fifoLinkedList.get(1));
-        Assertions.assertSame(h2, fifoLinkedList.get(2));
-        Assertions.assertSame(h1, fifoLinkedList.get(3));
-
-        fifoLinkedList.removeLast();
-
-        Assertions.assertEquals(0, fifoLinkedList.getIndex(node4));
-        Assertions.assertEquals(1, fifoLinkedList.getIndex(node3));
-        Assertions.assertEquals(2, fifoLinkedList.getIndex(node2));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node1));
-
-        Assertions.assertEquals(3, fifoLinkedList.size());
-        Assertions.assertSame(h4, fifoLinkedList.get(0));
-        Assertions.assertSame(h3, fifoLinkedList.get(1));
-        Assertions.assertSame(h2, fifoLinkedList.get(2));
+        Assertions.assertThat(fifoLinkedList.size()).isEqualTo(4);
+        Assertions.assertThat(fifoLinkedList.get(0)).isSameAs(h4);
+        Assertions.assertThat(fifoLinkedList.get(1)).isSameAs(h3);
+        Assertions.assertThat(fifoLinkedList.get(2)).isSameAs(h2);
+        Assertions.assertThat(fifoLinkedList.get(3)).isSameAs(h1);
 
         fifoLinkedList.removeLast();
 
-        Assertions.assertEquals(0, fifoLinkedList.getIndex(node4));
-        Assertions.assertEquals(1, fifoLinkedList.getIndex(node3));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node2));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node1));
+        Assertions.assertThat(fifoLinkedList.getIndex(node4)).isEqualTo(0);
+        Assertions.assertThat(fifoLinkedList.getIndex(node3)).isEqualTo(1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node2)).isEqualTo(2);
+        Assertions.assertThat(fifoLinkedList.getIndex(node1)).isEqualTo(-1);
 
-        Assertions.assertEquals(2, fifoLinkedList.size());
-        Assertions.assertSame(h4, fifoLinkedList.get(0));
-        Assertions.assertSame(h3, fifoLinkedList.get(1));
-
-        fifoLinkedList.removeLast();
-
-        Assertions.assertEquals(0, fifoLinkedList.getIndex(node4));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node3));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node2));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node1));
-
-        Assertions.assertEquals(1, fifoLinkedList.size());
-        Assertions.assertSame(h4, fifoLinkedList.get(0));
+        Assertions.assertThat(fifoLinkedList.size()).isEqualTo(3);
+        Assertions.assertThat(fifoLinkedList.get(0)).isSameAs(h4);
+        Assertions.assertThat(fifoLinkedList.get(1)).isSameAs(h3);
+        Assertions.assertThat(fifoLinkedList.get(2)).isSameAs(h2);
 
         fifoLinkedList.removeLast();
 
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node4));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node3));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node2));
-        Assertions.assertEquals(-1, fifoLinkedList.getIndex(node1));
+        Assertions.assertThat(fifoLinkedList.getIndex(node4)).isEqualTo(0);
+        Assertions.assertThat(fifoLinkedList.getIndex(node3)).isEqualTo(1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node2)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node1)).isEqualTo(-1);
 
-        Assertions.assertEquals(0, fifoLinkedList.size());
+        Assertions.assertThat(fifoLinkedList.size()).isEqualTo(2);
+        Assertions.assertThat(fifoLinkedList.get(0)).isSameAs(h4);
+        Assertions.assertThat(fifoLinkedList.get(1)).isSameAs(h3);
+
+        fifoLinkedList.removeLast();
+
+        Assertions.assertThat(fifoLinkedList.getIndex(node4)).isEqualTo(0);
+        Assertions.assertThat(fifoLinkedList.getIndex(node3)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node2)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node1)).isEqualTo(-1);
+
+        Assertions.assertThat(fifoLinkedList.size()).isEqualTo(1);
+        Assertions.assertThat(fifoLinkedList.get(0)).isSameAs(h4);
+
+        fifoLinkedList.removeLast();
+
+        Assertions.assertThat(fifoLinkedList.getIndex(node4)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node3)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node2)).isEqualTo(-1);
+        Assertions.assertThat(fifoLinkedList.getIndex(node1)).isEqualTo(-1);
+
+        Assertions.assertThat(fifoLinkedList.size()).isEqualTo(0);
     }
 }
 

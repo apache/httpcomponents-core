@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestMultiCoreIOReactor {
@@ -81,23 +81,23 @@ class TestMultiCoreIOReactor {
         try (MultiCoreIOReactor reactor = new MultiCoreIOReactor(
                 new IOReactor[] { r1, r2 }, new Thread[] { t1, t2 })) {
             reactor.start();
-            Assertions.assertEquals(IOReactorStatus.ACTIVE, reactor.getStatus());
+            Assertions.assertThat(reactor.getStatus()).isEqualTo(IOReactorStatus.ACTIVE);
 
             reactor.initiateShutdown();
-            Assertions.assertTrue(r1.shutdown.get());
-            Assertions.assertTrue(r2.shutdown.get());
+            Assertions.assertThat(r1.shutdown.get()).isTrue();
+            Assertions.assertThat(r2.shutdown.get()).isTrue();
 
             reactor.close(CloseMode.IMMEDIATE);
-            Assertions.assertTrue(r1.closed.get());
-            Assertions.assertTrue(r2.closed.get());
-            Assertions.assertEquals(IOReactorStatus.SHUT_DOWN, reactor.getStatus());
+            Assertions.assertThat(r1.closed.get()).isTrue();
+            Assertions.assertThat(r2.closed.get()).isTrue();
+            Assertions.assertThat(reactor.getStatus()).isEqualTo(IOReactorStatus.SHUT_DOWN);
         }
     }
 
     @Test
     void toStringIncludesStatus() {
         try (MultiCoreIOReactor reactor = new MultiCoreIOReactor(new IOReactor[] {}, new Thread[] {})) {
-            Assertions.assertTrue(reactor.toString().contains("status"));
+            Assertions.assertThat(reactor.toString().contains("status")).isTrue();
         }
     }
 

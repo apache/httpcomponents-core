@@ -33,7 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,66 +45,68 @@ class TestCharArrayBuffer {
     @Test
     void testConstructor() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
-        Assertions.assertEquals(16, buffer.capacity());
-        Assertions.assertEquals(0, buffer.length());
-        Assertions.assertNotNull(buffer.array());
-        Assertions.assertEquals(16, buffer.array().length);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new CharArrayBuffer(-1));
+        Assertions.assertThat(buffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(buffer.length()).isEqualTo(0);
+        Assertions.assertThat(buffer.array()).isNotNull();
+        Assertions.assertThat(buffer.array().length).isEqualTo(16);
+        Assertions.assertThatThrownBy(() ->
+                        new CharArrayBuffer(-1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testSimpleAppend() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
-        Assertions.assertEquals(16, buffer.capacity());
-        Assertions.assertEquals(0, buffer.length());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(buffer.length()).isEqualTo(0);
         final char[] b1 = buffer.toCharArray();
-        Assertions.assertNotNull(b1);
-        Assertions.assertEquals(0, b1.length);
-        Assertions.assertTrue(buffer.isEmpty());
-        Assertions.assertFalse(buffer.isFull());
+        Assertions.assertThat(b1).isNotNull();
+        Assertions.assertThat(b1.length).isEqualTo(0);
+        Assertions.assertThat(buffer.isEmpty()).isTrue();
+        Assertions.assertThat(buffer.isFull()).isFalse();
 
         final char[] tmp = new char[] { '1', '2', '3', '4'};
         buffer.append(tmp, 0, tmp.length);
-        Assertions.assertEquals(16, buffer.capacity());
-        Assertions.assertEquals(4, buffer.length());
-        Assertions.assertFalse(buffer.isEmpty());
-        Assertions.assertFalse(buffer.isFull());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(buffer.length()).isEqualTo(4);
+        Assertions.assertThat(buffer.isEmpty()).isFalse();
+        Assertions.assertThat(buffer.isFull()).isFalse();
 
         final char[] b2 = buffer.toCharArray();
-        Assertions.assertNotNull(b2);
-        Assertions.assertEquals(4, b2.length);
+        Assertions.assertThat(b2).isNotNull();
+        Assertions.assertThat(b2.length).isEqualTo(4);
         for (int i = 0; i < tmp.length; i++) {
-            Assertions.assertEquals(tmp[i], b2[i]);
-            Assertions.assertEquals(tmp[i], buffer.charAt(i));
+            Assertions.assertThat(b2[i]).isEqualTo(tmp[i]);
+            Assertions.assertThat(buffer.charAt(i)).isEqualTo(tmp[i]);
         }
-        Assertions.assertEquals("1234", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("1234");
 
         buffer.clear();
-        Assertions.assertEquals(16, buffer.capacity());
-        Assertions.assertEquals(0, buffer.length());
-        Assertions.assertTrue(buffer.isEmpty());
-        Assertions.assertFalse(buffer.isFull());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(buffer.length()).isEqualTo(0);
+        Assertions.assertThat(buffer.isEmpty()).isTrue();
+        Assertions.assertThat(buffer.isFull()).isFalse();
     }
 
     @Test
     void testExpandAppend() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
-        Assertions.assertEquals(4, buffer.capacity());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(4);
 
         final char[] tmp = new char[] { '1', '2', '3', '4'};
         buffer.append(tmp, 0, 2);
         buffer.append(tmp, 0, 4);
         buffer.append(tmp, 0, 0);
 
-        Assertions.assertEquals(8, buffer.capacity());
-        Assertions.assertEquals(6, buffer.length());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(8);
+        Assertions.assertThat(buffer.length()).isEqualTo(6);
 
         buffer.append(tmp, 0, 4);
 
-        Assertions.assertEquals(16, buffer.capacity());
-        Assertions.assertEquals(10, buffer.length());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(16);
+        Assertions.assertThat(buffer.length()).isEqualTo(10);
 
-        Assertions.assertEquals("1212341234", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("1212341234");
     }
 
     @Test
@@ -112,14 +114,14 @@ class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append("stuff");
         buffer.append(" and more stuff");
-        Assertions.assertEquals("stuff and more stuff", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("stuff and more stuff");
     }
 
     @Test
     void testAppendNullString() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((String)null);
-        Assertions.assertEquals("null", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("null");
     }
 
     @Test
@@ -129,7 +131,7 @@ class TestCharArrayBuffer {
         final CharArrayBuffer buffer2 = new CharArrayBuffer(8);
         buffer2.append("stuff");
         buffer2.append(buffer1);
-        Assertions.assertEquals("stuff and more stuff", buffer2.toString());
+        Assertions.assertThat(buffer2.toString()).isEqualTo("stuff and more stuff");
     }
 
     @Test
@@ -137,7 +139,7 @@ class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((CharArrayBuffer)null);
         buffer.append((CharArrayBuffer)null, 0, 0);
-        Assertions.assertEquals("", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("");
     }
 
     @Test
@@ -149,7 +151,7 @@ class TestCharArrayBuffer {
         buffer.append('4');
         buffer.append('5');
         buffer.append('6');
-        Assertions.assertEquals("123456", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("123456");
     }
 
     @Test
@@ -158,69 +160,95 @@ class TestCharArrayBuffer {
         buffer.append((char[])null, 0, 0);
 
         final char[] tmp = new char[] { '1', '2', '3', '4'};
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 10, Integer.MAX_VALUE));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 2, 4));
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, -1, 0))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 0, -1))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 0, 8))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 10, Integer.MAX_VALUE))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 2, 4))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
     void testSetLength() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.setLength(2);
-        Assertions.assertEquals(2, buffer.length());
+        Assertions.assertThat(buffer.length()).isEqualTo(2);
     }
 
     @Test
     void testSetInvalidLength() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(-2));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(200));
+        Assertions.assertThatThrownBy(() ->
+                        buffer.setLength(-2))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.setLength(200))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
     void testEnsureCapacity() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.ensureCapacity(2);
-        Assertions.assertEquals(4, buffer.capacity());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(4);
         buffer.ensureCapacity(8);
-        Assertions.assertEquals(8, buffer.capacity());
+        Assertions.assertThat(buffer.capacity()).isEqualTo(8);
     }
 
     @Test
     void testIndexOf() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("name: value");
-        Assertions.assertEquals(4, buffer.indexOf(':'));
-        Assertions.assertEquals(-1, buffer.indexOf(','));
-        Assertions.assertEquals(4, buffer.indexOf(':', -1, 11));
-        Assertions.assertEquals(4, buffer.indexOf(':', 0, 1000));
-        Assertions.assertEquals(-1, buffer.indexOf(':', 2, 1));
+        Assertions.assertThat(buffer.indexOf(':')).isEqualTo(4);
+        Assertions.assertThat(buffer.indexOf(',')).isEqualTo(-1);
+        Assertions.assertThat(buffer.indexOf(':', -1, 11)).isEqualTo(4);
+        Assertions.assertThat(buffer.indexOf(':', 0, 1000)).isEqualTo(4);
+        Assertions.assertThat(buffer.indexOf(':', 2, 1)).isEqualTo(-1);
     }
 
     @Test
     void testSubstring() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append(" name:  value    ");
-        Assertions.assertEquals(5, buffer.indexOf(':'));
-        Assertions.assertEquals(" name", buffer.substring(0, 5));
-        Assertions.assertEquals("  value    ", buffer.substring(6, buffer.length()));
-        Assertions.assertEquals("name", buffer.substringTrimmed(0, 5));
-        Assertions.assertEquals("value", buffer.substringTrimmed(6, buffer.length()));
-        Assertions.assertEquals("", buffer.substringTrimmed(13, buffer.length()));
+        Assertions.assertThat(buffer.indexOf(':')).isEqualTo(5);
+        Assertions.assertThat(buffer.substring(0, 5)).isEqualTo(" name");
+        Assertions.assertThat(buffer.substring(6, buffer.length())).isEqualTo("  value    ");
+        Assertions.assertThat(buffer.substringTrimmed(0, 5)).isEqualTo("name");
+        Assertions.assertThat(buffer.substringTrimmed(6, buffer.length())).isEqualTo("value");
+        Assertions.assertThat(buffer.substringTrimmed(13, buffer.length())).isEqualTo("");
     }
 
     @Test
     void testSubstringIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(-2, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(-2, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(12, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(12, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(2, 1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(2, 1));
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substring(-2, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substringTrimmed(-2, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substring(12, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substringTrimmed(12, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substring(2, 1))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.substringTrimmed(2, 1))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
@@ -234,7 +262,7 @@ class TestCharArrayBuffer {
         buffer.append(b1, 0, b1.length);
         buffer.append(b2, 0, b2.length);
 
-        Assertions.assertEquals("stuff and more stuff", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("stuff and more stuff");
     }
 
     @Test
@@ -244,27 +272,27 @@ class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append(b, 0, b.length);
         final char[] ch = buffer.toCharArray();
-        Assertions.assertNotNull(ch);
-        Assertions.assertEquals(5, ch.length);
-        Assertions.assertEquals(0x00, ch[0]);
-        Assertions.assertEquals(0x20, ch[1]);
-        Assertions.assertEquals(0x7F, ch[2]);
-        Assertions.assertEquals(0x80, ch[3]);
-        Assertions.assertEquals(0xFF, ch[4]);
+        Assertions.assertThat(ch).isNotNull();
+        Assertions.assertThat(ch.length).isEqualTo(5);
+        Assertions.assertThat(ch[0]).isEqualTo((char) 0x00);
+        Assertions.assertThat(ch[1]).isEqualTo((char) 0x20);
+        Assertions.assertThat(ch[2]).isEqualTo((char) 0x7F);
+        Assertions.assertThat(ch[3]).isEqualTo((char) 0x80);
+        Assertions.assertThat(ch[4]).isEqualTo((char) 0xFF);
     }
 
     @Test
     void testAppendNullByteArray() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((byte[])null, 0, 0);
-        Assertions.assertEquals("", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("");
     }
 
     @Test
     void testAppendNullByteArrayBuffer() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((ByteArrayBuffer)null, 0, 0);
-        Assertions.assertEquals("", buffer.toString());
+        Assertions.assertThat(buffer.toString()).isEqualTo("");
     }
 
     @Test
@@ -273,11 +301,21 @@ class TestCharArrayBuffer {
         buffer.append((byte[])null, 0, 0);
 
         final byte[] tmp = new byte[] { '1', '2', '3', '4'};
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 10, Integer.MAX_VALUE));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 2, 4));
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, -1, 0))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 0, -1))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 0, 8))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 10, Integer.MAX_VALUE))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.append(tmp, 2, 4))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
@@ -294,33 +332,38 @@ class TestCharArrayBuffer {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final CharArrayBuffer clone = (CharArrayBuffer) inStream.readObject();
-        Assertions.assertEquals(orig.capacity(), clone.capacity());
-        Assertions.assertEquals(orig.length(), clone.length());
+        Assertions.assertThat(clone.capacity()).isEqualTo(orig.capacity());
+        Assertions.assertThat(clone.length()).isEqualTo(orig.length());
         final char[] data = clone.toCharArray();
-        Assertions.assertNotNull(data);
-        Assertions.assertEquals(3, data.length);
-        Assertions.assertEquals('a', data[0]);
-        Assertions.assertEquals('b', data[1]);
-        Assertions.assertEquals('c', data[2]);
+        Assertions.assertThat(data).isNotNull();
+        Assertions.assertThat(data.length).isEqualTo(3);
+        Assertions.assertThat(data[0]).isEqualTo('a');
+        Assertions.assertThat(data[1]).isEqualTo('b');
+        Assertions.assertThat(data[2]).isEqualTo('c');
     }
 
     @Test
     void testSubSequence() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append(" name:  value    ");
-        Assertions.assertEquals(5, buffer.indexOf(':'));
-        Assertions.assertEquals(" name", buffer.subSequence(0, 5).toString());
-        Assertions.assertEquals("  value    ",
-            buffer.subSequence(6, buffer.length()).toString());
+        Assertions.assertThat(buffer.indexOf(':')).isEqualTo(5);
+        Assertions.assertThat(buffer.subSequence(0, 5).toString()).isEqualTo(" name");
+        Assertions.assertThat(buffer.subSequence(6, buffer.length()).toString()).isEqualTo("  value    ");
     }
 
     @Test
     void testSubSequenceIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(-2, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(12, 10));
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(2, 1));
+        Assertions.assertThatThrownBy(() ->
+                        buffer.subSequence(-2, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.subSequence(12, 10))
+                .isInstanceOf(IndexOutOfBoundsException.class);
+        Assertions.assertThatThrownBy(() ->
+                        buffer.subSequence(2, 1))
+                .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
 }

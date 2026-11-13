@@ -34,7 +34,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -87,12 +87,12 @@ public class ClassicTestResources implements BeforeEachCallback, AfterEachCallba
     }
 
     public ClassicTestClient client() {
-        Assertions.assertNotNull(client);
+        Assertions.assertThat(client).isNotNull();
         return client;
     }
 
     public ClassicTestServer server() {
-        Assertions.assertNotNull(server);
+        Assertions.assertThat(server).isNotNull();
         return server;
     }
 

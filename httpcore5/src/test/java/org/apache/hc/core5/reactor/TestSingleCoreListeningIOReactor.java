@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestSingleCoreListeningIOReactor {
@@ -76,22 +76,22 @@ class TestSingleCoreListeningIOReactor {
 
             final ListenerEndpoint endpoint = reactor.listen(new InetSocketAddress("localhost", 0), "att", callback)
                     .get(1, TimeUnit.SECONDS);
-            Assertions.assertNotNull(endpoint);
-            Assertions.assertNotNull(endpoint.getAddress());
+            Assertions.assertThat(endpoint).isNotNull();
+            Assertions.assertThat(endpoint.getAddress()).isNotNull();
 
             try (SocketChannel client = SocketChannel.open()) {
                 client.connect(endpoint.getAddress());
             }
 
-            Assertions.assertTrue(accepted.await(1, TimeUnit.SECONDS));
-            Assertions.assertNotNull(entryRef.get());
-            Assertions.assertEquals("att", entryRef.get().attachment);
+            Assertions.assertThat(accepted.await(1, TimeUnit.SECONDS)).isTrue();
+            Assertions.assertThat(entryRef.get()).isNotNull();
+            Assertions.assertThat(entryRef.get().attachment).isEqualTo("att");
 
             final Set<ListenerEndpoint> endpointsBeforePause = reactor.getEndpoints();
-            Assertions.assertFalse(endpointsBeforePause.isEmpty());
+            Assertions.assertThat(endpointsBeforePause.isEmpty()).isFalse();
 
             reactor.pause();
-            Assertions.assertTrue(reactor.getEndpoints().isEmpty());
+            Assertions.assertThat(reactor.getEndpoints().isEmpty()).isTrue();
 
             reactor.resume();
 
@@ -106,8 +106,8 @@ class TestSingleCoreListeningIOReactor {
         })) {
             reactor.initiateShutdown();
 
-            Assertions.assertThrows(IOReactorShutdownException.class, () ->
-                    reactor.listen(new InetSocketAddress("localhost", 0), null));
+            Assertions.assertThatThrownBy(() ->
+                    reactor.listen(new InetSocketAddress("localhost", 0), null)).isInstanceOf(IOReactorShutdownException.class);
         }
     }
 

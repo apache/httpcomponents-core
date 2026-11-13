@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -50,10 +50,10 @@ class TestNoopAsyncPushHandler {
     void noOpsDoNotThrow() throws Exception {
         final NoopAsyncPushHandler handler = new NoopAsyncPushHandler();
 
-        Assertions.assertDoesNotThrow(() -> handler.consume(ByteBuffer.allocate(0)));
-        Assertions.assertDoesNotThrow(() -> handler.streamEnd(Collections.emptyList()));
-        Assertions.assertDoesNotThrow(() -> handler.failed(new RuntimeException("boom")));
-        Assertions.assertDoesNotThrow(handler::releaseResources);
+        Assertions.assertThatCode(() -> handler.consume(ByteBuffer.allocate(0))).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> handler.streamEnd(Collections.emptyList())).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> handler.failed(new RuntimeException("boom"))).doesNotThrowAnyException();
+        Assertions.assertThatCode(handler::releaseResources).doesNotThrowAnyException();
     }
 
 }

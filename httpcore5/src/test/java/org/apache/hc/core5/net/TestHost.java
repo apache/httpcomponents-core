@@ -33,7 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,21 +45,23 @@ class TestHost {
     @Test
     void testConstructor() {
         final Host host1 = new Host("somehost", 8080);
-        Assertions.assertEquals("somehost", host1.getHostName());
-        Assertions.assertEquals(8080, host1.getPort());
+        Assertions.assertThat(host1.getHostName()).isEqualTo("somehost");
+        Assertions.assertThat(host1.getPort()).isEqualTo(8080);
         final Host host2 = new Host("somehost", 0);
-        Assertions.assertEquals("somehost", host2.getHostName());
-        Assertions.assertEquals(0, host2.getPort());
+        Assertions.assertThat(host2.getHostName()).isEqualTo("somehost");
+        Assertions.assertThat(host2.getPort()).isEqualTo(0);
         final Host host3 = new Host("Яндекс.Ру", 0);
-        Assertions.assertEquals("Яндекс.Ру", host3.getHostName());
-        Assertions.assertEquals(0, host3.getPort());
+        Assertions.assertThat(host3.getHostName()).isEqualTo("Яндекс.Ру");
+        Assertions.assertThat(host3.getPort()).isEqualTo(0);
         final Host host4 = new Host("xn--d1acpjx3f.xn--p1ag", 0);
-        Assertions.assertEquals("яндекс.ру", host4.getHostName());
-        Assertions.assertEquals(0, host4.getPort());
+        Assertions.assertThat(host4.getHostName()).isEqualTo("яндекс.ру");
+        Assertions.assertThat(host4.getPort()).isEqualTo(0);
         final Host host5 = new Host("XN--D1Acpjx3f.xn--p1ag", 0);
-        Assertions.assertEquals("яндекс.ру", host5.getHostName());
-        Assertions.assertEquals(0, host5.getPort());
-        Assertions.assertThrows(NullPointerException.class, () -> new Host(null, 0));
+        Assertions.assertThat(host5.getHostName()).isEqualTo("яндекс.ру");
+        Assertions.assertThat(host5.getPort()).isEqualTo(0);
+        Assertions.assertThatThrownBy(() ->
+                        new Host(null, 0))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -69,10 +71,10 @@ class TestHost {
         final Host host3 = new Host("someotherhost", 8080);
         final Host host4 = new Host("somehost", 80);
 
-        Assertions.assertEquals(host1.hashCode(), host1.hashCode());
-        Assertions.assertNotEquals(host1.hashCode(), host2.hashCode());
-        Assertions.assertNotEquals(host1.hashCode(), host3.hashCode());
-        Assertions.assertEquals(host2.hashCode(), host4.hashCode());
+        Assertions.assertThat(host1.hashCode()).isEqualTo(host1.hashCode());
+        Assertions.assertThat(host2.hashCode()).isNotEqualTo(host1.hashCode());
+        Assertions.assertThat(host3.hashCode()).isNotEqualTo(host1.hashCode());
+        Assertions.assertThat(host4.hashCode()).isEqualTo(host2.hashCode());
     }
 
     @Test
@@ -82,16 +84,16 @@ class TestHost {
         final Host host3 = new Host("someotherhost", 8080);
         final Host host4 = new Host("somehost", 80);
 
-        Assertions.assertEquals(host1, host1);
-        Assertions.assertNotEquals(host1, host2);
-        Assertions.assertNotEquals(host1, host3);
-        Assertions.assertEquals(host2, host4);
+        Assertions.assertThat(host1).isEqualTo(host1);
+        Assertions.assertThat(host2).isNotEqualTo(host1);
+        Assertions.assertThat(host3).isNotEqualTo(host1);
+        Assertions.assertThat(host4).isEqualTo(host2);
     }
 
     @Test
     void testToString() {
         final Host host1 = new Host("somehost", 8888);
-        Assertions.assertEquals("somehost:8888", host1.toString());
+        Assertions.assertThat(host1.toString()).isEqualTo("somehost:8888");
     }
 
     @Test
@@ -105,46 +107,56 @@ class TestHost {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final Host clone = (Host) inStream.readObject();
-        Assertions.assertEquals(orig, clone);
+        Assertions.assertThat(clone).isEqualTo(orig);
     }
 
     @Test
     void testCreateFromString() throws Exception {
-        Assertions.assertEquals(new Host("somehost", 8080), Host.create("somehost:8080"));
-        Assertions.assertEquals(new Host("somehost", 1234), Host.create("somehost:1234"));
-        Assertions.assertEquals(new Host("somehost", 0), Host.create("somehost:0"));
-        Assertions.assertEquals(new Host("яндекс.ру", -1), Host.create("xn--d1acpjx3f.xn--p1ag"));
-        Assertions.assertEquals(new Host("Яндекс.Ру", -1), Host.create("Яндекс.Ру"));
+        Assertions.assertThat(Host.create("somehost:8080")).isEqualTo(new Host("somehost", 8080));
+        Assertions.assertThat(Host.create("somehost:1234")).isEqualTo(new Host("somehost", 1234));
+        Assertions.assertThat(Host.create("somehost:0")).isEqualTo(new Host("somehost", 0));
+        Assertions.assertThat(Host.create("xn--d1acpjx3f.xn--p1ag")).isEqualTo(new Host("яндекс.ру", -1));
+        Assertions.assertThat(Host.create("Яндекс.Ру")).isEqualTo(new Host("Яндекс.Ру", -1));
     }
 
     @Test
     void testCreateFromStringInvalid() {
-        Assertions.assertThrows(URISyntaxException.class, () -> Host.create(" host "));
-        Assertions.assertThrows(URISyntaxException.class, () -> Host.create("host :8080"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> Host.create(""));
+        Assertions.assertThatThrownBy(() ->
+                        Host.create(" host "))
+                .isInstanceOf(URISyntaxException.class);
+        Assertions.assertThatThrownBy(() ->
+                        Host.create("host :8080"))
+                .isInstanceOf(URISyntaxException.class);
+        Assertions.assertThatThrownBy(() ->
+                        Host.create(""))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testIpv6HostAndPort() throws Exception {
         final Host host = Host.create("[::1]:80");
-        Assertions.assertEquals("::1", host.getHostName());
-        Assertions.assertEquals(80, host.getPort());
+        Assertions.assertThat(host.getHostName()).isEqualTo("::1");
+        Assertions.assertThat(host.getPort()).isEqualTo(80);
     }
 
     @Test
     void testIpv6HostAndPortWithoutBrackets() {
         // ambiguous
-        Assertions.assertThrows(URISyntaxException.class, () -> Host.create("::1:80"));
+        Assertions.assertThatThrownBy(() ->
+                        Host.create("::1:80"))
+                .isInstanceOf(URISyntaxException.class);
     }
 
     @Test
     void testIpv6HostWithoutPort() {
-        Assertions.assertThrows(URISyntaxException.class, () -> Host.create("::1"));
+        Assertions.assertThatThrownBy(() ->
+                        Host.create("::1"))
+                .isInstanceOf(URISyntaxException.class);
     }
 
     @Test
     void testIpv6HostToString() {
-        Assertions.assertEquals("[::1]:80", new Host("::1", 80).toString());
-        Assertions.assertEquals("[::1]", new Host("::1", -1).toString());
+        Assertions.assertThat(new Host("::1", 80).toString()).isEqualTo("[::1]:80");
+        Assertions.assertThat(new Host("::1", -1).toString()).isEqualTo("[::1]");
     }
 }

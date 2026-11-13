@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http.support.BasicRequestBuilder;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestRequestRouter {
@@ -48,22 +48,22 @@ class TestRequestRouter {
                 .build();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://someotherhost.somedomain/foo/blah").build(), context));
-        Assertions.assertEquals(2L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost.somedomain/foo/blah").build(), context));
-        Assertions.assertEquals(3L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost.somedomain/bar/blah").build(), context));
-        Assertions.assertEquals(4L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost.somedomain/stuff").build(), context));
-        Assertions.assertEquals(4L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost.somedomain/stuff?huh").build(), context));
-        Assertions.assertEquals(0L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost.somedomain/stuffed").build(), context));
-        Assertions.assertNull(requestRouter.resolve(
-                BasicRequestBuilder.get("http://someotherhost.somedomain/stuff").build(), context));
-        Assertions.assertThrows(MisdirectedRequestException.class, () -> requestRouter.resolve(
-                        BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context));
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://someotherhost.somedomain/foo/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost.somedomain/foo/blah").build(), context)).isEqualTo(2L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost.somedomain/bar/blah").build(), context)).isEqualTo(3L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost.somedomain/stuff").build(), context)).isEqualTo(4L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost.somedomain/stuff?huh").build(), context)).isEqualTo(4L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost.somedomain/stuffed").build(), context)).isEqualTo(0L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://someotherhost.somedomain/stuff").build(), context)).isNull();
+        Assertions.assertThatThrownBy(() -> requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context)).isInstanceOf(MisdirectedRequestException.class);
     }
 
     @Test
@@ -76,16 +76,16 @@ class TestRequestRouter {
                 .build();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        Assertions.assertEquals(0L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost/blah").build(), context));
-        Assertions.assertEquals(10L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context));
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:80/blah").build(), context));
-        Assertions.assertEquals(2L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context));
-        Assertions.assertThrows(MisdirectedRequestException.class, () -> requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context));
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost/blah").build(), context)).isEqualTo(0L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context)).isEqualTo(10L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:80/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context)).isEqualTo(2L);
+        Assertions.assertThatThrownBy(() -> requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context)).isInstanceOf(MisdirectedRequestException.class);
     }
 
     @Test
@@ -97,18 +97,18 @@ class TestRequestRouter {
                 .build();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost/blah").build(), context));
-        Assertions.assertEquals(2L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context));
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:80/blah").build(), context));
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context));
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("/blah").build(), context));
-        Assertions.assertThrows(MisdirectedRequestException.class, () -> requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context));
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context)).isEqualTo(2L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:80/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThatThrownBy(() -> requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context)).isInstanceOf(MisdirectedRequestException.class);
     }
 
     @Test
@@ -121,18 +121,18 @@ class TestRequestRouter {
                 .build();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        Assertions.assertEquals(-1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost/blah").build(), context));
-        Assertions.assertEquals(10L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context));
-        Assertions.assertEquals(1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:80/blah").build(), context));
-        Assertions.assertEquals(-1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context));
-        Assertions.assertEquals(-1L, requestRouter.resolve(
-                BasicRequestBuilder.get("/blah").build(), context));
-        Assertions.assertEquals(-1L, requestRouter.resolve(
-                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context));
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost/blah").build(), context)).isEqualTo(-1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://someotherhost:80/blah").build(), context)).isEqualTo(10L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:80/blah").build(), context)).isEqualTo(1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehost:8080/blah").build(), context)).isEqualTo(-1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("/blah").build(), context)).isEqualTo(-1L);
+        Assertions.assertThat(requestRouter.resolve(
+                BasicRequestBuilder.get("http://somehere.in.pampa/stuff").build(), context)).isEqualTo(-1L);
     }
 
 }

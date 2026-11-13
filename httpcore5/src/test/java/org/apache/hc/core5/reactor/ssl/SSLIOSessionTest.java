@@ -47,7 +47,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -133,8 +133,8 @@ class SSLIOSessionTest {
                 resultCallback);
 
         // Assert
-        Assertions.assertDoesNotThrow(() -> sslioSession.beginHandshake(ioSession));
-        Assertions.assertEquals(protocol, sslioSession.getTlsDetails().getApplicationProtocol());
+        Assertions.assertThatCode(() -> sslioSession.beginHandshake(ioSession)).doesNotThrowAnyException();
+        Assertions.assertThat(sslioSession.getTlsDetails().getApplicationProtocol()).isEqualTo(protocol);
     }
 
     @Test
@@ -149,8 +149,8 @@ class SSLIOSessionTest {
                 resultCallback);
 
         // Assert
-        Assertions.assertDoesNotThrow(() -> sslioSession.beginHandshake(ioSession));
-        Assertions.assertEquals(protocol, sslioSession.getTlsDetails().getApplicationProtocol());
+        Assertions.assertThatCode(() -> sslioSession.beginHandshake(ioSession)).doesNotThrowAnyException();
+        Assertions.assertThat(sslioSession.getTlsDetails().getApplicationProtocol()).isEqualTo(protocol);
     }
 
 

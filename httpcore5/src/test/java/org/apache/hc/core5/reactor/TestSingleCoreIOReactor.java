@@ -39,7 +39,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -57,12 +57,12 @@ class TestSingleCoreIOReactor {
     void enqueueChannelAndPendingCounts() throws Exception {
         try (SingleCoreIOReactor reactor = newReactor();
              SocketChannel channel = SocketChannel.open()) {
-            Assertions.assertEquals(0, reactor.pendingChannelCount());
+            Assertions.assertThat(reactor.pendingChannelCount()).isEqualTo(0);
 
             reactor.enqueueChannel(new ChannelEntry(channel, "att"));
 
-            Assertions.assertEquals(1, reactor.pendingChannelCount());
-            Assertions.assertEquals(0, reactor.totalChannelCount());
+            Assertions.assertThat(reactor.pendingChannelCount()).isEqualTo(1);
+            Assertions.assertThat(reactor.totalChannelCount()).isEqualTo(0);
         }
     }
 
@@ -83,7 +83,7 @@ class TestSingleCoreIOReactor {
 
             reactor.connect(endpoint, new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null);
 
-            Assertions.assertEquals(1, reactor.pendingChannelCount());
+            Assertions.assertThat(reactor.pendingChannelCount()).isEqualTo(1);
         }
     }
 
@@ -93,8 +93,8 @@ class TestSingleCoreIOReactor {
              SocketChannel channel = SocketChannel.open()) {
             reactor.initiateShutdown();
 
-            Assertions.assertThrows(IOReactorShutdownException.class, () ->
-                    reactor.enqueueChannel(new ChannelEntry(channel, null)));
+            Assertions.assertThatThrownBy(() ->
+                    reactor.enqueueChannel(new ChannelEntry(channel, null))).isInstanceOf(IOReactorShutdownException.class);
         }
     }
 
@@ -118,14 +118,14 @@ class TestSingleCoreIOReactor {
                 final Thread worker = new Thread(reactor::execute);
                 worker.start();
                 reactor.enqueueChannel(new ChannelEntry(channel, null));
-                Assertions.assertTrue(connected.await(5, TimeUnit.SECONDS));
+                Assertions.assertThat(connected.await(5, TimeUnit.SECONDS)).isTrue();
 
                 reactor.close(CloseMode.IMMEDIATE);
                 reactorClosed.countDown();
                 worker.join(TimeUnit.SECONDS.toMillis(5));
 
-                Assertions.assertFalse(worker.isAlive());
-                Assertions.assertTrue(exceptions.isEmpty(), exceptions::toString);
+                Assertions.assertThat(worker.isAlive()).isFalse();
+                Assertions.assertThat(exceptions.isEmpty()).withFailMessage(exceptions::toString).isTrue();
                 Mockito.verify(handler).disconnected(Mockito.any());
             }
         }

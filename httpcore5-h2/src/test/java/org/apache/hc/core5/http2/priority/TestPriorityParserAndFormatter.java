@@ -26,12 +26,8 @@
  */
 package org.apache.hc.core5.http2.priority;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.apache.hc.core5.http.Header;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class TestPriorityParserAndFormatter {
@@ -42,22 +38,22 @@ public final class TestPriorityParserAndFormatter {
     void rfc_example_css_urgency0() {
         // From RFC 9218 §4.1: priority = u=0
         final PriorityValue v = PriorityParser.parse("u=0");
-        assertEquals(0, v.getUrgency());
-        assertFalse(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(0);
+        Assertions.assertThat(v.isIncremental()).isFalse();
 
         // Formatter emits only non-defaults
-        assertEquals("u=0", PriorityFormatter.format(v));
+        Assertions.assertThat(PriorityFormatter.format(v)).isEqualTo("u=0");
     }
 
     @Test
     void rfc_example_jpeg_u5_incremental() {
         // From RFC 9218 §4.2: priority = u=5, i
         final PriorityValue v = PriorityParser.parse("u=5, i");
-        assertEquals(5, v.getUrgency());
-        assertTrue(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(5);
+        Assertions.assertThat(v.isIncremental()).isTrue();
 
         // Formatter keeps canonical "u=5, i"
-        assertEquals("u=5, i", PriorityFormatter.format(v));
+        Assertions.assertThat(PriorityFormatter.format(v)).isEqualTo("u=5, i");
     }
 
     // ---- Defaults & omission -------------------------------------------------
@@ -65,23 +61,23 @@ public final class TestPriorityParserAndFormatter {
     @Test
     void defaults_when_empty_or_null() {
         final PriorityValue v1 = PriorityParser.parse("");
-        assertEquals(3, v1.getUrgency());
-        assertFalse(v1.isIncremental());
+        Assertions.assertThat(v1.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(v1.isIncremental()).isFalse();
 
         final PriorityValue v2 = PriorityParser.parse((Header) null);
-        assertEquals(3, v2.getUrgency());
-        assertFalse(v2.isIncremental());
+        Assertions.assertThat(v2.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(v2.isIncremental()).isFalse();
     }
 
     // ---- Boolean variants per RFC 8941 --------------------------------------
 
     @Test
     void boolean_variants_for_incremental() {
-        assertTrue(PriorityParser.parse("i").isIncremental());        // bare true
-        assertTrue(PriorityParser.parse("i=?1").isIncremental());     // structured boolean true
-        assertFalse(PriorityParser.parse("i=?0").isIncremental());    // structured boolean false
-        assertTrue(PriorityParser.parse("i=1").isIncremental());      // tolerant numeric '1'
-        assertFalse(PriorityParser.parse("i=0").isIncremental());     // tolerant numeric '0'
+        Assertions.assertThat(PriorityParser.parse("i").isIncremental()).isTrue();        // bare true
+        Assertions.assertThat(PriorityParser.parse("i=?1").isIncremental()).isTrue();     // structured boolean true
+        Assertions.assertThat(PriorityParser.parse("i=?0").isIncremental()).isFalse();    // structured boolean false
+        Assertions.assertThat(PriorityParser.parse("i=1").isIncremental()).isTrue();      // tolerant numeric '1'
+        Assertions.assertThat(PriorityParser.parse("i=0").isIncremental()).isFalse();     // tolerant numeric '0'
     }
 
     // ---- Unknown & invalid handling -----------------------------------------
@@ -89,24 +85,24 @@ public final class TestPriorityParserAndFormatter {
     @Test
     void unknown_members_are_ignored() {
         final PriorityValue v = PriorityParser.parse("foo=bar, u=2, i, baz=?1");
-        assertEquals(2, v.getUrgency());
-        assertTrue(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(2);
+        Assertions.assertThat(v.isIncremental()).isTrue();
     }
 
     @Test
     void urgency_out_of_range_is_ignored() {
         final PriorityValue v1 = PriorityParser.parse("u=9");   // >7
-        assertEquals(3, v1.getUrgency());
+        Assertions.assertThat(v1.getUrgency()).isEqualTo(3);
 
         final PriorityValue v2 = PriorityParser.parse("u=-1");  // <0
-        assertEquals(3, v2.getUrgency());
+        Assertions.assertThat(v2.getUrgency()).isEqualTo(3);
     }
 
     @Test
     void malformed_members_are_ignored() {
         final PriorityValue v = PriorityParser.parse("u=abc, i=banana, i=?x");
-        assertEquals(3, v.getUrgency());        // default
-        assertFalse(v.isIncremental());         // default
+        Assertions.assertThat(v.getUrgency()).isEqualTo(3);        // default
+        Assertions.assertThat(v.isIncremental()).isFalse();         // default
     }
 
     // ---- Whitespace, params, case-insensitivity -----------------------------
@@ -115,20 +111,20 @@ public final class TestPriorityParserAndFormatter {
     void handles_ows_and_parameters_and_case() {
         // Ignore structured-field parameters after members, and key is case-insensitive
         final PriorityValue v = PriorityParser.parse("  U = 1 ;p=v  ,  I  ;x  ");
-        assertEquals(1, v.getUrgency());
-        assertTrue(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(1);
+        Assertions.assertThat(v.isIncremental()).isTrue();
 
         // Formatter canonicalizes output (no params, normalized layout)
-        assertEquals("u=1, i", PriorityFormatter.format(v));
+        Assertions.assertThat(PriorityFormatter.format(v)).isEqualTo("u=1, i");
     }
 
     // ---- Minimal formatting rules -------------------------------------------
 
     @Test
     void formatter_emits_only_non_defaults_in_canonical_order() {
-        assertEquals("u=1", PriorityFormatter.format(PriorityValue.of(1, false)));
-        assertEquals("i", PriorityFormatter.format(PriorityValue.of(3, true)));
-        assertEquals("u=2, i", PriorityFormatter.format(PriorityValue.of(2, true)));
+        Assertions.assertThat(PriorityFormatter.format(PriorityValue.of(1, false))).isEqualTo("u=1");
+        Assertions.assertThat(PriorityFormatter.format(PriorityValue.of(3, true))).isEqualTo("i");
+        Assertions.assertThat(PriorityFormatter.format(PriorityValue.of(2, true))).isEqualTo("u=2, i");
     }
 
     // ---- Round-trips ---------------------------------------------------------
@@ -147,15 +143,15 @@ public final class TestPriorityParserAndFormatter {
         final String out = PriorityFormatter.format(v);
         // If v equals defaults, formatter returns null; otherwise we expect the canonical equivalent
         if (v.getUrgency() == 3 && !v.isIncremental()) {
-            assertNull(out);
+            Assertions.assertThat(out).isNull();
         } else {
             // Canonical ordering is u first (if non-default), then i if true
             if (v.getUrgency() != 3 && v.isIncremental()) {
-                assertEquals("u=" + v.getUrgency() + ", i", out);
+                Assertions.assertThat(out).isEqualTo("u=" + v.getUrgency() + ", i");
             } else if (v.getUrgency() != 3) {
-                assertEquals("u=" + v.getUrgency(), out);
+                Assertions.assertThat(out).isEqualTo("u=" + v.getUrgency());
             } else {
-                assertEquals("i", out);
+                Assertions.assertThat(out).isEqualTo("i");
             }
         }
     }

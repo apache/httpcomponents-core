@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHttpProcessorBuilder {
@@ -55,7 +55,7 @@ class TestHttpProcessorBuilder {
 
         processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create());
 
-        Assertions.assertEquals(Arrays.asList("r1", "r2", "r3"), events);
+        Assertions.assertThat(events).isEqualTo(Arrays.asList("r1", "r2", "r3"));
     }
 
     @Test
@@ -72,7 +72,7 @@ class TestHttpProcessorBuilder {
 
         processor.process(new BasicHttpResponse(200), null, HttpCoreContext.create());
 
-        Assertions.assertEquals(Arrays.asList("s2", "s1"), events);
+        Assertions.assertThat(events).isEqualTo(Arrays.asList("s2", "s1"));
     }
 
     @Test

@@ -42,7 +42,7 @@ import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -79,7 +79,7 @@ class TestClientHttpProtocolNegotiationStarter {
 
         final Object handler = starter.createHandler(ioSession, endpoint);
 
-        Assertions.assertTrue(handler instanceof ClientH2PrefaceHandler);
+        Assertions.assertThat(handler instanceof ClientH2PrefaceHandler).isTrue();
         Mockito.verify(ioSession).registerProtocol(Mockito.eq(ApplicationProtocol.HTTP_1_1.id), Mockito.any());
         Mockito.verify(ioSession).registerProtocol(Mockito.eq(ApplicationProtocol.HTTP_2.id), Mockito.any());
         Mockito.verify(tlsStrategy).upgrade(ioSession, endpoint, HttpVersionPolicy.FORCE_HTTP_2, Timeout.ofSeconds(1), null);
@@ -98,7 +98,7 @@ class TestClientHttpProtocolNegotiationStarter {
         final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
         final Object handler = starter.createHandler(ioSession, null);
 
-        Assertions.assertTrue(handler instanceof ClientHttp1IOEventHandler);
+        Assertions.assertThat(handler instanceof ClientHttp1IOEventHandler).isTrue();
     }
 
     @Test
@@ -114,7 +114,7 @@ class TestClientHttpProtocolNegotiationStarter {
         final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
         final Object handler = starter.createHandler(ioSession, null);
 
-        Assertions.assertTrue(handler instanceof HttpProtocolNegotiator);
+        Assertions.assertThat(handler instanceof HttpProtocolNegotiator).isTrue();
     }
 
     @Test
@@ -131,7 +131,9 @@ class TestClientHttpProtocolNegotiationStarter {
         Mockito.when(ioSession.getTlsDetails()).thenReturn(new TlsDetails(null, null));
         final ClientH2PrefaceHandler handler = (ClientH2PrefaceHandler) starter.createHandler(ioSession, null);
 
-        Assertions.assertThrows(ProtocolNegotiationException.class, () -> handler.connected(ioSession));
+        Assertions.assertThatThrownBy(() ->
+                        handler.connected(ioSession))
+                .isInstanceOf(ProtocolNegotiationException.class);
     }
 
     @Test
@@ -148,7 +150,9 @@ class TestClientHttpProtocolNegotiationStarter {
         Mockito.when(ioSession.getTlsDetails()).thenReturn(new TlsDetails(null, ApplicationProtocol.HTTP_1_1.id));
         final ClientH2PrefaceHandler handler = (ClientH2PrefaceHandler) starter.createHandler(ioSession, null);
 
-        Assertions.assertThrows(ProtocolNegotiationException.class, () -> handler.connected(ioSession));
+        Assertions.assertThatThrownBy(() ->
+                        handler.connected(ioSession))
+                .isInstanceOf(ProtocolNegotiationException.class);
     }
 
 }

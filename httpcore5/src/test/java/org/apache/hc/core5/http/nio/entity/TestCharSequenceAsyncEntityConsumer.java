@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestCharSequenceAsyncEntityConsumer {
@@ -50,11 +50,11 @@ class TestCharSequenceAsyncEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
 
-        Assertions.assertNull(consumer.getContent());
+        Assertions.assertThat(consumer.getContent()).isNull();
         consumer.streamEnd(null);
 
-        Assertions.assertEquals("12345", consumer.getContent());
-        Assertions.assertEquals(1L, countingCallback.getCount());
+        Assertions.assertThat(consumer.getContent()).isEqualTo("12345");
+        Assertions.assertThat(countingCallback.getCount()).isEqualTo(1L);
     }
 
     @Test
@@ -86,8 +86,8 @@ class TestCharSequenceAsyncEntityConsumer {
 
         consumer.streamEnd(null);
 
-        Assertions.assertEquals("stuff£stuff£stuff", consumer.getContent());
-        Assertions.assertEquals(1L, countingCallback.getCount());
+        Assertions.assertThat(consumer.getContent()).isEqualTo("stuff£stuff£stuff");
+        Assertions.assertThat(countingCallback.getCount()).isEqualTo(1L);
     }
 
 }

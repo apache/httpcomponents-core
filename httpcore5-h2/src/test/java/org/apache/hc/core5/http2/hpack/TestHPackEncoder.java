@@ -26,14 +26,11 @@
  */
 package org.apache.hc.core5.http2.hpack;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHPackEncoder {
@@ -48,8 +45,8 @@ class TestHPackEncoder {
         encoder.setMaxTableSize(2048);
 
         // No local resize until the next header block is encoded.
-        assertEquals(4096, dynamicTable.getMaxSize());
-        assertEquals(2048, encoder.getMaxTableSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(4096);
+        Assertions.assertThat(encoder.getMaxTableSize()).isEqualTo(2048);
 
         encoder.encodeHeader(dst, "x-test", "abc", false, false, false);
 
@@ -57,13 +54,13 @@ class TestHPackEncoder {
         //   1024 => 0x3f 0xe1 0x07
         //   2048 => 0x3f 0xe1 0x0f
         final byte[] actual = Arrays.copyOf(dst.array(), dst.length());
-        assertArrayEquals(new byte[]{
+        Assertions.assertThat(Arrays.copyOf(actual, 6)).containsExactly(new byte[]{
                 0x3f, (byte) 0xe1, 0x07,
                 0x3f, (byte) 0xe1, 0x0f
-        }, Arrays.copyOf(actual, 6));
+        });
 
         // Local encoder state must also end at the final advertised size.
-        assertEquals(2048, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(2048);
     }
 
     @Test
@@ -78,12 +75,12 @@ class TestHPackEncoder {
         encoder.encodeHeader(dst, "x-test", "abc", false, false, false);
 
         final byte[] actual = Arrays.copyOf(dst.array(), dst.length());
-        assertArrayEquals(new byte[]{
+        Assertions.assertThat(Arrays.copyOf(actual, 6)).containsExactly(new byte[]{
                 0x3f, (byte) 0xe1, 0x07,
                 0x3f, (byte) 0xe1, 0x1f
-        }, Arrays.copyOf(actual, 6));
+        });
 
-        assertEquals(4096, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(4096);
     }
 
     @Test
@@ -98,12 +95,12 @@ class TestHPackEncoder {
         encoder.encodeHeader(dst, "x-test", "abc", false, false, false);
 
         final byte[] actual = Arrays.copyOf(dst.array(), dst.length());
-        assertArrayEquals(new byte[]{
+        Assertions.assertThat(Arrays.copyOf(actual, 4)).containsExactly(new byte[]{
                 0x20,
                 0x3f, (byte) 0xe1, 0x1f
-        }, Arrays.copyOf(actual, 4));
+        });
 
-        assertEquals(4096, dynamicTable.getMaxSize());
+        Assertions.assertThat(dynamicTable.getMaxSize()).isEqualTo(4096);
     }
 
     @Test
@@ -120,12 +117,12 @@ class TestHPackEncoder {
         encoder.encodeHeader(dst2, "x-b", "2", false, false, false);
 
         final byte[] first = Arrays.copyOf(dst1.array(), dst1.length());
-        assertArrayEquals(new byte[]{
+        Assertions.assertThat(Arrays.copyOf(first, 3)).containsExactly(new byte[]{
                 0x3f, (byte) 0xe1, 0x07
-        }, Arrays.copyOf(first, 3));
+        });
 
         final byte[] second = Arrays.copyOf(dst2.array(), dst2.length());
-        assertNotEquals(0x20, second[0] & 0xe0);
+        Assertions.assertThat(second[0] & 0xe0).isNotEqualTo(0x20);
     }
 
 }

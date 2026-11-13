@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -40,35 +40,37 @@ class TestNameValuePair {
     @Test
     void testConstructor() {
         final NameValuePair param = new BasicNameValuePair("name", "value");
-        Assertions.assertEquals("name", param.getName());
-        Assertions.assertEquals("value", param.getValue());
+        Assertions.assertThat(param.getName()).isEqualTo("name");
+        Assertions.assertThat(param.getValue()).isEqualTo("value");
     }
 
     @Test
     void testInvalidName() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicNameValuePair(null, null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicNameValuePair(null, null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testToString() {
         final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        Assertions.assertEquals("name1=value1", param1.toString());
+        Assertions.assertThat(param1.toString()).isEqualTo("name1=value1");
         final NameValuePair param2 = new BasicNameValuePair("name1", null);
-        Assertions.assertEquals("name1", param2.toString());
+        Assertions.assertThat(param2.toString()).isEqualTo("name1");
     }
 
     @Test
     void testNullNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
-        Assertions.assertNotEquals(null, NameValuePair);
+        Assertions.assertThat(NameValuePair).isNotEqualTo(null);
     }
 
     @Test
     void testObjectNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
-        Assertions.assertNotEquals(new Object(), NameValuePair);
+        Assertions.assertThat(NameValuePair).isNotEqualTo(new Object());
     }
 
     @Test
@@ -76,14 +78,14 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("NAME", "value");
 
-        Assertions.assertEquals(NameValuePair, NameValuePair2);
-        Assertions.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair2).isEqualTo(NameValuePair);
+        Assertions.assertThat(NameValuePair2.hashCode()).isEqualTo(NameValuePair.hashCode());
 
         final NameValuePair NameValuePair3 = new BasicNameValuePair("NAME", "value");
         final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "value");
 
-        Assertions.assertEquals(NameValuePair3, NameValuePair4);
-        Assertions.assertEquals(NameValuePair3.hashCode(), NameValuePair4.hashCode());
+        Assertions.assertThat(NameValuePair4).isEqualTo(NameValuePair3);
+        Assertions.assertThat(NameValuePair4.hashCode()).isEqualTo(NameValuePair3.hashCode());
     }
 
     @Test
@@ -91,8 +93,8 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
-        Assertions.assertEquals(NameValuePair, NameValuePair2);
-        Assertions.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair2).isEqualTo(NameValuePair);
+        Assertions.assertThat(NameValuePair2.hashCode()).isEqualTo(NameValuePair.hashCode());
     }
 
     @Test
@@ -100,7 +102,7 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", "value");
 
-        Assertions.assertNotEquals(NameValuePair, NameValuePair2);
+        Assertions.assertThat(NameValuePair2).isNotEqualTo(NameValuePair);
     }
 
     @Test
@@ -108,17 +110,17 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value2");
 
-        Assertions.assertNotEquals(NameValuePair, NameValuePair2);
+        Assertions.assertThat(NameValuePair2).isNotEqualTo(NameValuePair);
 
         final NameValuePair NameValuePair3 = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "VALUE");
 
-        Assertions.assertNotEquals(NameValuePair3, NameValuePair4);
+        Assertions.assertThat(NameValuePair4).isNotEqualTo(NameValuePair3);
 
         final NameValuePair NameValuePair5 = new BasicNameValuePair("name", "VALUE");
         final NameValuePair NameValuePair6 = new BasicNameValuePair("name", "value");
 
-        Assertions.assertNotEquals(NameValuePair5, NameValuePair6);
+        Assertions.assertThat(NameValuePair6).isNotEqualTo(NameValuePair5);
     }
 
     @Test
@@ -126,8 +128,8 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
 
-        Assertions.assertEquals(NameValuePair, NameValuePair2);
-        Assertions.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair2).isEqualTo(NameValuePair);
+        Assertions.assertThat(NameValuePair2.hashCode()).isEqualTo(NameValuePair.hashCode());
     }
 
     @Test
@@ -135,7 +137,7 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
-        Assertions.assertNotEquals(NameValuePair, NameValuePair2);
+        Assertions.assertThat(NameValuePair2).isNotEqualTo(NameValuePair);
     }
 
     @Test
@@ -143,7 +145,7 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
 
-        Assertions.assertNotEquals(NameValuePair, NameValuePair2);
+        Assertions.assertThat(NameValuePair2).isNotEqualTo(NameValuePair);
     }
 
     @Test
@@ -151,12 +153,12 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
-        Assertions.assertEquals(NameValuePair, NameValuePair);
-        Assertions.assertEquals(NameValuePair.hashCode(), NameValuePair.hashCode());
-        Assertions.assertEquals(NameValuePair2, NameValuePair2);
-        Assertions.assertEquals(NameValuePair2.hashCode(), NameValuePair2.hashCode());
-        Assertions.assertEquals(NameValuePair, NameValuePair2);
-        Assertions.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair).isEqualTo(NameValuePair);
+        Assertions.assertThat(NameValuePair.hashCode()).isEqualTo(NameValuePair.hashCode());
+        Assertions.assertThat(NameValuePair2).isEqualTo(NameValuePair2);
+        Assertions.assertThat(NameValuePair2.hashCode()).isEqualTo(NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair2).isEqualTo(NameValuePair);
+        Assertions.assertThat(NameValuePair2.hashCode()).isEqualTo(NameValuePair.hashCode());
     }
 
     @Test
@@ -164,17 +166,17 @@ class TestNameValuePair {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", null);
 
-        Assertions.assertNotEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+        Assertions.assertThat(NameValuePair2.hashCode()).isNotEqualTo(NameValuePair.hashCode());
 
         final NameValuePair NameValuePair3 = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "value2");
 
-        Assertions.assertNotEquals(NameValuePair3.hashCode(), NameValuePair4.hashCode());
+        Assertions.assertThat(NameValuePair4.hashCode()).isNotEqualTo(NameValuePair3.hashCode());
 
         final NameValuePair NameValuePair5 = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair6 = new BasicNameValuePair("name", null);
 
-        Assertions.assertNotEquals(NameValuePair5.hashCode(), NameValuePair6.hashCode());
+        Assertions.assertThat(NameValuePair6.hashCode()).isNotEqualTo(NameValuePair5.hashCode());
     }
 
 }

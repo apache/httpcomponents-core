@@ -26,24 +26,26 @@
  */
 package org.apache.hc.core5.http2.nio.command;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestPushResponseCommand {
 
     @Test
     void testRejectsNonPositiveStreamId() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new PushResponseCommand(0));
+        Assertions.assertThatThrownBy(() ->
+                        new PushResponseCommand(0))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testCancelTogglesState() {
         final PushResponseCommand command = new PushResponseCommand(1);
 
-        Assertions.assertFalse(command.isCancelled());
-        Assertions.assertTrue(command.cancel());
-        Assertions.assertTrue(command.isCancelled());
-        Assertions.assertFalse(command.cancel());
+        Assertions.assertThat(command.isCancelled()).isFalse();
+        Assertions.assertThat(command.cancel()).isTrue();
+        Assertions.assertThat(command.isCancelled()).isTrue();
+        Assertions.assertThat(command.cancel()).isFalse();
     }
 
 }

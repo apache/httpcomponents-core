@@ -26,14 +26,13 @@
  */
 package org.apache.hc.core5.http2.hpack;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHPackEncoderUtf8 {
@@ -54,10 +53,10 @@ class TestHPackEncoderUtf8 {
         final ByteBuffer src = ByteBuffer.wrap(encoded.array(), 0, encoded.length());
         final List<Header> headers = decoder.decodeHeaders(src);
 
-        assertEquals(1, headers.size());
-        assertEquals("x-test", headers.get(0).getName());
-        assertEquals(value, headers.get(0).getValue());
-        assertEquals(0, src.remaining());
+        Assertions.assertThat(headers.size()).isEqualTo(1);
+        Assertions.assertThat(headers.get(0).getName()).isEqualTo("x-test");
+        Assertions.assertThat(headers.get(0).getValue()).isEqualTo(value);
+        Assertions.assertThat(src.remaining()).isEqualTo(0);
     }
 
 }

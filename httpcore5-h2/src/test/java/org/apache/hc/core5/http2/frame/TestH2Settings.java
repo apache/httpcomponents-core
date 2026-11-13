@@ -28,7 +28,7 @@ package org.apache.hc.core5.http2.frame;
 
 import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2Settings {
@@ -36,13 +36,13 @@ class TestH2Settings {
     @Test
     void testH2ParamBasics() {
         for (final H2Param param: H2Param.values()) {
-            Assertions.assertEquals(param, H2Param.valueOf(param.getCode()));
-            Assertions.assertEquals(param.name(), H2Param.toString(param.getCode()));
+            Assertions.assertThat(H2Param.valueOf(param.getCode())).isEqualTo(param);
+            Assertions.assertThat(H2Param.toString(param.getCode())).isEqualTo(param.name());
         }
-        Assertions.assertNull(H2Param.valueOf(0));
-        Assertions.assertNull(H2Param.valueOf(10));
-        Assertions.assertEquals("0", H2Param.toString(0));
-        Assertions.assertEquals("10", H2Param.toString(10));
+        Assertions.assertThat(H2Param.valueOf(0)).isNull();
+        Assertions.assertThat(H2Param.valueOf(10)).isNull();
+        Assertions.assertThat(H2Param.toString(0)).isEqualTo("0");
+        Assertions.assertThat(H2Param.toString(10)).isEqualTo("10");
     }
 
     @Test
@@ -51,8 +51,8 @@ class TestH2Settings {
         final H2Setting setting1 = new H2Setting(H2Param.ENABLE_PUSH, 0);
         final H2Setting setting2 = new H2Setting(H2Param.INITIAL_WINDOW_SIZE, 1024);
 
-        Assertions.assertEquals("ENABLE_PUSH: 0", setting1.toString());
-        Assertions.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
+        Assertions.assertThat(setting1.toString()).isEqualTo("ENABLE_PUSH: 0");
+        Assertions.assertThat(setting2.toString()).isEqualTo("INITIAL_WINDOW_SIZE: 1024");
     }
 
 }

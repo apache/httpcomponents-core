@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.util.TextUtils;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDigestingEntityProducer {
@@ -52,15 +52,15 @@ class TestDigestingEntityProducer {
             producer.produce(dataStreamChannel);
         }
 
-        Assertions.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("12345");
         final List<Header> trailers = dataStreamChannel.getTrailers();
-        Assertions.assertNotNull(trailers);
-        Assertions.assertEquals(2, trailers.size());
+        Assertions.assertThat(trailers).isNotNull();
+        Assertions.assertThat(trailers.size()).isEqualTo(2);
 
-        Assertions.assertEquals("digest-algo", trailers.get(0).getName());
-        Assertions.assertEquals("MD5", trailers.get(0).getValue());
-        Assertions.assertEquals("digest", trailers.get(1).getName());
-        Assertions.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
+        Assertions.assertThat(trailers.get(0).getName()).isEqualTo("digest-algo");
+        Assertions.assertThat(trailers.get(0).getValue()).isEqualTo("MD5");
+        Assertions.assertThat(trailers.get(1).getName()).isEqualTo("digest");
+        Assertions.assertThat(trailers.get(1).getValue()).isEqualTo("827ccb0eea8a706c4c34a16891f84e7b");
     }
 
     @Test
@@ -70,7 +70,7 @@ class TestDigestingEntityProducer {
 
         final WritableByteChannelMock partialByteChannel = new WritableByteChannelMock(1024, 3);
         producer.produce(new BasicDataStreamChannel(partialByteChannel));
-        Assertions.assertEquals("abc", partialByteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(partialByteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("abc");
         producer.releaseResources();
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
@@ -79,13 +79,13 @@ class TestDigestingEntityProducer {
             producer.produce(dataStreamChannel);
         }
 
-        Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
-        Assertions.assertEquals("e80b5017098950fc58aad83c8c14978e", TextUtils.toHexString(producer.getDigest()));
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("abcdef");
+        Assertions.assertThat(TextUtils.toHexString(producer.getDigest())).isEqualTo("e80b5017098950fc58aad83c8c14978e");
 
         final List<Header> trailers = dataStreamChannel.getTrailers();
-        Assertions.assertNotNull(trailers);
-        Assertions.assertEquals("digest", trailers.get(1).getName());
-        Assertions.assertEquals("e80b5017098950fc58aad83c8c14978e", trailers.get(1).getValue());
+        Assertions.assertThat(trailers).isNotNull();
+        Assertions.assertThat(trailers.get(1).getName()).isEqualTo("digest");
+        Assertions.assertThat(trailers.get(1).getValue()).isEqualTo("e80b5017098950fc58aad83c8c14978e");
     }
 
 }

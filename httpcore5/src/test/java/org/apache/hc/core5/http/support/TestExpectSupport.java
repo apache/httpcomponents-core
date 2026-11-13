@@ -31,80 +31,75 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestExpectSupport {
 
     @Test
     void testExpectParsingBasics() throws Exception {
-        Assertions.assertEquals(Expectation.CONTINUE,
-                ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .addHeader("Expect", "100-continue")
                                 .build(),
-                        new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isEqualTo(Expectation.CONTINUE);
     }
 
     @Test
     void testExpectParsingTolerateEmptyTokens() throws Exception {
-        Assertions.assertEquals(Expectation.CONTINUE,
-                ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .addHeader("Expect", ",,,")
                                 .addHeader("Expect", ",100-continue")
                                 .addHeader("Expect", ",,,")
                                 .build(),
-                        new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isEqualTo(Expectation.CONTINUE);
     }
 
     @Test
     void testExpectParsingMissingEntity() {
-        Assertions.assertThrows(ProtocolException.class,
-                () -> ExpectSupport.parse(
+        Assertions.assertThatThrownBy(() -> ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .addHeader("Expect", "100-continue")
                                 .build(),
-                        null));
+                null)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testExpectParsingUnknownExpectation() throws Exception {
-        Assertions.assertEquals(Expectation.UNKNOWN,
-                ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .addHeader("Expect", "whatever")
                                 .addHeader("Expect", "100-continue")
                                 .build(),
-                        new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isEqualTo(Expectation.UNKNOWN);
     }
 
     @Test
     void testExpectParsingUnknownExpectation2() throws Exception {
-        Assertions.assertEquals(Expectation.UNKNOWN,
-                ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .addHeader("Expect", "100-continue, whatever")
                                 .build(),
-                        new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isEqualTo(Expectation.UNKNOWN);
     }
 
     @Test
     void testExpectParsingNoExpectation() throws Exception {
-        Assertions.assertNull(ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .build(),
-                        new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isNull();
     }
 
     @Test
     void testExpectParsingIgnoreHTTP10() throws Exception {
-        Assertions.assertNull(ExpectSupport.parse(
+        Assertions.assertThat(ExpectSupport.parse(
                 BasicRequestBuilder.post()
                         .setVersion(HttpVersion.HTTP_1_0)
                         .addHeader("Expect", "100-continue")
                         .build(),
-                new BasicEntityDetails(100, ContentType.TEXT_PLAIN)));
+                new BasicEntityDetails(100, ContentType.TEXT_PLAIN))).isNull();
     }
 
 }

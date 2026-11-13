@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,19 +45,21 @@ class TestHttpEntityWrapper {
         final StringEntity entity = new StringEntity("Message content", ContentType.TEXT_PLAIN, "blah", false);
         try (final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity)) {
 
-            Assertions.assertEquals(entity.getContentLength(), wrapped.getContentLength());
-            Assertions.assertEquals(entity.getContentType(), wrapped.getContentType());
-            Assertions.assertEquals(entity.getContentEncoding(), wrapped.getContentEncoding());
-            Assertions.assertEquals(entity.isChunked(), wrapped.isChunked());
-            Assertions.assertEquals(entity.isRepeatable(), wrapped.isRepeatable());
-            Assertions.assertEquals(entity.isStreaming(), wrapped.isStreaming());
-            Assertions.assertNotNull(wrapped.getContent());
+            Assertions.assertThat(wrapped.getContentLength()).isEqualTo(entity.getContentLength());
+            Assertions.assertThat(wrapped.getContentType()).isEqualTo(entity.getContentType());
+            Assertions.assertThat(wrapped.getContentEncoding()).isEqualTo(entity.getContentEncoding());
+            Assertions.assertThat(wrapped.isChunked()).isEqualTo(entity.isChunked());
+            Assertions.assertThat(wrapped.isRepeatable()).isEqualTo(entity.isRepeatable());
+            Assertions.assertThat(wrapped.isStreaming()).isEqualTo(entity.isStreaming());
+            Assertions.assertThat(wrapped.getContent()).isNotNull();
         }
     }
 
     @Test
     void testIllegalConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () -> new HttpEntityWrapper(null));
+        Assertions.assertThatThrownBy(() ->
+                        new HttpEntityWrapper(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -70,22 +72,24 @@ class TestHttpEntityWrapper {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             wrapped.writeTo(out);
             byte[] bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
             out = new ByteArrayOutputStream();
             wrapped.writeTo(out);
             bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
-            Assertions.assertThrows(NullPointerException.class, () -> wrapped.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            wrapped.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -95,7 +99,7 @@ class TestHttpEntityWrapper {
         final StringEntity entity = new StringEntity(s);
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
         EntityUtils.consume(wrapped);
-        Assertions.assertDoesNotThrow(() -> EntityUtils.consume(wrapped));
+        Assertions.assertThatCode(() -> EntityUtils.consume(wrapped)).doesNotThrowAnyException();
     }
 
 }

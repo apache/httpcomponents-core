@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -42,48 +42,48 @@ class TestHttpExceptions {
     @Test
     void testConstructor() {
         final Throwable cause = new Exception();
-        Assertions.assertDoesNotThrow(() -> new HttpException());
-        Assertions.assertDoesNotThrow(() -> new HttpException("Oppsie"));
-        Assertions.assertDoesNotThrow(() -> new HttpException("Oppsie", cause));
-        Assertions.assertDoesNotThrow(() -> new ProtocolException());
-        Assertions.assertDoesNotThrow(() -> new ProtocolException("Oppsie"));
-        Assertions.assertDoesNotThrow(() -> new ProtocolException("Oppsie", cause));
-        Assertions.assertDoesNotThrow(() -> new NoHttpResponseException("Oppsie"));
-        Assertions.assertDoesNotThrow(() -> new ConnectionClosedException("Oppsie"));
-        Assertions.assertDoesNotThrow(() -> new MethodNotSupportedException("Oppsie"));
-        Assertions.assertDoesNotThrow(() -> new MethodNotSupportedException("Oppsie", cause));
-        Assertions.assertDoesNotThrow(() -> new UnsupportedHttpVersionException());
-        Assertions.assertDoesNotThrow(() -> new UnsupportedHttpVersionException("Oppsie"));
+        Assertions.assertThatCode(() -> new HttpException()).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new HttpException("Oppsie")).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new HttpException("Oppsie", cause)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new ProtocolException()).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new ProtocolException("Oppsie")).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new ProtocolException("Oppsie", cause)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new NoHttpResponseException("Oppsie")).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new ConnectionClosedException("Oppsie")).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new MethodNotSupportedException("Oppsie")).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new MethodNotSupportedException("Oppsie", cause)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new UnsupportedHttpVersionException()).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> new UnsupportedHttpVersionException("Oppsie")).doesNotThrowAnyException();
     }
 
     @Test
     void testNonPrintableCharactersInConnectionClosedException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new ConnectionClosedException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new ConnectionClosedException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
     @Test
     void testNonPrintableCharactersInHttpException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new HttpException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new HttpException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
     @Test
     void testNonPrintableCharactersInMethodNotSupportedException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new MethodNotSupportedException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new MethodNotSupportedException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
     @Test
     void testNonPrintableCharactersInNoHttpResponseException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new NoHttpResponseException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new NoHttpResponseException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
     @Test
     void testNonPrintableCharactersInProtocolException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new ProtocolException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new ProtocolException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
     @Test
     void testNonPrintableCharactersInUnsupportedHttpVersionException() {
-        Assertions.assertEquals(CLEAN_MESSAGE, new UnsupportedHttpVersionException(nonPrintableMessage).getMessage());
+        Assertions.assertThat(new UnsupportedHttpVersionException(nonPrintableMessage).getMessage()).isEqualTo(CLEAN_MESSAGE);
     }
 
 
@@ -91,13 +91,13 @@ class TestHttpExceptions {
     void testControlCharacterEscaping() {
         final HttpException exception = new HttpException("0123456789abcdef\nsuffix");
 
-        Assertions.assertEquals("0123456789abcdef[0x0a]suffix", exception.getMessage());
+        Assertions.assertThat(exception.getMessage()).isEqualTo("0123456789abcdef[0x0a]suffix");
     }
 
     @Test
     void testControlCharacterEncodingIndependentOfPosition() {
-        Assertions.assertEquals("a[0x0a]b", new HttpException("a\nb").getMessage());
-        Assertions.assertEquals("0123456789abcdef[0x0a]b", new HttpException("0123456789abcdef\nb").getMessage());
+        Assertions.assertThat(new HttpException("a\nb").getMessage()).isEqualTo("a[0x0a]b");
+        Assertions.assertThat(new HttpException("0123456789abcdef\nb").getMessage()).isEqualTo("0123456789abcdef[0x0a]b");
     }
 
 }

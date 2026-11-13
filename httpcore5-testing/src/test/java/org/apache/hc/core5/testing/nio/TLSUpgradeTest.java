@@ -62,7 +62,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -111,25 +111,25 @@ class TLSUpgradeTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body1 = message1.body();
-        Assertions.assertEquals("some stuff", body1);
+        Assertions.assertThat(body1).isEqualTo("some stuff");
 
         // Connect using plain HTTP scheme
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(
                 new HttpHost(URIScheme.HTTP.id, "localhost", address.getPort()), TIMEOUT);
 
         final AsyncClientEndpoint clientEndpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertInstanceOf(TlsUpgradeCapable.class, clientEndpoint);
+        Assertions.assertThat(clientEndpoint).isInstanceOf(TlsUpgradeCapable.class);
 
         // Upgrade to TLS
         final BasicFuture<TlsDetails> tlsFuture = new BasicFuture<>(null);
         ((TlsUpgradeCapable) clientEndpoint).tlsUpgrade(target, new CompletingFutureContribution<>(tlsFuture, ProtocolIOSession::getTlsDetails));
 
         final TlsDetails tlsDetails = tlsFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(tlsDetails);
+        Assertions.assertThat(tlsDetails).isNotNull();
 
         // Execute request over HTTPS
         final Future<Message<HttpResponse, String>> resultFuture2 = clientEndpoint.execute(
@@ -137,11 +137,11 @@ class TLSUpgradeTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message2);
+        Assertions.assertThat(message2).isNotNull();
         final HttpResponse response2 = message2.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body2 = message2.body();
-        Assertions.assertEquals("some stuff", body2);
+        Assertions.assertThat(body2).isEqualTo("some stuff");
     }
 
 }

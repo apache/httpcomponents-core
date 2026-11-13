@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.http.SocketModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDefaultDisposalCallback {
@@ -72,13 +72,13 @@ class TestDefaultDisposalCallback {
 
         callback.execute(closeable, CloseMode.IMMEDIATE);
 
-        Assertions.assertEquals(Timeout.ofSeconds(1), closeable.getSocketTimeout());
-        Assertions.assertEquals(CloseMode.IMMEDIATE, closeable.closedWith.get());
+        Assertions.assertThat(closeable.getSocketTimeout()).isEqualTo(Timeout.ofSeconds(1));
+        Assertions.assertThat(closeable.closedWith.get()).isEqualTo(CloseMode.IMMEDIATE);
 
         final TestCloseable closeableTooLarge = new TestCloseable(Timeout.ofSeconds(5));
         callback.execute(closeableTooLarge, CloseMode.GRACEFUL);
-        Assertions.assertEquals(Timeout.ofSeconds(1), closeableTooLarge.getSocketTimeout());
-        Assertions.assertEquals(CloseMode.GRACEFUL, closeableTooLarge.closedWith.get());
+        Assertions.assertThat(closeableTooLarge.getSocketTimeout()).isEqualTo(Timeout.ofSeconds(1));
+        Assertions.assertThat(closeableTooLarge.closedWith.get()).isEqualTo(CloseMode.GRACEFUL);
     }
 
     @Test
@@ -88,8 +88,8 @@ class TestDefaultDisposalCallback {
 
         callback.execute(closeable, CloseMode.GRACEFUL);
 
-        Assertions.assertEquals(Timeout.ofMilliseconds(500), closeable.getSocketTimeout());
-        Assertions.assertEquals(CloseMode.GRACEFUL, closeable.closedWith.get());
+        Assertions.assertThat(closeable.getSocketTimeout()).isEqualTo(Timeout.ofMilliseconds(500));
+        Assertions.assertThat(closeable.closedWith.get()).isEqualTo(CloseMode.GRACEFUL);
     }
 
     @Test
@@ -99,7 +99,7 @@ class TestDefaultDisposalCallback {
 
         callback.execute(closeable, CloseMode.IMMEDIATE);
 
-        Assertions.assertEquals(Timeout.ofSeconds(1), closeable.getSocketTimeout());
+        Assertions.assertThat(closeable.getSocketTimeout()).isEqualTo(Timeout.ofSeconds(1));
     }
 
 }

@@ -26,10 +26,7 @@
  */
 package org.apache.hc.core5.http2.priority;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 final class TestPriorityMerge {
@@ -42,8 +39,8 @@ final class TestPriorityMerge {
         final PriorityParams serverResp = PriorityParamsParser.parse("u=1");
 
         final PriorityValue merged = PriorityMerge.merge(clientReq, serverResp);
-        assertEquals(1, merged.getUrgency());
-        assertTrue(merged.isIncremental());
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(1);
+        Assertions.assertThat(merged.isIncremental()).isTrue();
     }
 
     @Test
@@ -51,8 +48,8 @@ final class TestPriorityMerge {
         final PriorityValue clientReq = PriorityValue.of(2, false);
         final PriorityValue merged = PriorityMerge.merge(clientReq, null);
 
-        assertEquals(2, merged.getUrgency());
-        assertFalse(merged.isIncremental());
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(2);
+        Assertions.assertThat(merged.isIncremental()).isFalse();
     }
 
     @Test
@@ -60,13 +57,13 @@ final class TestPriorityMerge {
         // Only server response provided
         final PriorityParams resp1 = PriorityParamsParser.parse("u=0, i");
         final PriorityValue merged1 = PriorityMerge.merge(null, resp1);
-        assertEquals(0, merged1.getUrgency());
-        assertTrue(merged1.isIncremental());
+        Assertions.assertThat(merged1.getUrgency()).isEqualTo(0);
+        Assertions.assertThat(merged1.isIncremental()).isTrue();
 
         // Neither side provided => defaults
         final PriorityValue merged2 = PriorityMerge.merge(null, null);
-        assertEquals(PriorityValue.DEFAULT_URGENCY, merged2.getUrgency());
-        assertEquals(PriorityValue.DEFAULT_INCREMENTAL, merged2.isIncremental());
+        Assertions.assertThat(merged2.getUrgency()).isEqualTo(PriorityValue.DEFAULT_URGENCY);
+        Assertions.assertThat(merged2.isIncremental()).isEqualTo(PriorityValue.DEFAULT_INCREMENTAL);
     }
 
     @Test
@@ -75,8 +72,8 @@ final class TestPriorityMerge {
         final PriorityParams serverResp = PriorityParamsParser.parse("i");
 
         final PriorityValue merged = PriorityMerge.merge(clientReq, serverResp);
-        assertEquals(4, merged.getUrgency());
-        assertTrue(merged.isIncremental());
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(4);
+        Assertions.assertThat(merged.isIncremental()).isTrue();
     }
 
     @Test
@@ -85,8 +82,8 @@ final class TestPriorityMerge {
         final PriorityParams serverResp = PriorityParamsParser.parse("u=1");
 
         final PriorityValue merged = PriorityMerge.merge(clientReq, serverResp);
-        assertEquals(1, merged.getUrgency());
-        assertTrue(merged.isIncremental());
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(1);
+        Assertions.assertThat(merged.isIncremental()).isTrue();
     }
 
     @Test
@@ -96,15 +93,15 @@ final class TestPriorityMerge {
         final PriorityParams serverResp = PriorityParamsParser.parse("u=9, i");
 
         final PriorityValue merged = PriorityMerge.merge(clientReq, serverResp);
-        assertEquals(3, merged.getUrgency());   // unchanged
-        assertTrue(merged.isIncremental());     // from server
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(3);   // unchanged
+        Assertions.assertThat(merged.isIncremental()).isTrue();     // from server
     }
 
     @Test
     void null_safety_with_valid_inputs() {
         // Server provides only u; client null -> defaults for i
         final PriorityValue merged = PriorityMerge.merge(null, new PriorityParams(2, null));
-        assertEquals(2, merged.getUrgency());
-        assertEquals(PriorityValue.DEFAULT_INCREMENTAL, merged.isIncremental());
+        Assertions.assertThat(merged.getUrgency()).isEqualTo(2);
+        Assertions.assertThat(merged.isIncremental()).isEqualTo(PriorityValue.DEFAULT_INCREMENTAL);
     }
 }

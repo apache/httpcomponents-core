@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestUriPathRouter {
@@ -47,13 +47,13 @@ class TestUriPathRouter {
                 new PathRoute<>("*.view", 4L),
                 new PathRoute<>("*.form", 5L));
 
-        Assertions.assertEquals(1L, matcher.apply("/one/request", routes));
-        Assertions.assertEquals(2L, matcher.apply("/one/two/request", routes));
-        Assertions.assertEquals(3L, matcher.apply("/one/two/three/request", routes));
-        Assertions.assertEquals(0L, matcher.apply("default/request", routes));
-        Assertions.assertEquals(4L, matcher.apply("that.view", routes));
-        Assertions.assertEquals(5L, matcher.apply("that.form", routes));
-        Assertions.assertEquals(0L, matcher.apply("whatever", routes));
+        Assertions.assertThat(matcher.apply("/one/request", routes)).isEqualTo(1L);
+        Assertions.assertThat(matcher.apply("/one/two/request", routes)).isEqualTo(2L);
+        Assertions.assertThat(matcher.apply("/one/two/three/request", routes)).isEqualTo(3L);
+        Assertions.assertThat(matcher.apply("default/request", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("that.view", routes)).isEqualTo(4L);
+        Assertions.assertThat(matcher.apply("that.form", routes)).isEqualTo(5L);
+        Assertions.assertThat(matcher.apply("whatever", routes)).isEqualTo(0L);
     }
 
     @Test
@@ -62,7 +62,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
                 new PathRoute<>("*tch", 2L));
-        Assertions.assertEquals(1L, matcher.apply("/match", routes));
+        Assertions.assertThat(matcher.apply("/match", routes)).isEqualTo(1L);
     }
 
     @Test
@@ -71,7 +71,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
                 new PathRoute<>("*", 0L));
-        Assertions.assertEquals(1L, matcher.apply("exact", routes));
+        Assertions.assertThat(matcher.apply("exact", routes)).isEqualTo(1L);
     }
 
     @Test
@@ -80,7 +80,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/this/*", 1L),
                 new PathRoute<>("/that/*", 2L));
-        Assertions.assertNull(matcher.apply("huh?", routes));
+        Assertions.assertThat(matcher.apply("huh?", routes)).isNull();
     }
 
     @Test
@@ -94,13 +94,13 @@ class TestUriPathRouter {
                 new PathRoute<>("*.view", 4L),
                 new PathRoute<>("*.form", 5L));
 
-        Assertions.assertEquals(0L, matcher.apply("/one/request", routes));
-        Assertions.assertEquals(0L, matcher.apply("/one/two/request", routes));
-        Assertions.assertEquals(0L, matcher.apply("/one/two/three/request", routes));
-        Assertions.assertEquals(0L, matcher.apply("default/request", routes));
-        Assertions.assertEquals(0L, matcher.apply("that.view", routes));
-        Assertions.assertEquals(0L, matcher.apply("that.form", routes));
-        Assertions.assertEquals(0L, matcher.apply("whatever", routes));
+        Assertions.assertThat(matcher.apply("/one/request", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("/one/two/request", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("/one/two/three/request", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("default/request", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("that.view", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("that.form", routes)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("whatever", routes)).isEqualTo(0L);
 
         final List<PathRoute<String, Long>> routes2 = Arrays.asList(
                 new PathRoute<>("/one/two/three/*", 3L),
@@ -110,13 +110,13 @@ class TestUriPathRouter {
                 new PathRoute<>("*.form", 5L),
                 new PathRoute<>("*", 0L));
 
-        Assertions.assertEquals(3L, matcher.apply("/one/two/three/request", routes2));
-        Assertions.assertEquals(2L, matcher.apply("/one/two/request", routes2));
-        Assertions.assertEquals(1L, matcher.apply("/one/request", routes2));
-        Assertions.assertEquals(0L, matcher.apply("default/request", routes2));
-        Assertions.assertEquals(4L, matcher.apply("that.view", routes2));
-        Assertions.assertEquals(5L, matcher.apply("that.form", routes2));
-        Assertions.assertEquals(0L, matcher.apply("whatever", routes2));
+        Assertions.assertThat(matcher.apply("/one/two/three/request", routes2)).isEqualTo(3L);
+        Assertions.assertThat(matcher.apply("/one/two/request", routes2)).isEqualTo(2L);
+        Assertions.assertThat(matcher.apply("/one/request", routes2)).isEqualTo(1L);
+        Assertions.assertThat(matcher.apply("default/request", routes2)).isEqualTo(0L);
+        Assertions.assertThat(matcher.apply("that.view", routes2)).isEqualTo(4L);
+        Assertions.assertThat(matcher.apply("that.form", routes2)).isEqualTo(5L);
+        Assertions.assertThat(matcher.apply("whatever", routes2)).isEqualTo(0L);
     }
 
     @Test
@@ -125,7 +125,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
                 new PathRoute<>("*tch", 2L));
-        Assertions.assertEquals(1L, matcher.apply("/match", routes));
+        Assertions.assertThat(matcher.apply("/match", routes)).isEqualTo(1L);
     }
 
     @Test
@@ -134,7 +134,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
                 new PathRoute<>("exact", 1L));
-        Assertions.assertEquals(0L, matcher.apply("exact", routes));
+        Assertions.assertThat(matcher.apply("exact", routes)).isEqualTo(0L);
     }
 
     @Test
@@ -143,7 +143,7 @@ class TestUriPathRouter {
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
                 new PathRoute<>("*", 0L));
-        Assertions.assertEquals(1L, matcher.apply("exact", routes));
+        Assertions.assertThat(matcher.apply("exact", routes)).isEqualTo(1L);
     }
 
     @Test
@@ -157,12 +157,12 @@ class TestUriPathRouter {
                 new PathRoute<>(Pattern.compile(".*\\.form"), 5L),
                 new PathRoute<>(Pattern.compile(".*"), 0L));
 
-        Assertions.assertEquals(1L, matcher.apply("/one/request", routes));
-        Assertions.assertEquals(2L, matcher.apply("/one/two/request", routes));
-        Assertions.assertEquals(3L, matcher.apply("/one/two/three/request", routes));
-        Assertions.assertEquals(4L, matcher.apply("/that.view", routes));
-        Assertions.assertEquals(5L, matcher.apply("/that.form", routes));
-        Assertions.assertEquals(0L, matcher.apply("/default/request", routes));
+        Assertions.assertThat(matcher.apply("/one/request", routes)).isEqualTo(1L);
+        Assertions.assertThat(matcher.apply("/one/two/request", routes)).isEqualTo(2L);
+        Assertions.assertThat(matcher.apply("/one/two/three/request", routes)).isEqualTo(3L);
+        Assertions.assertThat(matcher.apply("/that.view", routes)).isEqualTo(4L);
+        Assertions.assertThat(matcher.apply("/that.form", routes)).isEqualTo(5L);
+        Assertions.assertThat(matcher.apply("/default/request", routes)).isEqualTo(0L);
     }
 
     @Test
@@ -171,7 +171,7 @@ class TestUriPathRouter {
         final List<PathRoute<Pattern, Long>> routes = Arrays.asList(
                 new PathRoute<>(Pattern.compile("/ma.*"), 1L),
                 new PathRoute<>(Pattern.compile(".*tch"), 2L));
-        Assertions.assertEquals(1L, matcher.apply("/match", routes));
+        Assertions.assertThat(matcher.apply("/match", routes)).isEqualTo(1L);
     }
 
 }

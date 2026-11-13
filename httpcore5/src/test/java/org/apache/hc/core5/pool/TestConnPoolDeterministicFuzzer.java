@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -78,10 +78,10 @@ final class TestConnPoolDeterministicFuzzer {
 
             final int steps = 10_000;
 
-            Assertions.assertTrue(pool.getMaxTotal() >= 0);
-            Assertions.assertTrue(pool.getDefaultMaxPerRoute() >= 0);
+            Assertions.assertThat(pool.getMaxTotal() >= 0).isTrue();
+            Assertions.assertThat(pool.getDefaultMaxPerRoute() >= 0).isTrue();
             for (final String route : routes) {
-                Assertions.assertTrue(pool.getMaxPerRoute(route) >= 0);
+                Assertions.assertThat(pool.getMaxPerRoute(route) >= 0).isTrue();
             }
 
             for (int i = 0; i < steps; i++) {
@@ -217,35 +217,35 @@ final class TestConnPoolDeterministicFuzzer {
 
         final PoolStats totals = pool.getTotalStats();
 
-        Assertions.assertTrue(pool.getMaxTotal() >= 0);
-        Assertions.assertTrue(pool.getDefaultMaxPerRoute() >= 0);
+        Assertions.assertThat(pool.getMaxTotal() >= 0).isTrue();
+        Assertions.assertThat(pool.getDefaultMaxPerRoute() >= 0).isTrue();
 
-        Assertions.assertTrue(totals.getAvailable() >= 0);
-        Assertions.assertTrue(totals.getLeased() >= 0);
-        Assertions.assertTrue(totals.getPending() >= 0);
-        Assertions.assertTrue(totals.getMax() >= 0);
+        Assertions.assertThat(totals.getAvailable() >= 0).isTrue();
+        Assertions.assertThat(totals.getLeased() >= 0).isTrue();
+        Assertions.assertThat(totals.getPending() >= 0).isTrue();
+        Assertions.assertThat(totals.getMax() >= 0).isTrue();
 
         final long allocated = (long) totals.getAvailable() + (long) totals.getLeased();
-        Assertions.assertTrue(allocated <= (long) totals.getMax(), "allocated > max");
+        Assertions.assertThat(allocated <= (long) totals.getMax()).withFailMessage("allocated > max").isTrue();
 
         if (policy != PoolConcurrencyPolicy.LAX) {
-            Assertions.assertTrue(totals.getLeased() <= pool.getMaxTotal(), "leased > max total");
+            Assertions.assertThat(totals.getLeased() <= pool.getMaxTotal()).withFailMessage("leased > max total").isTrue();
         }
 
-        Assertions.assertEquals(leased.size(), totals.getLeased(), "leased count mismatch");
+        Assertions.assertThat(totals.getLeased()).withFailMessage("leased count mismatch").isEqualTo(leased.size());
 
         final int expectedPending = pending != null && !pending.isDone() && !pending.isCancelled() ? 1 : 0;
-        Assertions.assertEquals(expectedPending, totals.getPending(), "pending count mismatch");
+        Assertions.assertThat(totals.getPending()).withFailMessage("pending count mismatch").isEqualTo(expectedPending);
 
         if (policy != PoolConcurrencyPolicy.LAX) {
             for (final String route : routes) {
                 final PoolStats routeStats = pool.getStats(route);
-                Assertions.assertTrue(routeStats.getAvailable() >= 0);
-                Assertions.assertTrue(routeStats.getLeased() >= 0);
-                Assertions.assertTrue(routeStats.getPending() >= 0);
-                Assertions.assertTrue(routeStats.getMax() >= 0);
+                Assertions.assertThat(routeStats.getAvailable() >= 0).isTrue();
+                Assertions.assertThat(routeStats.getLeased() >= 0).isTrue();
+                Assertions.assertThat(routeStats.getPending() >= 0).isTrue();
+                Assertions.assertThat(routeStats.getMax() >= 0).isTrue();
                 final long routeAllocated = (long) routeStats.getAvailable() + (long) routeStats.getLeased();
-                Assertions.assertTrue(routeAllocated <= (long) routeStats.getMax(), "route allocated > max");
+                Assertions.assertThat(routeAllocated <= (long) routeStats.getMax()).withFailMessage("route allocated > max").isTrue();
             }
         }
     }

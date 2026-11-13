@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -55,8 +55,8 @@ class TestEntityUtils {
 
     @Test
     void testNullEntityToByteArray() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                EntityUtils.toByteArray(null, 1024));
+        Assertions.assertThatThrownBy(() ->
+                EntityUtils.toByteArray(null, 1024)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -64,8 +64,8 @@ class TestEntityUtils {
         final byte[] content = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EntityUtils.toByteArray(entity, 1024));
+        Assertions.assertThatThrownBy(() ->
+                EntityUtils.toByteArray(entity, 1024)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -73,10 +73,10 @@ class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity, 1024);
-        Assertions.assertNotNull(bytes2);
-        Assertions.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertThat(bytes2).isNotNull();
+        Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assertions.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
         }
     }
 
@@ -85,16 +85,18 @@ class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity, 1024);
-        Assertions.assertNotNull(bytes2);
-        Assertions.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertThat(bytes2).isNotNull();
+        Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assertions.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
         }
     }
 
     @Test
     void testNullEntityToString() {
-        Assertions.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null, 1024));
+        Assertions.assertThatThrownBy(() ->
+                        EntityUtils.toString(null, 1024))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -102,8 +104,8 @@ class TestEntityUtils {
         final byte[] content = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                EntityUtils.toString(entity, "US-ASCII"));
+        Assertions.assertThatThrownBy(() ->
+                EntityUtils.toString(entity, "US-ASCII")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -111,7 +113,7 @@ class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final String s = EntityUtils.toString(entity, "US-ASCII");
-        Assertions.assertEquals("Message content", s);
+        Assertions.assertThat(s).isEqualTo("Message content");
     }
 
     @Test
@@ -120,7 +122,7 @@ class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
         final String s = EntityUtils.toString(entity, StandardCharsets.US_ASCII, 1024);
-        Assertions.assertEquals("Message content", s);
+        Assertions.assertThat(s).isEqualTo("Message content");
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -147,7 +149,7 @@ class TestEntityUtils {
         final String content = constructString(SWISS_GERMAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), ContentType.TEXT_PLAIN);
-        Assertions.assertDoesNotThrow(() -> EntityUtils.toString(entity, 1024));
+        Assertions.assertThatCode(() -> EntityUtils.toString(entity, 1024)).doesNotThrowAnyException();
     }
 
     @Test
@@ -157,7 +159,7 @@ class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
                 ContentType.parse("text/plain"));
         final String s = EntityUtils.toString(entity, Charset.forName("KOI8-R"), 1024);
-        Assertions.assertEquals(content, s);
+        Assertions.assertThat(s).isEqualTo(content);
     }
 
     @Test
@@ -167,7 +169,7 @@ class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8));
         final String s = EntityUtils.toString(entity, "ISO-8859-1");
-        Assertions.assertEquals(content, s);
+        Assertions.assertThat(s).isEqualTo(content);
     }
 
     @Test
@@ -197,26 +199,26 @@ class TestEntityUtils {
 
         };
         final String s = EntityUtils.toString(entity, "UTF-8");
-        Assertions.assertEquals(content, s);
+        Assertions.assertThat(s).isEqualTo(content);
     }
 
     private static void assertNameValuePair (
             final NameValuePair parameter,
             final String expectedName,
             final String expectedValue) {
-        Assertions.assertEquals(parameter.getName(), expectedName);
-        Assertions.assertEquals(parameter.getValue(), expectedValue);
+        Assertions.assertThat(expectedName).isEqualTo(parameter.getName());
+        Assertions.assertThat(expectedValue).isEqualTo(parameter.getValue());
     }
 
     @Test
     void testParseEntity() throws Exception {
         final StringEntity entity1 = new StringEntity("Name1=Value1", ContentType.APPLICATION_FORM_URLENCODED);
         final List<NameValuePair> result = EntityUtils.parse(entity1, 1024);
-        Assertions.assertEquals(1, result.size());
+        Assertions.assertThat(result.size()).isEqualTo(1);
         assertNameValuePair(result.get(0), "Name1", "Value1");
 
         final StringEntity entity2 = new StringEntity("Name1=Value1", ContentType.parse("text/test"));
-        Assertions.assertTrue(EntityUtils.parse(entity2, 1024).isEmpty());
+        Assertions.assertThat(EntityUtils.parse(entity2, 1024).isEmpty()).isTrue();
     }
 
     @Test
@@ -229,12 +231,12 @@ class TestEntityUtils {
 
         final String s = WWWFormCodec.format(parameters, StandardCharsets.UTF_8);
 
-        Assertions.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
-                "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
+        Assertions.assertThat(s).isEqualTo("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
+                "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4");
         final StringEntity entity = new StringEntity(s,
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8));
         final List<NameValuePair> result = EntityUtils.parse(entity, 1024);
-        Assertions.assertEquals(2, result.size());
+        Assertions.assertThat(result.size()).isEqualTo(2);
         assertNameValuePair(result.get(0), "russian", ru_hello);
         assertNameValuePair(result.get(1), "swiss", ch_hello);
     }
@@ -253,10 +255,10 @@ class TestEntityUtils {
 
             final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
             final byte[] expectedBytes = tc.getValue();
-            Assertions.assertNotNull(bytes);
-            Assertions.assertEquals(expectedBytes.length, bytes.length);
+            Assertions.assertThat(bytes).isNotNull();
+            Assertions.assertThat(bytes.length).isEqualTo(expectedBytes.length);
             for (int i = 0; i < expectedBytes.length; i++) {
-                Assertions.assertEquals(expectedBytes[i], bytes[i]);
+                Assertions.assertThat(bytes[i]).isEqualTo(expectedBytes[i]);
             }
         }
     }
@@ -277,10 +279,10 @@ class TestEntityUtils {
 
             final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
             final byte[] expectedBytes = tc.getValue();
-            Assertions.assertNotNull(bytes);
-            Assertions.assertEquals(expectedBytes.length, bytes.length);
+            Assertions.assertThat(bytes).isNotNull();
+            Assertions.assertThat(bytes.length).isEqualTo(expectedBytes.length);
             for (int i = 0; i < expectedBytes.length; i++) {
-                Assertions.assertEquals(expectedBytes[i], bytes[i]);
+                Assertions.assertThat(bytes[i]).isEqualTo(expectedBytes[i]);
             }
         }
     }
@@ -298,8 +300,8 @@ class TestEntityUtils {
             final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), allBytes.length, null);
             final String string = EntityUtils.toString(entity, StandardCharsets.US_ASCII, tc.getKey());
             final String expectedString = tc.getValue();
-            Assertions.assertNotNull(string);
-            Assertions.assertEquals(expectedString, string);
+            Assertions.assertThat(string).isNotNull();
+            Assertions.assertThat(string).isEqualTo(expectedString);
         }
     }
 

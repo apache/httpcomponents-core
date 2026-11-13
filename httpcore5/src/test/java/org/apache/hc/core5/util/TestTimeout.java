@@ -31,37 +31,37 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestTimeout {
 
     private void checkToDays(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toDays(value), Timeout.of(value, timeUnit).toDays());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toDays()).isEqualTo(timeUnit.toDays(value));
     }
 
     private void checkToHours(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toHours(value), Timeout.of(value, timeUnit).toHours());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toHours()).isEqualTo(timeUnit.toHours(value));
     }
 
     private void checkToMicroseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMicros(value), Timeout.of(value, timeUnit).toMicroseconds());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toMicroseconds()).isEqualTo(timeUnit.toMicros(value));
     }
 
     private void checkToMilliseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMillis(value), Timeout.of(value, timeUnit).toMilliseconds());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toMilliseconds()).isEqualTo(timeUnit.toMillis(value));
     }
 
     private void checkToMinutes(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMinutes(value), Timeout.of(value, timeUnit).toMinutes());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toMinutes()).isEqualTo(timeUnit.toMinutes(value));
     }
 
     private void checkToNanoseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toNanos(value), Timeout.of(value, timeUnit).toNanoseconds());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toNanoseconds()).isEqualTo(timeUnit.toNanos(value));
     }
 
     private void checkToSeconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toSeconds(value), Timeout.of(value, timeUnit).toSeconds());
+        Assertions.assertThat(Timeout.of(value, timeUnit).toSeconds()).isEqualTo(timeUnit.toSeconds(value));
     }
 
     private void test(final long value) {
@@ -88,12 +88,12 @@ class TestTimeout {
 
     @Test
     void testDisabled() {
-        Assertions.assertTrue(Timeout.DISABLED.isDisabled());
-        Assertions.assertFalse(Timeout.DISABLED.isEnabled());
+        Assertions.assertThat(Timeout.DISABLED.isDisabled()).isTrue();
+        Assertions.assertThat(Timeout.DISABLED.isEnabled()).isFalse();
     }
 
     private void testFactory(final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit, Timeout.of(1, timeUnit).getTimeUnit());
+        Assertions.assertThat(Timeout.of(1, timeUnit).getTimeUnit()).isEqualTo(timeUnit);
     }
 
     @Test
@@ -113,7 +113,7 @@ class TestTimeout {
     }
 
     private void assertConvertion(final Duration duration) {
-        Assertions.assertEquals(duration, Timeout.of(duration).toDuration());
+        Assertions.assertThat(Timeout.of(duration).toDuration()).isEqualTo(duration);
     }
 
     @Test
@@ -158,23 +158,23 @@ class TestTimeout {
 
     @Test
     void testNegative1() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                test(-1));
+        Assertions.assertThatThrownBy(() ->
+                test(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testToString() {
-        Assertions.assertEquals("9223372036854775807 SECONDS", Timeout.ofSeconds(Long.MAX_VALUE).toString());
-        Assertions.assertEquals("0 MILLISECONDS", Timeout.ZERO_MILLISECONDS.toString());
+        Assertions.assertThat(Timeout.ofSeconds(Long.MAX_VALUE).toString()).isEqualTo("9223372036854775807 SECONDS");
+        Assertions.assertThat(Timeout.ZERO_MILLISECONDS.toString()).isEqualTo("0 MILLISECONDS");
     }
 
     @Test
     void testFromString() throws ParseException {
-        Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 SECONDS"));
-        Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 Seconds"));
-        Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807  Seconds"));
-        Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807\tSeconds"));
-        Assertions.assertEquals(Timeout.ZERO_MILLISECONDS, Timeout.parse("0 MILLISECONDS"));
+        Assertions.assertThat(Timeout.parse("9223372036854775807 SECONDS")).isEqualTo(Timeout.ofSeconds(Long.MAX_VALUE));
+        Assertions.assertThat(Timeout.parse("9223372036854775807 Seconds")).isEqualTo(Timeout.ofSeconds(Long.MAX_VALUE));
+        Assertions.assertThat(Timeout.parse("9223372036854775807  Seconds")).isEqualTo(Timeout.ofSeconds(Long.MAX_VALUE));
+        Assertions.assertThat(Timeout.parse("9223372036854775807\tSeconds")).isEqualTo(Timeout.ofSeconds(Long.MAX_VALUE));
+        Assertions.assertThat(Timeout.parse("0 MILLISECONDS")).isEqualTo(Timeout.ZERO_MILLISECONDS);
     }
 
 }

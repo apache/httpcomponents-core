@@ -27,12 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import org.junit.jupiter.api.Assertions;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -65,6 +59,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.testing.extension.nio.H2MultiplexingRequesterResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -130,19 +125,19 @@ abstract class H2AlpnTest {
             message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         } catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
-            assertFalse(h2Allowed, "h2 negotiation was enabled, but h2 was not negotiated");
-            assertInstanceOf(ProtocolNegotiationException.class, cause);
-            assertEquals("ALPN: missing application protocol", cause.getMessage());
-            assertTrue(strictALPN, "strict ALPN mode was not enabled, but the client negotiator still threw");
+            Assertions.assertThat(h2Allowed).withFailMessage("h2 negotiation was enabled, but h2 was not negotiated").isFalse();
+            Assertions.assertThat(cause).isInstanceOf(ProtocolNegotiationException.class);
+            Assertions.assertThat(cause.getMessage()).isEqualTo("ALPN: missing application protocol");
+            Assertions.assertThat(strictALPN).withFailMessage("strict ALPN mode was not enabled, but the client negotiator still threw").isTrue();
             return;
         }
 
-        assertTrue(h2Allowed, "h2 negotiation was disabled, but h2 was negotiated");
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(h2Allowed).withFailMessage("h2 negotiation was disabled, but h2 was negotiated").isTrue();
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body1 = message1.body();
-        Assertions.assertEquals("some stuff", body1);
+        Assertions.assertThat(body1).isEqualTo("some stuff");
     }
 
 }

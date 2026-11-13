@@ -32,37 +32,37 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestTimeValue {
 
     private void checkToDays(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toDays(value), TimeValue.of(value, timeUnit).toDays());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toDays()).isEqualTo(timeUnit.toDays(value));
     }
 
     private void checkToHours(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toHours(value), TimeValue.of(value, timeUnit).toHours());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toHours()).isEqualTo(timeUnit.toHours(value));
     }
 
     private void checkToMicroseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicroseconds());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toMicroseconds()).isEqualTo(timeUnit.toMicros(value));
     }
 
     private void checkToMilliseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMillis(value), TimeValue.of(value, timeUnit).toMilliseconds());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toMilliseconds()).isEqualTo(timeUnit.toMillis(value));
     }
 
     private void checkToMinutes(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toMinutes(value), TimeValue.of(value, timeUnit).toMinutes());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toMinutes()).isEqualTo(timeUnit.toMinutes(value));
     }
 
     private void checkToNanoseconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toNanos(value), TimeValue.of(value, timeUnit).toNanoseconds());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toNanoseconds()).isEqualTo(timeUnit.toNanos(value));
     }
 
     private void checkToSeconds(final long value, final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit.toSeconds(value), TimeValue.of(value, timeUnit).toSeconds());
+        Assertions.assertThat(TimeValue.of(value, timeUnit).toSeconds()).isEqualTo(timeUnit.toSeconds(value));
     }
 
     private void test(final long value) {
@@ -89,37 +89,37 @@ class TestTimeValue {
 
     @Test
     void testConvert() {
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).convert(TimeUnit.DAYS));
-        Assertions.assertEquals(1000, TimeValue.ofSeconds(1).convert(TimeUnit.MILLISECONDS));
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).convert(TimeUnit.DAYS)).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofSeconds(1).convert(TimeUnit.MILLISECONDS)).isEqualTo(1000);
     }
 
     @Test
     void testDivide() {
         // nominator is 0, result should be 0.
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toDays());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toHours());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMicroseconds());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMilliseconds());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMinutes());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toNanoseconds());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSeconds());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillisecondsIntBound());
-        Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSecondsIntBound());
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toDays()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toHours()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toMicroseconds()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toMilliseconds()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toMinutes()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toNanoseconds()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toSeconds()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toMillisecondsIntBound()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMilliseconds(0).divide(2).toSecondsIntBound()).isEqualTo(0);
         //
-        Assertions.assertEquals(50, TimeValue.ofMilliseconds(100).divide(2).toMilliseconds());
-        Assertions.assertEquals(0, TimeValue.ofMinutes(1).divide(2).toSeconds());
-        Assertions.assertEquals(30, TimeValue.ofMinutes(1).divide(2, TimeUnit.SECONDS).toSeconds());
-        Assertions.assertEquals(30000, TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMilliseconds());
+        Assertions.assertThat(TimeValue.ofMilliseconds(100).divide(2).toMilliseconds()).isEqualTo(50);
+        Assertions.assertThat(TimeValue.ofMinutes(1).divide(2).toSeconds()).isEqualTo(0);
+        Assertions.assertThat(TimeValue.ofMinutes(1).divide(2, TimeUnit.SECONDS).toSeconds()).isEqualTo(30);
+        Assertions.assertThat(TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMilliseconds()).isEqualTo(30000);
     }
 
     @Test
     void testDivideBy0() {
-        Assertions.assertThrows(ArithmeticException.class, () ->
-                TimeValue.ofMilliseconds(0).divide(0));
+        Assertions.assertThatThrownBy(() ->
+                TimeValue.ofMilliseconds(0).divide(0)).isInstanceOf(ArithmeticException.class);
     }
 
     private void testFactory(final TimeUnit timeUnit) {
-        Assertions.assertEquals(timeUnit, TimeValue.of(1, timeUnit).getTimeUnit());
+        Assertions.assertThat(TimeValue.of(1, timeUnit).getTimeUnit()).isEqualTo(timeUnit);
         //
         final Duration duration = Duration.of(1, TimeValue.toChronoUnit(timeUnit));
         assertConvertion(duration);
@@ -142,7 +142,7 @@ class TestTimeValue {
     }
 
     private void assertConvertion(final Duration duration) {
-        Assertions.assertEquals(duration, TimeValue.of(duration).toDuration());
+        Assertions.assertThat(TimeValue.of(duration).toDuration()).isEqualTo(duration);
     }
 
     @Test
@@ -185,69 +185,69 @@ class TestTimeValue {
         final TimeValue hours1 = TimeValue.ofHours(1);
         final TimeValue days1 = TimeValue.ofDays(1);
         //
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(nanos1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(micros1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(millis1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(seconds1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(minutes1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(hours1));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(days1));
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(nanos1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(micros1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(millis1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(seconds1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(minutes1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(hours1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.min(days1)).isEqualTo(TimeValue.ZERO_MILLISECONDS);
         //
-        Assertions.assertEquals(nanos1, nanos1.min(nanos1));
-        Assertions.assertEquals(nanos1, nanos1.min(micros1));
-        Assertions.assertEquals(nanos1, nanos1.min(millis1));
-        Assertions.assertEquals(nanos1, nanos1.min(seconds1));
-        Assertions.assertEquals(nanos1, nanos1.min(minutes1));
-        Assertions.assertEquals(nanos1, nanos1.min(hours1));
-        Assertions.assertEquals(nanos1, nanos1.min(days1));
+        Assertions.assertThat(nanos1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(micros1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(millis1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(seconds1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(minutes1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(hours1)).isEqualTo(nanos1);
+        Assertions.assertThat(nanos1.min(days1)).isEqualTo(nanos1);
         //
-        Assertions.assertEquals(nanos1, micros1.min(nanos1));
-        Assertions.assertEquals(micros1, micros1.min(micros1));
-        Assertions.assertEquals(micros1, micros1.min(millis1));
-        Assertions.assertEquals(micros1, micros1.min(seconds1));
-        Assertions.assertEquals(micros1, micros1.min(minutes1));
-        Assertions.assertEquals(micros1, micros1.min(hours1));
-        Assertions.assertEquals(micros1, micros1.min(days1));
+        Assertions.assertThat(micros1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(micros1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(micros1.min(millis1)).isEqualTo(micros1);
+        Assertions.assertThat(micros1.min(seconds1)).isEqualTo(micros1);
+        Assertions.assertThat(micros1.min(minutes1)).isEqualTo(micros1);
+        Assertions.assertThat(micros1.min(hours1)).isEqualTo(micros1);
+        Assertions.assertThat(micros1.min(days1)).isEqualTo(micros1);
         //
-        Assertions.assertEquals(nanos1, millis1.min(nanos1));
-        Assertions.assertEquals(micros1, millis1.min(micros1));
-        Assertions.assertEquals(millis1, millis1.min(millis1));
-        Assertions.assertEquals(millis1, millis1.min(seconds1));
-        Assertions.assertEquals(millis1, millis1.min(minutes1));
-        Assertions.assertEquals(millis1, millis1.min(hours1));
-        Assertions.assertEquals(millis1, millis1.min(days1));
+        Assertions.assertThat(millis1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(millis1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(millis1.min(millis1)).isEqualTo(millis1);
+        Assertions.assertThat(millis1.min(seconds1)).isEqualTo(millis1);
+        Assertions.assertThat(millis1.min(minutes1)).isEqualTo(millis1);
+        Assertions.assertThat(millis1.min(hours1)).isEqualTo(millis1);
+        Assertions.assertThat(millis1.min(days1)).isEqualTo(millis1);
         //
-        Assertions.assertEquals(nanos1, seconds1.min(nanos1));
-        Assertions.assertEquals(micros1, seconds1.min(micros1));
-        Assertions.assertEquals(millis1, seconds1.min(millis1));
-        Assertions.assertEquals(seconds1, seconds1.min(seconds1));
-        Assertions.assertEquals(seconds1, seconds1.min(minutes1));
-        Assertions.assertEquals(seconds1, seconds1.min(hours1));
-        Assertions.assertEquals(seconds1, seconds1.min(days1));
+        Assertions.assertThat(seconds1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(seconds1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(seconds1.min(millis1)).isEqualTo(millis1);
+        Assertions.assertThat(seconds1.min(seconds1)).isEqualTo(seconds1);
+        Assertions.assertThat(seconds1.min(minutes1)).isEqualTo(seconds1);
+        Assertions.assertThat(seconds1.min(hours1)).isEqualTo(seconds1);
+        Assertions.assertThat(seconds1.min(days1)).isEqualTo(seconds1);
         //
-        Assertions.assertEquals(nanos1, minutes1.min(nanos1));
-        Assertions.assertEquals(micros1, minutes1.min(micros1));
-        Assertions.assertEquals(millis1, minutes1.min(millis1));
-        Assertions.assertEquals(seconds1, minutes1.min(seconds1));
-        Assertions.assertEquals(minutes1, minutes1.min(minutes1));
-        Assertions.assertEquals(minutes1, minutes1.min(hours1));
-        Assertions.assertEquals(minutes1, minutes1.min(days1));
+        Assertions.assertThat(minutes1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(minutes1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(minutes1.min(millis1)).isEqualTo(millis1);
+        Assertions.assertThat(minutes1.min(seconds1)).isEqualTo(seconds1);
+        Assertions.assertThat(minutes1.min(minutes1)).isEqualTo(minutes1);
+        Assertions.assertThat(minutes1.min(hours1)).isEqualTo(minutes1);
+        Assertions.assertThat(minutes1.min(days1)).isEqualTo(minutes1);
         //
-        Assertions.assertEquals(nanos1, hours1.min(nanos1));
-        Assertions.assertEquals(micros1, hours1.min(micros1));
-        Assertions.assertEquals(millis1, hours1.min(millis1));
-        Assertions.assertEquals(seconds1, hours1.min(seconds1));
-        Assertions.assertEquals(minutes1, hours1.min(minutes1));
-        Assertions.assertEquals(hours1, hours1.min(hours1));
-        Assertions.assertEquals(hours1, hours1.min(days1));
+        Assertions.assertThat(hours1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(hours1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(hours1.min(millis1)).isEqualTo(millis1);
+        Assertions.assertThat(hours1.min(seconds1)).isEqualTo(seconds1);
+        Assertions.assertThat(hours1.min(minutes1)).isEqualTo(minutes1);
+        Assertions.assertThat(hours1.min(hours1)).isEqualTo(hours1);
+        Assertions.assertThat(hours1.min(days1)).isEqualTo(hours1);
         //
-        Assertions.assertEquals(nanos1, days1.min(nanos1));
-        Assertions.assertEquals(micros1, days1.min(micros1));
-        Assertions.assertEquals(millis1, days1.min(millis1));
-        Assertions.assertEquals(seconds1, days1.min(seconds1));
-        Assertions.assertEquals(minutes1, days1.min(minutes1));
-        Assertions.assertEquals(hours1, days1.min(hours1));
-        Assertions.assertEquals(days1, days1.min(days1));
+        Assertions.assertThat(days1.min(nanos1)).isEqualTo(nanos1);
+        Assertions.assertThat(days1.min(micros1)).isEqualTo(micros1);
+        Assertions.assertThat(days1.min(millis1)).isEqualTo(millis1);
+        Assertions.assertThat(days1.min(seconds1)).isEqualTo(seconds1);
+        Assertions.assertThat(days1.min(minutes1)).isEqualTo(minutes1);
+        Assertions.assertThat(days1.min(hours1)).isEqualTo(hours1);
+        Assertions.assertThat(days1.min(days1)).isEqualTo(days1);
     }
 
     @Test
@@ -267,26 +267,26 @@ class TestTimeValue {
 
     @Test
     void testToString() {
-        Assertions.assertEquals("9223372036854775807 SECONDS", TimeValue.ofSeconds(Long.MAX_VALUE).toString());
-        Assertions.assertEquals("0 MILLISECONDS", TimeValue.ZERO_MILLISECONDS.toString());
+        Assertions.assertThat(TimeValue.ofSeconds(Long.MAX_VALUE).toString()).isEqualTo("9223372036854775807 SECONDS");
+        Assertions.assertThat(TimeValue.ZERO_MILLISECONDS.toString()).isEqualTo("0 MILLISECONDS");
     }
 
     @Test
     void testFromString() throws ParseException {
         final TimeValue maxSeconds = TimeValue.ofSeconds(Long.MAX_VALUE);
-        Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807 SECONDS"));
-        Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807 SECONDS"));
-        Assertions.assertEquals(maxSeconds, TimeValue.parse(" 9223372036854775807 SECONDS "));
-        Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807 Seconds"));
-        Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807  Seconds"));
-        Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807\tSeconds"));
-        Assertions.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.parse("0 MILLISECONDS"));
-        Assertions.assertEquals(TimeValue.ofMilliseconds(1), TimeValue.parse("1 MILLISECOND"));
+        Assertions.assertThat(TimeValue.parse("9223372036854775807 SECONDS")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse("9223372036854775807 SECONDS")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse(" 9223372036854775807 SECONDS ")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse("9223372036854775807 Seconds")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse("9223372036854775807  Seconds")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse("9223372036854775807\tSeconds")).isEqualTo(maxSeconds);
+        Assertions.assertThat(TimeValue.parse("0 MILLISECONDS")).isEqualTo(TimeValue.ZERO_MILLISECONDS);
+        Assertions.assertThat(TimeValue.parse("1 MILLISECOND")).isEqualTo(TimeValue.ofMilliseconds(1));
     }
 
     @Test
     void testToDuration() throws ParseException {
-        Assertions.assertEquals(Long.MAX_VALUE, TimeValue.parse("9223372036854775807 SECONDS").toDuration().getSeconds());
+        Assertions.assertThat(TimeValue.parse("9223372036854775807 SECONDS").toDuration().getSeconds()).isEqualTo(Long.MAX_VALUE);
     }
 
     @Test
@@ -297,19 +297,19 @@ class TestTimeValue {
         final TimeValue tv4 = TimeValue.ofSeconds(1L);
         final TimeValue tv5 = TimeValue.ofSeconds(1000L);
 
-        Assertions.assertEquals(tv1, tv1);
-        Assertions.assertNotEquals(null, tv1);
-        Assertions.assertNotEquals(tv1, tv2);
-        Assertions.assertEquals(tv1, tv3);
-        Assertions.assertEquals(tv1, tv4);
-        Assertions.assertEquals(tv4, tv1);
-        Assertions.assertNotEquals(tv1, tv5);
+        Assertions.assertThat(tv1).isEqualTo(tv1);
+        Assertions.assertThat(tv1).isNotEqualTo(null);
+        Assertions.assertThat(tv2).isNotEqualTo(tv1);
+        Assertions.assertThat(tv3).isEqualTo(tv1);
+        Assertions.assertThat(tv4).isEqualTo(tv1);
+        Assertions.assertThat(tv1).isEqualTo(tv4);
+        Assertions.assertThat(tv5).isNotEqualTo(tv1);
 
-        Assertions.assertNotEquals(tv1.hashCode(), tv2.hashCode());
-        Assertions.assertEquals(tv1.hashCode(), tv3.hashCode());
-        Assertions.assertEquals(tv1.hashCode(), tv4.hashCode());
-        Assertions.assertEquals(tv4.hashCode(), tv1.hashCode());
-        Assertions.assertNotEquals(tv1.hashCode(), tv5.hashCode());
+        Assertions.assertThat(tv2.hashCode()).isNotEqualTo(tv1.hashCode());
+        Assertions.assertThat(tv3.hashCode()).isEqualTo(tv1.hashCode());
+        Assertions.assertThat(tv4.hashCode()).isEqualTo(tv1.hashCode());
+        Assertions.assertThat(tv1.hashCode()).isEqualTo(tv4.hashCode());
+        Assertions.assertThat(tv5.hashCode()).isNotEqualTo(tv1.hashCode());
     }
 
     @Test
@@ -321,14 +321,16 @@ class TestTimeValue {
         final TimeValue tv5 = TimeValue.ofSeconds(60L);
         final TimeValue tv6 = TimeValue.ofMinutes(1L);
 
-        Assertions.assertTrue(tv1.compareTo(tv1) == 0);
-        Assertions.assertTrue(tv1.compareTo(tv2) < 0);
-        Assertions.assertTrue(tv1.compareTo(tv3) == 0);
-        Assertions.assertTrue(tv1.compareTo(tv4) == 0);
-        Assertions.assertTrue(tv1.compareTo(tv5) < 0);
-        Assertions.assertTrue(tv6.compareTo(tv5) == 0);
-        Assertions.assertTrue(tv6.compareTo(tv4) > 0);
-        Assertions.assertThrows(NullPointerException.class, () -> tv1.compareTo(null));
+        Assertions.assertThat(tv1.compareTo(tv1) == 0).isTrue();
+        Assertions.assertThat(tv1.compareTo(tv2) < 0).isTrue();
+        Assertions.assertThat(tv1.compareTo(tv3) == 0).isTrue();
+        Assertions.assertThat(tv1.compareTo(tv4) == 0).isTrue();
+        Assertions.assertThat(tv1.compareTo(tv5) < 0).isTrue();
+        Assertions.assertThat(tv6.compareTo(tv5) == 0).isTrue();
+        Assertions.assertThat(tv6.compareTo(tv4) > 0).isTrue();
+        Assertions.assertThatThrownBy(() ->
+                        tv1.compareTo(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
 }

@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 // the name of this test is historic, the implementation classes of HttpContext
@@ -44,32 +44,32 @@ class TestHttpExecutionContext {
         currentContext.setAttribute("param3", "3");
         currentContext.setAttribute("param2", "4");
 
-        Assertions.assertEquals("1", parentContext.getAttribute("param1"));
-        Assertions.assertEquals("2", parentContext.getAttribute("param2"));
-        Assertions.assertNull(parentContext.getAttribute("param3"));
+        Assertions.assertThat(parentContext.getAttribute("param1")).isEqualTo("1");
+        Assertions.assertThat(parentContext.getAttribute("param2")).isEqualTo("2");
+        Assertions.assertThat(parentContext.getAttribute("param3")).isNull();
 
-        Assertions.assertEquals("1", currentContext.getAttribute("param1"));
-        Assertions.assertEquals("4", currentContext.getAttribute("param2"));
-        Assertions.assertEquals("3", currentContext.getAttribute("param3"));
-        Assertions.assertNull(currentContext.getAttribute("param4"));
+        Assertions.assertThat(currentContext.getAttribute("param1")).isEqualTo("1");
+        Assertions.assertThat(currentContext.getAttribute("param2")).isEqualTo("4");
+        Assertions.assertThat(currentContext.getAttribute("param3")).isEqualTo("3");
+        Assertions.assertThat(currentContext.getAttribute("param4")).isNull();
 
         currentContext.removeAttribute("param1");
         currentContext.removeAttribute("param2");
         currentContext.removeAttribute("param3");
         currentContext.removeAttribute("param4");
 
-        Assertions.assertEquals("1", currentContext.getAttribute("param1"));
-        Assertions.assertEquals("2", currentContext.getAttribute("param2"));
-        Assertions.assertNull(currentContext.getAttribute("param3"));
-        Assertions.assertNull(currentContext.getAttribute("param4"));
+        Assertions.assertThat(currentContext.getAttribute("param1")).isEqualTo("1");
+        Assertions.assertThat(currentContext.getAttribute("param2")).isEqualTo("2");
+        Assertions.assertThat(currentContext.getAttribute("param3")).isNull();
+        Assertions.assertThat(currentContext.getAttribute("param4")).isNull();
     }
 
     @Test
     void testEmptyContextOperations() {
         final HttpCoreContext currentContext = new HttpCoreContext();
-        Assertions.assertNull(currentContext.getAttribute("param1"));
+        Assertions.assertThat(currentContext.getAttribute("param1")).isNull();
         currentContext.removeAttribute("param1");
-        Assertions.assertNull(currentContext.getAttribute("param1"));
+        Assertions.assertThat(currentContext.getAttribute("param1")).isNull();
     }
 
 }

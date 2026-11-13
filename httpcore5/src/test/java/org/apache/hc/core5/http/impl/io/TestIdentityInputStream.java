@@ -32,7 +32,7 @@ import java.io.ByteArrayInputStream;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,14 +47,14 @@ class TestIdentityInputStream {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
             final byte[] tmp = new byte[2];
-            Assertions.assertEquals(2, in.read(tmp, 0, tmp.length));
-            Assertions.assertEquals('a', tmp[0]);
-            Assertions.assertEquals('b', tmp[1]);
-            Assertions.assertEquals('c', in.read());
-            Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
-            Assertions.assertEquals(-1, in.read());
-            Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
-            Assertions.assertEquals(-1, in.read());
+            Assertions.assertThat(in.read(tmp, 0, tmp.length)).isEqualTo(2);
+            Assertions.assertThat(tmp[0]).isEqualTo((byte) 'a');
+            Assertions.assertThat(tmp[1]).isEqualTo((byte) 'b');
+            Assertions.assertThat(in.read()).isEqualTo((int) 'c');
+            Assertions.assertThat(in.read(tmp, 0, tmp.length)).isEqualTo(-1);
+            Assertions.assertThat(in.read()).isEqualTo(-1);
+            Assertions.assertThat(in.read(tmp, 0, tmp.length)).isEqualTo(-1);
+            Assertions.assertThat(in.read()).isEqualTo(-1);
         }
     }
 
@@ -68,10 +68,14 @@ class TestIdentityInputStream {
         in.close();
         in.close();
 
-        Assertions.assertEquals(0, in.available());
+        Assertions.assertThat(in.available()).isEqualTo(0);
         final byte[] tmp = new byte[2];
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read());
+        Assertions.assertThatThrownBy(() ->
+                        in.read(tmp, 0, tmp.length))
+                .isInstanceOf(StreamClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        in.read())
+                .isInstanceOf(StreamClosedException.class);
     }
 
     @Test
@@ -81,7 +85,7 @@ class TestIdentityInputStream {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
         try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
             in.read();
-            Assertions.assertEquals(2, in.available());
+            Assertions.assertThat(in.available()).isEqualTo(2);
         }
     }
 
@@ -92,8 +96,8 @@ class TestIdentityInputStream {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
         try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
             final byte[] tmp = new byte[3];
-            Assertions.assertEquals(3, in.read(tmp));
-            Assertions.assertEquals(3, in.available());
+            Assertions.assertThat(in.read(tmp)).isEqualTo(3);
+            Assertions.assertThat(in.available()).isEqualTo(3);
         }
     }
 

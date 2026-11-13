@@ -31,7 +31,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -47,7 +47,7 @@ class TestFileEntityProducer {
             final long expectedLength = 1L + Integer.MAX_VALUE;
             raFile.setLength(expectedLength);
             final FileEntityProducer fileEntityProducer = new FileEntityProducer(path.toFile());
-            Assertions.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            Assertions.assertThat(fileEntityProducer.getContentLength()).isEqualTo(expectedLength);
         }
     }
 

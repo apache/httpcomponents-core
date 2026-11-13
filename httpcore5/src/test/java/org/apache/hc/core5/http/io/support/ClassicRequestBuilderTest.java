@@ -27,10 +27,6 @@
 
 package org.apache.hc.core5.http.io.support;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -42,6 +38,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -49,7 +46,8 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class ClassicRequestBuilderTest {
@@ -57,149 +55,149 @@ class ClassicRequestBuilderTest {
     @Test
     void constructor() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = new ClassicRequestBuilder(Method.HEAD);
-        assertEquals(Method.HEAD.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.HEAD.name());
 
         final ClassicRequestBuilder classicRequestBuilder2 = new ClassicRequestBuilder(Method.HEAD.name());
-        assertEquals(Method.HEAD.name(), classicRequestBuilder2.getMethod());
+        Assertions.assertThat(classicRequestBuilder2.getMethod()).isEqualTo(Method.HEAD.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = new ClassicRequestBuilder(Method.HEAD.name(), URIBuilder.localhost().build());
-        assertEquals(Method.HEAD.name(), classicRequestBuilder3.getMethod());
-        assertEquals(URIBuilder.localhost().getHost(), classicRequestBuilder3.getAuthority().getHostName());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.HEAD.name());
+        Assertions.assertThat(classicRequestBuilder3.getAuthority().getHostName()).isEqualTo(URIBuilder.localhost().getHost());
 
         final ClassicRequestBuilder classicRequestBuilder4 = new ClassicRequestBuilder(Method.HEAD, URIBuilder.localhost().build());
-        assertEquals(Method.HEAD.name(), classicRequestBuilder4.getMethod());
-        assertEquals(URIBuilder.localhost().getHost(), classicRequestBuilder4.getAuthority().getHostName());
+        Assertions.assertThat(classicRequestBuilder4.getMethod()).isEqualTo(Method.HEAD.name());
+        Assertions.assertThat(classicRequestBuilder4.getAuthority().getHostName()).isEqualTo(URIBuilder.localhost().getHost());
 
         final ClassicRequestBuilder classicRequestBuilder5 = new ClassicRequestBuilder(Method.HEAD, "/localhost");
-        assertEquals(Method.HEAD.name(), classicRequestBuilder5.getMethod());
-        assertEquals("/localhost", classicRequestBuilder5.getPath());
+        Assertions.assertThat(classicRequestBuilder5.getMethod()).isEqualTo(Method.HEAD.name());
+        Assertions.assertThat(classicRequestBuilder5.getPath()).isEqualTo("/localhost");
 
         final ClassicRequestBuilder classicRequestBuilder6 = new ClassicRequestBuilder(Method.HEAD.name(), "/localhost");
-        assertEquals(Method.HEAD.name(), classicRequestBuilder6.getMethod());
-        assertEquals("/localhost", classicRequestBuilder6.getPath());
+        Assertions.assertThat(classicRequestBuilder6.getMethod()).isEqualTo(Method.HEAD.name());
+        Assertions.assertThat(classicRequestBuilder6.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void create() {
         final ClassicHttpRequest classicHttpRequest = ClassicRequestBuilder.create(Method.HEAD.name()).build();
-        assertEquals(Method.HEAD.name(), classicHttpRequest.getMethod());
+        Assertions.assertThat(classicHttpRequest.getMethod()).isEqualTo(Method.HEAD.name());
     }
 
     @Test
     void get() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.get();
-        assertEquals(Method.GET.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.GET.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.get(URIBuilder.localhost().build());
-        assertEquals(Method.GET.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.GET.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.get("/localhost");
-        assertEquals(Method.GET.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void head() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.head();
-        assertEquals(Method.HEAD.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.HEAD.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.head(URIBuilder.localhost().build());
-        assertEquals(Method.HEAD.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.HEAD.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.head("/localhost");
-        assertEquals(Method.HEAD.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.HEAD.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void query() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.query();
-        assertEquals(Method.QUERY.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.QUERY.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.query(URIBuilder.localhost().build());
-        assertEquals(Method.QUERY.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.QUERY.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.query("/localhost");
-        assertEquals(Method.QUERY.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.QUERY.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void patch() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.patch();
-        assertEquals(Method.PATCH.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.PATCH.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.patch(URIBuilder.localhost().build());
-        assertEquals(Method.PATCH.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.PATCH.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.patch("/localhost");
-        assertEquals(Method.PATCH.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.PATCH.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void post() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.post();
-        assertEquals(Method.POST.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.POST.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.post(URIBuilder.localhost().build());
-        assertEquals(Method.POST.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.POST.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.post("/localhost");
-        assertEquals(Method.POST.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.POST.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void put() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.put();
-        assertEquals(Method.PUT.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.PUT.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.put(URIBuilder.localhost().build());
-        assertEquals(Method.PUT.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.PUT.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.put("/localhost");
-        assertEquals(Method.PUT.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.PUT.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void delete() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.delete();
-        assertEquals(Method.DELETE.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.DELETE.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.delete(URIBuilder.localhost().build());
-        assertEquals(Method.DELETE.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.DELETE.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.delete("/localhost");
-        assertEquals(Method.DELETE.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.DELETE.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void trace() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.trace();
-        assertEquals(Method.TRACE.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.TRACE.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.trace(URIBuilder.localhost().build());
-        assertEquals(Method.TRACE.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.TRACE.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.trace("/localhost");
-        assertEquals(Method.TRACE.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.TRACE.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
     void option() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.options();
-        assertEquals(Method.OPTIONS.name(), classicRequestBuilder.getMethod());
+        Assertions.assertThat(classicRequestBuilder.getMethod()).isEqualTo(Method.OPTIONS.name());
 
         final ClassicRequestBuilder classicRequestBuilder1 = ClassicRequestBuilder.options(URIBuilder.localhost().build());
-        assertEquals(Method.OPTIONS.name(), classicRequestBuilder1.getMethod());
+        Assertions.assertThat(classicRequestBuilder1.getMethod()).isEqualTo(Method.OPTIONS.name());
 
         final ClassicRequestBuilder classicRequestBuilder3 = ClassicRequestBuilder.options("/localhost");
-        assertEquals(Method.OPTIONS.name(), classicRequestBuilder3.getMethod());
-        assertEquals("/localhost", classicRequestBuilder3.getPath());
+        Assertions.assertThat(classicRequestBuilder3.getMethod()).isEqualTo(Method.OPTIONS.name());
+        Assertions.assertThat(classicRequestBuilder3.getPath()).isEqualTo("/localhost");
     }
 
     @Test
@@ -229,30 +227,31 @@ class ClassicRequestBuilderTest {
                 .setHttpHost(new HttpHost("httpbin.org"))
                 .build();
 
-        assertAll("Should return address of Oracle's headquarter",
-                () -> assertNotNull(classicHttpRequest.getEntity()),
-                () -> assertEquals(Method.GET.name(), classicHttpRequest.getMethod()),
-                () -> assertEquals("http", classicHttpRequest.getScheme()),
-                () -> assertEquals("httpbin.org", classicHttpRequest.getAuthority().getHostName()),
-                () -> assertEquals(HttpVersion.HTTP_1_1, classicHttpRequest.getVersion()),
-                () -> assertEquals(4, classicHttpRequest.getHeaders().length),
-                () -> assertNotNull(ClassicRequestBuilder.get().toString()),
-                () -> assertEquals("http://httpbin.org/theUri?header2=blah&param1=value1&param3=value3&param4", new String(classicHttpRequest.getRequestUri().getBytes()))
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(classicHttpRequest.getEntity()).isNotNull();
+            softly.assertThat(classicHttpRequest.getMethod()).isEqualTo(Method.GET.name());
+            softly.assertThat(classicHttpRequest.getScheme()).isEqualTo("http");
+            softly.assertThat(classicHttpRequest.getAuthority().getHostName()).isEqualTo("httpbin.org");
+            softly.assertThat(classicHttpRequest.getVersion()).isEqualTo(HttpVersion.HTTP_1_1);
+            softly.assertThat(classicHttpRequest.getHeaders()).hasSize(4);
+            softly.assertThat(ClassicRequestBuilder.get().toString()).isNotNull();
+            softly.assertThat(new String(classicHttpRequest.getRequestUri().getBytes()))
+                    .isEqualTo("http://httpbin.org/theUri?header2=blah&param1=value1&param3=value3&param4");
+        });
     }
 
 
     @Test
     void builderTraceThrowsIllegalStateException() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 ClassicRequestBuilder.trace()
                         .setVersion(HttpVersion.HTTP_1_1)
                         .setEntity(new ByteArrayEntity(new byte[10240], ContentType.TEXT_PLAIN))
-                        .build());
+                        .build()).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    void builderQuery() throws IOException {
+    void builderQuery() throws IOException, ParseException {
         final ClassicHttpRequest classicHttpRequest = ClassicRequestBuilder.query()
                 .setHttpHost(new HttpHost("httpbin.org"))
                 .setPath("/theUri")
@@ -260,14 +259,16 @@ class ClassicRequestBuilderTest {
                 .addParameter("param2", "value2")
                 .build();
 
-        assertAll("QUERY builder tests",
-                () -> assertEquals(Method.QUERY.name(), classicHttpRequest.getMethod()),
-                () -> assertEquals("httpbin.org", classicHttpRequest.getAuthority().getHostName()),
-                () -> assertEquals("/theUri", classicHttpRequest.getPath()),
-                () -> assertNotNull(classicHttpRequest.getEntity()),
-                () -> assertEquals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType(), ContentType.parse(classicHttpRequest.getEntity().getContentType()).getMimeType()),
-                () -> assertEquals("param1=value1&param2=value2", EntityUtils.toString(classicHttpRequest.getEntity(), 1024))
-        );
+        final String entityContent = EntityUtils.toString(classicHttpRequest.getEntity(), 1024);
+        final String contentType = ContentType.parse(classicHttpRequest.getEntity().getContentType()).getMimeType();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(classicHttpRequest.getMethod()).isEqualTo(Method.QUERY.name());
+            softly.assertThat(classicHttpRequest.getAuthority().getHostName()).isEqualTo("httpbin.org");
+            softly.assertThat(classicHttpRequest.getPath()).isEqualTo("/theUri");
+            softly.assertThat(classicHttpRequest.getEntity()).isNotNull();
+            softly.assertThat(contentType).isEqualTo(ContentType.APPLICATION_FORM_URLENCODED.getMimeType());
+            softly.assertThat(entityContent).isEqualTo("param1=value1&param2=value2");
+        });
     }
 
 }

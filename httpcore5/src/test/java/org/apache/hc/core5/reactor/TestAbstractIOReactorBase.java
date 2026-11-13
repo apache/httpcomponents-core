@@ -35,7 +35,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -125,8 +125,8 @@ class TestAbstractIOReactorBase {
         try (StubSingleCoreIOReactor worker = new StubSingleCoreIOReactor(new BasicFuture<>(null))) {
             final TestReactor reactor = new TestReactor(IOReactorStatus.SHUTTING_DOWN, worker);
         try {
-            Assertions.assertThrows(IOReactorShutdownException.class, () ->
-                    reactor.connect(endpoint(), new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null));
+            Assertions.assertThatThrownBy(() ->
+                    reactor.connect(endpoint(), new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null)).isInstanceOf(IOReactorShutdownException.class);
         } finally {
             reactor.close();
         }
@@ -139,10 +139,10 @@ class TestAbstractIOReactorBase {
             worker.initiateShutdown();
             final TestReactor reactor = new TestReactor(IOReactorStatus.ACTIVE, worker);
             try {
-                Assertions.assertThrows(IOReactorShutdownException.class, () ->
-                        reactor.connect(endpoint(), new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null));
-                Assertions.assertTrue(reactor.shutdownCalled);
-                Assertions.assertFalse(worker.isConnectCalled());
+                Assertions.assertThatThrownBy(() ->
+                        reactor.connect(endpoint(), new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null)).isInstanceOf(IOReactorShutdownException.class);
+                Assertions.assertThat(reactor.shutdownCalled).isTrue();
+                Assertions.assertThat(worker.isConnectCalled()).isFalse();
             } finally {
                 reactor.close();
             }
@@ -163,8 +163,8 @@ class TestAbstractIOReactorBase {
                         null,
                         null);
 
-                Assertions.assertSame(future, result);
-                Assertions.assertTrue(worker.isConnectCalled());
+                Assertions.assertThat(result).isSameAs(future);
+                Assertions.assertThat(worker.isConnectCalled()).isTrue();
             } finally {
                 reactor.close();
             }

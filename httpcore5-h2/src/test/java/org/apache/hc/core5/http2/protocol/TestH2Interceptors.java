@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,8 +71,8 @@ class TestH2Interceptors {
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "chunked"));
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
         final HttpRequestInterceptor interceptor = H2RequestContent.INSTANCE;
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
 
     }
 
@@ -83,8 +83,8 @@ class TestH2Interceptors {
         final HttpRequestInterceptor interceptor = H2RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        Assertions.assertNull(header);
-        Assertions.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
+        Assertions.assertThat(header).isNull();
+        Assertions.assertThat(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING)).isNull();
     }
 
 
@@ -101,10 +101,10 @@ class TestH2Interceptors {
 
         // Assertions to validate headers
         final Header header1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-        Assertions.assertNotNull(header1);
+        Assertions.assertThat(header1).isNotNull();
         final Header header2 = request.getFirstHeader(HttpHeaders.TRAILER);
-        Assertions.assertNotNull(header2);
-        Assertions.assertEquals("h1, h2", header2.getValue());
+        Assertions.assertThat(header2).isNotNull();
+        Assertions.assertThat(header2.getValue()).isEqualTo("h1, h2");
     }
 
     @Test
@@ -115,8 +115,8 @@ class TestH2Interceptors {
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
         request.setEntity(new StringEntity(""));
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -128,8 +128,8 @@ class TestH2Interceptors {
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
         request.setEntity(new StringEntity(""));
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, "text/plain; charset=invalid_charset_name!"));
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -145,7 +145,7 @@ class TestH2Interceptors {
 
         // Assertions to validate headers
         final Header header1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-        Assertions.assertNotNull(header1);
+        Assertions.assertThat(header1).isNotNull();
     }
 
     @Test
@@ -154,8 +154,9 @@ class TestH2Interceptors {
         request.addHeader("Connection", "Keep-Alive");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -164,8 +165,9 @@ class TestH2Interceptors {
         request.addHeader("Keep-Alive", "timeout=5, max=1000");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Keep-Alive: timeout=5, max=1000' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'Keep-Alive: timeout=5, max=1000' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -174,8 +176,9 @@ class TestH2Interceptors {
         request.addHeader("Proxy-Connection", "keep-alive");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Proxy-Connection: Keep-Alive' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'Proxy-Connection: Keep-Alive' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -184,8 +187,9 @@ class TestH2Interceptors {
         request.addHeader("Transfer-Encoding", "gzip");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Transfer-Encoding: gzip' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'Transfer-Encoding: gzip' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -194,8 +198,7 @@ class TestH2Interceptors {
         request.addHeader("Host", "host");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertDoesNotThrow(() -> interceptor.process(request, null, context),
-                "Header 'Host: host' is permissible for HTTP/2 messages");
+        Assertions.assertThatCode(() -> interceptor.process(request, null, context)).withFailMessage("Header 'Host: host' is permissible for HTTP/2 messages").doesNotThrowAnyException();
     }
 
     @Test
@@ -204,8 +207,9 @@ class TestH2Interceptors {
         request.addHeader("Upgrade", "example/1, foo/2");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'Upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'Upgrade: example/1, foo/2' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -214,8 +218,9 @@ class TestH2Interceptors {
         request.addHeader("TE", "gzip");
 
         final H2RequestConformance interceptor = new H2RequestConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(request, null, context),
-                "Header 'TE: gzip' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(request, null, context))
+                .withFailMessage("Header 'TE: gzip' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -224,8 +229,9 @@ class TestH2Interceptors {
         response.addHeader("Connection", "Keep-Alive");
 
         final H2ResponseConformance interceptor = new H2ResponseConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(response, null, context),
-                "Header 'connection: keep-alive' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(response, null, context))
+                .withFailMessage("Header 'connection: keep-alive' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -234,8 +240,9 @@ class TestH2Interceptors {
         response.addHeader("keep-alive", "timeout=5, max=1000");
 
         final H2ResponseConformance interceptor = new H2ResponseConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(response, null, context),
-                "Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(response, null, context))
+                .withFailMessage("Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -244,8 +251,9 @@ class TestH2Interceptors {
         response.addHeader("transfer-encoding", "gzip");
 
         final H2ResponseConformance interceptor = new H2ResponseConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(response, null, context),
-                "Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(response, null, context))
+                .withFailMessage("Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -254,8 +262,9 @@ class TestH2Interceptors {
         response.addHeader("upgrade", "example/1, foo/2");
 
         final H2ResponseConformance interceptor = new H2ResponseConformance();
-        Assertions.assertThrows(HttpException.class, () -> interceptor.process(response, null, context),
-                "Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
+        Assertions.assertThatThrownBy(() ->
+                        interceptor.process(response, null, context))
+                .withFailMessage("Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -263,9 +272,9 @@ class TestH2Interceptors {
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader(HttpHeaders.PROXY_CONNECTION, "keep-alive");
 
-        Assertions.assertThrows(
-                ProtocolException.class,
-                () -> H2ResponseConformance.INSTANCE.process(response, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2ResponseConformance.INSTANCE.process(response, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
