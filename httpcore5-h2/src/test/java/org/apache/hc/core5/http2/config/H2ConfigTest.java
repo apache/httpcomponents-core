@@ -27,11 +27,8 @@
 
 package org.apache.hc.core5.http2.config;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class H2ConfigTest {
@@ -42,7 +39,7 @@ class H2ConfigTest {
         final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .build();
-        assertNotNull(h2Config);
+        Assertions.assertThat(h2Config).isNotNull();
     }
 
     @Test
@@ -56,11 +53,11 @@ class H2ConfigTest {
                 .setCompressionEnabled(true)
                 .build();
 
-        assertEquals(1, h2Config.getHeaderTableSize());
-        assertEquals(1, h2Config.getMaxConcurrentStreams());
-        assertEquals(16384, h2Config.getMaxFrameSize());
-        assertTrue(h2Config.isPushEnabled());
-        assertTrue(h2Config.isCompressionEnabled());
+        Assertions.assertThat(h2Config.getHeaderTableSize()).isEqualTo(1);
+        Assertions.assertThat(h2Config.getMaxConcurrentStreams()).isEqualTo(1);
+        Assertions.assertThat(h2Config.getMaxFrameSize()).isEqualTo(16384);
+        Assertions.assertThat(h2Config.isPushEnabled()).isTrue();
+        Assertions.assertThat(h2Config.isCompressionEnabled()).isTrue();
     }
 
     @Test
@@ -77,13 +74,13 @@ class H2ConfigTest {
         final H2Config.Builder builder = H2Config.copy(h2Config);
         final H2Config h2Config2 = builder.build();
 
-        assertAll(
-                () -> assertEquals(h2Config.getHeaderTableSize(), h2Config2.getHeaderTableSize()),
-                () -> assertEquals(h2Config.getInitialWindowSize(), h2Config2.getInitialWindowSize()),
-                () -> assertEquals(h2Config.getMaxConcurrentStreams(), h2Config2.getMaxConcurrentStreams()),
-                () -> assertEquals(h2Config.getMaxFrameSize(), h2Config2.getMaxFrameSize()),
-                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(h2Config2.getHeaderTableSize()).isEqualTo(h2Config.getHeaderTableSize());
+            softly.assertThat(h2Config2.getInitialWindowSize()).isEqualTo(h2Config.getInitialWindowSize());
+            softly.assertThat(h2Config2.getMaxConcurrentStreams()).isEqualTo(h2Config.getMaxConcurrentStreams());
+            softly.assertThat(h2Config2.getMaxFrameSize()).isEqualTo(h2Config.getMaxFrameSize());
+            softly.assertThat(h2Config2.getMaxHeaderListSize()).isEqualTo(h2Config.getMaxHeaderListSize());
+        });
 
     }
 

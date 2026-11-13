@@ -32,26 +32,23 @@ import javax.net.ssl.SSLParameters;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2TlsSupport {
 
     @Test
     void selectApplicationProtocolsDefault() {
-        Assertions.assertArrayEquals(
-                new String[] { ApplicationProtocol.HTTP_2.id, ApplicationProtocol.HTTP_1_1.id },
-                H2TlsSupport.selectApplicationProtocols(null));
+        Assertions.assertThat(H2TlsSupport.selectApplicationProtocols(null))
+                .containsExactly(new String[]{ApplicationProtocol.HTTP_2.id, ApplicationProtocol.HTTP_1_1.id});
     }
 
     @Test
     void selectApplicationProtocolsForced() {
-        Assertions.assertArrayEquals(
-                new String[] { ApplicationProtocol.HTTP_2.id },
-                H2TlsSupport.selectApplicationProtocols(HttpVersionPolicy.FORCE_HTTP_2));
-        Assertions.assertArrayEquals(
-                new String[] { ApplicationProtocol.HTTP_1_1.id },
-                H2TlsSupport.selectApplicationProtocols(HttpVersionPolicy.FORCE_HTTP_1));
+        Assertions.assertThat(H2TlsSupport.selectApplicationProtocols(HttpVersionPolicy.FORCE_HTTP_2))
+                .containsExactly(new String[]{ApplicationProtocol.HTTP_2.id});
+        Assertions.assertThat(H2TlsSupport.selectApplicationProtocols(HttpVersionPolicy.FORCE_HTTP_1))
+                .containsExactly(new String[]{ApplicationProtocol.HTTP_1_1.id});
     }
 
     @Test
@@ -62,9 +59,8 @@ class TestH2TlsSupport {
 
         H2TlsSupport.enforceRequirements(HttpVersionPolicy.FORCE_HTTP_2, sslParameters);
 
-        Assertions.assertArrayEquals(
-                new String[] { ApplicationProtocol.HTTP_2.id },
-                sslParameters.getApplicationProtocols());
+        Assertions.assertThat(sslParameters.getApplicationProtocols())
+                .containsExactly(new String[]{ApplicationProtocol.HTTP_2.id});
     }
 
     @Test
@@ -79,7 +75,7 @@ class TestH2TlsSupport {
                 HttpVersionPolicy.FORCE_HTTP_1, initializer);
         enforcing.initialize(null, sslContext.createSSLEngine());
 
-        Assertions.assertSame(initializer, called[0]);
+        Assertions.assertThat(called[0]).isSameAs(initializer);
     }
 
 }

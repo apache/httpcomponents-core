@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +72,7 @@ class ClassicResponseBuilderTest {
         outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
         conn.bind(socket);
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
     }
 
     @Test
@@ -93,10 +93,10 @@ class ClassicResponseBuilderTest {
         conn.sendResponseHeader(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nX-Test-Filter: active\r\nheader1: blah\r\nheader2: blah\r\nheader3: blah\r\nUser-Agent: test\r\n\r\n", s);
-        Assertions.assertNotNull(response.getEntity());
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nX-Test-Filter: active\r\nheader1: blah\r\nheader2: blah\r\nheader3: blah\r\nUser-Agent: test\r\n\r\n");
+        Assertions.assertThat(response.getEntity()).isNotNull();
     }
 
     @Test
@@ -119,10 +119,10 @@ class ClassicResponseBuilderTest {
         conn.sendResponseHeader(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nheader1: blah\r\nheader3: blah\r\n\r\n", s);
-        Assertions.assertNotNull(response.getEntity());
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nheader1: blah\r\nheader3: blah\r\n\r\n");
+        Assertions.assertThat(response.getEntity()).isNotNull();
 
     }
 
@@ -145,10 +145,10 @@ class ClassicResponseBuilderTest {
         conn.sendResponseHeader(response2);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nheader1: blah\r\nheader3: blah\r\n\r\n", s);
-        Assertions.assertNotNull(response.getEntity());
-        Assertions.assertNotNull(classicResponseBuilder.toString());
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nheader1: blah\r\nheader3: blah\r\n\r\n");
+        Assertions.assertThat(response.getEntity()).isNotNull();
+        Assertions.assertThat(classicResponseBuilder.toString()).isNotNull();
     }
 }

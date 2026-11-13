@@ -44,7 +44,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -107,9 +107,9 @@ class TestAbstractIOSessionPool {
         Mockito.when(ioSession1.isOpen()).thenReturn(true);
 
         final Future<IOSession> future1 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future1);
-        Assertions.assertFalse(future1.isDone());
-        Assertions.assertTrue(impl.getRoutes().contains("somehost"));
+        Assertions.assertThat(future1).isNotNull();
+        Assertions.assertThat(future1.isDone()).isFalse();
+        Assertions.assertThat(impl.getRoutes().contains("somehost")).isTrue();
 
         Mockito.verify(impl).connectSession(
                 ArgumentMatchers.eq("somehost"),
@@ -117,9 +117,9 @@ class TestAbstractIOSessionPool {
                 ArgumentMatchers.any());
 
         final Future<IOSession> future2 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future2);
-        Assertions.assertFalse(future2.isDone());
-        Assertions.assertTrue(impl.getRoutes().contains("somehost"));
+        Assertions.assertThat(future2).isNotNull();
+        Assertions.assertThat(future2.isDone()).isFalse();
+        Assertions.assertThat(impl.getRoutes().contains("somehost")).isTrue();
 
         Mockito.verify(impl, Mockito.times(1)).connectSession(
                 ArgumentMatchers.eq("somehost"),
@@ -129,11 +129,11 @@ class TestAbstractIOSessionPool {
                     return true;
                 }));
 
-        Assertions.assertTrue(future1.isDone());
-        Assertions.assertSame(ioSession1, future1.get());
+        Assertions.assertThat(future1.isDone()).isTrue();
+        Assertions.assertThat(future1.get()).isSameAs(ioSession1);
 
-        Assertions.assertTrue(future2.isDone());
-        Assertions.assertSame(ioSession1, future2.get());
+        Assertions.assertThat(future2.isDone()).isTrue();
+        Assertions.assertThat(future2.get()).isSameAs(ioSession1);
 
         Mockito.verify(impl, Mockito.times(2)).validateSession(
                 ArgumentMatchers.eq("somehost"),
@@ -152,8 +152,8 @@ class TestAbstractIOSessionPool {
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any());
 
-        Assertions.assertTrue(future3.isDone());
-        Assertions.assertSame(ioSession1, future3.get());
+        Assertions.assertThat(future3.isDone()).isTrue();
+        Assertions.assertThat(future3.get()).isSameAs(ioSession1);
     }
 
     @Test
@@ -165,9 +165,9 @@ class TestAbstractIOSessionPool {
                 ArgumentMatchers.any())).thenReturn(connectFuture);
 
         final Future<IOSession> future1 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future1);
-        Assertions.assertFalse(future1.isDone());
-        Assertions.assertTrue(impl.getRoutes().contains("somehost"));
+        Assertions.assertThat(future1).isNotNull();
+        Assertions.assertThat(future1.isDone()).isFalse();
+        Assertions.assertThat(impl.getRoutes().contains("somehost")).isTrue();
 
         Mockito.verify(impl).connectSession(
                 ArgumentMatchers.eq("somehost"),
@@ -175,31 +175,31 @@ class TestAbstractIOSessionPool {
                 connectCallbackCaptor.capture());
 
         final Future<IOSession> future2 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future2);
-        Assertions.assertFalse(future2.isDone());
-        Assertions.assertTrue(impl.getRoutes().contains("somehost"));
+        Assertions.assertThat(future2).isNotNull();
+        Assertions.assertThat(future2.isDone()).isFalse();
+        Assertions.assertThat(impl.getRoutes().contains("somehost")).isTrue();
 
         final FutureCallback<IOSession> connectCallback = connectCallbackCaptor.getValue();
-        Assertions.assertNotNull(connectCallback);
+        Assertions.assertThat(connectCallback).isNotNull();
         connectCallback.failed(new Exception("Boom"));
 
         // Ensure connect failure invalidates all pending futures
-        Assertions.assertTrue(future1.isDone());
-        Assertions.assertTrue(future2.isDone());
+        Assertions.assertThat(future1.isDone()).isTrue();
+        Assertions.assertThat(future2.isDone()).isTrue();
     }
 
     @Test
     void testShutdownPool() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         final AbstractIOSessionPool.PoolEntry entry3 = impl.getPoolEntry("host3");
-        Assertions.assertNotNull(entry3);
+        Assertions.assertThat(entry3).isNotNull();
         entry3.sessionFuture = connectFuture;
         entry3.requestQueue.add(callback1);
         entry3.requestQueue.add(callback2);
@@ -216,11 +216,11 @@ class TestAbstractIOSessionPool {
     @Test
     void testEnumSessions() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(true).when(ioSession1).isOpen();
@@ -229,17 +229,17 @@ class TestAbstractIOSessionPool {
         final Map<String, IOSession> sessionMap = new LinkedHashMap<>();
         impl.enumAvailable(sessionMap::put);
 
-        Assertions.assertEquals(sessionMap.keySet(), new HashSet<>(Arrays.asList("host1", "host2")));
+        Assertions.assertThat(new HashSet<>(Arrays.asList("host1", "host2"))).isEqualTo(sessionMap.keySet());
     }
 
     @Test
     void testEnumSessionsWithClosedSession() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(false).when(ioSession1).isOpen();
@@ -248,13 +248,13 @@ class TestAbstractIOSessionPool {
         final Map<String, IOSession> sessionMap = new LinkedHashMap<>();
         impl.enumAvailable(sessionMap::put);
 
-        Assertions.assertEquals(sessionMap.keySet(), new HashSet<>(Arrays.asList("host2")));
+        Assertions.assertThat(new HashSet<>(Arrays.asList("host2"))).isEqualTo(sessionMap.keySet());
     }
 
     @Test
     void testGetSessionReconnectAfterValidate() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("somehost");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         Mockito.when(ioSession1.isOpen()).thenReturn(true);
@@ -278,7 +278,7 @@ class TestAbstractIOSessionPool {
     @Test
     void testGetSessionReconnectIfExpired() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("somehost");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         Mockito.when(ioSession1.isOpen()).thenReturn(true);
@@ -296,7 +296,7 @@ class TestAbstractIOSessionPool {
     @Test
     void testGetSessionReconnectIfClosed() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("somehost");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         Mockito.when(ioSession1.isOpen()).thenReturn(false);
@@ -320,22 +320,22 @@ class TestAbstractIOSessionPool {
                 }))).thenReturn(connectFuture);
 
         final Future<IOSession> future1 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future1);
-        Assertions.assertTrue(future1.isDone());
+        Assertions.assertThat(future1).isNotNull();
+        Assertions.assertThat(future1.isDone()).isTrue();
 
         final Future<IOSession> future2 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
-        Assertions.assertNotNull(future2);
-        Assertions.assertTrue(future2.isDone());
+        Assertions.assertThat(future2).isNotNull();
+        Assertions.assertThat(future2.isDone()).isTrue();
     }
 
     @Test
     void testCloseIdleOnly() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(true).when(ioSession1).isOpen();
@@ -354,11 +354,11 @@ class TestAbstractIOSessionPool {
     @Test
     void testCloseIdlePastDeadline() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(true).when(ioSession1).isOpen();
@@ -379,11 +379,11 @@ class TestAbstractIOSessionPool {
     @Test
     void testEvictExpired() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(true).when(ioSession1).isOpen();
@@ -402,11 +402,11 @@ class TestAbstractIOSessionPool {
     @Test
     void testEvictExpiredNonIdleDoNotGetEvicted() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
-        Assertions.assertNotNull(entry1);
+        Assertions.assertThat(entry1).isNotNull();
         entry1.session = ioSession1;
 
         final AbstractIOSessionPool.PoolEntry entry2 = impl.getPoolEntry("host2");
-        Assertions.assertNotNull(entry2);
+        Assertions.assertThat(entry2).isNotNull();
         entry2.session = ioSession2;
 
         Mockito.doReturn(true).when(ioSession1).isOpen();

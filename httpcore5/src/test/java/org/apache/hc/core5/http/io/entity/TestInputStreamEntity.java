@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,22 +47,22 @@ class TestInputStreamEntity {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes), bytes.length, null);
 
-        Assertions.assertEquals(bytes.length, entity.getContentLength());
-        Assertions.assertNotNull(entity.getContent());
-        Assertions.assertFalse(entity.isRepeatable());
-        Assertions.assertTrue(entity.isStreaming());
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(bytes.length);
+        Assertions.assertThat(entity.getContent()).isNotNull();
+        Assertions.assertThat(entity.isRepeatable()).isFalse();
+        Assertions.assertThat(entity.isStreaming()).isTrue();
     }
 
     @Test
     void testNullConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                new InputStreamEntity(null, 0, null));
+        Assertions.assertThatThrownBy(() ->
+                new InputStreamEntity(null, 0, null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testUnknownLengthConstructor() throws Exception {
         try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, null)) {
-            Assertions.assertEquals(-1, entity.getContentLength());
+            Assertions.assertThat(entity.getContentLength()).isEqualTo(-1);
         }
     }
 
@@ -76,11 +76,11 @@ class TestInputStreamEntity {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             entity.writeTo(out);
             final byte[] writtenBytes = out.toByteArray();
-            Assertions.assertNotNull(writtenBytes);
-            Assertions.assertEquals(bytes.length, writtenBytes.length);
+            Assertions.assertThat(writtenBytes).isNotNull();
+            Assertions.assertThat(writtenBytes.length).isEqualTo(bytes.length);
 
             final String s = new String(writtenBytes, StandardCharsets.US_ASCII.name());
-            Assertions.assertEquals(message, s);
+            Assertions.assertThat(s).isEqualTo(message);
         }
     }
 
@@ -96,11 +96,11 @@ class TestInputStreamEntity {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             entity.writeTo(out);
             final byte[] writtenBytes = out.toByteArray();
-            Assertions.assertNotNull(writtenBytes);
-            Assertions.assertEquals(contentLength, writtenBytes.length);
+            Assertions.assertThat(writtenBytes).isNotNull();
+            Assertions.assertThat(writtenBytes.length).isEqualTo(contentLength);
 
             final String s = new String(writtenBytes, StandardCharsets.US_ASCII.name());
-            Assertions.assertEquals(message.substring(0, contentLength), s);
+            Assertions.assertThat(s).isEqualTo(message.substring(0, contentLength));
         }
     }
 
@@ -114,17 +114,19 @@ class TestInputStreamEntity {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         entity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
-        Assertions.assertNotNull(writtenBytes);
-        Assertions.assertEquals(bytes.length, writtenBytes.length);
+        Assertions.assertThat(writtenBytes).isNotNull();
+        Assertions.assertThat(writtenBytes.length).isEqualTo(bytes.length);
 
         final String s = new String(writtenBytes, StandardCharsets.US_ASCII.name());
-        Assertions.assertEquals(message, s);
+        Assertions.assertThat(s).isEqualTo(message);
     }
 
     @Test
     void testWriteToNull() throws Exception {
         try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null)) {
-            Assertions.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            entity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 }

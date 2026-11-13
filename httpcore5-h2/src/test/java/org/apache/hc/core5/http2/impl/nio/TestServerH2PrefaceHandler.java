@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -54,8 +54,8 @@ class TestServerH2PrefaceHandler {
         invalid[0] = (byte) (invalid[0] + 1);
 
         try {
-            Assertions.assertThrows(ProtocolNegotiationException.class, () ->
-                    handler.inputReady(ioSession, ByteBuffer.wrap(invalid)));
+            Assertions.assertThatThrownBy(() ->
+                    handler.inputReady(ioSession, ByteBuffer.wrap(invalid))).isInstanceOf(ProtocolNegotiationException.class);
         } finally {
             handler.close();
         }

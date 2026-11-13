@@ -38,7 +38,7 @@ import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestFrameInOutBuffers {
@@ -54,44 +54,44 @@ class TestFrameInOutBuffers {
 
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final byte[] bytes = writableChannel.toByteArray();
-        Assertions.assertEquals(FrameConsts.HEAD_LEN + 5, bytes.length);
+        Assertions.assertThat(bytes.length).isEqualTo(FrameConsts.HEAD_LEN + 5);
 
-        Assertions.assertEquals(1, outbuffer.getMetrics().getFramesTransferred());
-        Assertions.assertEquals(bytes.length, outbuffer.getMetrics().getBytesTransferred());
+        Assertions.assertThat(outbuffer.getMetrics().getFramesTransferred()).isEqualTo(1);
+        Assertions.assertThat(outbuffer.getMetrics().getBytesTransferred()).isEqualTo(bytes.length);
 
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(bytes);
         final RawFrame frame2 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA.getValue(), frame2.getType());
-        Assertions.assertEquals(0, frame2.getFlags());
-        Assertions.assertEquals(1L, frame2.getStreamId());
+        Assertions.assertThat(frame2.getType()).isEqualTo(FrameType.DATA.getValue());
+        Assertions.assertThat(frame2.getFlags()).isEqualTo(0);
+        Assertions.assertThat(frame2.getStreamId()).isEqualTo(1L);
         final ByteBuffer payload2 = frame2.getPayloadContent();
-        Assertions.assertNotNull(payload2);
-        Assertions.assertEquals(5, payload2.remaining());
-        Assertions.assertEquals(1, payload2.get());
-        Assertions.assertEquals(2, payload2.get());
-        Assertions.assertEquals(3, payload2.get());
-        Assertions.assertEquals(4, payload2.get());
-        Assertions.assertEquals(5, payload2.get());
-        Assertions.assertEquals(-1, readableChannel.read(ByteBuffer.allocate(1024)));
+        Assertions.assertThat(payload2).isNotNull();
+        Assertions.assertThat(payload2.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 4);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 5);
+        Assertions.assertThat(readableChannel.read(ByteBuffer.allocate(1024))).isEqualTo(-1);
 
-        Assertions.assertEquals(1, inBuffer.getMetrics().getFramesTransferred());
-        Assertions.assertEquals(bytes.length, inBuffer.getMetrics().getBytesTransferred());
+        Assertions.assertThat(inBuffer.getMetrics().getFramesTransferred()).isEqualTo(1);
+        Assertions.assertThat(inBuffer.getMetrics().getBytesTransferred()).isEqualTo(bytes.length);
 
         final RawFrame frame3 = inBuffer.read(ByteBuffer.wrap(bytes), readableChannel);
-        Assertions.assertEquals(FrameType.DATA.getValue(), frame3.getType());
-        Assertions.assertEquals(0, frame3.getFlags());
-        Assertions.assertEquals(1L, frame3.getStreamId());
+        Assertions.assertThat(frame3.getType()).isEqualTo(FrameType.DATA.getValue());
+        Assertions.assertThat(frame3.getFlags()).isEqualTo(0);
+        Assertions.assertThat(frame3.getStreamId()).isEqualTo(1L);
         final ByteBuffer payload3 = frame3.getPayloadContent();
-        Assertions.assertNotNull(payload3);
-        Assertions.assertEquals(5, payload3.remaining());
-        Assertions.assertEquals(1, payload3.get());
-        Assertions.assertEquals(2, payload3.get());
-        Assertions.assertEquals(3, payload3.get());
-        Assertions.assertEquals(4, payload3.get());
-        Assertions.assertEquals(5, payload3.get());
+        Assertions.assertThat(payload3).isNotNull();
+        Assertions.assertThat(payload3.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 4);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 5);
 
-        Assertions.assertEquals(2, inBuffer.getMetrics().getFramesTransferred());
-        Assertions.assertEquals(bytes.length * 2, inBuffer.getMetrics().getBytesTransferred());
+        Assertions.assertThat(inBuffer.getMetrics().getFramesTransferred()).isEqualTo(2);
+        Assertions.assertThat(inBuffer.getMetrics().getBytesTransferred()).isEqualTo(bytes.length * 2);
     }
 
     @Test
@@ -102,18 +102,18 @@ class TestFrameInOutBuffers {
                 ByteBuffer.wrap(new byte[]{'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}));
 
         outbuffer.write(frame, writableChannel);
-        Assertions.assertArrayEquals(new byte[] {0,0,16,0,1,0,0,0,5,48,49,50,51,52,53,54,55,56,57},
-                writableChannel.toByteArray());
+        Assertions.assertThat(writableChannel.toByteArray())
+                .containsExactly(new byte[]{0, 0, 16, 0, 1, 0, 0, 0, 5, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57});
 
-        Assertions.assertFalse(outbuffer.isEmpty());
+        Assertions.assertThat(outbuffer.isEmpty()).isFalse();
         outbuffer.flush(writableChannel);
-        Assertions.assertArrayEquals(new byte[] {0,0,16,0,1,0,0,0,5,48,49,50,51,52,53,54,55,56,57},
-                writableChannel.toByteArray());
+        Assertions.assertThat(writableChannel.toByteArray())
+                .containsExactly(new byte[]{0, 0, 16, 0, 1, 0, 0, 0, 5, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57});
 
         writableChannel.flush();
         outbuffer.flush(writableChannel);
-        Assertions.assertArrayEquals(new byte[] {0,0,16,0,1,0,0,0,5,48,49,50,51,52,53,54,55,56,57,97,98,99,100,101,102},
-                writableChannel.toByteArray());
+        Assertions.assertThat(writableChannel.toByteArray())
+                .containsExactly(new byte[]{0, 0, 16, 0, 1, 0, 0, 0, 5, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102});
     }
 
     @Test
@@ -126,32 +126,32 @@ class TestFrameInOutBuffers {
                 });
 
         final RawFrame frame1 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
-        Assertions.assertEquals(8, frame1.getFlags());
-        Assertions.assertEquals(8, frame1.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame1.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame1.getFlags()).isEqualTo(8);
+        Assertions.assertThat(frame1.getStreamId()).isEqualTo(8);
         final ByteBuffer payload1 = frame1.getPayloadContent();
-        Assertions.assertNotNull(payload1);
-        Assertions.assertEquals(5, payload1.remaining());
-        Assertions.assertEquals(0, payload1.get());
-        Assertions.assertEquals(1, payload1.get());
-        Assertions.assertEquals(2, payload1.get());
-        Assertions.assertEquals(3, payload1.get());
-        Assertions.assertEquals(4, payload1.get());
+        Assertions.assertThat(payload1).isNotNull();
+        Assertions.assertThat(payload1.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 0);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 4);
 
         final RawFrame frame2 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
-        Assertions.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame2.getFlags());
-        Assertions.assertEquals(8, frame2.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame2.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame2.getFlags()).isEqualTo(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED));
+        Assertions.assertThat(frame2.getStreamId()).isEqualTo(8);
         final ByteBuffer payload2 = frame2.getPayloadContent();
-        Assertions.assertNotNull(payload2);
-        Assertions.assertEquals(5, payload2.remaining());
-        Assertions.assertEquals(5, payload2.get());
-        Assertions.assertEquals(6, payload2.get());
-        Assertions.assertEquals(7, payload2.get());
-        Assertions.assertEquals(8, payload2.get());
-        Assertions.assertEquals(9, payload2.get());
+        Assertions.assertThat(payload2).isNotNull();
+        Assertions.assertThat(payload2.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 5);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 6);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 7);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 8);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 9);
 
-        Assertions.assertEquals(-1, readableChannel.read(ByteBuffer.allocate(1024)));
+        Assertions.assertThat(readableChannel.read(ByteBuffer.allocate(1024))).isEqualTo(-1);
     }
 
     @Test
@@ -165,45 +165,45 @@ class TestFrameInOutBuffers {
                 });
 
         final RawFrame frame1 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
-        Assertions.assertEquals(8, frame1.getFlags());
-        Assertions.assertEquals(8, frame1.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame1.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame1.getFlags()).isEqualTo(8);
+        Assertions.assertThat(frame1.getStreamId()).isEqualTo(8);
         final ByteBuffer payload1 = frame1.getPayloadContent();
-        Assertions.assertNotNull(payload1);
-        Assertions.assertEquals(5, payload1.remaining());
-        Assertions.assertEquals(1, payload1.get());
-        Assertions.assertEquals(1, payload1.get());
-        Assertions.assertEquals(1, payload1.get());
-        Assertions.assertEquals(1, payload1.get());
-        Assertions.assertEquals(1, payload1.get());
+        Assertions.assertThat(payload1).isNotNull();
+        Assertions.assertThat(payload1.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload1.get()).isEqualTo((byte) 1);
 
         final RawFrame frame2 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
-        Assertions.assertEquals(0, frame2.getFlags());
-        Assertions.assertEquals(8, frame2.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame2.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame2.getFlags()).isEqualTo(0);
+        Assertions.assertThat(frame2.getStreamId()).isEqualTo(8);
         final ByteBuffer payload2 = frame2.getPayloadContent();
-        Assertions.assertNotNull(payload2);
-        Assertions.assertEquals(5, payload2.remaining());
-        Assertions.assertEquals(2, payload2.get());
-        Assertions.assertEquals(2, payload2.get());
-        Assertions.assertEquals(2, payload2.get());
-        Assertions.assertEquals(2, payload2.get());
-        Assertions.assertEquals(2, payload2.get());
+        Assertions.assertThat(payload2).isNotNull();
+        Assertions.assertThat(payload2.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload2.get()).isEqualTo((byte) 2);
 
         final RawFrame frame3 = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame3.getType()));
-        Assertions.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame3.getFlags());
-        Assertions.assertEquals(8, frame3.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame3.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame3.getFlags()).isEqualTo(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED));
+        Assertions.assertThat(frame3.getStreamId()).isEqualTo(8);
         final ByteBuffer payload3 = frame3.getPayloadContent();
-        Assertions.assertNotNull(payload3);
-        Assertions.assertEquals(5, payload3.remaining());
-        Assertions.assertEquals(3, payload3.get());
-        Assertions.assertEquals(3, payload3.get());
-        Assertions.assertEquals(3, payload3.get());
-        Assertions.assertEquals(3, payload3.get());
-        Assertions.assertEquals(3, payload3.get());
+        Assertions.assertThat(payload3).isNotNull();
+        Assertions.assertThat(payload3.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload3.get()).isEqualTo((byte) 3);
 
-        Assertions.assertEquals(-1, readableChannel.read(ByteBuffer.allocate(1024)));
+        Assertions.assertThat(readableChannel.read(ByteBuffer.allocate(1024))).isEqualTo(-1);
     }
 
     @Test
@@ -219,19 +219,19 @@ class TestFrameInOutBuffers {
                 new byte[] {0,0,0});
 
         final RawFrame frame = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
-        Assertions.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame.getFlags());
-        Assertions.assertEquals(8, frame.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame.getFlags()).isEqualTo(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED));
+        Assertions.assertThat(frame.getStreamId()).isEqualTo(8);
         final ByteBuffer payload = frame.getPayloadContent();
-        Assertions.assertNotNull(payload);
-        Assertions.assertEquals(5, payload.remaining());
-        Assertions.assertEquals(1, payload.get());
-        Assertions.assertEquals(2, payload.get());
-        Assertions.assertEquals(3, payload.get());
-        Assertions.assertEquals(4, payload.get());
-        Assertions.assertEquals(5, payload.get());
+        Assertions.assertThat(payload).isNotNull();
+        Assertions.assertThat(payload.remaining()).isEqualTo(5);
+        Assertions.assertThat(payload.get()).isEqualTo((byte) 1);
+        Assertions.assertThat(payload.get()).isEqualTo((byte) 2);
+        Assertions.assertThat(payload.get()).isEqualTo((byte) 3);
+        Assertions.assertThat(payload.get()).isEqualTo((byte) 4);
+        Assertions.assertThat(payload.get()).isEqualTo((byte) 5);
 
-        Assertions.assertEquals(-1, readableChannel.read(ByteBuffer.allocate(1024)));
+        Assertions.assertThat(readableChannel.read(ByteBuffer.allocate(1024))).isEqualTo(-1);
     }
 
     @Test
@@ -241,11 +241,11 @@ class TestFrameInOutBuffers {
                 new byte[] {0,0,0,0,0,0,0,0,0});
 
         final RawFrame frame = inBuffer.read(readableChannel);
-        Assertions.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
-        Assertions.assertEquals(0, frame.getFlags());
-        Assertions.assertEquals(0, frame.getStreamId());
+        Assertions.assertThat(FrameType.valueOf(frame.getType())).isEqualTo(FrameType.DATA);
+        Assertions.assertThat(frame.getFlags()).isEqualTo(0);
+        Assertions.assertThat(frame.getStreamId()).isEqualTo(0);
         final ByteBuffer payload = frame.getPayloadContent();
-        Assertions.assertNull(payload);
+        Assertions.assertThat(payload).isNull();
     }
 
     @Test
@@ -253,12 +253,12 @@ class TestFrameInOutBuffers {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {});
 
-        Assertions.assertNull(inBuffer.read(readableChannel));
-        Assertions.assertFalse(inBuffer.isEndOfStream());
-        Assertions.assertNull(inBuffer.read(readableChannel));
-        Assertions.assertTrue(inBuffer.isEndOfStream());
-        Assertions.assertNull(inBuffer.read(readableChannel));
-        Assertions.assertTrue(inBuffer.isEndOfStream());
+        Assertions.assertThat(inBuffer.read(readableChannel)).isNull();
+        Assertions.assertThat(inBuffer.isEndOfStream()).isFalse();
+        Assertions.assertThat(inBuffer.read(readableChannel)).isNull();
+        Assertions.assertThat(inBuffer.isEndOfStream()).isTrue();
+        Assertions.assertThat(inBuffer.read(readableChannel)).isNull();
+        Assertions.assertThat(inBuffer.isEndOfStream()).isTrue();
     }
 
     @Test
@@ -266,8 +266,8 @@ class TestFrameInOutBuffers {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {0,0});
 
-        Assertions.assertThrows(H2CorruptFrameException.class, () ->
-                inBuffer.read(readableChannel));
+        Assertions.assertThatThrownBy(() ->
+                inBuffer.read(readableChannel)).isInstanceOf(H2CorruptFrameException.class);
     }
 
     @Test
@@ -277,8 +277,8 @@ class TestFrameInOutBuffers {
 
         final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                outbuffer.write(frame, writableChannel));
+        Assertions.assertThatThrownBy(() ->
+                outbuffer.write(frame, writableChannel)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -287,16 +287,16 @@ class TestFrameInOutBuffers {
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(
                 new byte[] {0,-128,-128,0,0,0,0,0,1});
 
-        Assertions.assertThrows(H2ConnectionException.class, () ->
-                inBuffer.read(readableChannel));
+        Assertions.assertThatThrownBy(() ->
+                inBuffer.read(readableChannel)).isInstanceOf(H2ConnectionException.class);
     }
 
     @Test
     void testOutputBufferResize() {
         final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
-        Assertions.assertEquals(16 * 1024, outBuffer.getMaxFramePayloadSize());
+        Assertions.assertThat(outBuffer.getMaxFramePayloadSize()).isEqualTo(16 * 1024);
         outBuffer.resize(1024);
-        Assertions.assertEquals(1024, outBuffer.getMaxFramePayloadSize());
+        Assertions.assertThat(outBuffer.getMaxFramePayloadSize()).isEqualTo(1024);
     }
 
 }

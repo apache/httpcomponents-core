@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.structured;
 
 import org.apache.hc.core5.http.ParseException;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -50,25 +50,24 @@ class TestStructuredFieldStrictness {
 
     @Test
     void testStrictByteSequences() throws Exception {
-        Assertions.assertEquals(5,
-                StructuredFieldParser.parseItem(":aGVsbG8:").getBareItem().getByteSequenceValue().length);
-        Assertions.assertEquals(":YQ==:", StructuredFieldSerializer.serializeItem(
-                StructuredFieldParser.parseItem(":YQ=:")));
+        Assertions.assertThat(StructuredFieldParser.parseItem(":aGVsbG8:").getBareItem().getByteSequenceValue().length).isEqualTo(5);
+        Assertions.assertThat(StructuredFieldSerializer.serializeItem(
+                StructuredFieldParser.parseItem(":YQ=:"))).isEqualTo(":YQ==:");
         assertItemFails(":=aGVsbG8=:", ":a=GVsbG8=:", ":aGVsb G8=:", ":aGVsbG8=", ":_-Ah:", ":",
                 ":YQ===:");
 
         final StructuredFieldItem nonZeroPadBits = StructuredFieldParser.parseItem(":iZ==:");
-        Assertions.assertEquals(":iQ==:", StructuredFieldSerializer.serializeItem(nonZeroPadBits));
+        Assertions.assertThat(StructuredFieldSerializer.serializeItem(nonZeroPadBits)).isEqualTo(":iQ==:");
     }
 
     @Test
     void testStrictDisplayStrings() throws Exception {
         final StructuredFieldItem item = StructuredFieldParser.parseItem("%\"foo %22bar%22 \\ baz\"");
-        Assertions.assertEquals("foo \"bar\" \\ baz", item.getBareItem().getTextValue());
-        Assertions.assertEquals("%\"foo %22bar%22 \\ baz\"", StructuredFieldSerializer.serializeItem(item));
+        Assertions.assertThat(item.getBareItem().getTextValue()).isEqualTo("foo \"bar\" \\ baz");
+        Assertions.assertThat(StructuredFieldSerializer.serializeItem(item)).isEqualTo("%\"foo %22bar%22 \\ baz\"");
 
         final StructuredFieldItem overEncoded = StructuredFieldParser.parseItem("%\"%61\"");
-        Assertions.assertEquals("%\"a\"", StructuredFieldSerializer.serializeItem(overEncoded));
+        Assertions.assertThat(StructuredFieldSerializer.serializeItem(overEncoded)).isEqualTo("%\"a\"");
 
         assertItemFails("%\"f%C3%BC\"", "%\"füü\"", "%\"%c3%28\"", "%\"%a0%a1\"",
                 "%\"%e2%28%a1\"", "%\"%f0%28%8c%28\"", "%\"%g0\"", "%\"%\"", "%foo");
@@ -76,31 +75,38 @@ class TestStructuredFieldStrictness {
 
     @Test
     void testOnlySpacesAreAllowedAtTopLevel() throws Exception {
-        Assertions.assertEquals(1L, StructuredFieldParser.parseItem(" 1 ").getBareItem().getLongValue());
+        Assertions.assertThat(StructuredFieldParser.parseItem(" 1 ").getBareItem().getLongValue()).isEqualTo(1L);
         assertItemFails(" \t 1", "1 \t ");
     }
 
     @Test
     void testUnicodeDigitsAreNotRfcDigits() {
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> StructuredFieldParameters.builder().putBoolean("a١", true));
+        Assertions.assertThatThrownBy(() ->
+                        StructuredFieldParameters.builder().putBoolean("a١", true))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static void assertItemFails(final String... values) {
         for (final String value : values) {
-            Assertions.assertThrows(ParseException.class, () -> StructuredFieldParser.parseItem(value), value);
+            Assertions.assertThatThrownBy(() ->
+                            StructuredFieldParser.parseItem(value))
+                    .withFailMessage(value).isInstanceOf(ParseException.class);
         }
     }
 
     private static void assertListFails(final String... values) {
         for (final String value : values) {
-            Assertions.assertThrows(ParseException.class, () -> StructuredFieldParser.parseList(value), value);
+            Assertions.assertThatThrownBy(() ->
+                            StructuredFieldParser.parseList(value))
+                    .withFailMessage(value).isInstanceOf(ParseException.class);
         }
     }
 
     private static void assertDictionaryFails(final String... values) {
         for (final String value : values) {
-            Assertions.assertThrows(ParseException.class, () -> StructuredFieldParser.parseDictionary(value), value);
+            Assertions.assertThatThrownBy(() ->
+                            StructuredFieldParser.parseDictionary(value))
+                    .withFailMessage(value).isInstanceOf(ParseException.class);
         }
     }
 }

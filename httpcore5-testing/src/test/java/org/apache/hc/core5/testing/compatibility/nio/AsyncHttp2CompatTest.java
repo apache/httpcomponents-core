@@ -57,7 +57,7 @@ import org.apache.hc.core5.testing.Result;
 import org.apache.hc.core5.testing.compatibility.TLSTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -148,11 +148,11 @@ public abstract class AsyncHttp2CompatTest extends AsyncHttpCompatTest<H2AsyncRe
                         }
 
                     });
-            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+            Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).withFailMessage("Request executions have not completed in time").isTrue();
             for (final Result<String> result : resultQueue) {
                 if (result.isOK()) {
-                    Assertions.assertNotNull(result.response);
-                    Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
+                    Assertions.assertThat(result.response).isNotNull();
+                    Assertions.assertThat(result.response.getCode()).withFailMessage("Response message returned non 200 status").isEqualTo(HttpStatus.SC_OK);
                 } else {
                     Assertions.fail(result.exception);
                 }

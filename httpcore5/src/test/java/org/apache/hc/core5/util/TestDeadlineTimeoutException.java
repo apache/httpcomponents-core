@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDeadlineTimeoutException {
@@ -35,18 +35,16 @@ class TestDeadlineTimeoutException {
     @Test
     void testMessage() {
         final Deadline deadline = Deadline.fromUnixMilliseconds(1000).freeze();
-        Assertions.assertTrue(deadline.isExpired(), deadline.toString());
+        Assertions.assertThat(deadline.isExpired()).withFailMessage(deadline.toString()).isTrue();
         final String format = deadline.formatTarget();
         final TimeValue diff = TimeValue.ofMilliseconds(deadline.remaining());
-        Assertions.assertEquals("Deadline: " + format + ", " + diff + " overdue",
-                DeadlineTimeoutException.from(deadline).getMessage());
+        Assertions.assertThat(DeadlineTimeoutException.from(deadline).getMessage()).isEqualTo("Deadline: " + format + ", " + diff + " overdue");
     }
 
     @Test
     void testInfiniteDeadlineMessage() {
         final Deadline deadline = Deadline.calculate(Timeout.ZERO_MILLISECONDS);
-        Assertions.assertEquals("No deadline (infinite)",
-                DeadlineTimeoutException.from(deadline).getMessage());
+        Assertions.assertThat(DeadlineTimeoutException.from(deadline).getMessage()).isEqualTo("No deadline (infinite)");
     }
 
 }

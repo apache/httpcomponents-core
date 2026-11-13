@@ -54,7 +54,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout.ThreadMode;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -114,10 +114,10 @@ abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
         post.setEntity(requestEntity);
 
         try (final ClassicHttpResponse response = requester.execute(host, post, TIMEOUT, context)) {
-            Assertions.assertEquals(400, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(400);
             EntityUtils.consumeQuietly(response.getEntity());
         }
-        Assertions.assertTrue(requestEntity.remaining > 0, "Client should have stopped sending data");
+        Assertions.assertThat(requestEntity.remaining > 0).withFailMessage("Client should have stopped sending data").isTrue();
     }
 
     private static final class AllOnesHttpEntity extends AbstractHttpEntity {

@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncResponseConsumer;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -91,10 +91,10 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
             requestProducer.blockWaiting().execute();
 
             try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
-                Assertions.assertEquals(200, response.getCode());
+                Assertions.assertThat(response.getCode()).isEqualTo(200);
                 final byte[] bytes = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-                Assertions.assertNotNull(bytes);
-                Assertions.assertArrayEquals(temp, bytes);
+                Assertions.assertThat(bytes).isNotNull();
+                Assertions.assertThat(bytes).containsExactly(temp);
             }
         }
     }

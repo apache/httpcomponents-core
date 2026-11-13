@@ -102,7 +102,8 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.Http1TestResources;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -150,12 +151,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assertions.assertNotNull(result);
+                Assertions.assertThat(result).isNotNull();
                 final HttpResponse response1 = result.head();
                 final String entity1 = result.body();
-                Assertions.assertNotNull(response1);
-                Assertions.assertEquals(200, response1.getCode());
-                Assertions.assertEquals("Hi there", entity1);
+                Assertions.assertThat(response1).isNotNull();
+                Assertions.assertThat(response1.getCode()).isEqualTo(200);
+                Assertions.assertThat(entity1).isEqualTo("Hi there");
             }
         }
     }
@@ -188,12 +189,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
             streamEndpoint.close();
 
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("Hi there", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Hi there");
         }
 
     }
@@ -226,12 +227,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
             streamEndpoint.close();
 
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertEquals("Hi there", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Hi there");
         }
     }
 
@@ -263,12 +264,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
 
             streamEndpoint.close();
 
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(500, response.getCode());
-            Assertions.assertEquals("Go away", entity);
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(500);
+            Assertions.assertThat(entity).isEqualTo("Go away");
         }
     }
 
@@ -296,12 +297,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity1 = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi back", entity1);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity1).isEqualTo("Hi back");
         }
     }
 
@@ -327,8 +328,8 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(request, new BasicAsyncEntityProducer(new byte[]{'a', 'b', 'c'}, null, true)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, future::get);
-        Assertions.assertInstanceOf(ProtocolException.class, exception.getCause());
+        final ExecutionException exception = Assertions.assertThatThrownBy(future::get).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(exception.getCause()).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -354,11 +355,11 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assertions.assertNotNull(result);
+                Assertions.assertThat(result).isNotNull();
                 final HttpResponse response1 = result.head();
-                Assertions.assertNotNull(response1);
-                Assertions.assertEquals(200, response1.getCode());
-                Assertions.assertNull(result.body());
+                Assertions.assertThat(response1).isNotNull();
+                Assertions.assertThat(response1.getCode()).isEqualTo(200);
+                Assertions.assertThat(result.body()).isNull();
             }
         }
     }
@@ -411,13 +412,13 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result1);
+            Assertions.assertThat(result1).isNotNull();
             final HttpResponse response1 = result1.head();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("All is well", result1.body());
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(result1.body()).isEqualTo("All is well");
 
-            Assertions.assertTrue(ioSession.isOpen());
+            Assertions.assertThat(ioSession.isOpen()).isTrue();
 
             final BasicHttpRequest request2 = BasicRequestBuilder.post()
                     .setHttpHost(target)
@@ -427,13 +428,13 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result2);
+            Assertions.assertThat(result2).isNotNull();
             final HttpResponse response2 = result2.head();
-            Assertions.assertNotNull(response2);
-            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
-            Assertions.assertEquals("You shall not pass", result2.body());
+            Assertions.assertThat(response2).isNotNull();
+            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+            Assertions.assertThat(result2.body()).isEqualTo("You shall not pass");
 
-            Assertions.assertTrue(ioSession.isOpen());
+            Assertions.assertThat(ioSession.isOpen()).isTrue();
 
             final BasicHttpRequest request3 = BasicRequestBuilder.post()
                     .setHttpHost(target)
@@ -444,13 +445,13 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request3, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result3);
+            Assertions.assertThat(result3).isNotNull();
             final HttpResponse response3 = result3.head();
-            Assertions.assertNotNull(response3);
-            Assertions.assertEquals(200, response3.getCode());
-            Assertions.assertEquals("All is well", result3.body());
+            Assertions.assertThat(response3).isNotNull();
+            Assertions.assertThat(response3.getCode()).isEqualTo(200);
+            Assertions.assertThat(result3.body()).isEqualTo("All is well");
 
-            Assertions.assertTrue(ioSession.isOpen());
+            Assertions.assertThat(ioSession.isOpen()).isTrue();
 
             final BasicHttpRequest request4 = BasicRequestBuilder.post()
                     .setHttpHost(target)
@@ -460,13 +461,13 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result4);
+            Assertions.assertThat(result4).isNotNull();
             final HttpResponse response4 = result4.head();
-            Assertions.assertNotNull(response4);
-            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
-            Assertions.assertEquals("You shall not pass", result4.body());
+            Assertions.assertThat(response4).isNotNull();
+            Assertions.assertThat(response4.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+            Assertions.assertThat(result4.body()).isEqualTo("You shall not pass");
 
-            Assertions.assertFalse(ioSession.isOpen());
+            Assertions.assertThat(ioSession.isOpen()).isFalse();
         }
     }
 
@@ -521,13 +522,13 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                             ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result1);
+            Assertions.assertThat(result1).isNotNull();
             final HttpResponse response1 = result1.head();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-            Assertions.assertEquals("You shall not pass", result1.body());
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+            Assertions.assertThat(result1.body()).isEqualTo("You shall not pass");
 
-            Assertions.assertFalse(streamEndpoint.isOpen());
+            Assertions.assertThat(streamEndpoint.isOpen()).isFalse();
         }
     }
 
@@ -561,12 +562,12 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity1 = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi there back", entity1);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity1).isEqualTo("Hi there back");
         }
     }
 
@@ -635,24 +636,24 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
         final String entity1 = result1.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hi back", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
+        Assertions.assertThat(entity1).isEqualTo("Hi back");
 
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result2);
+        Assertions.assertThat(result2).isNotNull();
         final HttpResponse response2 = result2.head();
         final String entity2 = result2.body();
-        Assertions.assertNotNull(response2);
-        Assertions.assertEquals(200, response2.getCode());
-        Assertions.assertEquals("Hi back", entity2);
+        Assertions.assertThat(response2).isNotNull();
+        Assertions.assertThat(response2.getCode()).isEqualTo(200);
+        Assertions.assertThat(entity2).isEqualTo("Hi back");
 
-        final Exception exception = Assertions.assertThrows(Exception.class, () ->
-                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
+        final Exception exception = Assertions.assertThatThrownBy(() ->
+                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(Exception.class).asInstanceOf(InstanceOfAssertFactories.type(Exception.class)).actual();
+        Assertions.assertThat(exception instanceof CancellationException || exception instanceof ExecutionException).isTrue();
 
         final BasicHttpRequest request4 = BasicRequestBuilder.post()
                 .setHttpHost(target)
@@ -661,9 +662,9 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
                 new BasicRequestProducer(request4, AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Exception exception2 = Assertions.assertThrows(Exception.class, () ->
-                future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertTrue(exception2 instanceof CancellationException || exception2 instanceof ExecutionException);
+        final Exception exception2 = Assertions.assertThatThrownBy(() ->
+                future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(Exception.class).asInstanceOf(InstanceOfAssertFactories.type(Exception.class)).actual();
+        Assertions.assertThat(exception2 instanceof CancellationException || exception2 instanceof ExecutionException).isTrue();
     }
 
     @Test
@@ -707,25 +708,25 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
         final String entity1 = result1.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hi back", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
+        Assertions.assertThat(entity1).isEqualTo("Hi back");
 
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result2);
+        Assertions.assertThat(result2).isNotNull();
         final HttpResponse response2 = result2.head();
         final String entity2 = result2.body();
-        Assertions.assertNotNull(response2);
-        Assertions.assertEquals(400, response2.getCode());
-        Assertions.assertFalse(entity2.isEmpty());
+        Assertions.assertThat(response2).isNotNull();
+        Assertions.assertThat(response2.getCode()).isEqualTo(400);
+        Assertions.assertThat(entity2.isEmpty()).isFalse();
 
 
-        final Exception exception = Assertions.assertThrows(Exception.class, () ->
-                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertTrue(exception instanceof CancellationException || exception instanceof ExecutionException);
+        final Exception exception = Assertions.assertThatThrownBy(() ->
+                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(Exception.class).asInstanceOf(InstanceOfAssertFactories.type(Exception.class)).actual();
+        Assertions.assertThat(exception instanceof CancellationException || exception instanceof ExecutionException).isTrue();
     }
 
     private static final byte[] GARBAGE = "garbage".getBytes(StandardCharsets.US_ASCII);
@@ -863,11 +864,11 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         };
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(MalformedChunkCodingException.class, cause);
-        Assertions.assertEquals("garbage", entityConsumer.generateContent());
+        Assertions.assertThat(cause).isInstanceOf(MalformedChunkCodingException.class);
+        Assertions.assertThat(entityConsumer.generateContent()).isEqualTo("garbage");
     }
 
     @ParameterizedTest
@@ -915,9 +916,9 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
-                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertInstanceOf(ConnectionClosedException.class, executionException.getCause());
+        final ExecutionException executionException = Assertions.assertThatThrownBy(() ->
+                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+        Assertions.assertThat(executionException.getCause()).isInstanceOf(ConnectionClosedException.class);
     }
 
     @Test
@@ -956,10 +957,10 @@ abstract class Http1IntegrationTest extends HttpIntegrationTest {
                 new BasicRequestProducer(request, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result);
+        Assertions.assertThat(result).isNotNull();
         final HttpResponse response = result.head();
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(505, response.getCode());
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getCode()).isEqualTo(505);
     }
 
 }

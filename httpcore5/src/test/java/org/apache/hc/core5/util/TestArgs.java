@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -51,145 +51,145 @@ class TestArgs {
 
     @Test
     void testArgCheckFail() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.check(false, "Oopsie"));
+        Assertions.assertThatThrownBy(() ->
+                Args.check(false, "Oopsie")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testArgNotNullPass() {
         final String stuff = "stuff";
-        Assertions.assertSame(stuff, Args.notNull(stuff, "Stuff"));
+        Assertions.assertThat(Args.notNull(stuff, "Stuff")).isSameAs(stuff);
     }
 
     @Test
     void testArgNotNullFail() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                Args.notNull(null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notNull(null, "Stuff")).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testArgNotEmptyPass() {
         final String stuff = "stuff";
-        Assertions.assertSame(stuff, Args.notEmpty(stuff, "Stuff"));
+        Assertions.assertThat(Args.notEmpty(stuff, "Stuff")).isSameAs(stuff);
     }
 
     @Test
     void testArgNotEmptyFail1() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                Args.notEmpty((String) null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notEmpty((String) null, "Stuff")).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testArgNotEmptyFail2() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notEmpty("", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notEmpty("", "Stuff")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testArgNotBlankFail1() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                Args.notBlank((String) null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notBlank((String) null, "Stuff")).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testArgNotBlankFail2() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notBlank("", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notBlank("", "Stuff")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testArgNotBlankFail3() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notBlank(" \t \n\r", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notBlank(" \t \n\r", "Stuff")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testArgCollectionNotEmptyPass() {
         final List<String> list = Collections.singletonList("stuff");
-        Assertions.assertSame(list, Args.notEmpty(list, "List"));
+        Assertions.assertThat(Args.notEmpty(list, "List")).isSameAs(list);
     }
 
     @Test
     void testArgCollectionNotEmptyFail1() {
-        Assertions.assertThrows(NullPointerException.class, () ->
-                Args.notEmpty((List<?>) null, "List"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notEmpty((List<?>) null, "List")).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testArgCollectionNotEmptyFail2() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notEmpty(Collections.emptyList(), "List"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notEmpty(Collections.emptyList(), "List")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testPositiveIntPass() {
-        Assertions.assertEquals(1, Args.positive(1, "Number"));
+        Assertions.assertThat(Args.positive(1, "Number")).isEqualTo(1);
     }
 
     @Test
     void testPositiveIntFail1() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.positive(-1, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.positive(-1, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testPositiveIntFail2() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.positive(0, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.positive(0, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testPositiveLongPass() {
-        Assertions.assertEquals(1L, Args.positive(1L, "Number"));
+        Assertions.assertThat(Args.positive(1L, "Number")).isEqualTo(1L);
     }
 
     @Test
     void testPositiveTimeValuePass() throws ParseException {
         final Timeout timeout = Timeout.parse("1200 MILLISECONDS");
-        Assertions.assertEquals(timeout, Args.positive(timeout, "No Error"));
+        Assertions.assertThat(Args.positive(timeout, "No Error")).isEqualTo(timeout);
     }
     @Test
     void testPositiveLongFail1() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.positive(-1L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.positive(-1L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testPositiveLongFail2() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.positive(0L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.positive(0L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testNotNegativeIntPass1() {
-        Assertions.assertEquals(1, Args.notNegative(1, "Number"));
+        Assertions.assertThat(Args.notNegative(1, "Number")).isEqualTo(1);
     }
 
     @Test
     void testNotNegativeIntPass2() {
-        Assertions.assertEquals(0, Args.notNegative(0, "Number"));
+        Assertions.assertThat(Args.notNegative(0, "Number")).isEqualTo(0);
     }
 
     @Test
     void testNotNegativeIntFail1() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notNegative(-1, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notNegative(-1, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testNotNegativeLongPass1() {
-        Assertions.assertEquals(1L, Args.notNegative(1L, "Number"));
+        Assertions.assertThat(Args.notNegative(1L, "Number")).isEqualTo(1L);
     }
 
     @Test
     void testNotNegativeLongPass2() {
-        Assertions.assertEquals(0L, Args.notNegative(0L, "Number"));
+        Assertions.assertThat(Args.notNegative(0L, "Number")).isEqualTo(0L);
     }
 
     @Test
     void testNotNegativeLongFail1() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.notNegative(-1L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.notNegative(-1L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -199,26 +199,26 @@ class TestArgs {
 
     @Test
     void testIntSmallestRangeFailLow() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(-1, 0, 0, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(-1, 0, 0, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testIntRangeFailLow() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(-101, -100, 100, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(-101, -100, 100, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testIntRangeFailHigh() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(101, -100, 100, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(101, -100, 100, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testIntSmallestRangeFailHigh() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(1, 0, 0, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(1, 0, 0, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -233,26 +233,26 @@ class TestArgs {
 
     @Test
     void testLongSmallestRangeFailLow() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(-1L, 0L, 0L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(-1L, 0L, 0L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testLongRangeFailLow() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(-101L, -100L, 100L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(-101L, -100L, 100L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testLongRangeFailHigh() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(101L, -100L, 100L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(101L, -100L, 100L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void testLongSmallestRangeFailHigh() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.checkRange(1L, 0L, 0L, "Number"));
+        Assertions.assertThatThrownBy(() ->
+                Args.checkRange(1L, 0L, 0L, "Number")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -272,31 +272,31 @@ class TestArgs {
         final Map<String, String> NON_EMPTY_MAP = new HashMap<>();
         NON_EMPTY_MAP.put("ABG", "MNL");
 
-        Assertions.assertTrue(Args.isEmpty(null));
-        Assertions.assertTrue(Args.isEmpty(""));
-        Assertions.assertTrue(Args.isEmpty(new int[] {}));
-        Assertions.assertTrue(Args.isEmpty(Collections.emptyList()));
-        Assertions.assertTrue(Args.isEmpty(Collections.emptySet()));
-        Assertions.assertTrue(Args.isEmpty(Collections.emptyMap()));
+        Assertions.assertThat(Args.isEmpty(null)).isTrue();
+        Assertions.assertThat(Args.isEmpty("")).isTrue();
+        Assertions.assertThat(Args.isEmpty(new int[]{})).isTrue();
+        Assertions.assertThat(Args.isEmpty(Collections.emptyList())).isTrue();
+        Assertions.assertThat(Args.isEmpty(Collections.emptySet())).isTrue();
+        Assertions.assertThat(Args.isEmpty(Collections.emptyMap())).isTrue();
 
-        Assertions.assertFalse(Args.isEmpty("  "));
-        Assertions.assertFalse(Args.isEmpty("ab"));
-        Assertions.assertFalse(Args.isEmpty(NON_EMPTY_ARRAY));
-        Assertions.assertFalse(Args.isEmpty(NON_EMPTY_LIST));
-        Assertions.assertFalse(Args.isEmpty(NON_EMPTY_SET));
-        Assertions.assertFalse(Args.isEmpty(NON_EMPTY_MAP));
+        Assertions.assertThat(Args.isEmpty("  ")).isFalse();
+        Assertions.assertThat(Args.isEmpty("ab")).isFalse();
+        Assertions.assertThat(Args.isEmpty(NON_EMPTY_ARRAY)).isFalse();
+        Assertions.assertThat(Args.isEmpty(NON_EMPTY_LIST)).isFalse();
+        Assertions.assertThat(Args.isEmpty(NON_EMPTY_SET)).isFalse();
+        Assertions.assertThat(Args.isEmpty(NON_EMPTY_MAP)).isFalse();
     }
 
     @Test
     void testContainsNoBlanks() {
         final String stuff = "abg";
-        Assertions.assertSame(stuff, Args.containsNoBlanks(stuff, "abg"));
+        Assertions.assertThat(Args.containsNoBlanks(stuff, "abg")).isSameAs(stuff);
     }
 
     @Test
     void check() {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                Args.check(false, "Error,", "ABG"));
+        Assertions.assertThatThrownBy(() ->
+                Args.check(false, "Error,", "ABG")).isInstanceOf(IllegalArgumentException.class);
     }
 
 }

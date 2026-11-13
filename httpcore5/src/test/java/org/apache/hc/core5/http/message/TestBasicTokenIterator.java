@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.hc.core5.http.Header;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
@@ -48,15 +48,15 @@ class TestBasicTokenIterator {
         Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", ti.next());
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token0");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token1");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token2");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token3");
+        Assertions.assertThat(ti.hasNext()).isFalse();
 
 
         headers = new Header[]{
@@ -65,9 +65,9 @@ class TestBasicTokenIterator {
         hit = new BasicHeaderIterator(headers, null);
         ti = new BasicTokenIterator(hit);
 
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", ti.next());
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token0");
+        Assertions.assertThat(ti.hasNext()).isFalse();
     }
 
 
@@ -85,17 +85,17 @@ class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", ti.next());
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token0");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token1");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token2");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token3");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token4");
+        Assertions.assertThat(ti.hasNext()).isFalse();
     }
 
 
@@ -110,13 +110,13 @@ class TestBasicTokenIterator {
         Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isFalse();
 
 
         hit = new BasicHeaderIterator(headers, "empty");
         ti = new BasicTokenIterator(hit);
 
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isFalse();
     }
 
 
@@ -133,19 +133,19 @@ class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token5", ti.next());
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token0");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token1");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token2");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token3");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token4");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token5");
+        Assertions.assertThat(ti.hasNext()).isFalse();
     }
 
 
@@ -162,24 +162,26 @@ class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", ti.next());
-        Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token5", ti.next());
-        Assertions.assertFalse(ti.hasNext());
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token0");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token1");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token2");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token3");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token4");
+        Assertions.assertThat(ti.hasNext()).isTrue();
+        Assertions.assertThat(ti.next()).isEqualTo("token5");
+        Assertions.assertThat(ti.hasNext()).isFalse();
     }
 
     @Test
     void testWrongPublic() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicTokenIterator(null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicTokenIterator(null))
+                .isInstanceOf(NullPointerException.class);
 
         final Header[] headers = new Header[]{
                 new BasicHeader("Name", " "),
@@ -190,8 +192,12 @@ class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String> ti = new BasicTokenIterator(hit);
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> ti.next());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> ti.remove());
+        Assertions.assertThatThrownBy(() ->
+                        ti.next())
+                .isInstanceOf(NoSuchElementException.class);
+        Assertions.assertThatThrownBy(() ->
+                        ti.remove())
+                .isInstanceOf(UnsupportedOperationException.class);
     }
 
 }

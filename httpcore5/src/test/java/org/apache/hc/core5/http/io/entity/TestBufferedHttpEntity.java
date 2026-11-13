@@ -31,7 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,14 +45,14 @@ class TestBufferedHttpEntity {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BufferedHttpEntity entity = new BufferedHttpEntity(
                 new InputStreamEntity(new ByteArrayInputStream(bytes), -1, null));
-        Assertions.assertEquals(bytes.length, entity.getContentLength());
-        Assertions.assertTrue(entity.isRepeatable());
-        Assertions.assertFalse(entity.isChunked());
-        Assertions.assertFalse(entity.isStreaming());
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(bytes.length);
+        Assertions.assertThat(entity.isRepeatable()).isTrue();
+        Assertions.assertThat(entity.isChunked()).isFalse();
+        Assertions.assertThat(entity.isStreaming()).isFalse();
 
         // test if we can obtain contain multiple times
-        Assertions.assertNotNull(entity.getContent ());
-        Assertions.assertNotNull(entity.getContent ());
+        Assertions.assertThat(entity.getContent()).isNotNull();
+        Assertions.assertThat(entity.getContent()).isNotNull();
     }
 
     @Test
@@ -60,20 +60,22 @@ class TestBufferedHttpEntity {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, null, true);
         try (final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity)) {
-            Assertions.assertEquals(bytes.length, bufentity.getContentLength());
-            Assertions.assertTrue(bufentity.isRepeatable());
-            Assertions.assertTrue(bufentity.isChunked());
-            Assertions.assertFalse(bufentity.isStreaming());
+            Assertions.assertThat(bufentity.getContentLength()).isEqualTo(bytes.length);
+            Assertions.assertThat(bufentity.isRepeatable()).isTrue();
+            Assertions.assertThat(bufentity.isChunked()).isTrue();
+            Assertions.assertThat(bufentity.isStreaming()).isFalse();
 
             // test if we can obtain contain multiple times
-            Assertions.assertNotNull(bufentity.getContent());
-            Assertions.assertNotNull(bufentity.getContent());
+            Assertions.assertThat(bufentity.getContent()).isNotNull();
+            Assertions.assertThat(bufentity.getContent()).isNotNull();
         }
     }
 
     @Test
     void testIllegalConstructor() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BufferedHttpEntity(null));
+        Assertions.assertThatThrownBy(() ->
+                        new BufferedHttpEntity(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -85,22 +87,24 @@ class TestBufferedHttpEntity {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bufentity.writeTo(out);
             byte[] bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
             out = new ByteArrayOutputStream();
             bufentity.writeTo(out);
             bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
-            Assertions.assertThrows(NullPointerException.class, () -> bufentity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            bufentity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -113,22 +117,24 @@ class TestBufferedHttpEntity {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bufentity.writeTo(out);
             byte[] bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
             out = new ByteArrayOutputStream();
             bufentity.writeTo(out);
             bytes2 = out.toByteArray();
-            Assertions.assertNotNull(bytes2);
-            Assertions.assertEquals(bytes.length, bytes2.length);
+            Assertions.assertThat(bytes2).isNotNull();
+            Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
             for (int i = 0; i < bytes.length; i++) {
-                Assertions.assertEquals(bytes[i], bytes2[i]);
+                Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
             }
 
-            Assertions.assertThrows(NullPointerException.class, () -> bufentity.writeTo(null));
+            Assertions.assertThatThrownBy(() ->
+                            bufentity.writeTo(null))
+                    .isInstanceOf(NullPointerException.class);
         }
     }
 

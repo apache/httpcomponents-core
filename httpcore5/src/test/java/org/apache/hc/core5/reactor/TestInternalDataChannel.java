@@ -30,7 +30,7 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -93,7 +93,9 @@ class TestInternalDataChannel {
             channel.switchProtocol("H2", null);
 
             Mockito.verify(upgradeHandler).upgrade(Mockito.eq(channel), Mockito.isNull());
-            Assertions.assertThrows(IllegalStateException.class, () -> channel.switchProtocol("unknown", null));
+            Assertions.assertThatThrownBy(() ->
+                            channel.switchProtocol("unknown", null))
+                    .isInstanceOf(IllegalStateException.class);
         } finally {
             channel.close(org.apache.hc.core5.io.CloseMode.IMMEDIATE);
         }
@@ -139,7 +141,9 @@ class TestInternalDataChannel {
             @SuppressWarnings("unchecked")
             final FutureCallback<ProtocolIOSession> callback =
                     (FutureCallback<ProtocolIOSession>) Mockito.mock(FutureCallback.class);
-            Assertions.assertThrows(IllegalStateException.class, () -> channel.switchProtocol("h2", callback));
+            Assertions.assertThatThrownBy(() ->
+                            channel.switchProtocol("h2", callback))
+                    .isInstanceOf(IllegalStateException.class);
         } finally {
             channel.close(org.apache.hc.core5.io.CloseMode.IMMEDIATE);
         }

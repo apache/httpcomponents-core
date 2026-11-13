@@ -26,14 +26,8 @@
  */
 package org.apache.hc.core5.http2.priority;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 final class TestPriorityValue {
@@ -41,39 +35,43 @@ final class TestPriorityValue {
     @Test
     void defaultsAreAsSpecified() {
         final PriorityValue v = PriorityValue.defaults();
-        assertEquals(3, v.getUrgency());
-        assertFalse(v.isIncremental());
+        Assertions.assertThat(v.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(v.isIncremental()).isFalse();
     }
 
     @Test
     void factoryOfBuildsEquivalentInstances() {
         final PriorityValue v1 = new PriorityValue(0, true);
         final PriorityValue v2 = PriorityValue.of(0, true);
-        assertEquals(v1, v2);
-        assertEquals(v1.hashCode(), v2.hashCode());
+        Assertions.assertThat(v2).isEqualTo(v1);
+        Assertions.assertThat(v2.hashCode()).isEqualTo(v1.hashCode());
     }
 
     @Test
     void acceptsFullValidRangeZeroToSeven() {
         for (int u = 0; u <= 7; u++) {
             final PriorityValue v = PriorityValue.of(u, false);
-            assertEquals(u, v.getUrgency());
-            assertFalse(v.isIncremental());
+            Assertions.assertThat(v.getUrgency()).isEqualTo(u);
+            Assertions.assertThat(v.isIncremental()).isFalse();
         }
     }
 
     @Test
     void rejectsUrgencyBelowZero() {
         final IllegalArgumentException ex =
-                assertThrows(IllegalArgumentException.class, () -> new PriorityValue(-1, false));
-        assertTrue(ex.getMessage().toLowerCase().contains("range"));
+                Assertions.assertThatThrownBy(() ->
+                                new PriorityValue(-1, false))
+                        .isInstanceOf(IllegalArgumentException.class).asInstanceOf(InstanceOfAssertFactories.type(IllegalArgumentException.class)).actual();
+        Assertions.assertThat(ex.getMessage().toLowerCase().contains("range")).isTrue();
     }
 
     @Test
     void rejectsUrgencyAboveSeven() {
         final IllegalArgumentException ex =
-                assertThrows(IllegalArgumentException.class, () -> PriorityValue.of(8, true));
-        assertTrue(ex.getMessage().toLowerCase().contains("range"));
+                Assertions.assertThatThrownBy(() ->
+                                PriorityValue.of(8, true))
+                        .isInstanceOf(IllegalArgumentException.class).asInstanceOf(InstanceOfAssertFactories.type(IllegalArgumentException.class)).actual();
+        Assertions.assertThat(ex.getMessage().toLowerCase().contains("range")).isTrue();
     }
 
     @Test
@@ -83,26 +81,30 @@ final class TestPriorityValue {
         final PriorityValue inc = base.withIncremental(true);
 
         // base remains unchanged
-        assertEquals(3, base.getUrgency());
-        assertFalse(base.isIncremental());
+        Assertions.assertThat(base.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(base.isIncremental()).isFalse();
 
         // new values applied
-        assertEquals(0, u0.getUrgency());
-        assertFalse(u0.isIncremental());
+        Assertions.assertThat(u0.getUrgency()).isEqualTo(0);
+        Assertions.assertThat(u0.isIncremental()).isFalse();
 
-        assertEquals(3, inc.getUrgency());
-        assertTrue(inc.isIncremental());
+        Assertions.assertThat(inc.getUrgency()).isEqualTo(3);
+        Assertions.assertThat(inc.isIncremental()).isTrue();
 
         // withers create distinct instances when changing a field
-        assertNotSame(base, u0);
-        assertNotSame(base, inc);
+        Assertions.assertThat(u0).isNotSameAs(base);
+        Assertions.assertThat(inc).isNotSameAs(base);
     }
 
     @Test
     void withUrgencyValidatesRange() {
         final PriorityValue base = PriorityValue.defaults();
-        assertThrows(IllegalArgumentException.class, () -> base.withUrgency(-1));
-        assertThrows(IllegalArgumentException.class, () -> base.withUrgency(9));
+        Assertions.assertThatThrownBy(() ->
+                        base.withUrgency(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThatThrownBy(() ->
+                        base.withUrgency(9))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -112,20 +114,20 @@ final class TestPriorityValue {
         final PriorityValue c = PriorityValue.of(2, false);
         final PriorityValue d = PriorityValue.of(3, true);
 
-        assertEquals(a, b);
-        assertEquals(a.hashCode(), b.hashCode());
+        Assertions.assertThat(b).isEqualTo(a);
+        Assertions.assertThat(b.hashCode()).isEqualTo(a.hashCode());
 
-        assertNotEquals(a, c);
-        assertNotEquals(a, d);
-        assertNotEquals(c, d);
+        Assertions.assertThat(c).isNotEqualTo(a);
+        Assertions.assertThat(d).isNotEqualTo(a);
+        Assertions.assertThat(d).isNotEqualTo(c);
     }
 
     @Test
     void toStringIncludesFields() {
         final PriorityValue v = PriorityValue.of(1, true);
         final String s = v.toString();
-        assertNotNull(s);
-        assertTrue(s.contains("u=1"));
-        assertTrue(s.contains("i=true"));
+        Assertions.assertThat(s).isNotNull();
+        Assertions.assertThat(s.contains("u=1")).isTrue();
+        Assertions.assertThat(s.contains("i=true")).isTrue();
     }
 }

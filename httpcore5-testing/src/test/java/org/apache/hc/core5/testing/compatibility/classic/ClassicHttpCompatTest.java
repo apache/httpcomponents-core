@@ -50,7 +50,7 @@ import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.apache.hc.core5.testing.compatibility.TLSTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -92,9 +92,9 @@ public abstract class ClassicHttpCompatTest {
                     .setHttpHost(target)
                     .build();
             requester.execute(target, request, TIMEOUT, context, response -> {
-                Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
                 final String body1 = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
-                Assertions.assertEquals(ContainerImages.AAA, body1);
+                Assertions.assertThat(body1).isEqualTo(ContainerImages.AAA);
                 return null;
             });
         }
@@ -135,11 +135,11 @@ public abstract class ClassicHttpCompatTest {
                     }
                 });
             }
-            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+            Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).withFailMessage("Request executions have not completed in time").isTrue();
             for (final Result<String> result : resultQueue) {
                 if (result.isOK()) {
-                    Assertions.assertNotNull(result.response);
-                    Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
+                    Assertions.assertThat(result.response).isNotNull();
+                    Assertions.assertThat(result.response.getCode()).withFailMessage("Response message returned non 200 status").isEqualTo(HttpStatus.SC_OK);
                 } else {
                     Assertions.fail(result.exception);
                 }

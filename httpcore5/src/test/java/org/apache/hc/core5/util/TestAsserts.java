@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -42,44 +42,44 @@ class TestAsserts {
 
     @Test
     void testExpressionCheckFail() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.check(false, "Oopsie"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.check(false, "Oopsie")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotNullFail() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notNull(null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notNull(null, "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotEmptyFail1() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notEmpty(null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notEmpty(null, "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotEmptyFail2() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notEmpty("", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notEmpty("", "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotEmptyBlank1() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notBlank(null, "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notBlank(null, "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotEmptyBlank2() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notBlank("", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notBlank("", "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void testExpressionNotBlankFail3() {
-        Assertions.assertThrows(IllegalStateException.class, () ->
-                Asserts.notBlank(" \t \n\r", "Stuff"));
+        Assertions.assertThatThrownBy(() ->
+                Asserts.notBlank(" \t \n\r", "Stuff")).isInstanceOf(IllegalStateException.class);
     }
 
 }

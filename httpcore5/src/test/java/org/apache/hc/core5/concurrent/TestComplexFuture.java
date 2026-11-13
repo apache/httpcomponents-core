@@ -29,7 +29,7 @@ package org.apache.hc.core5.concurrent;
 
 import java.util.concurrent.Future;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestComplexFuture {
@@ -41,15 +41,15 @@ class TestComplexFuture {
         final Future<Object> dependency1 = new BasicFuture<>(null);
         future.setDependency(dependency1);
 
-        Assertions.assertFalse(future.isDone());
+        Assertions.assertThat(future.isDone()).isFalse();
 
         future.cancel();
-        Assertions.assertTrue(future.isCancelled());
-        Assertions.assertTrue(dependency1.isCancelled());
+        Assertions.assertThat(future.isCancelled()).isTrue();
+        Assertions.assertThat(dependency1.isCancelled()).isTrue();
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        Assertions.assertTrue(dependency2.isCancelled());
+        Assertions.assertThat(dependency2.isCancelled()).isTrue();
     }
 
     @Test
@@ -59,15 +59,15 @@ class TestComplexFuture {
         final Future<Object> dependency1 = new BasicFuture<>(null);
         future.setDependency(dependency1);
 
-        Assertions.assertFalse(future.isDone());
+        Assertions.assertThat(future.isDone()).isFalse();
 
         future.completed(Boolean.TRUE);
-        Assertions.assertFalse(future.isCancelled());
-        Assertions.assertFalse(dependency1.isCancelled());
+        Assertions.assertThat(future.isCancelled()).isFalse();
+        Assertions.assertThat(dependency1.isCancelled()).isFalse();
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        Assertions.assertTrue(dependency2.isCancelled());
+        Assertions.assertThat(dependency2.isCancelled()).isTrue();
     }
 
     @Test
@@ -83,22 +83,22 @@ class TestComplexFuture {
         });
         future.setDependency(dependency1);
 
-        Assertions.assertFalse(future.isDone());
+        Assertions.assertThat(future.isDone()).isFalse();
 
         future.cancel();
-        Assertions.assertTrue(future.isCancelled());
-        Assertions.assertTrue(dependency1.isCancelled());
+        Assertions.assertThat(future.isCancelled()).isTrue();
+        Assertions.assertThat(dependency1.isCancelled()).isTrue();
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        Assertions.assertTrue(dependency2.isCancelled());
+        Assertions.assertThat(dependency2.isCancelled()).isTrue();
     }
 
     @Test
     void testCanceledAndFailed() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
-        Assertions.assertTrue(future.cancel());
-        Assertions.assertFalse(future.failed(new Exception()));
+        Assertions.assertThat(future.cancel()).isTrue();
+        Assertions.assertThat(future.failed(new Exception())).isFalse();
     }
 
 }

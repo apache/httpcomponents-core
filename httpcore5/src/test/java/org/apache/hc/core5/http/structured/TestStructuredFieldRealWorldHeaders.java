@@ -32,7 +32,7 @@ import java.security.MessageDigest;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestStructuredFieldRealWorldHeaders {
@@ -41,8 +41,8 @@ class TestStructuredFieldRealWorldHeaders {
     void testRfc9218Priority() throws Exception {
         final StructuredFieldDictionary priority = StructuredFieldHeaders.parseDictionary(
                 new BasicHeader("Priority", "u=0, i"));
-        Assertions.assertEquals(0L, item(priority, "u").getBareItem().getLongValue());
-        Assertions.assertTrue(item(priority, "i").getBareItem().getBooleanValue());
+        Assertions.assertThat(item(priority, "u").getBareItem().getLongValue()).isEqualTo(0L);
+        Assertions.assertThat(item(priority, "i").getBareItem().getBooleanValue()).isTrue();
     }
 
     @Test
@@ -55,7 +55,7 @@ class TestStructuredFieldRealWorldHeaders {
         final Header header = StructuredFieldHeaders.format("Content-Digest", value);
         final byte[] parsed = item(StructuredFieldHeaders.parseDictionary(header), "sha-256")
                 .getBareItem().getByteSequenceValue();
-        Assertions.assertTrue(MessageDigest.isEqual(digest, parsed));
+        Assertions.assertThat(MessageDigest.isEqual(digest, parsed)).isTrue();
     }
 
     @Test
@@ -63,9 +63,9 @@ class TestStructuredFieldRealWorldHeaders {
         final StructuredFieldList status = StructuredFieldHeaders.parseList(
                 new BasicHeader("Cache-Status", "ExampleCache;hit;ttl=376"));
         final StructuredFieldItem cache = (StructuredFieldItem) status.get(0);
-        Assertions.assertEquals("ExampleCache", cache.getBareItem().getTextValue());
-        Assertions.assertTrue(cache.getParameters().get("hit").getBooleanValue());
-        Assertions.assertEquals(376L, cache.getParameters().get("ttl").getLongValue());
+        Assertions.assertThat(cache.getBareItem().getTextValue()).isEqualTo("ExampleCache");
+        Assertions.assertThat(cache.getParameters().get("hit").getBooleanValue()).isTrue();
+        Assertions.assertThat(cache.getParameters().get("ttl").getLongValue()).isEqualTo(376L);
     }
 
     @Test
@@ -73,10 +73,8 @@ class TestStructuredFieldRealWorldHeaders {
         final StructuredFieldList status = StructuredFieldHeaders.parseList(new BasicHeader(
                 "Proxy-Status", "ExampleCDN;error=connection_timeout;received-status=504"));
         final StructuredFieldItem proxy = (StructuredFieldItem) status.get(0);
-        Assertions.assertEquals("connection_timeout",
-                proxy.getParameters().get("error").getTextValue());
-        Assertions.assertEquals(504L,
-                proxy.getParameters().get("received-status").getLongValue());
+        Assertions.assertThat(proxy.getParameters().get("error").getTextValue()).isEqualTo("connection_timeout");
+        Assertions.assertThat(proxy.getParameters().get("received-status").getLongValue()).isEqualTo(504L);
     }
 
     @Test
@@ -85,12 +83,10 @@ class TestStructuredFieldRealWorldHeaders {
                 "Signature-Input", "sig1=(\"@method\" \"@target-uri\" \"content-digest\")"
                         + ";created=1618884475;keyid=\"test-key-rsa-pss\""));
         final StructuredFieldInnerList signature = (StructuredFieldInnerList) signatureInput.get("sig1");
-        Assertions.assertEquals(3, signature.size());
-        Assertions.assertEquals("@method", signature.get(0).getBareItem().getTextValue());
-        Assertions.assertEquals(1618884475L,
-                signature.getParameters().get("created").getLongValue());
-        Assertions.assertEquals("test-key-rsa-pss",
-                signature.getParameters().get("keyid").getTextValue());
+        Assertions.assertThat(signature.size()).isEqualTo(3);
+        Assertions.assertThat(signature.get(0).getBareItem().getTextValue()).isEqualTo("@method");
+        Assertions.assertThat(signature.getParameters().get("created").getLongValue()).isEqualTo(1618884475L);
+        Assertions.assertThat(signature.getParameters().get("keyid").getTextValue()).isEqualTo("test-key-rsa-pss");
     }
 
     private static StructuredFieldItem item(final StructuredFieldDictionary dictionary, final String key) {

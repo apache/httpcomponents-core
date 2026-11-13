@@ -30,7 +30,7 @@ package org.apache.hc.core5.http;
 
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.util.Tokenizer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -68,48 +68,70 @@ class TestProtocolVersionParser {
 
     @Test
     void testParseVersion() throws Exception {
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO", "1  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO", "1.1   "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO", "1.020  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 22, 356), parseStr("PROTO", "22.356  "));
+        Assertions.assertThat(parseStr("PROTO", "1  ")).isEqualTo(new ProtocolVersion("PROTO", 1, 0));
+        Assertions.assertThat(parseStr("PROTO", "1.1   ")).isEqualTo(new ProtocolVersion("PROTO", 1, 1));
+        Assertions.assertThat(parseStr("PROTO", "1.020  ")).isEqualTo(new ProtocolVersion("PROTO", 1, 20));
+        Assertions.assertThat(parseStr("PROTO", "22.356  ")).isEqualTo(new ProtocolVersion("PROTO", 22, 356));
 
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO", "1,  ", Tokenizer.delimiters(',')));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO", "1.1;   ", Tokenizer.delimiters(',', ';')));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 200), parseStr("PROTO", "1.200 blah; ", Tokenizer.delimiters(',')));
+        Assertions.assertThat(parseStr("PROTO", "1,  ", Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 0));
+        Assertions.assertThat(parseStr("PROTO", "1.1;   ", Tokenizer.delimiters(',', ';'))).isEqualTo(new ProtocolVersion("PROTO", 1, 1));
+        Assertions.assertThat(parseStr("PROTO", "1.200 blah; ", Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 200));
     }
 
     @Test
     void testParseVersionWithCursor() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(2, 13);
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO", "  1.20,0000,00000", cursor, Tokenizer.delimiters(',')));
-        Assertions.assertEquals(6, cursor.getPos());
+        Assertions.assertThat(parseStr("PROTO", "  1.20,0000,00000", cursor, Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 20));
+        Assertions.assertThat(cursor.getPos()).isEqualTo(6);
     }
 
     @Test
     void testParseProtocolVersion() throws Exception {
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO/1  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO/1.1   "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO/1.020  "));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 22, 356), parseStr("PROTO/22.356  "));
+        Assertions.assertThat(parseStr("PROTO/1  ")).isEqualTo(new ProtocolVersion("PROTO", 1, 0));
+        Assertions.assertThat(parseStr("PROTO/1.1   ")).isEqualTo(new ProtocolVersion("PROTO", 1, 1));
+        Assertions.assertThat(parseStr("PROTO/1.020  ")).isEqualTo(new ProtocolVersion("PROTO", 1, 20));
+        Assertions.assertThat(parseStr("PROTO/22.356  ")).isEqualTo(new ProtocolVersion("PROTO", 22, 356));
 
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO/1,  ", Tokenizer.delimiters(',')));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO/1.1;   ", Tokenizer.delimiters(',', ';')));
-        Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 200), parseStr("PROTO/1.200 blah; ", Tokenizer.delimiters(',')));
+        Assertions.assertThat(parseStr("PROTO/1,  ", Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 0));
+        Assertions.assertThat(parseStr("PROTO/1.1;   ", Tokenizer.delimiters(',', ';'))).isEqualTo(new ProtocolVersion("PROTO", 1, 1));
+        Assertions.assertThat(parseStr("PROTO/1.200 blah; ", Tokenizer.delimiters(','))).isEqualTo(new ProtocolVersion("PROTO", 1, 200));
     }
 
     @Test
     void testParseFailures() {
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "blah"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "1.blah"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "1A.0"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", ""));
-        Assertions.assertThrows(ParseException.class, () -> parseStr(""));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("   "));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("   /1.0"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("   / "));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO/"));
-        Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO/ 1.0"));
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO", "blah"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO", "1.blah"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO", "1A.0"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO", ""))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr(""))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("   "))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("   /1.0"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("   / "))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO/"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        parseStr("PROTO/ 1.0"))
+                .isInstanceOf(ParseException.class);
     }
 
 }

@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.testing.Result;
 import org.apache.hc.core5.testing.compatibility.ContainerImages;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
@@ -102,12 +102,12 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
 
                         });
             }
-            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+            Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).withFailMessage("Request executions have not completed in time").isTrue();
             for (final Result<String> result : resultQueue) {
                 if (result.isOK()) {
-                    Assertions.assertNotNull(result.response);
-                    Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
-                    Assertions.assertEquals(ContainerImages.AAA, result.content);
+                    Assertions.assertThat(result.response).isNotNull();
+                    Assertions.assertThat(result.response.getCode()).withFailMessage("Response message returned non 200 status").isEqualTo(HttpStatus.SC_OK);
+                    Assertions.assertThat(result.content).isEqualTo(ContainerImages.AAA);
                 } else {
                     Assertions.fail(result.exception);
                 }
@@ -156,12 +156,12 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
 
                     });
         }
-        Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+        Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).withFailMessage("Request executions have not completed in time").isTrue();
         for (final Result<String> result : resultQueue) {
             if (result.isOK()) {
-                Assertions.assertNotNull(result.response);
-                Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
-                Assertions.assertEquals(ContainerImages.AAA, result.content);
+                Assertions.assertThat(result.response).isNotNull();
+                Assertions.assertThat(result.response.getCode()).withFailMessage("Response message returned non 200 status").isEqualTo(HttpStatus.SC_OK);
+                Assertions.assertThat(result.content).isEqualTo(ContainerImages.AAA);
             } else {
                 Assertions.fail(result.exception);
             }
@@ -206,11 +206,11 @@ public abstract class AsyncHttpCompatTest<T extends HttpAsyncRequester> {
 
                         });
             }
-            Assertions.assertTrue(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), "Request executions have not completed in time");
+            Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).withFailMessage("Request executions have not completed in time").isTrue();
             for (final Result<String> result : resultQueue) {
                 if (result.isOK()) {
-                    Assertions.assertNotNull(result.response);
-                    Assertions.assertEquals(HttpStatus.SC_OK, result.response.getCode(), "Response message returned non 200 status");
+                    Assertions.assertThat(result.response).isNotNull();
+                    Assertions.assertThat(result.response.getCode()).withFailMessage("Response message returned non 200 status").isEqualTo(HttpStatus.SC_OK);
                 } else {
                     Assertions.fail(result.exception);
                 }

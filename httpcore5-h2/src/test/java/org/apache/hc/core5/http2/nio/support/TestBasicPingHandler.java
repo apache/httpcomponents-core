@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestBasicPingHandler {
@@ -42,7 +42,7 @@ class TestBasicPingHandler {
 
         handler.consumeResponse(handler.getData());
 
-        Assertions.assertEquals(Boolean.TRUE, result.get());
+        Assertions.assertThat(result.get()).isEqualTo(Boolean.TRUE);
     }
 
     @Test
@@ -52,7 +52,7 @@ class TestBasicPingHandler {
 
         handler.consumeResponse(ByteBuffer.wrap(new byte[] {'x'}));
 
-        Assertions.assertEquals(Boolean.FALSE, result.get());
+        Assertions.assertThat(result.get()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -61,11 +61,11 @@ class TestBasicPingHandler {
         final BasicPingHandler handler = new BasicPingHandler(result::set);
 
         handler.failed(new IOException("boom"));
-        Assertions.assertEquals(Boolean.FALSE, result.get());
+        Assertions.assertThat(result.get()).isEqualTo(Boolean.FALSE);
 
         result.set(Boolean.TRUE);
         handler.cancel();
-        Assertions.assertEquals(Boolean.FALSE, result.get());
+        Assertions.assertThat(result.get()).isEqualTo(Boolean.FALSE);
     }
 
 }

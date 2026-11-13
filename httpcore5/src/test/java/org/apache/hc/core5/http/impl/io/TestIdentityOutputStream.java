@@ -33,7 +33,7 @@ import java.io.OutputStream;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -54,7 +54,7 @@ class TestIdentityOutputStream {
             out.flush();
         }
         final byte[] data = outputStream.toByteArray();
-        Assertions.assertEquals(21, data.length);
+        Assertions.assertThat(data.length).isEqualTo(21);
     }
 
     @Test
@@ -65,8 +65,10 @@ class TestIdentityOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
-        Assertions.assertThrows(IOException.class, () -> out.write(tmp));
-        Assertions.assertThrows(IOException.class, () -> out.write(1));
+        Assertions.assertThatThrownBy(() ->
+                        out.write(tmp))
+                .isInstanceOf(IOException.class);
+        Assertions.assertThatThrownBy(() -> out.write(1)).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -80,11 +82,11 @@ class TestIdentityOutputStream {
 
             final byte[] input = outputStream.toByteArray();
 
-            Assertions.assertNotNull(input);
+            Assertions.assertThat(input).isNotNull();
             final byte[] expected = new byte[] { 'a', 'b', 'c' };
-            Assertions.assertEquals(expected.length, input.length);
+            Assertions.assertThat(input.length).isEqualTo(expected.length);
             for (int i = 0; i < expected.length; i++) {
-                Assertions.assertEquals(expected[i], input[i]);
+                Assertions.assertThat(input[i]).isEqualTo(expected[i]);
             }
         }
     }
@@ -97,8 +99,12 @@ class TestIdentityOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[2];
-        Assertions.assertThrows(StreamClosedException.class, () -> out.write(tmp, 0, tmp.length));
-        Assertions.assertThrows(StreamClosedException.class, () -> out.write('a'));
+        Assertions.assertThatThrownBy(() ->
+                        out.write(tmp, 0, tmp.length))
+                .isInstanceOf(StreamClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        out.write('a'))
+                .isInstanceOf(StreamClosedException.class);
     }
 
 }

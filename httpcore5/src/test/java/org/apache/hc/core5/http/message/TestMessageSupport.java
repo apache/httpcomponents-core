@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.support.BasicResponseBuilder;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.Tokenizer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestMessageSupport {
@@ -72,37 +72,37 @@ class TestMessageSupport {
     @Test
     void testTokenSetFormatting() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, makeSet("z", "b", "a"));
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("z, b, a", header.getValue());
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("z, b, a");
     }
 
     @Test
     void testTokenListFormatting() {
         final Header header = MessageSupport.headerOfTokens(HttpHeaders.TRAILER, Arrays.asList("z", "b", "a", "a"));
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("z, b, a, a", header.getValue());
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("z, b, a, a");
     }
 
     @Test
     void testTokenListFormattingWithTransformation() {
         final Header header = MessageSupport.headerOfTokens(HttpHeaders.TRAILER, Arrays.asList("z", "b", "a", "a"),
                 e -> e.toUpperCase(Locale.ROOT));
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("Z, B, A, A", header.getValue());
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("Z, B, A, A");
     }
 
     @Test
     void testTokenSetFormattingSameName() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, makeSet("a", "a", "a"));
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("a", header.getValue());
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("a");
     }
 
     @Test
     void testTokenListFormattingSameName() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, "a", "a", "a");
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("a, a, a", header.getValue());
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("a, a, a");
     }
 
     @Test
@@ -111,7 +111,7 @@ class TestMessageSupport {
         final ParserCursor cursor = new ParserCursor(0, s.length());
         final List<String> tokens = new ArrayList<>();
         MessageSupport.parseTokens(s, cursor, tokens::add);
-        Assertions.assertEquals(Arrays.asList("a", "b", "c", "c"), tokens);
+        Assertions.assertThat(tokens).isEqualTo(Arrays.asList("a", "b", "c", "c"));
     }
 
     @Test
@@ -120,7 +120,7 @@ class TestMessageSupport {
         final ParserCursor cursor = new ParserCursor(0, s.length());
         final List<String> tokens = new ArrayList<>();
         MessageSupport.parseTokens(s, cursor, Tokenizer.delimiters(';'), tokens::add);
-        Assertions.assertEquals(Arrays.asList("a, b", "c, c"), tokens);
+        Assertions.assertThat(tokens).isEqualTo(Arrays.asList("a, b", "c, c"));
     }
 
     @Test
@@ -128,7 +128,7 @@ class TestMessageSupport {
         final Header header = new BasicHeader(HttpHeaders.TRAILER, "a, b, c, c");
         final List<String> tokens = new ArrayList<>();
         MessageSupport.parseTokens(header, tokens::add);
-        Assertions.assertEquals(Arrays.asList("a", "b", "c", "c"), tokens);
+        Assertions.assertThat(tokens).isEqualTo(Arrays.asList("a", "b", "c", "c"));
     }
 
     @Test
@@ -136,20 +136,20 @@ class TestMessageSupport {
         final CharArrayBuffer buf = new CharArrayBuffer(128);
         buf.append("stuff: a, b, c, c");
         final Header header = BufferedHeader.create(buf);
-        Assertions.assertEquals(makeSet("a", "b", "c", "c"), MessageSupport.parseTokens(header));
+        Assertions.assertThat(MessageSupport.parseTokens(header)).isEqualTo(makeSet("a", "b", "c", "c"));
     }
 
     @Test
     void testParseTokens() {
         final String s = "a, b, c, c";
         final ParserCursor cursor = new ParserCursor(0, s.length());
-        Assertions.assertEquals(makeSet("a", "b", "c"), MessageSupport.parseTokens(s, cursor));
+        Assertions.assertThat(MessageSupport.parseTokens(s, cursor)).isEqualTo(makeSet("a", "b", "c"));
     }
 
     @Test
     void testParseTokenHeader() {
         final Header header = new BasicHeader(HttpHeaders.TRAILER, "a, b, c, c");
-        Assertions.assertEquals(makeSet("a", "b", "c"), MessageSupport.parseTokens(header));
+        Assertions.assertThat(MessageSupport.parseTokens(header)).isEqualTo(makeSet("a", "b", "c"));
     }
 
     @Test
@@ -157,7 +157,7 @@ class TestMessageSupport {
         final CharArrayBuffer buf = new CharArrayBuffer(128);
         buf.append("stuff: a, b, c, c");
         final Header header = BufferedHeader.create(buf);
-        Assertions.assertEquals(makeSet("a", "b", "c"), MessageSupport.parseTokens(header));
+        Assertions.assertThat(MessageSupport.parseTokens(header)).isEqualTo(makeSet("a", "b", "c"));
     }
 
     @Test
@@ -170,10 +170,10 @@ class TestMessageSupport {
                 new BasicHeaderElement("name5", null));
 
         final Header header = MessageSupport.headerOfElements("Some-header", elements);
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("name1=value1; param=regular_stuff, name2=value2; " +
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("name1=value1; param=regular_stuff, name2=value2; " +
                 "param=\"this\\\\that\", name3=value3; param=\"this,that\", " +
-                "name4=value4; param, name5", header.getValue());
+                "name4=value4; param, name5");
     }
 
     @Test
@@ -186,10 +186,10 @@ class TestMessageSupport {
                 new BasicHeaderElement("name5", null)};
 
         final Header header = MessageSupport.header("Some-Header", elements);
-        Assertions.assertNotNull(header);
-        Assertions.assertEquals("name1=value1; param=regular_stuff, name2=value2; " +
+        Assertions.assertThat(header).isNotNull();
+        Assertions.assertThat(header.getValue()).isEqualTo("name1=value1; param=regular_stuff, name2=value2; " +
                 "param=\"this\\\\that\", name3=value3; param=\"this,that\", " +
-                "name4=value4; param, name5", header.getValue());
+                "name4=value4; param, name5");
     }
 
     @Test
@@ -201,32 +201,32 @@ class TestMessageSupport {
         final ParserCursor cursor = new ParserCursor(0, buf.length());
         MessageSupport.parseElements(buf, cursor, elements::add);
         // there are 3 elements
-        Assertions.assertEquals(3,elements.size());
+        Assertions.assertThat(elements.size()).isEqualTo(3);
         // 1st element
-        Assertions.assertEquals("name1", elements.get(0).getName());
-        Assertions.assertEquals("value1", elements.get(0).getValue());
+        Assertions.assertThat(elements.get(0).getName()).isEqualTo("name1");
+        Assertions.assertThat(elements.get(0).getValue()).isEqualTo("value1");
         // 1st element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(0).getParameters().length);
-        Assertions.assertEquals("name2", elements.get(0).getParameters()[0].getName());
-        Assertions.assertNull(elements.get(0).getParameters()[0].getValue());
-        Assertions.assertEquals("name3", elements.get(0).getParameters()[1].getName());
-        Assertions.assertEquals("value3", elements.get(0).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(0).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(0).getParameters()[0].getName()).isEqualTo("name2");
+        Assertions.assertThat(elements.get(0).getParameters()[0].getValue()).isNull();
+        Assertions.assertThat(elements.get(0).getParameters()[1].getName()).isEqualTo("name3");
+        Assertions.assertThat(elements.get(0).getParameters()[1].getValue()).isEqualTo("value3");
         // 2nd element
-        Assertions.assertEquals("name4", elements.get(1).getName());
-        Assertions.assertEquals("value4", elements.get(1).getValue());
+        Assertions.assertThat(elements.get(1).getName()).isEqualTo("name4");
+        Assertions.assertThat(elements.get(1).getValue()).isEqualTo("value4");
         // 2nd element has 1 parameter
-        Assertions.assertEquals(1, elements.get(1).getParameters().length);
-        Assertions.assertEquals("name5", elements.get(1).getParameters()[0].getName());
-        Assertions.assertEquals("value5", elements.get(1).getParameters()[0].getValue());
+        Assertions.assertThat(elements.get(1).getParameters().length).isEqualTo(1);
+        Assertions.assertThat(elements.get(1).getParameters()[0].getName()).isEqualTo("name5");
+        Assertions.assertThat(elements.get(1).getParameters()[0].getValue()).isEqualTo("value5");
         // 3rd element
-        Assertions.assertEquals("name6", elements.get(2).getName());
-        Assertions.assertEquals("", elements.get(2).getValue());
+        Assertions.assertThat(elements.get(2).getName()).isEqualTo("name6");
+        Assertions.assertThat(elements.get(2).getValue()).isEqualTo("");
         // 3rd element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(2).getParameters().length);
-        Assertions.assertEquals("name7", elements.get(2).getParameters()[0].getName());
-        Assertions.assertEquals("value7", elements.get(2).getParameters()[0].getValue());
-        Assertions.assertEquals("name8", elements.get(2).getParameters()[1].getName());
-        Assertions.assertEquals(" value8", elements.get(2).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(2).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(2).getParameters()[0].getName()).isEqualTo("name7");
+        Assertions.assertThat(elements.get(2).getParameters()[0].getValue()).isEqualTo("value7");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getName()).isEqualTo("name8");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getValue()).isEqualTo(" value8");
     }
 
     @Test
@@ -237,32 +237,32 @@ class TestMessageSupport {
         final List<HeaderElement> elements = new ArrayList<>();
         MessageSupport.parseElements(header, elements::add);
         // there are 3 elements
-        Assertions.assertEquals(3,elements.size());
+        Assertions.assertThat(elements.size()).isEqualTo(3);
         // 1st element
-        Assertions.assertEquals("name1", elements.get(0).getName());
-        Assertions.assertEquals("value1", elements.get(0).getValue());
+        Assertions.assertThat(elements.get(0).getName()).isEqualTo("name1");
+        Assertions.assertThat(elements.get(0).getValue()).isEqualTo("value1");
         // 1st element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(0).getParameters().length);
-        Assertions.assertEquals("name2", elements.get(0).getParameters()[0].getName());
-        Assertions.assertNull(elements.get(0).getParameters()[0].getValue());
-        Assertions.assertEquals("name3", elements.get(0).getParameters()[1].getName());
-        Assertions.assertEquals("value3", elements.get(0).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(0).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(0).getParameters()[0].getName()).isEqualTo("name2");
+        Assertions.assertThat(elements.get(0).getParameters()[0].getValue()).isNull();
+        Assertions.assertThat(elements.get(0).getParameters()[1].getName()).isEqualTo("name3");
+        Assertions.assertThat(elements.get(0).getParameters()[1].getValue()).isEqualTo("value3");
         // 2nd element
-        Assertions.assertEquals("name4", elements.get(1).getName());
-        Assertions.assertEquals("value4", elements.get(1).getValue());
+        Assertions.assertThat(elements.get(1).getName()).isEqualTo("name4");
+        Assertions.assertThat(elements.get(1).getValue()).isEqualTo("value4");
         // 2nd element has 1 parameter
-        Assertions.assertEquals(1, elements.get(1).getParameters().length);
-        Assertions.assertEquals("name5", elements.get(1).getParameters()[0].getName());
-        Assertions.assertEquals("value5", elements.get(1).getParameters()[0].getValue());
+        Assertions.assertThat(elements.get(1).getParameters().length).isEqualTo(1);
+        Assertions.assertThat(elements.get(1).getParameters()[0].getName()).isEqualTo("name5");
+        Assertions.assertThat(elements.get(1).getParameters()[0].getValue()).isEqualTo("value5");
         // 3rd element
-        Assertions.assertEquals("name6", elements.get(2).getName());
-        Assertions.assertEquals("", elements.get(2).getValue());
+        Assertions.assertThat(elements.get(2).getName()).isEqualTo("name6");
+        Assertions.assertThat(elements.get(2).getValue()).isEqualTo("");
         // 3rd element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(2).getParameters().length);
-        Assertions.assertEquals("name7", elements.get(2).getParameters()[0].getName());
-        Assertions.assertEquals("value7", elements.get(2).getParameters()[0].getValue());
-        Assertions.assertEquals("name8", elements.get(2).getParameters()[1].getName());
-        Assertions.assertEquals(" value8", elements.get(2).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(2).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(2).getParameters()[0].getName()).isEqualTo("name7");
+        Assertions.assertThat(elements.get(2).getParameters()[0].getValue()).isEqualTo("value7");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getName()).isEqualTo("name8");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getValue()).isEqualTo(" value8");
     }
 
     @Test
@@ -272,32 +272,32 @@ class TestMessageSupport {
                         "name5=value5, name6= ; name7 = value7; name8 = \" value8\"");
         final List<HeaderElement> elements = MessageSupport.parseElements(header);
         // there are 3 elements
-        Assertions.assertEquals(3,elements.size());
+        Assertions.assertThat(elements.size()).isEqualTo(3);
         // 1st element
-        Assertions.assertEquals("name1", elements.get(0).getName());
-        Assertions.assertEquals("value1", elements.get(0).getValue());
+        Assertions.assertThat(elements.get(0).getName()).isEqualTo("name1");
+        Assertions.assertThat(elements.get(0).getValue()).isEqualTo("value1");
         // 1st element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(0).getParameters().length);
-        Assertions.assertEquals("name2", elements.get(0).getParameters()[0].getName());
-        Assertions.assertNull(elements.get(0).getParameters()[0].getValue());
-        Assertions.assertEquals("name3", elements.get(0).getParameters()[1].getName());
-        Assertions.assertEquals("value3", elements.get(0).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(0).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(0).getParameters()[0].getName()).isEqualTo("name2");
+        Assertions.assertThat(elements.get(0).getParameters()[0].getValue()).isNull();
+        Assertions.assertThat(elements.get(0).getParameters()[1].getName()).isEqualTo("name3");
+        Assertions.assertThat(elements.get(0).getParameters()[1].getValue()).isEqualTo("value3");
         // 2nd element
-        Assertions.assertEquals("name4", elements.get(1).getName());
-        Assertions.assertEquals("value4", elements.get(1).getValue());
+        Assertions.assertThat(elements.get(1).getName()).isEqualTo("name4");
+        Assertions.assertThat(elements.get(1).getValue()).isEqualTo("value4");
         // 2nd element has 1 parameter
-        Assertions.assertEquals(1, elements.get(1).getParameters().length);
-        Assertions.assertEquals("name5", elements.get(1).getParameters()[0].getName());
-        Assertions.assertEquals("value5", elements.get(1).getParameters()[0].getValue());
+        Assertions.assertThat(elements.get(1).getParameters().length).isEqualTo(1);
+        Assertions.assertThat(elements.get(1).getParameters()[0].getName()).isEqualTo("name5");
+        Assertions.assertThat(elements.get(1).getParameters()[0].getValue()).isEqualTo("value5");
         // 3rd element
-        Assertions.assertEquals("name6", elements.get(2).getName());
-        Assertions.assertEquals("", elements.get(2).getValue());
+        Assertions.assertThat(elements.get(2).getName()).isEqualTo("name6");
+        Assertions.assertThat(elements.get(2).getValue()).isEqualTo("");
         // 3rd element has 2 getParameters()
-        Assertions.assertEquals(2, elements.get(2).getParameters().length);
-        Assertions.assertEquals("name7", elements.get(2).getParameters()[0].getName());
-        Assertions.assertEquals("value7", elements.get(2).getParameters()[0].getValue());
-        Assertions.assertEquals("name8", elements.get(2).getParameters()[1].getName());
-        Assertions.assertEquals(" value8", elements.get(2).getParameters()[1].getValue());
+        Assertions.assertThat(elements.get(2).getParameters().length).isEqualTo(2);
+        Assertions.assertThat(elements.get(2).getParameters()[0].getName()).isEqualTo("name7");
+        Assertions.assertThat(elements.get(2).getParameters()[0].getValue()).isEqualTo("value7");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getName()).isEqualTo("name8");
+        Assertions.assertThat(elements.get(2).getParameters()[1].getValue()).isEqualTo(" value8");
     }
 
     @Test
@@ -308,8 +308,7 @@ class TestMessageSupport {
                 new BasicNameValuePair("param", "this\\that"),
                 new BasicNameValuePair("param", "this,that")
         ));
-        Assertions.assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
-                buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"");
     }
 
     @Test
@@ -320,8 +319,7 @@ class TestMessageSupport {
                 new BasicNameValuePair("param", "this\\that"),
                 new BasicNameValuePair("param", "this,that")
         );
-        Assertions.assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
-                buf.toString());
+        Assertions.assertThat(buf.toString()).isEqualTo("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"");
     }
 
     @Test
@@ -334,16 +332,16 @@ class TestMessageSupport {
 
         final List<NameValuePair> params = new ArrayList<>();
         MessageSupport.parseParameters(buffer, cursor, params::add);
-        Assertions.assertEquals("test", params.get(0).getName());
-        Assertions.assertNull(params.get(0).getValue());
-        Assertions.assertEquals("test1", params.get(1).getName());
-        Assertions.assertEquals("stuff", params.get(1).getValue());
-        Assertions.assertEquals("test2", params.get(2).getName());
-        Assertions.assertEquals("stuff; stuff", params.get(2).getValue());
-        Assertions.assertEquals("test3", params.get(3).getName());
-        Assertions.assertEquals("stuff", params.get(3).getValue());
-        Assertions.assertEquals(s.length() - 4, cursor.getPos());
-        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertThat(params.get(0).getName()).isEqualTo("test");
+        Assertions.assertThat(params.get(0).getValue()).isNull();
+        Assertions.assertThat(params.get(1).getName()).isEqualTo("test1");
+        Assertions.assertThat(params.get(1).getValue()).isEqualTo("stuff");
+        Assertions.assertThat(params.get(2).getName()).isEqualTo("test2");
+        Assertions.assertThat(params.get(2).getValue()).isEqualTo("stuff; stuff");
+        Assertions.assertThat(params.get(3).getName()).isEqualTo("test3");
+        Assertions.assertThat(params.get(3).getValue()).isEqualTo("stuff");
+        Assertions.assertThat(cursor.getPos()).isEqualTo(s.length() - 4);
+        Assertions.assertThat(cursor.atEnd()).isFalse();
     }
 
     static String copyHeader(final CharSequence charSequence, final ParserCursor cursor) {
@@ -385,14 +383,14 @@ class TestMessageSupport {
             final String headerValue = copyHeader(charSequence, cursor);
             headerValues.add(headerValue);
         });
-        Assertions.assertEquals(Arrays.asList("this", "that", " this, that,  what not"), headerValues);
+        Assertions.assertThat(headerValues).isEqualTo(Arrays.asList("this", "that", " this, that,  what not"));
 
         final List<String> tokens = new LinkedList<>();
         MessageSupport.parseElementList(message, "Some-header", (charSequence, cursor) -> {
             final String token = copyToken(charSequence, cursor);
             tokens.add(token);
         });
-        Assertions.assertEquals(Arrays.asList("this", "that", "this", "that", "what not"), tokens);
+        Assertions.assertThat(tokens).isEqualTo(Arrays.asList("this", "that", "this", "that", "what not"));
     }
 
     @Test
@@ -407,13 +405,12 @@ class TestMessageSupport {
             final String ver = copyToken(charSequence, cursor);
             versions.add(ver);
         });
-        Assertions.assertEquals(Arrays.asList(
+        Assertions.assertThat(versions).isEqualTo(Arrays.asList(
                         "HTTP/1.0",
                         "HTTP/1.1",
                         "HTTP/2",
                         "HTTP/2.0",
-                        "HTTP/0.9"),
-                versions);
+                "HTTP/0.9"));
     }
 
     @Test
@@ -428,16 +425,16 @@ class TestMessageSupport {
             final String headerValue = copyHeader(charSequence, cursor);
             headerValues.add(headerValue);
         });
-        Assertions.assertEquals(Arrays.asList("this", "that", " this, that,  what not"), headerValues);
+        Assertions.assertThat(headerValues).isEqualTo(Arrays.asList("this", "that", " this, that,  what not"));
 
         final List<String> tokens = new LinkedList<>();
         MessageSupport.parseElementListStrict(message, "Some-header", (charSequence, cursor) -> {
             final String token = copyToken(charSequence, cursor);
             tokens.add(token);
         });
-        Assertions.assertEquals(Arrays.asList("this", "that", "this", "that", "what not"), tokens);
+        Assertions.assertThat(tokens).isEqualTo(Arrays.asList("this", "that", "this", "that", "what not"));
 
-        Assertions.assertThrows(ParseException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 MessageSupport.parseElementListStrict(
                         message,
                         "Some-header",
@@ -446,7 +443,7 @@ class TestMessageSupport {
                     if (token.equalsIgnoreCase("what not")) {
                         throw new ParseException("How awful!");
                     }
-                }));
+                        })).isInstanceOf(ParseException.class);
     }
 
     @Test
@@ -461,13 +458,12 @@ class TestMessageSupport {
             final ProtocolVersion ver = HttpVersion.parse(charSequence, cursor, Tokenizer.delimiters(','));
             versions.add(ver);
         });
-        Assertions.assertEquals(Arrays.asList(
+        Assertions.assertThat(versions).isEqualTo(Arrays.asList(
                 HttpVersion.HTTP_1_0,
                 HttpVersion.HTTP_1_1,
                 HttpVersion.HTTP_2_0,
                 HttpVersion.HTTP_2_0,
-                HttpVersion.HTTP_0_9),
-                versions);
+                HttpVersion.HTTP_0_9));
     }
 
     @Test
@@ -476,12 +472,11 @@ class TestMessageSupport {
         message.addHeader("Some-Header", "HTTP/1.0");
         message.addHeader("Some-Header", "   HTTP/1.1  HTTP/1.1");
 
-        Assertions.assertThrows(ProtocolException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
                     MessageSupport.parseElementListStrict(message, "Some-header", (charSequence, cursor) -> {
                         HttpVersion.parse(charSequence, cursor, Tokenizer.delimiters(','));
                     });
-                }
-        );
+        }).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -495,10 +490,10 @@ class TestMessageSupport {
         final Header h1 = message.getFirstHeader(HttpHeaders.TRAILER);
         final Header h2 = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
 
-        Assertions.assertNotNull(h1);
-        Assertions.assertEquals("z, b, a", h1.getValue());
-        Assertions.assertNotNull(h2);
-        Assertions.assertEquals("text/plain; charset=US-ASCII", h2.getValue());
+        Assertions.assertThat(h1).isNotNull();
+        Assertions.assertThat(h1.getValue()).isEqualTo("z, b, a");
+        Assertions.assertThat(h2).isNotNull();
+        Assertions.assertThat(h2.getValue()).isEqualTo("text/plain; charset=US-ASCII");
     }
 
     @Test
@@ -515,19 +510,19 @@ class TestMessageSupport {
         final Header h1 = message.getFirstHeader(HttpHeaders.TRAILER);
         final Header h2 = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
 
-        Assertions.assertNotNull(h1);
-        Assertions.assertEquals("a, a, a", h1.getValue());
-        Assertions.assertNotNull(h2);
-        Assertions.assertEquals("text/plain; charset=ascii", h2.getValue());
+        Assertions.assertThat(h1).isNotNull();
+        Assertions.assertThat(h1.getValue()).isEqualTo("a, a, a");
+        Assertions.assertThat(h2).isNotNull();
+        Assertions.assertThat(h2.getValue()).isEqualTo("text/plain; charset=ascii");
     }
 
     @Test
     void testHopByHopHeaders() {
-        Assertions.assertTrue(MessageSupport.isHopByHop("Connection"));
-        Assertions.assertTrue(MessageSupport.isHopByHop("connection"));
-        Assertions.assertTrue(MessageSupport.isHopByHop("coNNection"));
-        Assertions.assertFalse(MessageSupport.isHopByHop("Content-Type"));
-        Assertions.assertFalse(MessageSupport.isHopByHop("huh"));
+        Assertions.assertThat(MessageSupport.isHopByHop("Connection")).isTrue();
+        Assertions.assertThat(MessageSupport.isHopByHop("connection")).isTrue();
+        Assertions.assertThat(MessageSupport.isHopByHop("coNNection")).isTrue();
+        Assertions.assertThat(MessageSupport.isHopByHop("Content-Type")).isFalse();
+        Assertions.assertThat(MessageSupport.isHopByHop("huh")).isFalse();
     }
 
     @Test
@@ -537,88 +532,88 @@ class TestMessageSupport {
                 .addHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.toString())
                 .build();
         final Set<String> hopByHopConnectionSpecific = MessageSupport.hopByHopConnectionSpecific(response);
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("Connection"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("connection"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("coNNection"));
-        Assertions.assertFalse(hopByHopConnectionSpecific.contains("Content-Type"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("blah"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("Blah"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("This"));
-        Assertions.assertTrue(hopByHopConnectionSpecific.contains("That"));
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("Connection")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("connection")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("coNNection")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("Content-Type")).isFalse();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("blah")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("Blah")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("This")).isTrue();
+        Assertions.assertThat(hopByHopConnectionSpecific.contains("That")).isTrue();
     }
 
     @Test
     void testMessageWithContentLength() throws Exception {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "100");
-        Assertions.assertEquals(100, MessageSupport.getContentLength(message));
+        Assertions.assertThat(MessageSupport.getContentLength(message)).isEqualTo(100);
     }
 
     @Test
     void testMessageWithInvalidContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "whatever");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() ->
+                MessageSupport.getContentLength(message)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testMessageWithNegativeContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "-10");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() ->
+                MessageSupport.getContentLength(message)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testMessageWithPlusSignedContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "+5");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() -> MessageSupport.getContentLength(message))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testMessageWithEmptyContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() -> MessageSupport.getContentLength(message))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testIsSignedOrEmpty() {
-        Assertions.assertTrue(MessageSupport.isSignedOrEmpty(null));
-        Assertions.assertTrue(MessageSupport.isSignedOrEmpty(""));
-        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("+5"));
-        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("-5"));
-        Assertions.assertTrue(MessageSupport.isSignedOrEmpty("-0"));
-        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("5"));
-        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("0005"));
-        Assertions.assertFalse(MessageSupport.isSignedOrEmpty("a+"));
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty(null)).isTrue();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("")).isTrue();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("+5")).isTrue();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("-5")).isTrue();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("-0")).isTrue();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("5")).isFalse();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("0005")).isFalse();
+        Assertions.assertThat(MessageSupport.isSignedOrEmpty("a+")).isFalse();
     }
 
     @Test
     void testMessageWithMinusZeroContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "-0");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() -> MessageSupport.getContentLength(message))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testMessageWithOverflowContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "99999999999999999999");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() -> MessageSupport.getContentLength(message))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testMessageWithLeadingZerosContentLength() throws Exception {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "005");
-        Assertions.assertEquals(5, MessageSupport.getContentLength(message));
+        Assertions.assertThat(MessageSupport.getContentLength(message)).isEqualTo(5);
     }
 
     @Test
@@ -626,8 +621,8 @@ class TestMessageSupport {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "100");
         message.addHeader("Content-Length", "100");
-        Assertions.assertThrows(ProtocolException.class, () ->
-                MessageSupport.getContentLength(message));
+        Assertions.assertThatThrownBy(() ->
+                MessageSupport.getContentLength(message)).isInstanceOf(ProtocolException.class);
     }
 
 }

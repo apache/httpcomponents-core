@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -41,14 +41,14 @@ class TestLangUtils {
         final Integer i = Integer.valueOf(1234);
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
-        Assertions.assertEquals(h1, h2);
+        Assertions.assertThat(h2).isEqualTo(h1);
     }
 
     @Test
     void testNullObjectHash() {
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
-        Assertions.assertEquals(h1, h2);
+        Assertions.assertThat(h2).isEqualTo(h1);
     }
 
     @Test
@@ -57,9 +57,9 @@ class TestLangUtils {
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         final int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         final int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
-        Assertions.assertNotEquals(h1, h2);
-        Assertions.assertEquals(h1, h3);
-        Assertions.assertEquals(h2, h4);
+        Assertions.assertThat(h2).isNotEqualTo(h1);
+        Assertions.assertThat(h3).isEqualTo(h1);
+        Assertions.assertThat(h4).isEqualTo(h2);
     }
 
 }

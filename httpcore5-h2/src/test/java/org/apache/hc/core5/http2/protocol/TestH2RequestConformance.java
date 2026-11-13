@@ -31,7 +31,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2RequestConformance {
@@ -39,8 +39,9 @@ class TestH2RequestConformance {
     @Test
     void testQueryMissingContentType() {
         final HttpRequest request = new BasicHttpRequest("QUERY", "/");
-        Assertions.assertThrows(ProtocolException.class,
-                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -68,8 +69,9 @@ class TestH2RequestConformance {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(HttpHeaders.TE, "trailers, gzip");
 
-        Assertions.assertThrows(ProtocolException.class,
-                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -78,8 +80,9 @@ class TestH2RequestConformance {
         request.addHeader(HttpHeaders.TE, "trailers");
         request.addHeader(HttpHeaders.TE, "gzip");
 
-        Assertions.assertThrows(ProtocolException.class,
-                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -111,8 +114,9 @@ class TestH2RequestConformance {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(HttpHeaders.TE, "trailers, deflate;q=0.5");
 
-        Assertions.assertThrows(ProtocolException.class,
-                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 
 
@@ -131,7 +135,8 @@ class TestH2RequestConformance {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(HttpHeaders.TE, "");
 
-        Assertions.assertThrows(ProtocolException.class,
-                () -> H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                        H2RequestConformance.INSTANCE.process(request, null, HttpCoreContext.create()))
+                .isInstanceOf(ProtocolException.class);
     }
 }

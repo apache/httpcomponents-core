@@ -58,7 +58,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -136,15 +136,15 @@ class ClassicTLSIntegrationTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some stuff", body1);
+            Assertions.assertThat(body1).isEqualTo("some stuff");
         }
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        Assertions.assertTrue(tlsVersion.greaterEquals(TLS.V_1_2.getVersion()));
-        Assertions.assertEquals("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation", sslSession.getPeerPrincipal().getName());
+        Assertions.assertThat(tlsVersion.greaterEquals(TLS.V_1_2.getVersion())).isTrue();
+        Assertions.assertThat(sslSession.getPeerPrincipal().getName()).isEqualTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation");
     }
 
     @Test
@@ -174,11 +174,11 @@ class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assertions.assertThrows(IOException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
-        });
+        }).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -210,11 +210,11 @@ class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assertions.assertThrows(IOException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
-        });
+        }).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -240,11 +240,11 @@ class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assertions.assertThrows(IOException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
-        });
+        }).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -283,7 +283,7 @@ class ClassicTLSIntegrationTest {
                     .setRequestRouter((r, c) -> null)
                     .setSslSetupHandler(sslParameters -> sslParameters.setCipherSuites(new String[]{cipherSuite}))
                     .create();
-            Assertions.assertThrows(Exception.class, () -> {
+            Assertions.assertThatThrownBy(() -> {
                 try {
                     server.start();
 
@@ -297,7 +297,7 @@ class ClassicTLSIntegrationTest {
                 } finally {
                     server.close(CloseMode.IMMEDIATE);
                 }
-            });
+            }).isInstanceOf(Exception.class);
         }
     }
 
@@ -327,14 +327,14 @@ class ClassicTLSIntegrationTest {
             EntityUtils.consume(response1.getEntity());
         }
 
-        Assertions.assertThrows(SSLHandshakeException.class, () -> {
+        Assertions.assertThatThrownBy(() -> {
             final HttpHost target2 = new HttpHost("https", InetAddress.getLoopbackAddress(), "some-other-host", server.getLocalPort());
             final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
             request2.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
             try (final ClassicHttpResponse response2 = requester.execute(target2, request2, TIMEOUT, context)) {
                 EntityUtils.consume(response2.getEntity());
             }
-        });
+        }).isInstanceOf(SSLHandshakeException.class);
     }
 
 }

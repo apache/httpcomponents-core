@@ -26,15 +26,15 @@
  */
 package org.apache.hc.core5.http2.ssl;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestApplicationProtocol {
 
     @Test
     void toStringReturnsProtocolId() {
-        Assertions.assertEquals("h2", ApplicationProtocol.HTTP_2.toString());
-        Assertions.assertEquals("http/1.1", ApplicationProtocol.HTTP_1_1.toString());
+        Assertions.assertThat(ApplicationProtocol.HTTP_2.toString()).isEqualTo("h2");
+        Assertions.assertThat(ApplicationProtocol.HTTP_1_1.toString()).isEqualTo("http/1.1");
     }
 
 }

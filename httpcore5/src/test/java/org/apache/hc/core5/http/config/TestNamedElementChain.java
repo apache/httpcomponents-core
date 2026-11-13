@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.config;
 
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -39,67 +39,67 @@ class TestNamedElementChain {
     @Test
     void testBasics() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
-        Assertions.assertNull(list.getFirst());
-        Assertions.assertNull(list.getLast());
+        Assertions.assertThat(list.getFirst()).isNull();
+        Assertions.assertThat(list.getLast()).isNull();
 
         final NamedElementChain<Character>.Node nodeA = list.addFirst('a', "a");
 
-        Assertions.assertSame(nodeA, list.getFirst());
-        Assertions.assertSame(nodeA, list.getLast());
+        Assertions.assertThat(list.getFirst()).isSameAs(nodeA);
+        Assertions.assertThat(list.getLast()).isSameAs(nodeA);
 
         final NamedElementChain<Character>.Node nodeB = list.addLast('b', "b");
 
-        Assertions.assertSame(nodeA, list.getFirst());
-        Assertions.assertSame(nodeB, list.getLast());
+        Assertions.assertThat(list.getFirst()).isSameAs(nodeA);
+        Assertions.assertThat(list.getLast()).isSameAs(nodeB);
 
         final NamedElementChain<Character>.Node nodeZ = list.addLast('z', "z");
 
-        Assertions.assertSame(nodeA, list.getFirst());
-        Assertions.assertSame(nodeZ, list.getLast());
+        Assertions.assertThat(list.getFirst()).isSameAs(nodeA);
+        Assertions.assertThat(list.getLast()).isSameAs(nodeZ);
 
-        Assertions.assertNull(nodeA.getPrevious());
-        Assertions.assertSame(nodeB, nodeA.getNext());
-        Assertions.assertSame(nodeA, nodeB.getPrevious());
-        Assertions.assertSame(nodeZ, nodeB.getNext());
-        Assertions.assertSame(nodeB, nodeZ.getPrevious());
-        Assertions.assertNull(nodeZ.getNext());
+        Assertions.assertThat(nodeA.getPrevious()).isNull();
+        Assertions.assertThat(nodeA.getNext()).isSameAs(nodeB);
+        Assertions.assertThat(nodeB.getPrevious()).isSameAs(nodeA);
+        Assertions.assertThat(nodeB.getNext()).isSameAs(nodeZ);
+        Assertions.assertThat(nodeZ.getPrevious()).isSameAs(nodeB);
+        Assertions.assertThat(nodeZ.getNext()).isNull();
 
         final NamedElementChain<Character>.Node nodeD = list.addAfter("b", 'd', "d");
-        Assertions.assertSame(nodeB, nodeD.getPrevious());
-        Assertions.assertSame(nodeZ, nodeD.getNext());
-        Assertions.assertSame(nodeD, nodeB.getNext());
-        Assertions.assertSame(nodeD, nodeZ.getPrevious());
+        Assertions.assertThat(nodeD.getPrevious()).isSameAs(nodeB);
+        Assertions.assertThat(nodeD.getNext()).isSameAs(nodeZ);
+        Assertions.assertThat(nodeB.getNext()).isSameAs(nodeD);
+        Assertions.assertThat(nodeZ.getPrevious()).isSameAs(nodeD);
 
         final NamedElementChain<Character>.Node nodeC = list.addBefore("d", 'c', "c");
-        Assertions.assertSame(nodeB, nodeC.getPrevious());
-        Assertions.assertSame(nodeD, nodeC.getNext());
-        Assertions.assertSame(nodeC, nodeB.getNext());
-        Assertions.assertSame(nodeC, nodeD.getPrevious());
-        Assertions.assertEquals(5, list.getSize());
+        Assertions.assertThat(nodeC.getPrevious()).isSameAs(nodeB);
+        Assertions.assertThat(nodeC.getNext()).isSameAs(nodeD);
+        Assertions.assertThat(nodeB.getNext()).isSameAs(nodeC);
+        Assertions.assertThat(nodeD.getPrevious()).isSameAs(nodeC);
+        Assertions.assertThat(list.getSize()).isEqualTo(5);
 
-        Assertions.assertTrue(list.remove("a"));
-        Assertions.assertTrue(list.remove("z"));
-        Assertions.assertTrue(list.remove("c"));
-        Assertions.assertFalse(list.remove("c"));
-        Assertions.assertFalse(list.remove("blah"));
+        Assertions.assertThat(list.remove("a")).isTrue();
+        Assertions.assertThat(list.remove("z")).isTrue();
+        Assertions.assertThat(list.remove("c")).isTrue();
+        Assertions.assertThat(list.remove("c")).isFalse();
+        Assertions.assertThat(list.remove("blah")).isFalse();
 
-        Assertions.assertSame(nodeB, list.getFirst());
-        Assertions.assertSame(nodeD, list.getLast());
+        Assertions.assertThat(list.getFirst()).isSameAs(nodeB);
+        Assertions.assertThat(list.getLast()).isSameAs(nodeD);
 
-        Assertions.assertEquals(2, list.getSize());
-        Assertions.assertNull(list.addBefore("blah", 'e', "e"));
-        Assertions.assertEquals(2, list.getSize());
+        Assertions.assertThat(list.getSize()).isEqualTo(2);
+        Assertions.assertThat(list.addBefore("blah", 'e', "e")).isNull();
+        Assertions.assertThat(list.getSize()).isEqualTo(2);
 
-        Assertions.assertNull(list.addAfter("yada", 'e', "e"));
-        Assertions.assertEquals(2, list.getSize());
+        Assertions.assertThat(list.addAfter("yada", 'e', "e")).isNull();
+        Assertions.assertThat(list.getSize()).isEqualTo(2);
     }
 
     @Test
     void testFind() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
-        Assertions.assertNotNull(list.find("c"));
-        Assertions.assertNull(list.find("a"));
+        Assertions.assertThat(list.find("c")).isNotNull();
+        Assertions.assertThat(list.find("a")).isNull();
     }
 
     @Test
@@ -107,11 +107,11 @@ class TestNamedElementChain {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
         final boolean found = list.replace("c",'z' );
-        Assertions.assertTrue(found);
-        Assertions.assertEquals('z', list.find("c").getValue());
-        Assertions.assertEquals("c", list.find("c").getName());
+        Assertions.assertThat(found).isTrue();
+        Assertions.assertThat(list.find("c").getValue()).isEqualTo('z');
+        Assertions.assertThat(list.find("c").getName()).isEqualTo("c");
         final boolean notFound = list.replace("X",'z' );
-        Assertions.assertFalse(notFound);
+        Assertions.assertThat(notFound).isFalse();
 
     }
 }

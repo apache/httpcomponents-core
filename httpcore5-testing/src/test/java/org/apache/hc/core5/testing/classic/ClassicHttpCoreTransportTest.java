@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 abstract class ClassicHttpCoreTransportTest {
@@ -77,23 +77,23 @@ abstract class ClassicHttpCoreTransportTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some stuff", body1);
+            Assertions.assertThat(body1).isEqualTo("some stuff");
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some other stuff", body2);
+            Assertions.assertThat(body2).isEqualTo("some other stuff");
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
+            Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some more stuff", body3);
+            Assertions.assertThat(body3).isEqualTo("some more stuff");
         }
     }
 
@@ -107,23 +107,23 @@ abstract class ClassicHttpCoreTransportTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some stuff", body1);
+            Assertions.assertThat(body1).isEqualTo("some stuff");
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some other stuff", body2);
+            Assertions.assertThat(body2).isEqualTo("some other stuff");
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response3.getCode());
+            Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
             final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertEquals("some more stuff", body3);
+            Assertions.assertThat(body3).isEqualTo("some more stuff");
         }
     }
 
@@ -148,9 +148,8 @@ abstract class ClassicHttpCoreTransportTest {
                                 final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
                                 request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
                                 requester.execute(target, request1, TIMEOUT, context, response -> {
-                                    Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
-                                    Assertions.assertEquals("some stuff",
-                                            EntityUtils.toString(response.getEntity(), 1024));
+                                    Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+                                    Assertions.assertThat(EntityUtils.toString(response.getEntity(), 1024)).isEqualTo("some stuff");
                                     return null;
                                 });
                             } catch (final Exception ex) {
@@ -164,7 +163,7 @@ abstract class ClassicHttpCoreTransportTest {
                     }
                 });
             }
-            Assertions.assertTrue(latch.await(5, TimeUnit.MINUTES));
+            Assertions.assertThat(latch.await(5, TimeUnit.MINUTES)).isTrue();
         } finally {
             executorService.shutdownNow();
         }

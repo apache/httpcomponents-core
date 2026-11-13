@@ -56,8 +56,8 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -138,14 +138,14 @@ class BenchmarkToolTest {
                 .build();
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
         final Results results = httpBenchmark.execute();
-        Assertions.assertNotNull(results);
-        Assertions.assertEquals(100, results.getSuccessCount());
-        Assertions.assertEquals(0, results.getFailureCount());
-        Assertions.assertEquals(16, results.getContentLength());
-        Assertions.assertEquals(3, results.getConcurrencyLevel());
-        Assertions.assertEquals(100 * 16, results.getTotalContentBytesRecvd());
+        Assertions.assertThat(results).isNotNull();
+        Assertions.assertThat(results.getSuccessCount()).isEqualTo(100);
+        Assertions.assertThat(results.getFailureCount()).isEqualTo(0);
+        Assertions.assertThat(results.getContentLength()).isEqualTo(16);
+        Assertions.assertThat(results.getConcurrencyLevel()).isEqualTo(3);
+        Assertions.assertThat(results.getTotalContentBytesRecvd()).isEqualTo(100 * 16);
         if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-            Assertions.assertEquals(HttpVersion.HTTP_2, results.getProtocolVersion());
+            Assertions.assertThat(results.getProtocolVersion()).isEqualTo(HttpVersion.HTTP_2);
         }
     }
 

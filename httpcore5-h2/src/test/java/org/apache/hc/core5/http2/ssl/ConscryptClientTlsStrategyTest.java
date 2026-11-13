@@ -27,9 +27,8 @@
 
 package org.apache.hc.core5.http2.ssl;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -46,12 +45,12 @@ class ConscryptClientTlsStrategyTest {
     @Test
     void test_valid_tls_strategy_creation() {
         final ConscryptClientTlsStrategy strategy = new ConscryptClientTlsStrategy();
-        assertNotNull(strategy);
+        Assertions.assertThat(strategy).isNotNull();
     }
 
     @Test
     void test_valid_tls_strategy_creation_with_verifier() {
         final ConscryptClientTlsStrategy strategy = new ConscryptClientTlsStrategy(sslSessionVerifier);
-        assertNotNull(strategy);
+        Assertions.assertThat(strategy).isNotNull();
     }
 }

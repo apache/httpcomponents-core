@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,10 +66,10 @@ class TestBHttpConnectionBase {
 
     @Test
     void testBasics() {
-        Assertions.assertFalse(conn.isOpen());
-        Assertions.assertNull(conn.getLocalAddress());
-        Assertions.assertNull(conn.getRemoteAddress());
-        Assertions.assertEquals("[Not bound]", conn.toString());
+        Assertions.assertThat(conn.isOpen()).isFalse();
+        Assertions.assertThat(conn.getLocalAddress()).isNull();
+        Assertions.assertThat(conn.getRemoteAddress()).isNull();
+        Assertions.assertThat(conn.toString()).isEqualTo("[Not bound]");
     }
 
     @Test
@@ -84,13 +84,13 @@ class TestBHttpConnectionBase {
         Mockito.when(socket.getRemoteSocketAddress()).thenReturn(remoteSockAddress);
         conn.bind(socket);
 
-        Assertions.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
-        Assertions.assertTrue(conn.isOpen());
+        Assertions.assertThat(conn.toString()).isEqualTo("127.0.0.1:8888<->10.0.0.2:80");
+        Assertions.assertThat(conn.isOpen()).isTrue();
 
-        Assertions.assertEquals(new InetSocketAddress(
-                InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), 8888), conn.getLocalAddress());
-        Assertions.assertEquals(new InetSocketAddress(
-                InetAddress.getByAddress(new byte[] {10, 0, 0, 2}), 80), conn.getRemoteAddress());
+        Assertions.assertThat(conn.getLocalAddress()).isEqualTo(new InetSocketAddress(
+                InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 8888));
+        Assertions.assertThat(conn.getRemoteAddress()).isEqualTo(new InetSocketAddress(
+                InetAddress.getByAddress(new byte[]{10, 0, 0, 2}), 80));
     }
 
     @Test
@@ -102,11 +102,11 @@ class TestBHttpConnectionBase {
         conn.ensureOpen();
         conn.outbuffer.write(0, outStream);
 
-        Assertions.assertTrue(conn.isOpen());
+        Assertions.assertThat(conn.isOpen()).isTrue();
 
         conn.close();
 
-        Assertions.assertFalse(conn.isOpen());
+        Assertions.assertThat(conn.isOpen()).isFalse();
 
         Mockito.verify(outStream, Mockito.times(1)).write(
                 ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
@@ -126,11 +126,11 @@ class TestBHttpConnectionBase {
         conn.ensureOpen();
         conn.outbuffer.write(0, outStream);
 
-        Assertions.assertTrue(conn.isOpen());
+        Assertions.assertThat(conn.isOpen()).isTrue();
 
         conn.close(CloseMode.GRACEFUL);
 
-        Assertions.assertFalse(conn.isOpen());
+        Assertions.assertThat(conn.isOpen()).isFalse();
 
         Mockito.verify(outStream, Mockito.never()).write(
                 ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
@@ -153,14 +153,14 @@ class TestBHttpConnectionBase {
         message.addHeader("Content-Type", "stuff");
         message.addHeader("Content-Encoding", "chunked");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inBuffer, inStream, 10);
-        Assertions.assertNotNull(entity);
-        Assertions.assertFalse(entity.isChunked());
-        Assertions.assertEquals(10, entity.getContentLength());
-        Assertions.assertEquals("stuff", entity.getContentType());
-        Assertions.assertEquals("chunked", entity.getContentEncoding());
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity.isChunked()).isFalse();
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(10);
+        Assertions.assertThat(entity.getContentType()).isEqualTo("stuff");
+        Assertions.assertThat(entity.getContentEncoding()).isEqualTo("chunked");
         final InputStream content = entity.getContent();
-        Assertions.assertNotNull(content);
-        Assertions.assertInstanceOf(ContentLengthInputStream.class, content);
+        Assertions.assertThat(content).isNotNull();
+        Assertions.assertThat(content).isInstanceOf(ContentLengthInputStream.class);
     }
 
     @Test
@@ -168,12 +168,12 @@ class TestBHttpConnectionBase {
         final InputStream inStream = Mockito.mock(InputStream.class);
         final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inBuffer, inStream, ContentLengthStrategy.CHUNKED);
-        Assertions.assertNotNull(entity);
-        Assertions.assertTrue(entity.isChunked());
-        Assertions.assertEquals(-1, entity.getContentLength());
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity.isChunked()).isTrue();
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(-1);
         final InputStream content = entity.getContent();
-        Assertions.assertNotNull(content);
-        Assertions.assertInstanceOf(ChunkedInputStream.class, content);
+        Assertions.assertThat(content).isNotNull();
+        Assertions.assertThat(content).isInstanceOf(ChunkedInputStream.class);
     }
 
     @Test
@@ -181,12 +181,12 @@ class TestBHttpConnectionBase {
         final InputStream inStream = Mockito.mock(InputStream.class);
         final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inBuffer, inStream, ContentLengthStrategy.UNDEFINED);
-        Assertions.assertNotNull(entity);
-        Assertions.assertFalse(entity.isChunked());
-        Assertions.assertEquals(-1, entity.getContentLength());
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity.isChunked()).isFalse();
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(-1);
         final InputStream content = entity.getContent();
-        Assertions.assertNotNull(content);
-        Assertions.assertInstanceOf(IdentityInputStream.class, content);
+        Assertions.assertThat(content).isNotNull();
+        Assertions.assertThat(content).isInstanceOf(IdentityInputStream.class);
     }
 
     @Test
@@ -211,22 +211,22 @@ class TestBHttpConnectionBase {
 
     @Test
     void testGetSocketTimeout() throws Exception {
-        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
+        Assertions.assertThat(conn.getSocketTimeout()).isEqualTo(Timeout.INFINITE);
 
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
         conn.bind(socket);
 
-        Assertions.assertEquals(Timeout.ofMilliseconds(345), conn.getSocketTimeout());
+        Assertions.assertThat(conn.getSocketTimeout()).isEqualTo(Timeout.ofMilliseconds(345));
     }
 
     @Test
     void testGetSocketTimeoutException() throws Exception {
-        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
+        Assertions.assertThat(conn.getSocketTimeout()).isEqualTo(Timeout.INFINITE);
 
         Mockito.when(socket.getSoTimeout()).thenThrow(new SocketException());
         conn.bind(socket);
 
-        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
+        Assertions.assertThat(conn.getSocketTimeout()).isEqualTo(Timeout.INFINITE);
     }
 
     @Test
@@ -237,7 +237,7 @@ class TestBHttpConnectionBase {
         conn.ensureOpen();
         conn.inBuffer.read(inStream);
 
-        Assertions.assertTrue(conn.awaitInput(Timeout.ofMilliseconds(432)));
+        Assertions.assertThat(conn.awaitInput(Timeout.ofMilliseconds(432))).isTrue();
 
         Mockito.verify(socket, Mockito.never()).setSoTimeout(ArgumentMatchers.anyInt());
     }
@@ -252,7 +252,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertTrue(conn.awaitInput(Timeout.ofMilliseconds(432)));
+        Assertions.assertThat(conn.awaitInput(Timeout.ofMilliseconds(432))).isTrue();
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(432);
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(345);
@@ -268,7 +268,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertFalse(conn.awaitInput(Timeout.ofMilliseconds(432)));
+        Assertions.assertThat(conn.awaitInput(Timeout.ofMilliseconds(432))).isFalse();
     }
 
     @Test
@@ -280,7 +280,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
         conn.close();
-        Assertions.assertTrue(conn.isStale());
+        Assertions.assertThat(conn.isStale()).isTrue();
     }
 
     @Test
@@ -292,7 +292,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertFalse(conn.isStale());
+        Assertions.assertThat(conn.isStale()).isFalse();
     }
 
     @Test
@@ -305,7 +305,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertTrue(conn.isStale());
+        Assertions.assertThat(conn.isStale()).isTrue();
     }
 
     @Test
@@ -318,7 +318,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertFalse(conn.isStale());
+        Assertions.assertThat(conn.isStale()).isFalse();
     }
 
     @Test
@@ -331,7 +331,7 @@ class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assertions.assertTrue(conn.isStale());
+        Assertions.assertThat(conn.isStale()).isTrue();
     }
 
 }

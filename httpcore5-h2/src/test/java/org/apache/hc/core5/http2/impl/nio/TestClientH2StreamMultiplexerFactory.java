@@ -30,7 +30,7 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -48,7 +48,7 @@ class TestClientH2StreamMultiplexerFactory {
         final ProtocolIOSession ioSession = Mockito.mock(ProtocolIOSession.class);
         final ClientH2StreamMultiplexer multiplexer = factory.create(ioSession);
 
-        Assertions.assertNotNull(multiplexer);
+        Assertions.assertThat(multiplexer).isNotNull();
     }
 
 }

@@ -34,7 +34,7 @@ import org.apache.hc.core5.testing.nio.H2TestClient;
 import org.apache.hc.core5.testing.nio.H2TestServer;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -87,12 +87,12 @@ public class H2TestResources implements BeforeEachCallback, AfterEachCallback {
     }
 
     public H2TestClient client() {
-        Assertions.assertNotNull(client);
+        Assertions.assertThat(client).isNotNull();
         return client;
     }
 
     public H2TestServer server() {
-        Assertions.assertNotNull(server);
+        Assertions.assertThat(server).isNotNull();
         return server;
     }
 

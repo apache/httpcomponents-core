@@ -31,7 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.hc.core5.http.HttpHost;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -41,247 +41,251 @@ class TestInetAddressUtils {
 
     @Test
     void testValidIPv4Address() {
-        Assertions.assertTrue(InetAddressUtils.isIPv4("127.0.0.1"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4("192.168.0.0"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4("255.255.255.255"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4("0.168.0.0"));
+        Assertions.assertThat(InetAddressUtils.isIPv4("127.0.0.1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4("192.168.0.0")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4("255.255.255.255")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4("0.168.0.0")).isTrue();
     }
 
     @Test
     void testInvalidIPv4Address() {
-        Assertions.assertFalse(InetAddressUtils.isIPv4(" 127.0.0.1 "));  // Blanks not allowed
-        Assertions.assertFalse(InetAddressUtils.isIPv4("g.ar.ba.ge"));
-        Assertions.assertFalse(InetAddressUtils.isIPv4("192.168.0"));
-        Assertions.assertFalse(InetAddressUtils.isIPv4("256.255.255.255"));
+        Assertions.assertThat(InetAddressUtils.isIPv4(" 127.0.0.1 ")).isFalse();  // Blanks not allowed
+        Assertions.assertThat(InetAddressUtils.isIPv4("g.ar.ba.ge")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv4("192.168.0")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv4("256.255.255.255")).isFalse();
     }
 
     @Test
     void testValidIPv6Address() {
-        Assertions.assertTrue(InetAddressUtils.isIPv6Std("2001:0db8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6Std("2001:db8:0:0:0:0:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:1"));
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("2001:0db8:0000:0000:0000:0000:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("2001:db8:0:0:0:0:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:1")).isTrue();
 
-        Assertions.assertTrue(InetAddressUtils.isIPv6HexCompressed("2001:0db8:0:0::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6HexCompressed("2001:0db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6HexCompressed("2001:db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6HexCompressed("::1"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6HexCompressed("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("2001:0db8:0:0::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("2001:0db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("2001:db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("::1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("::")).isTrue(); // http://tools.ietf.org/html/rfc4291#section-2.2
 
-        Assertions.assertTrue(InetAddressUtils.isIPv6("2001:0db8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("2001:db8:0:0:0:0:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("0:0:0:0:0:0:0:0"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("0:0:0:0:0:0:0:1"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("2001:0db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("2001:db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("::1"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0000:0000:0000:0000:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:db8:0:0:0:0:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("0:0:0:0:0:0:0:0")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("0:0:0:0:0:0:0:1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("::1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("::")).isTrue(); // http://tools.ietf.org/html/rfc4291#section-2.2
 
         //HTTPCORE-674 InetAddressUtils scoped ID support
-        Assertions.assertTrue(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3"));
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3")).isTrue();
     }
 
     @Test
     void testInvalidIPv6Address() {
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0000:garb:age0:0000:1428:57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0gb8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0:0")); // Too many
-        Assertions.assertFalse(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0")); // Too few
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed(":1"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6(":1"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8::0000::57ab")); // Cannot have two contractions
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1:2:3:4:5:6:7::9")); // too many fields before ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1::3:4:5:6:7:8:9")); // too many fields after ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("::3:4:5:6:7:8:9")); // too many fields after ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6("")); // empty
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0000:garb:age0:0000:1428:57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0gb8:0000:0000:0000:0000:1428:57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0:0")).isFalse(); // Too many
+        Assertions.assertThat(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0")).isFalse(); // Too few
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed(":1")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6(":1")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8::0000::57ab")).isFalse(); // Cannot have two contractions
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("1:2:3:4:5:6:7::9")).isFalse(); // too many fields before ::
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("1::3:4:5:6:7:8:9")).isFalse(); // too many fields after ::
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("::3:4:5:6:7:8:9")).isFalse(); // too many fields after ::
+        Assertions.assertThat(InetAddressUtils.isIPv6("")).isFalse(); // empty
 
         //Invalid scoped IDs
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2#"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3@"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a#eth2"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2!"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%eth2#"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2#3"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%eth2#3"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3#eth2"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%3#eth2"));
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2#")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3@")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a#eth2")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2!")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%eth2#")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%eth2#3")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%eth2#3")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("fe80::1ff:fe23:4567:890a%3#eth2")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6("2001:0db8:0:0::1428:57ab%3#eth2")).isFalse();
     }
 
     @Test
     void testValidIPv6BracketAddress() {
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:0000:0000:0000:1428:57ab]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:db8:0:0:0:0:1428:57ab]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:0]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:1]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0:0::1428:57ab]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:0db8::1428:57ab]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:db8::1428:57ab]"));
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[::1]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:0000:0000:0000:1428:57ab]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:db8:0:0:0:0:1428:57ab]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:0]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:1]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0:0::1428:57ab]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0db8::1428:57ab]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:db8::1428:57ab]")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[::1]")).isTrue();
         // http://tools.ietf.org/html/rfc4291#section-2.2
-        Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[::]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[::]")).isTrue();
     }
 
     @Test
     void testInvalidIPv6BracketAddress() {
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:0db8:0000:garb:age0:0000:1428:57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:garb:age0:0000:1428:57ab]"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:0gb8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[2001:0gb8:0000:0000:0000:0000:1428:57ab]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("2001:0db8:0000:garb:age0:0000:1428:57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:garb:age0:0000:1428:57ab]")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("2001:0gb8:0000:0000:0000:0000:1428:57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0gb8:0000:0000:0000:0000:1428:57ab]")).isFalse();
         // Too many
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("0:0:0:0:0:0:0:0:0"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:0:0]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("0:0:0:0:0:0:0:0:0")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:0:0]")).isFalse();
         // Too few
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("0:0:0:0:0:0:0"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0]"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed(":1"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[:1]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("0:0:0:0:0:0:0")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0]")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed(":1")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[:1]")).isFalse();
         // Cannot have two contractions
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:0db8::0000::57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[2001:0db8::0000::57ab]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("2001:0db8::0000::57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[2001:0db8::0000::57ab]")).isFalse();
         // too many fields before ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("1:2:3:4:5:6:7::9"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[1:2:3:4:5:6:7::9]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("1:2:3:4:5:6:7::9")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[1:2:3:4:5:6:7::9]")).isFalse();
         // too many fields after ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("1::3:4:5:6:7:8:9"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[1::3:4:5:6:7:8:9]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("1::3:4:5:6:7:8:9")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[1::3:4:5:6:7:8:9]")).isFalse();
         // too many fields after ::
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("::3:4:5:6:7:8:9"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[::3:4:5:6:7:8:9]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("::3:4:5:6:7:8:9")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[::3:4:5:6:7:8:9]")).isFalse();
         // empty
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed(""));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[]"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("[]")).isFalse();
 
         // missing brackets
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("::"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("::1"));
-        Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:db8::1428:57ab"));
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("::")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("::1")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv6URLBracketed("2001:db8::1428:57ab")).isFalse();
     }
 
     @Test
     // Test HTTPCLIENT-1319
     void testInvalidIPv6AddressIncorrectGroupCount() {
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1:2::4:5:6:7:8:9")); // too many fields in total
-        Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1:2:3:4:5:6::8:9")); // too many fields in total
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("1:2::4:5:6:7:8:9")).isFalse(); // too many fields in total
+        Assertions.assertThat(InetAddressUtils.isIPv6HexCompressed("1:2:3:4:5:6::8:9")).isFalse(); // too many fields in total
     }
 
     @Test
     void testHasValidIPv6ColonCount() {
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(""));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(":"));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("127.0.0.1"));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(":0"));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("0:"));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:"));
-        Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:9"));
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount(":")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("127.0.0.1")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount(":0")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("0:")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:")).isFalse();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:9")).isFalse();
 
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:db8:0:0:0:0:1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:0"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:1"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0:0::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:db8::1428:57ab"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("::1"));
-        Assertions.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0000:0000:0000:0000:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("2001:db8:0:0:0:0:1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:0")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0:0::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("2001:db8::1428:57ab")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("::1")).isTrue();
+        Assertions.assertThat(InetAddressUtils.hasValidIPv6ColonCount("::")).isTrue(); // http://tools.ietf.org/html/rfc4291#section-2.2
     }
 
     @Test
     void testValidIPv4MappedIPv6Address() {
-        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::FFFF:1.2.3.4"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:255.255.255.255"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::FFFF:1.2.3.4")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:255.255.255.255")).isTrue();
     }
 
     @Test
     void testInValidIPv4MappedIPv6Address() {
-        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("2001:0db8:0000:0000:0000:0000:1428:57ab"));
-        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:1:2:3:4"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("2001:0db8:0000:0000:0000:0000:1428:57ab")).isFalse();
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:1:2:3:4")).isFalse();
     }
 
     @Test
     void testValidIPv4MappedIPv6AddressWithLeadingZeros() {
-        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:001.002.003.004"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::FFFF:000.000.000.255"));
-        Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:010.020.030.040"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:001.002.003.004")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::FFFF:000.000.000.255")).isTrue();
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:010.020.030.040")).isTrue();
     }
 
     @Test
     void testInvalidIPv4MappedIPv6AddressWithBadOctets() {
         // >255 not allowed
-        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:256.000.000.000"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:256.000.000.000")).isFalse();
         // too few octets
-        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:01.02.03"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:01.02.03")).isFalse();
         // too many digits in an octet (4 digits)
-        Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:0255.000.000.000"));
+        Assertions.assertThat(InetAddressUtils.isIPv4MappedIPv6("::ffff:0255.000.000.000")).isFalse();
     }
 
     @Test
     void parseAuthorityWithZoneId_decodesDelimiter() throws URISyntaxException {
         final URIAuthority a = URIAuthority.parse("[fe80::1%25eth0]:8080");
-        Assertions.assertNotNull(a);
-        Assertions.assertEquals("fe80::1%eth0", a.getHostName());
-        Assertions.assertEquals(8080, a.getPort());
-        Assertions.assertNull(a.getUserInfo());
+        Assertions.assertThat(a).isNotNull();
+        Assertions.assertThat(a.getHostName()).isEqualTo("fe80::1%eth0");
+        Assertions.assertThat(a.getPort()).isEqualTo(8080);
+        Assertions.assertThat(a.getUserInfo()).isNull();
     }
 
     @Test
     void formatAuthorityWithZoneId_emitsPercent25() {
         final URIAuthority a = new URIAuthority(null, "fe80::1%eth0", 8080);
-        Assertions.assertEquals("[fe80::1%25eth0]:8080", a.toString());
+        Assertions.assertThat(a.toString()).isEqualTo("[fe80::1%25eth0]:8080");
     }
 
     @Test
     void httpHost_toURI_formatsZoneId() {
         final HttpHost h = new HttpHost("http", "fe80::1%eth0", 8080);
-        Assertions.assertEquals("http://[fe80::1%25eth0]:8080", h.toURI());
+        Assertions.assertThat(h.toURI()).isEqualTo("http://[fe80::1%25eth0]:8080");
     }
 
     @Test
     void uriBuilder_roundTrip_zoneId() throws Exception {
         final URI u = new URI("http://[fe80::1%25eth0]:8080/path?q=1");
         final URIBuilder b = new URIBuilder(u);
-        Assertions.assertEquals("fe80::1%eth0", b.getHost());
+        Assertions.assertThat(b.getHost()).isEqualTo("fe80::1%eth0");
         final URI rebuilt = b.build();
-        Assertions.assertEquals("http://[fe80::1%25eth0]:8080/path?q=1", rebuilt.toASCIIString());
+        Assertions.assertThat(rebuilt.toASCIIString()).isEqualTo("http://[fe80::1%25eth0]:8080/path?q=1");
     }
 
     @Test
     void zoneId_validation_rejects_bad_pct() {
         // empty zone — invalid
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> URIAuthority.parse("[fe80::1%25]:80"));
+        Assertions.assertThatThrownBy(() ->
+                        URIAuthority.parse("[fe80::1%25]:80"))
+                .isInstanceOf(IllegalArgumentException.class);
 
         // dangling percent-triplet — invalid
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> URIAuthority.parse("[fe80::1%25%]:80"));
+        Assertions.assertThatThrownBy(() ->
+                        URIAuthority.parse("[fe80::1%25%]:80"))
+                .isInstanceOf(IllegalArgumentException.class);
 
         // non-hex in percent-triplet — invalid
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> URIAuthority.parse("[fe80::1%25%G1]:80"));
+        Assertions.assertThatThrownBy(() ->
+                        URIAuthority.parse("[fe80::1%25%G1]:80"))
+                .isInstanceOf(IllegalArgumentException.class);
 
         // character not in RFC 3986 "unreserved" — invalid
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> URIAuthority.parse("[fe80::1%25!]:80"));
+        Assertions.assertThatThrownBy(() ->
+                        URIAuthority.parse("[fe80::1%25!]:80"))
+                .isInstanceOf(IllegalArgumentException.class);
 
     }
 
     @Test
     void zoneId_allows_unreserved_and_pct() throws URISyntaxException {
         final URIAuthority a = URIAuthority.parse("[fe80::1%25en1-._~x%20]:443");
-        Assertions.assertNotNull(a);
-        Assertions.assertEquals("fe80::1%en1-._~x ", a.getHostName());
-        Assertions.assertEquals("[fe80::1%25en1-._~x%20]:443", a.toString());
+        Assertions.assertThat(a).isNotNull();
+        Assertions.assertThat(a.getHostName()).isEqualTo("fe80::1%en1-._~x ");
+        Assertions.assertThat(a.toString()).isEqualTo("[fe80::1%25en1-._~x%20]:443");
     }
 
     @Test
     void inetAddressUtils_helper_accepts_zone() {
-        Assertions.assertTrue(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1%eth0"));
-        Assertions.assertTrue(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1234:0:0:0:0:0%en1"));
-        Assertions.assertFalse(ZoneIdSupport.looksLikeIPv6AddressPart("not-an-ip"));
+        Assertions.assertThat(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1%eth0")).isTrue();
+        Assertions.assertThat(ZoneIdSupport.looksLikeIPv6AddressPart("fe80::1234:0:0:0:0:0%en1")).isTrue();
+        Assertions.assertThat(ZoneIdSupport.looksLikeIPv6AddressPart("not-an-ip")).isFalse();
     }
 
 }

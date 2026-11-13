@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -69,6 +68,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -149,11 +149,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
         final String body1 = message1.body();
-        Assertions.assertEquals("You shall not pass!!!", body1);
+        Assertions.assertThat(body1).isEqualTo("You shall not pass!!!");
 
         final HttpRequest request2 = new BasicHttpRequest(Method.GET, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
@@ -161,11 +161,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message2);
+        Assertions.assertThat(message2).isNotNull();
         final HttpResponse response2 = message2.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body2 = message2.body();
-        Assertions.assertEquals("", body2);
+        Assertions.assertThat(body2).isEqualTo("");
     }
 
     @Test
@@ -187,11 +187,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
         final String body1 = message1.body();
-        Assertions.assertEquals("You shall not pass!!!", body1);
+        Assertions.assertThat(body1).isEqualTo("You shall not pass!!!");
 
         final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
@@ -199,11 +199,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message2);
+        Assertions.assertThat(message2).isNotNull();
         final HttpResponse response2 = message2.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body2 = message2.body();
-        Assertions.assertEquals(new String(stuff, StandardCharsets.US_ASCII), body2);
+        Assertions.assertThat(body2).isEqualTo(new String(stuff, StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -227,11 +227,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
         final String body1 = message1.body();
-        Assertions.assertEquals("You shall not pass!!!", body1);
+        Assertions.assertThat(body1).isEqualTo("You shall not pass!!!");
 
         final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setVersion(HttpVersion.HTTP_1_0);
@@ -240,11 +240,11 @@ abstract class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message2);
+        Assertions.assertThat(message2).isNotNull();
         final HttpResponse response2 = message2.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response2.getCode());
+        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
         final String body2 = message2.body();
-        Assertions.assertEquals(new String(stuff, StandardCharsets.US_ASCII), body2);
+        Assertions.assertThat(body2).isEqualTo(new String(stuff, StandardCharsets.US_ASCII));
     }
 
 }

@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -67,7 +67,7 @@ class TestClientHttp1UpgradeHandler {
             }
         });
 
-        Assertions.assertSame(ioSession, completed.get());
+        Assertions.assertThat(completed.get()).isSameAs(ioSession);
         Mockito.verify(ioSession).upgrade(Mockito.any());
     }
 

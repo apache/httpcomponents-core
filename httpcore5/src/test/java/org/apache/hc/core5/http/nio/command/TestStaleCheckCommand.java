@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.nio.command;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestStaleCheckCommand {
@@ -38,8 +38,8 @@ class TestStaleCheckCommand {
         final AtomicReference<Boolean> called = new AtomicReference<>();
         final StaleCheckCommand command = new StaleCheckCommand(called::set);
 
-        Assertions.assertTrue(command.cancel());
-        Assertions.assertEquals(Boolean.FALSE, called.get());
+        Assertions.assertThat(command.cancel()).isTrue();
+        Assertions.assertThat(called.get()).isEqualTo(Boolean.FALSE);
     }
 
     @Test
@@ -49,7 +49,7 @@ class TestStaleCheckCommand {
 
         command.getCallback().accept(Boolean.TRUE);
 
-        Assertions.assertEquals(Boolean.TRUE, called.get());
+        Assertions.assertThat(called.get()).isEqualTo(Boolean.TRUE);
     }
 
 }

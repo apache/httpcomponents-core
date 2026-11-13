@@ -42,7 +42,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -125,7 +125,7 @@ class TestPrefaceHandlerBase {
 
             handler.disconnected(ioSession);
 
-            Assertions.assertTrue(failed.get() instanceof ConnectionClosedException);
+            Assertions.assertThat(failed.get() instanceof ConnectionClosedException).isTrue();
         }
     }
 
@@ -138,7 +138,7 @@ class TestPrefaceHandlerBase {
 
         try (TestHandler handler = new TestHandler(ioSession, null, null)) {
 
-            Assertions.assertSame(sslSession, handler.getSSLSession());
+            Assertions.assertThat(handler.getSSLSession()).isSameAs(sslSession);
         }
     }
 
@@ -152,14 +152,14 @@ class TestPrefaceHandlerBase {
 
         try (TestHandler handler = new TestHandler(ioSession, null, null)) {
 
-            Assertions.assertEquals(Timeout.ofSeconds(2), handler.getSocketTimeout());
+            Assertions.assertThat(handler.getSocketTimeout()).isEqualTo(Timeout.ofSeconds(2));
             handler.setSocketTimeout(Timeout.ofSeconds(1));
             Mockito.verify(ioSession).setSocketTimeout(Timeout.ofSeconds(1));
-            Assertions.assertEquals(new InetSocketAddress("localhost", 80), handler.getRemoteAddress());
-            Assertions.assertEquals(new InetSocketAddress("localhost", 0), handler.getLocalAddress());
-            Assertions.assertTrue(handler.isOpen());
+            Assertions.assertThat(handler.getRemoteAddress()).isEqualTo(new InetSocketAddress("localhost", 80));
+            Assertions.assertThat(handler.getLocalAddress()).isEqualTo(new InetSocketAddress("localhost", 0));
+            Assertions.assertThat(handler.isOpen()).isTrue();
             final ProtocolVersion protocolVersion = handler.getProtocolVersion();
-            Assertions.assertNotNull(protocolVersion);
+            Assertions.assertThat(protocolVersion).isNotNull();
             handler.close();
             handler.close(CloseMode.GRACEFUL);
             Mockito.verify(ioSession).close();
