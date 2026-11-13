@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestContentLengthInputStream {
@@ -56,7 +56,7 @@ class TestContentLengthInputStream {
             outputStream.write(buffer, 0, len);
 
             final String result = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-            Assertions.assertEquals("1234567890", result);
+            Assertions.assertThat(result).isEqualTo("1234567890");
         }
     }
 
@@ -65,16 +65,16 @@ class TestContentLengthInputStream {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
         try (InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L)) {
-            Assertions.assertEquals(10, in1.skip(10));
-            Assertions.assertEquals(-1, in1.read());
+            Assertions.assertThat(in1.skip(10)).isEqualTo(10);
+            Assertions.assertThat(in1.read()).isEqualTo(-1);
         }
 
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16);
         try (InputStream in2 = new ContentLengthInputStream(inBuffer2, inputStream2, 10L)) {
             in2.read();
-            Assertions.assertEquals(9, in2.skip(10));
-            Assertions.assertEquals(-1, in2.read());
+            Assertions.assertThat(in2.skip(10)).isEqualTo(9);
+            Assertions.assertThat(in2.read()).isEqualTo(-1);
         }
 
         final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
@@ -82,16 +82,16 @@ class TestContentLengthInputStream {
         try (InputStream in3 = new ContentLengthInputStream(inBuffer3, inputStream3, 2L)) {
             in3.read();
             in3.read();
-            Assertions.assertTrue(in3.skip(10) <= 0);
-            Assertions.assertEquals(0, in3.skip(-1));
-            Assertions.assertEquals(-1, in3.read());
+            Assertions.assertThat(in3.skip(10) <= 0).isTrue();
+            Assertions.assertThat(in3.skip(-1)).isEqualTo(0);
+            Assertions.assertThat(in3.read()).isEqualTo(-1);
         }
 
         final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer4 = new SessionInputBufferImpl(16);
         try (InputStream in4 = new ContentLengthInputStream(inBuffer4, inputStream4, 10L)) {
-            Assertions.assertEquals(5, in4.skip(5));
-            Assertions.assertEquals(5, in4.read(new byte[20]));
+            Assertions.assertThat(in4.skip(5)).isEqualTo(5);
+            Assertions.assertThat(in4.read(new byte[20])).isEqualTo(5);
         }
     }
 
@@ -100,9 +100,9 @@ class TestContentLengthInputStream {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         try (InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 3L)) {
-            Assertions.assertEquals(0, in.available());
+            Assertions.assertThat(in.available()).isEqualTo(0);
             in.read();
-            Assertions.assertEquals(2, in.available());
+            Assertions.assertThat(in.available()).isEqualTo(2);
         }
     }
 
@@ -114,11 +114,15 @@ class TestContentLengthInputStream {
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 16L);
         in.close();
         in.close();
-        Assertions.assertThrows(StreamClosedException.class, in::read);
+        Assertions.assertThatThrownBy(in::read).isInstanceOf(StreamClosedException.class);
         final byte[] tmp = new byte[10];
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp));
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
-        Assertions.assertEquals('-', inBuffer.read(inputStream));
+        Assertions.assertThatThrownBy(() ->
+                        in.read(tmp))
+                .isInstanceOf(StreamClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        in.read(tmp, 0, tmp.length))
+                .isInstanceOf(StreamClosedException.class);
+        Assertions.assertThat(inBuffer.read(inputStream)).isEqualTo('-');
     }
 
     @Test
@@ -129,10 +133,16 @@ class TestContentLengthInputStream {
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 32L);
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);
-        Assertions.assertEquals(16, byteRead);
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.read(tmp));
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.read());
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.close());
+        Assertions.assertThat(byteRead).isEqualTo(16);
+        Assertions.assertThatThrownBy(() ->
+                        in.read(tmp))
+                .isInstanceOf(ConnectionClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        in.read())
+                .isInstanceOf(ConnectionClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        in.close())
+                .isInstanceOf(ConnectionClosedException.class);
     }
 
 }

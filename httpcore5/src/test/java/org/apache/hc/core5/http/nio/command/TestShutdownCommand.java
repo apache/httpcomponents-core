@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.nio.command;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,7 +38,7 @@ class TestShutdownCommand {
     @Test
     void cancelAlwaysReturnsTrue() {
         final ShutdownCommand command = new ShutdownCommand(CloseMode.GRACEFUL);
-        Assertions.assertTrue(command.cancel());
+        Assertions.assertThat(command.cancel()).isTrue();
     }
 
     @Test
@@ -55,7 +55,7 @@ class TestShutdownCommand {
     @Test
     void toStringIncludesType() {
         final ShutdownCommand command = new ShutdownCommand(CloseMode.IMMEDIATE);
-        Assertions.assertTrue(command.toString().contains("IMMEDIATE"));
+        Assertions.assertThat(command.toString().contains("IMMEDIATE")).isTrue();
     }
 
 }

@@ -27,12 +27,12 @@
 package org.apache.hc.core5.benchmark;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.HttpVersion;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ResultFormatterTest {
@@ -56,8 +56,7 @@ class ResultFormatterTest {
                 50000000);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         ResultFormatter.print(new PrintStream(buf, true, StandardCharsets.US_ASCII.name()), results);
-        Assertions.assertEquals(
-                "Server Software:\t\tTestServer/1.1\n" +
+        Assertions.assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n")).isEqualTo("Server Software:\t\tTestServer/1.1\n" +
                         "Protocol version:\t\tHTTP/1.1\n" +
                         "Server Hostname:\t\tlocalhost\n" +
                         "Server Port:\t\t\t8080\n" +
@@ -74,8 +73,7 @@ class ResultFormatterTest {
                         "Requests per second:\t5,884.08 [#/sec] (mean)\n" +
                         "Time per request:\t\t0.850 [ms] (mean)\n" +
                         "Time per request:\t\t0.170 [ms] (mean, across all concurrent requests)\n" +
-                        "Transfer rate:\t\t\t17,997.02 [Kbytes/sec] received\n"
-        , new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"));
+                "Transfer rate:\t\t\t17,997.02 [Kbytes/sec] received\n");
      }
 
 }

@@ -74,7 +74,8 @@ import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.extension.nio.H2TestResources;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -221,32 +222,32 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                     }));
         }
 
-        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertThat(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
 
-        Assertions.assertEquals(reqNo, responseQueue.size());
-        Assertions.assertEquals(reqNo, pushMessageQueue.size());
+        Assertions.assertThat(responseQueue.size()).isEqualTo(reqNo);
+        Assertions.assertThat(pushMessageQueue.size()).isEqualTo(reqNo);
 
         while (!responseQueue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = responseQueue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response1 = result.head();
             final String entity = result.body();
-            Assertions.assertNotNull(response1);
-            Assertions.assertEquals(200, response1.getCode());
-            Assertions.assertEquals("Hi there", entity);
+            Assertions.assertThat(response1).isNotNull();
+            Assertions.assertThat(response1.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isEqualTo("Hi there");
         }
 
         while (!pushMessageQueue.isEmpty()) {
             final Message<HttpResponse, String> pushMessage = pushMessageQueue.remove();
-            Assertions.assertNotNull(pushMessage);
+            Assertions.assertThat(pushMessage).isNotNull();
             final HttpResponse response = pushMessage.head();
             final String entity = pushMessage.body();
-            Assertions.assertEquals(200, response.getCode());
-            Assertions.assertNotNull(entity);
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
+            Assertions.assertThat(entity).isNotNull();
             final StringTokenizer t1 = new StringTokenizer(entity, "\r\n");
             while (t1.hasMoreTokens()) {
-                Assertions.assertEquals("Pushing lots of stuff", t1.nextToken());
+                Assertions.assertThat(t1.nextToken()).isEqualTo("Pushing lots of stuff");
             }
         }
     }
@@ -322,26 +323,26 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                 null,
                 null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
+        Assertions.assertThat(result1).isNotNull();
         final HttpResponse response1 = result1.head();
         final String entity1 = result1.body();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hi there", entity1);
+        Assertions.assertThat(response1).isNotNull();
+        Assertions.assertThat(response1.getCode()).isEqualTo(200);
+        Assertions.assertThat(entity1).isEqualTo("Hi there");
 
-        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertThat(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
 
-        Assertions.assertEquals(2, pushResultQueue.size());
+        Assertions.assertThat(pushResultQueue.size()).isEqualTo(2);
 
         final Object result2 = pushResultQueue.poll();
-        Assertions.assertNotNull(result2);
-        Assertions.assertInstanceOf(H2StreamResetException.class, result2);
-        Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
+        Assertions.assertThat(result2).isNotNull();
+        Assertions.assertThat(result2).isInstanceOf(H2StreamResetException.class);
+        Assertions.assertThat(((H2StreamResetException) result2).getCode()).isEqualTo(H2Error.REFUSED_STREAM.getCode());
 
         final Object result3 = pushResultQueue.poll();
-        Assertions.assertNotNull(result3);
-        Assertions.assertInstanceOf(H2StreamResetException.class, result3);
-        Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
+        Assertions.assertThat(result3).isNotNull();
+        Assertions.assertThat(result3).isInstanceOf(H2StreamResetException.class);
+        Assertions.assertThat(((H2StreamResetException) result3).getCode()).isEqualTo(H2Error.REFUSED_STREAM.getCode());
     }
 
     @ParameterizedTest(name = "Max concurrent streams: {0}")
@@ -381,10 +382,10 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, Void>> future = queue.remove();
             final Message<HttpResponse, Void> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertNotNull(result);
+            Assertions.assertThat(result).isNotNull();
             final HttpResponse response = result.head();
-            Assertions.assertNotNull(response);
-            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.getCode()).isEqualTo(200);
         }
     }
 
@@ -421,8 +422,8 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
             })), Command.Priority.NORMAL);
 
         }
-        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertEquals(n, count.get());
+        Assertions.assertThat(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
+        Assertions.assertThat(count.get()).isEqualTo(n);
     }
 
     @Test
@@ -450,12 +451,12 @@ abstract class H2IntegrationTest extends HttpIntegrationTest {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     context, null);
-            final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                    future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-            Assertions.assertInstanceOf(ProtocolException.class, exception.getCause());
+            final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                    future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+            Assertions.assertThat(exception.getCause()).isInstanceOf(ProtocolException.class);
 
             final EndpointDetails endpointDetails = context.getEndpointDetails();
-            Assertions.assertEquals(0L, endpointDetails.getRequestCount());
+            Assertions.assertThat(endpointDetails.getRequestCount()).isEqualTo(0L);
         }
     }
 

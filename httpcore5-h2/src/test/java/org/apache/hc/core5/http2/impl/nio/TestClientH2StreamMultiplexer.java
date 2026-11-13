@@ -37,7 +37,8 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -62,9 +63,9 @@ class TestClientH2StreamMultiplexer {
     @Test
     void validateSettingRejectsEnablePush1OnClient() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 1));
-        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+        final H2ConnectionException ex = Assertions.assertThatThrownBy(() ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 1)).isInstanceOf(H2ConnectionException.class).asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.PROTOCOL_ERROR.getCode());
     }
 
     @Test
@@ -76,23 +77,23 @@ class TestClientH2StreamMultiplexer {
     @Test
     void validateSettingRejectsEnablePush2OnClient() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 2));
-        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+        final H2ConnectionException ex = Assertions.assertThatThrownBy(() ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, 2)).isInstanceOf(H2ConnectionException.class).asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.PROTOCOL_ERROR.getCode());
     }
 
     @Test
     void validateSettingRejectsEnablePushNegativeOnClient() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        final H2ConnectionException ex = Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.validateSetting(H2Param.ENABLE_PUSH, -1));
-        Assertions.assertEquals(H2Error.PROTOCOL_ERROR.getCode(), ex.getCode());
+        final H2ConnectionException ex = Assertions.assertThatThrownBy(() ->
+                multiplexer.validateSetting(H2Param.ENABLE_PUSH, -1)).isInstanceOf(H2ConnectionException.class).asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class)).actual();
+        Assertions.assertThat(ex.getCode()).isEqualTo(H2Error.PROTOCOL_ERROR.getCode());
     }
 
     @Test
     void acceptHeaderFrameRejected() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        Assertions.assertThrows(H2ConnectionException.class, multiplexer::acceptHeaderFrame);
+        Assertions.assertThatThrownBy(multiplexer::acceptHeaderFrame).isInstanceOf(H2ConnectionException.class);
     }
 
     @Test
@@ -103,23 +104,23 @@ class TestClientH2StreamMultiplexer {
                 Mockito.mock(AsyncClientExchangeHandler.class),
                 null,
                 null);
-        Assertions.assertNotNull(handler);
+        Assertions.assertThat(handler).isNotNull();
     }
 
     @Test
     void incomingRequestRejected() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        Assertions.assertThrows(H2ConnectionException.class, () ->
-                multiplexer.incomingRequest(Mockito.mock(H2StreamChannel.class)));
+        Assertions.assertThatThrownBy(() ->
+                multiplexer.incomingRequest(Mockito.mock(H2StreamChannel.class))).isInstanceOf(H2ConnectionException.class);
     }
 
     @Test
     void outgoingPushPromiseRejected() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
-        Assertions.assertThrows(H2ConnectionException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 multiplexer.outgoingPushPromise(
                         Mockito.mock(H2StreamChannel.class),
-                        Mockito.mock(AsyncPushProducer.class)));
+                        Mockito.mock(AsyncPushProducer.class))).isInstanceOf(H2ConnectionException.class);
     }
 
     @Test
@@ -131,7 +132,7 @@ class TestClientH2StreamMultiplexer {
         final H2StreamHandler handler = multiplexer.incomingPushPromise(
                 Mockito.mock(H2StreamChannel.class),
                 pushHandlerFactory);
-        Assertions.assertNotNull(handler);
+        Assertions.assertThat(handler).isNotNull();
     }
 
     @Test
@@ -140,15 +141,15 @@ class TestClientH2StreamMultiplexer {
         final H2Stream stream = Mockito.mock(H2Stream.class);
         Mockito.when(stream.isRemoteClosed()).thenReturn(true);
         Mockito.when(stream.isLocalClosed()).thenReturn(false);
-        Assertions.assertTrue(multiplexer.allowGracefulAbort(stream));
+        Assertions.assertThat(multiplexer.allowGracefulAbort(stream)).isTrue();
     }
 
     @Test
     void toStringContainsState() {
         final ClientH2StreamMultiplexer multiplexer = newMultiplexer();
         final String text = multiplexer.toString();
-        Assertions.assertTrue(text.startsWith("["));
-        Assertions.assertTrue(text.endsWith("]"));
+        Assertions.assertThat(text.startsWith("[")).isTrue();
+        Assertions.assertThat(text.endsWith("]")).isTrue();
     }
 
 }

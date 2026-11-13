@@ -27,12 +27,6 @@
 
 package org.apache.hc.core5.http.impl;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +37,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.HeaderGroup;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class IncomingEntityDetailsTest {
@@ -52,18 +47,19 @@ class IncomingEntityDetailsTest {
     void getContentLengthEmpty() {
         final MessageHeaders messageHeaders = new HeaderGroup();
         final IncomingEntityDetails incomingEntityDetails = new IncomingEntityDetails(messageHeaders);
-        assertAll(
-                () -> assertEquals(-1, incomingEntityDetails.getContentLength()),
-                () -> assertNull(incomingEntityDetails.getContentType()),
-                () -> assertNull(incomingEntityDetails.getContentEncoding()),
-                () -> assertEquals(0, incomingEntityDetails.getTrailerNames().size())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(incomingEntityDetails.getContentLength()).isEqualTo(-1);
+            softly.assertThat(incomingEntityDetails.getContentType()).isNull();
+            softly.assertThat(incomingEntityDetails.getContentEncoding()).isNull();
+            softly.assertThat(incomingEntityDetails.getTrailerNames()).isEmpty();
+        });
     }
 
     @Test
     void messageHeadersNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> new IncomingEntityDetails(null),
-                "Message Header Null");
+        Assertions.assertThatThrownBy(() ->
+                        new IncomingEntityDetails(null))
+                .withFailMessage("Message Header Null").isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -73,10 +69,10 @@ class IncomingEntityDetailsTest {
         final Header header = new BasicHeader("name", "value");
         headerGroup.addHeader(header);
         final IncomingEntityDetails incomingEntityDetails = new IncomingEntityDetails(messageHeaders);
-        assertAll(
-                () -> assertEquals(-1, incomingEntityDetails.getContentLength()),
-                () -> assertTrue(incomingEntityDetails.isChunked())
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(incomingEntityDetails.getContentLength()).isEqualTo(-1);
+            softly.assertThat(incomingEntityDetails.isChunked()).isTrue();
+        });
     }
 
     @Test
@@ -86,11 +82,11 @@ class IncomingEntityDetailsTest {
         messageHeaders.setHeaders(header);
         final IncomingEntityDetails incomingEntityDetails = new IncomingEntityDetails(messageHeaders);
         final Set<String> incomingSet = incomingEntityDetails.getTrailerNames();
-        assertAll(
-                () -> assertFalse(incomingSet.isEmpty()),
-                () -> assertTrue(incomingSet.containsAll(Stream.of("a", "b", "c")
-                        .collect(Collectors.toCollection(HashSet::new))))
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(incomingSet).isNotEmpty();
+            softly.assertThat(incomingSet).containsAll(Stream.of("a", "b", "c")
+                    .collect(Collectors.toCollection(HashSet::new)));
+        });
     }
 
 }

@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,8 +74,8 @@ class TestDefaultBHttpServerConnection {
 
     @Test
     void testBasics() {
-        Assertions.assertFalse(conn.isOpen());
-        Assertions.assertEquals("[Not bound]", conn.toString());
+        Assertions.assertThat(conn.isOpen()).isFalse();
+        Assertions.assertThat(conn.toString()).isEqualTo("[Not bound]");
     }
 
     @Test
@@ -86,19 +86,19 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(0);
 
         final ClassicHttpRequest request = conn.receiveRequestHeader();
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/", request.getPath());
-        Assertions.assertEquals(Method.GET.name(), request.getMethod());
-        Assertions.assertTrue(request.containsHeader("User-Agent"));
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        Assertions.assertNull(conn.getEndpointDetails().getRemoteAddress());
-        Assertions.assertNull(conn.getEndpointDetails().getLocalAddress());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.GET.name());
+        Assertions.assertThat(request.containsHeader("User-Agent")).isTrue();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
+        Assertions.assertThat(conn.getEndpointDetails().getRemoteAddress()).isNull();
+        Assertions.assertThat(conn.getEndpointDetails().getLocalAddress()).isNull();
 
-        Assertions.assertEquals(Timeout.ofMilliseconds(0), conn.getEndpointDetails().getSocketTimeout());
-        Assertions.assertEquals("null<->null", conn.getEndpointDetails().toString());
+        Assertions.assertThat(conn.getEndpointDetails().getSocketTimeout()).isEqualTo(Timeout.ofMilliseconds(0));
+        Assertions.assertThat(conn.getEndpointDetails().toString()).isEqualTo("null<->null");
     }
 
     @Test
@@ -109,26 +109,26 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(0);
 
         final ClassicHttpRequest request = conn.receiveRequestHeader();
 
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/", request.getPath());
-        Assertions.assertEquals(Method.POST.name(), request.getMethod());
-        Assertions.assertTrue(request.containsHeader("User-Agent"));
-        Assertions.assertNull(request.getEntity());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.POST.name());
+        Assertions.assertThat(request.containsHeader("User-Agent")).isTrue();
+        Assertions.assertThat(request.getEntity()).isNull();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
 
         conn.receiveRequestEntity(request);
 
         final HttpEntity entity = request.getEntity();
-        Assertions.assertNotNull(entity);
-        Assertions.assertEquals(3, entity.getContentLength());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(3);
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
         final InputStream content = entity.getContent();
-        Assertions.assertNotNull(content);
-        Assertions.assertInstanceOf(ContentLengthInputStream.class, content);
+        Assertions.assertThat(content).isNotNull();
+        Assertions.assertThat(content).isInstanceOf(ContentLengthInputStream.class);
     }
 
     @Test
@@ -140,27 +140,27 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(0);
 
         final ClassicHttpRequest request = conn.receiveRequestHeader();
 
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(Method.POST.name(), request.getMethod());
-        Assertions.assertTrue(request.containsHeader("User-Agent"));
-        Assertions.assertNull(request.getEntity());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.POST.name());
+        Assertions.assertThat(request.containsHeader("User-Agent")).isTrue();
+        Assertions.assertThat(request.getEntity()).isNull();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
 
         conn.receiveRequestEntity(request);
 
         final HttpEntity entity = request.getEntity();
-        Assertions.assertNotNull(entity);
-        Assertions.assertEquals(-1, entity.getContentLength());
-        Assertions.assertTrue(entity.isChunked());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(entity).isNotNull();
+        Assertions.assertThat(entity.getContentLength()).isEqualTo(-1);
+        Assertions.assertThat(entity.isChunked()).isTrue();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
         final InputStream content = entity.getContent();
-        Assertions.assertNotNull(content);
-        Assertions.assertInstanceOf(ChunkedInputStream.class, content);
+        Assertions.assertThat(content).isNotNull();
+        Assertions.assertThat(content).isInstanceOf(ChunkedInputStream.class);
     }
 
     @Test
@@ -172,19 +172,19 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(0);
 
         final ClassicHttpRequest request = conn.receiveRequestHeader();
 
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(Method.POST.name(), request.getMethod());
-        Assertions.assertTrue(request.containsHeader("User-Agent"));
-        Assertions.assertNull(request.getEntity());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.POST.name());
+        Assertions.assertThat(request.containsHeader("User-Agent")).isTrue();
+        Assertions.assertThat(request.getEntity()).isNull();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
 
-        Assertions.assertThrows(ProtocolException.class, () ->
-                conn.receiveRequestEntity(request));
+        Assertions.assertThatThrownBy(() ->
+                conn.receiveRequestEntity(request)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -195,21 +195,21 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(0);
 
         final ClassicHttpRequest request = conn.receiveRequestHeader();
 
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(Method.POST.name(), request.getMethod());
-        Assertions.assertTrue(request.containsHeader("User-Agent"));
-        Assertions.assertNull(request.getEntity());
-        Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/stuff");
+        Assertions.assertThat(request.getMethod()).isEqualTo(Method.POST.name());
+        Assertions.assertThat(request.containsHeader("User-Agent")).isTrue();
+        Assertions.assertThat(request.getEntity()).isNull();
+        Assertions.assertThat(conn.getEndpointDetails().getRequestCount()).isEqualTo(1);
 
         conn.receiveRequestEntity(request);
 
         final HttpEntity entity = request.getEntity();
-        Assertions.assertNull(entity);
+        Assertions.assertThat(entity).isNull();
     }
 
     @Test
@@ -229,10 +229,11 @@ class TestDefaultBHttpServerConnection {
         response.addHeader("Transfer-Encoding", "chunked");
         response.setEntity(entity);
         conn.sendResponseHeader(response);
-        Assertions.assertThrows(EOFException.class, () -> conn.sendResponseEntity(response));
-        Assertions.assertFalse(conn.isOpen());
-        Assertions.assertFalse(new String(outStream.toByteArray(), StandardCharsets.US_ASCII)
-                .endsWith("0\r\n\r\n"));
+        Assertions.assertThatThrownBy(() -> conn.sendResponseEntity(response))
+                .isInstanceOf(EOFException.class);
+        Assertions.assertThat(conn.isOpen()).isFalse();
+        Assertions.assertThat(new String(outStream.toByteArray(), StandardCharsets.US_ASCII)
+                .endsWith("0\r\n\r\n")).isFalse();
     }
 
     @Test
@@ -242,7 +243,7 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader("User-Agent", "test");
@@ -250,9 +251,9 @@ class TestDefaultBHttpServerConnection {
         conn.sendResponseHeader(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n", s);
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n");
     }
 
     @Test
@@ -262,16 +263,16 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(100, "Go on");
 
         conn.sendResponseHeader(response);
         conn.flush();
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 100 Go on\r\n\r\n", s);
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 100 Go on\r\n\r\n");
     }
 
     @Test
@@ -281,7 +282,7 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
@@ -292,9 +293,9 @@ class TestDefaultBHttpServerConnection {
         conn.sendResponseEntity(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123", s);
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123");
     }
 
     @Test
@@ -304,7 +305,7 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
@@ -315,10 +316,10 @@ class TestDefaultBHttpServerConnection {
         conn.sendResponseEntity(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
-                "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
+                "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n");
     }
 
     @Test
@@ -328,7 +329,7 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
@@ -336,8 +337,8 @@ class TestDefaultBHttpServerConnection {
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
 
         conn.sendResponseHeader(response);
-        Assertions.assertThrows(NotImplementedException.class, () ->
-                conn.sendResponseEntity(response));
+        Assertions.assertThatThrownBy(() ->
+                conn.sendResponseEntity(response)).isInstanceOf(NotImplementedException.class);
         conn.flush();
     }
 
@@ -348,7 +349,7 @@ class TestDefaultBHttpServerConnection {
 
         conn.bind(socket);
 
-        Assertions.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(0);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
@@ -357,9 +358,9 @@ class TestDefaultBHttpServerConnection {
         conn.sendResponseEntity(response);
         conn.flush();
 
-        Assertions.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+        Assertions.assertThat(conn.getEndpointDetails().getResponseCount()).isEqualTo(1);
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\n\r\n", s);
+        Assertions.assertThat(s).isEqualTo("HTTP/1.1 200 OK\r\nServer: test\r\n\r\n");
     }
 
 }

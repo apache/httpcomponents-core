@@ -27,72 +27,72 @@
 
 package org.apache.hc.core5.http2.impl;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestFieldValidationSupport {
 
     @Test
     void testNameCharValid() throws Exception {
-        Assertions.assertFalse(FieldValidationSupport.isNameCharValid(' '));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharValid('a'));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharValid('A'));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharValid('0'));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharValid('@'));
-        Assertions.assertFalse(FieldValidationSupport.isNameCharValid(':'));
-        Assertions.assertFalse(FieldValidationSupport.isNameCharValid('ä'));
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid(' ')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid('a')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid('A')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid('0')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid('@')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid(':')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameCharValid('ä')).isFalse();
     }
 
     @Test
     void testNameCharLowerCaseValid() throws Exception {
-        Assertions.assertFalse(FieldValidationSupport.isNameCharLowerCaseValid(' '));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharLowerCaseValid('a'));
-        Assertions.assertFalse(FieldValidationSupport.isNameCharLowerCaseValid('A'));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharLowerCaseValid('0'));
-        Assertions.assertTrue(FieldValidationSupport.isNameCharLowerCaseValid('@'));
-        Assertions.assertFalse(FieldValidationSupport.isNameCharLowerCaseValid(':'));
-        Assertions.assertFalse(FieldValidationSupport.isNameCharLowerCaseValid('ä'));
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid(' ')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid('a')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid('A')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid('0')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid('@')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid(':')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameCharLowerCaseValid('ä')).isFalse();
     }
 
     @Test
     void testNameValid() throws Exception {
-        Assertions.assertTrue(FieldValidationSupport.isNameValid("ABCDEF0123456789"));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid(":Blah"));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid("Blah "));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid("Bläh"));
+        Assertions.assertThat(FieldValidationSupport.isNameValid("ABCDEF0123456789")).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameValid(":Blah")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameValid("Blah ")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameValid("Bläh")).isFalse();
     }
 
     @Test
     void testNameLowerCaseValid() throws Exception {
-        Assertions.assertTrue(FieldValidationSupport.isNameValid("abcdef0123456789"));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid(":blah"));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid("blah "));
-        Assertions.assertFalse(FieldValidationSupport.isNameValid("bläh"));
+        Assertions.assertThat(FieldValidationSupport.isNameValid("abcdef0123456789")).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isNameValid(":blah")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameValid("blah ")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isNameValid("bläh")).isFalse();
     }
 
     @Test
     void testValueCharValid() throws Exception {
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid(' '));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid('a'));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid('A'));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid('0'));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid('@'));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid(':'));
-        Assertions.assertTrue(FieldValidationSupport.isValueCharValid('ä'));
-        Assertions.assertFalse(FieldValidationSupport.isValueCharValid((char) 0x00));
-        Assertions.assertFalse(FieldValidationSupport.isValueCharValid('\n'));
-        Assertions.assertFalse(FieldValidationSupport.isValueCharValid('\r'));
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid(' ')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('a')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('A')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('0')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('@')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid(':')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('ä')).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid((char) 0x00)).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('\n')).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isValueCharValid('\r')).isFalse();
     }
 
     @Test
     void testValueValid() throws Exception {
-        Assertions.assertTrue(FieldValidationSupport.isValueValid("ABCDEF0123456789"));
-        Assertions.assertTrue(FieldValidationSupport.isValueValid(":Blah"));
-        Assertions.assertTrue(FieldValidationSupport.isValueValid("Bläh"));
-        Assertions.assertFalse(FieldValidationSupport.isValueValid(" Blah"));
-        Assertions.assertFalse(FieldValidationSupport.isValueValid("Blah\t"));
-        Assertions.assertFalse(FieldValidationSupport.isValueValid("Blah\nBlah"));
-        Assertions.assertFalse(FieldValidationSupport.isValueValid("\rBlah"));
+        Assertions.assertThat(FieldValidationSupport.isValueValid("ABCDEF0123456789")).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueValid(":Blah")).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueValid("Bläh")).isTrue();
+        Assertions.assertThat(FieldValidationSupport.isValueValid(" Blah")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isValueValid("Blah\t")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isValueValid("Blah\nBlah")).isFalse();
+        Assertions.assertThat(FieldValidationSupport.isValueValid("\rBlah")).isFalse();
     }
 
 }

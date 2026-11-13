@@ -65,7 +65,8 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -124,15 +125,12 @@ class AsyncH2SocketTimeoutCoreTest {
         final Future<Message<HttpResponse, String>> future =
                 requester.execute(requestProducer, responseConsumer, REQUEST_TIMEOUT, null);
 
-        final ExecutionException ex = Assertions.assertThrows(
-                ExecutionException.class,
-                () -> future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+        final ExecutionException ex = Assertions.assertThatThrownBy(() ->
+                        future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
 
         final Throwable cause = ex.getCause();
-        Assertions.assertInstanceOf(
-                HttpStreamResetException.class,
-                cause,
-                "Expected HttpStreamResetException, but got: " + cause);
+        Assertions.assertThat(cause).withFailMessage("Expected HttpStreamResetException, but got: " + cause).isInstanceOf(HttpStreamResetException.class);
     }
 
     private InetSocketAddress startServer() throws Exception {

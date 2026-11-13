@@ -34,7 +34,7 @@ import org.apache.hc.core5.testing.nio.Http1TestClient;
 import org.apache.hc.core5.testing.nio.Http1TestServer;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -87,12 +87,12 @@ public class Http1TestResources implements BeforeEachCallback, AfterEachCallback
     }
 
     public Http1TestClient client() {
-        Assertions.assertNotNull(client);
+        Assertions.assertThat(client).isNotNull();
         return client;
     }
 
     public Http1TestServer server() {
-        Assertions.assertNotNull(server);
+        Assertions.assertThat(server).isNotNull();
         return server;
     }
 

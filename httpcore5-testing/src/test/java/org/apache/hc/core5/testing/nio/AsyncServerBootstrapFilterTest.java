@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -64,6 +63,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -136,11 +136,11 @@ abstract class AsyncServerBootstrapFilterTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message);
+        Assertions.assertThat(message).isNotNull();
         final HttpResponse response = message.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
         final Header testFilterHeader = response.getHeader("X-Test-Filter");
-        Assertions.assertNotNull(testFilterHeader);
+        Assertions.assertThat(testFilterHeader).isNotNull();
     }
 
 }

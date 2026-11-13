@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -38,44 +38,48 @@ class TestTextUtils {
 
     @Test
     void testTextEmpty() {
-        Assertions.assertTrue(TextUtils.isEmpty(null));
-        Assertions.assertTrue(TextUtils.isEmpty(""));
-        Assertions.assertFalse(TextUtils.isEmpty("\t"));
+        Assertions.assertThat(TextUtils.isEmpty(null)).isTrue();
+        Assertions.assertThat(TextUtils.isEmpty("")).isTrue();
+        Assertions.assertThat(TextUtils.isEmpty("\t")).isFalse();
     }
 
     @Test
     void testTextBlank() {
-        Assertions.assertTrue(TextUtils.isBlank(null));
-        Assertions.assertTrue(TextUtils.isBlank(""));
-        Assertions.assertTrue(TextUtils.isBlank("   "));
-        Assertions.assertTrue(TextUtils.isBlank("\t"));
+        Assertions.assertThat(TextUtils.isBlank(null)).isTrue();
+        Assertions.assertThat(TextUtils.isBlank("")).isTrue();
+        Assertions.assertThat(TextUtils.isBlank("   ")).isTrue();
+        Assertions.assertThat(TextUtils.isBlank("\t")).isTrue();
     }
 
     @Test
     void testTextContainsBlanks() {
-        Assertions.assertFalse(TextUtils.containsBlanks(null));
-        Assertions.assertFalse(TextUtils.containsBlanks(""));
-        Assertions.assertTrue(TextUtils.containsBlanks("   "));
-        Assertions.assertTrue(TextUtils.containsBlanks("\t"));
-        Assertions.assertTrue(TextUtils.containsBlanks(" a"));
-        Assertions.assertFalse(TextUtils.containsBlanks("a"));
+        Assertions.assertThat(TextUtils.containsBlanks(null)).isFalse();
+        Assertions.assertThat(TextUtils.containsBlanks("")).isFalse();
+        Assertions.assertThat(TextUtils.containsBlanks("   ")).isTrue();
+        Assertions.assertThat(TextUtils.containsBlanks("\t")).isTrue();
+        Assertions.assertThat(TextUtils.containsBlanks(" a")).isTrue();
+        Assertions.assertThat(TextUtils.containsBlanks("a")).isFalse();
     }
 
     @Test
     void testToHexString() {
-        Assertions.assertEquals("000c2001ff", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 , -1}));
-        Assertions.assertNull(TextUtils.toHexString(null));
+        Assertions.assertThat(TextUtils.toHexString(new byte[]{0, 12, 32, 1, -1})).isEqualTo("000c2001ff");
+        Assertions.assertThat(TextUtils.toHexString(null)).isNull();
     }
 
     @Test
     void testPrintableCharactersAndByteConversion() {
         for (int c = 0; c <= 0xFF; c++) {
             final boolean expected = c == '\t' || c >= 0x20 && c <= 0x7E || c >= 0xA0;
-            Assertions.assertEquals(expected, TextUtils.isPrintable(c), "Character: " + c);
-            Assertions.assertEquals(expected ? (byte) c : (byte) '?', TextUtils.castAsByte(c), "Character: " + c);
+            Assertions.assertThat(TextUtils.isPrintable(c))
+                    .as("Character: " + c)
+                    .isEqualTo(expected);
+            Assertions.assertThat(TextUtils.castAsByte(c))
+                    .as("Character: " + c)
+                    .isEqualTo(expected ? (byte) c : (byte) '?');
         }
-        Assertions.assertTrue(TextUtils.isPrintable(0x20AC));
-        Assertions.assertEquals((byte) '?', TextUtils.castAsByte(0x20AC));
+        Assertions.assertThat(TextUtils.isPrintable(0x20AC)).isTrue();
+        Assertions.assertThat(TextUtils.castAsByte(0x20AC)).isEqualTo((byte) '?');
     }
 
 }

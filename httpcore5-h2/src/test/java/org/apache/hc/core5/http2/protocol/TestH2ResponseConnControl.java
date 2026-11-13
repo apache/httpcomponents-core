@@ -32,7 +32,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2ResponseConnControl {
@@ -45,7 +45,7 @@ class TestH2ResponseConnControl {
 
         H2ResponseConnControl.INSTANCE.process(response, null, context);
 
-        Assertions.assertEquals(HeaderElements.CLOSE, response.getFirstHeader(HttpHeaders.CONNECTION).getValue());
+        Assertions.assertThat(response.getFirstHeader(HttpHeaders.CONNECTION).getValue()).isEqualTo(HeaderElements.CLOSE);
     }
 
     @Test
@@ -56,7 +56,7 @@ class TestH2ResponseConnControl {
 
         H2ResponseConnControl.INSTANCE.process(response, null, context);
 
-        Assertions.assertFalse(response.containsHeader(HttpHeaders.CONNECTION));
+        Assertions.assertThat(response.containsHeader(HttpHeaders.CONNECTION)).isFalse();
     }
 
 }

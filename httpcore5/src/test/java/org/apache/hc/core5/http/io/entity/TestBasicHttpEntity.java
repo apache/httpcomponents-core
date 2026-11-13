@@ -32,7 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,42 +45,64 @@ class TestBasicHttpEntity {
     void testBasics() {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
-        Assertions.assertEquals(bytes.length, httpentity.getContentLength());
+        Assertions.assertThat(httpentity.getContentLength()).isEqualTo(bytes.length);
         // always false
-        Assertions.assertFalse(httpentity.isRepeatable());
+        Assertions.assertThat(httpentity.isRepeatable()).isFalse();
         // always true
-        Assertions.assertTrue(httpentity.isStreaming());
+        Assertions.assertThat(httpentity.isStreaming()).isTrue();
     }
 
     @Test
     void testConstructorNullContent() {
         // BasicHttpEntity(InputStream, ContentType)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, null))
+                .isInstanceOf(NullPointerException.class);
         // BasicHttpEntity(InputStream, ContentType, boolean)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, false));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null, false));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, false))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, null, false))
+                .isInstanceOf(NullPointerException.class);
         // BasicHttpEntity(InputStream, ContentType, String)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, ""));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null, ""));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, ""))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, null, ""))
+                .isInstanceOf(NullPointerException.class);
         // BasicHttpEntity(InputStream, long, ContentType)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, null))
+                .isInstanceOf(NullPointerException.class);
         // BasicHttpEntity(InputStream, long, ContentType, String)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, ""));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null, ""));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, ""))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, null, ""))
+                .isInstanceOf(NullPointerException.class);
         // BasicHttpEntity(InputStream, long, ContentType, String, boolean)
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, "", false));
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null, "", false));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, "", false))
+                .isInstanceOf(NullPointerException.class);
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHttpEntity(null, 0, null, "", false))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testToString() throws Exception {
         try (final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
                 ContentType.parseLenient("blah"), "yada", true)) {
-            Assertions.assertEquals(
-                    "[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
-                    httpentity.toString());
+            Assertions.assertThat(httpentity.toString()).isEqualTo("[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]");
         }
     }
 
@@ -90,16 +112,16 @@ class TestBasicHttpEntity {
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN);
         // always false
-        Assertions.assertFalse(httpentity.isRepeatable());
+        Assertions.assertThat(httpentity.isRepeatable()).isFalse();
         // always true
-        Assertions.assertTrue(httpentity.isStreaming());
+        Assertions.assertThat(httpentity.isStreaming()).isTrue();
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] bytes2 = out.toByteArray();
-        Assertions.assertNotNull(bytes2);
-        Assertions.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertThat(bytes2).isNotNull();
+        Assertions.assertThat(bytes2.length).isEqualTo(bytes.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assertions.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertThat(bytes2[i]).isEqualTo(bytes[i]);
         }
     }
 

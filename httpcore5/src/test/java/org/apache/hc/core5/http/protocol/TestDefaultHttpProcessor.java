@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestDefaultHttpProcessor {
@@ -58,7 +58,7 @@ class TestDefaultHttpProcessor {
         processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create());
         processor.process(new BasicHttpResponse(200), null, HttpCoreContext.create());
 
-        Assertions.assertEquals(Arrays.asList("r1", "r2", "s1", "s2"), events);
+        Assertions.assertThat(events).isEqualTo(Arrays.asList("r1", "r2", "s1", "s2"));
     }
 
     @Test
@@ -73,7 +73,7 @@ class TestDefaultHttpProcessor {
 
         processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create());
 
-        Assertions.assertEquals(Arrays.asList("orig"), events);
+        Assertions.assertThat(events).isEqualTo(Arrays.asList("orig"));
     }
 
     @Test
@@ -100,7 +100,7 @@ class TestDefaultHttpProcessor {
         processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create());
         processor.process(new BasicHttpResponse(200), null, HttpCoreContext.create());
 
-        Assertions.assertEquals(Arrays.asList("r1", "r2", "s1"), events);
+        Assertions.assertThat(events).isEqualTo(Arrays.asList("r1", "r2", "s1"));
     }
 
     @Test
@@ -114,8 +114,8 @@ class TestDefaultHttpProcessor {
         };
         final DefaultHttpProcessor processor = new DefaultHttpProcessor(interceptor);
 
-        Assertions.assertThrows(HttpException.class, () ->
-                processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create()));
+        Assertions.assertThatThrownBy(() ->
+                processor.process(new BasicHttpRequest("GET", "/"), null, HttpCoreContext.create())).isInstanceOf(HttpException.class);
     }
 
 }

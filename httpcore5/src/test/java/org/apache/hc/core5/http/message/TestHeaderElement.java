@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -43,25 +43,27 @@ class TestHeaderElement {
         final HeaderElement element = new BasicHeaderElement("name", "value",
                 new BasicNameValuePair("param1", "value1"),
                 new BasicNameValuePair("param2", "value2"));
-        Assertions.assertEquals("name", element.getName());
-        Assertions.assertEquals("value", element.getValue());
-        Assertions.assertEquals(2, element.getParameters().length);
-        Assertions.assertEquals("value1", element.getParameterByName("param1").getValue());
-        Assertions.assertEquals("value2", element.getParameterByName("param2").getValue());
+        Assertions.assertThat(element.getName()).isEqualTo("name");
+        Assertions.assertThat(element.getValue()).isEqualTo("value");
+        Assertions.assertThat(element.getParameters().length).isEqualTo(2);
+        Assertions.assertThat(element.getParameterByName("param1").getValue()).isEqualTo("value1");
+        Assertions.assertThat(element.getParameterByName("param2").getValue()).isEqualTo("value2");
     }
 
     @Test
     void testConstructor2() {
         final HeaderElement element = new BasicHeaderElement("name", "value");
-        Assertions.assertEquals("name", element.getName());
-        Assertions.assertEquals("value", element.getValue());
-        Assertions.assertEquals(0, element.getParameters().length);
+        Assertions.assertThat(element.getName()).isEqualTo("name");
+        Assertions.assertThat(element.getValue()).isEqualTo("value");
+        Assertions.assertThat(element.getParameters().length).isEqualTo(0);
     }
 
 
     @Test
     void testInvalidName() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, (NameValuePair[]) null));
+        Assertions.assertThatThrownBy(() ->
+                        new BasicHeaderElement(null, null, (NameValuePair[]) null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -71,10 +73,12 @@ class TestHeaderElement {
         buf.append(s);
         final ParserCursor cursor = new ParserCursor(0, buf.length());
         final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(buf, cursor);
-        Assertions.assertEquals("value1", element.getParameterByName("param1").getValue());
-        Assertions.assertEquals("value2", element.getParameterByName("param2").getValue());
-        Assertions.assertNull(element.getParameterByName("param3"));
-        Assertions.assertThrows(NullPointerException.class, () -> element.getParameterByName(null));
+        Assertions.assertThat(element.getParameterByName("param1").getValue()).isEqualTo("value1");
+        Assertions.assertThat(element.getParameterByName("param2").getValue()).isEqualTo("value2");
+        Assertions.assertThat(element.getParameterByName("param3")).isNull();
+        Assertions.assertThatThrownBy(() ->
+                        element.getParameterByName(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -82,7 +86,7 @@ class TestHeaderElement {
         final BasicHeaderElement element = new BasicHeaderElement("name", "value",
                 new BasicNameValuePair("param1", "value1"),
                 new BasicNameValuePair("param2", "value2"));
-        Assertions.assertEquals("name=value; param1=value1; param2=value2", element.toString());
+        Assertions.assertThat(element.toString()).isEqualTo("name=value; param1=value1; param2=value2");
     }
 
 }

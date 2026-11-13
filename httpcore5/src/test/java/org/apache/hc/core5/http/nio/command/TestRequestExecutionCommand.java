@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -85,8 +85,8 @@ class TestRequestExecutionCommand {
         final AsyncClientExchangeHandler handler = Mockito.mock(AsyncClientExchangeHandler.class);
         final RequestExecutionCommand command = new RequestExecutionCommand(handler, HttpCoreContext.create());
 
-        Assertions.assertTrue(command.cancel());
-        Assertions.assertFalse(command.cancel());
+        Assertions.assertThat(command.cancel()).isTrue();
+        Assertions.assertThat(command.cancel()).isFalse();
 
         Mockito.verify(handler).failed(Mockito.isA(RequestNotExecutedException.class));
         Mockito.verify(handler).releaseResources();
@@ -99,9 +99,9 @@ class TestRequestExecutionCommand {
         final HandlerFactory<AsyncPushConsumer> pushFactory = Mockito.mock(HandlerFactory.class);
         final RequestExecutionCommand command = new RequestExecutionCommand(handler, pushFactory, HttpCoreContext.create());
 
-        Assertions.assertSame(handler, command.getExchangeHandler());
-        Assertions.assertSame(pushFactory, command.getPushHandlerFactory());
-        Assertions.assertNotNull(command.getContext());
+        Assertions.assertThat(command.getExchangeHandler()).isSameAs(handler);
+        Assertions.assertThat(command.getPushHandlerFactory()).isSameAs(pushFactory);
+        Assertions.assertThat(command.getContext()).isNotNull();
     }
 
 }

@@ -27,20 +27,19 @@
 
 package org.apache.hc.core5.annotation;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ThreadingBehaviorTest {
 
     @Test
     void testName() {
-        assertEquals("SAFE", ThreadingBehavior.SAFE.name());
-        assertEquals("SAFE_CONDITIONAL", ThreadingBehavior.SAFE_CONDITIONAL.name());
-        assertEquals("IMMUTABLE_CONDITIONAL", ThreadingBehavior.IMMUTABLE_CONDITIONAL.name());
-        assertEquals("IMMUTABLE", ThreadingBehavior.IMMUTABLE.name());
-        assertEquals("STATELESS", ThreadingBehavior.STATELESS.name());
-        assertEquals("UNSAFE", ThreadingBehavior.UNSAFE.name());
+        Assertions.assertThat(ThreadingBehavior.SAFE.name()).isEqualTo("SAFE");
+        Assertions.assertThat(ThreadingBehavior.SAFE_CONDITIONAL.name()).isEqualTo("SAFE_CONDITIONAL");
+        Assertions.assertThat(ThreadingBehavior.IMMUTABLE_CONDITIONAL.name()).isEqualTo("IMMUTABLE_CONDITIONAL");
+        Assertions.assertThat(ThreadingBehavior.IMMUTABLE.name()).isEqualTo("IMMUTABLE");
+        Assertions.assertThat(ThreadingBehavior.STATELESS.name()).isEqualTo("STATELESS");
+        Assertions.assertThat(ThreadingBehavior.UNSAFE.name()).isEqualTo("UNSAFE");
     }
 
 }

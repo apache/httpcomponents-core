@@ -30,28 +30,28 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 
 import org.apache.hc.core5.http.HttpException;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestNoopH2StreamHandler {
 
     @Test
     void singletonDefaults() {
-        Assertions.assertSame(NoopH2StreamHandler.INSTANCE, NoopH2StreamHandler.INSTANCE);
-        Assertions.assertFalse(NoopH2StreamHandler.INSTANCE.isOutputReady());
-        Assertions.assertNull(NoopH2StreamHandler.INSTANCE.getPushHandlerFactory());
+        Assertions.assertThat(NoopH2StreamHandler.INSTANCE).isSameAs(NoopH2StreamHandler.INSTANCE);
+        Assertions.assertThat(NoopH2StreamHandler.INSTANCE.isOutputReady()).isFalse();
+        Assertions.assertThat(NoopH2StreamHandler.INSTANCE.getPushHandlerFactory()).isNull();
     }
 
     @Test
     void noOpsDoNotThrow() throws Exception {
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.produceOutput());
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.consumePromise(Collections.emptyList()));
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.consumeHeader(Collections.emptyList(), false));
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.updateInputCapacity());
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.consumeData(ByteBuffer.allocate(0), true));
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.failed(new RuntimeException("boom")));
-        Assertions.assertDoesNotThrow(() -> NoopH2StreamHandler.INSTANCE.handle(new HttpException("oops"), true));
-        Assertions.assertDoesNotThrow(NoopH2StreamHandler.INSTANCE::releaseResources);
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.produceOutput()).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.consumePromise(Collections.emptyList())).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.consumeHeader(Collections.emptyList(), false)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.updateInputCapacity()).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.consumeData(ByteBuffer.allocate(0), true)).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.failed(new RuntimeException("boom"))).doesNotThrowAnyException();
+        Assertions.assertThatCode(() -> NoopH2StreamHandler.INSTANCE.handle(new HttpException("oops"), true)).doesNotThrowAnyException();
+        Assertions.assertThatCode(NoopH2StreamHandler.INSTANCE::releaseResources).doesNotThrowAnyException();
     }
 
 }

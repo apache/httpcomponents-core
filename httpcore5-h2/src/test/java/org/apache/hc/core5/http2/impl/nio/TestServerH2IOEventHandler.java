@@ -28,7 +28,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.net.InetSocketAddress;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -53,8 +53,8 @@ class TestServerH2IOEventHandler {
             handler.close();
         }
 
-        Assertions.assertTrue(text.contains("state"));
-        Assertions.assertTrue(text.contains("->"));
+        Assertions.assertThat(text.contains("state")).isTrue();
+        Assertions.assertThat(text.contains("->")).isTrue();
     }
 
 }

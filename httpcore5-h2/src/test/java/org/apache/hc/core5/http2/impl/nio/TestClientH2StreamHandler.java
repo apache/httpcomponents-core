@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,19 +78,21 @@ class TestClientH2StreamHandler {
 
     @Test
     void defaults() {
-        Assertions.assertNotNull(handler.getPushHandlerFactory());
-        Assertions.assertTrue(handler.isOutputReady());
+        Assertions.assertThat(handler.getPushHandlerFactory()).isNotNull();
+        Assertions.assertThat(handler.isOutputReady()).isTrue();
     }
 
     @Test
     void consumePromiseRejected() {
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumePromise(null));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumePromise(null))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void consumeDataRejectedBeforeHeaders() {
-        Assertions.assertThrows(ProtocolException.class, () ->
-                handler.consumeData(ByteBuffer.allocate(0), true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeData(ByteBuffer.allocate(0), true)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -103,8 +105,8 @@ class TestClientH2StreamHandler {
     @Test
     void toStringIncludesStates() {
         final String text = handler.toString();
-        Assertions.assertTrue(text.contains("requestState"));
-        Assertions.assertTrue(text.contains("responseState"));
+        Assertions.assertThat(text.contains("requestState")).isTrue();
+        Assertions.assertThat(text.contains("responseState")).isTrue();
     }
 
     @Test
@@ -116,7 +118,9 @@ class TestClientH2StreamHandler {
         final List<Header> trailers = Collections.singletonList(
                 new BasicHeader(":status", "200"));
 
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(trailers, true));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(trailers, true))
+                .isInstanceOf(ProtocolException.class);
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
     }
 
@@ -124,7 +128,9 @@ class TestClientH2StreamHandler {
     void informationalResponseWithEndStreamRejected() throws HttpException, IOException {
         final List<Header> responseHeaders = Collections.singletonList(
                 new BasicHeader(":status", "103"));
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(responseHeaders, true));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(responseHeaders, true))
+                .isInstanceOf(ProtocolException.class);
         Mockito.verify(exchangeHandler, Mockito.never()).consumeInformation(Mockito.any(), Mockito.any());
     }
     @Test
@@ -135,7 +141,9 @@ class TestClientH2StreamHandler {
 
         final List<Header> trailers = Collections.singletonList(
                 new BasicHeader("x-checksum", "abc123"));
-        Assertions.assertThrows(ProtocolException.class, () -> handler.consumeHeader(trailers, false));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(trailers, false))
+                .isInstanceOf(ProtocolException.class);
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(Mockito.anyList());
     }
     @Test
@@ -155,8 +163,8 @@ class TestClientH2StreamHandler {
                 new BasicHeader("content-length", "12"));
         handler.consumeHeader(responseHeaders, false);
         handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
-        Assertions.assertThrows(ProtocolException.class, () ->
-                handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2 }), true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeData(ByteBuffer.wrap(new byte[]{0, 1, 2}), true)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -164,8 +172,8 @@ class TestClientH2StreamHandler {
         final List<Header> responseHeaders = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("content-length", "12"));
-        Assertions.assertThrows(ProtocolException.class, () ->
-            handler.consumeHeader(responseHeaders, true));
+        Assertions.assertThatThrownBy(() ->
+                handler.consumeHeader(responseHeaders, true)).isInstanceOf(ProtocolException.class);
     }
 
 }

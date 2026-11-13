@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.http.config;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestRegistry {
@@ -34,10 +34,10 @@ class TestRegistry {
     @Test
     void testCompleted() {
         final Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
-        Assertions.assertEquals("Stuff", reg.lookup("Stuff"));
-        Assertions.assertEquals("Stuff", reg.lookup("stuff"));
-        Assertions.assertNull(reg.lookup("miss"));
-        Assertions.assertNull(reg.lookup(null));
+        Assertions.assertThat(reg.lookup("Stuff")).isEqualTo("Stuff");
+        Assertions.assertThat(reg.lookup("stuff")).isEqualTo("Stuff");
+        Assertions.assertThat(reg.lookup("miss")).isNull();
+        Assertions.assertThat(reg.lookup(null)).isNull();
     }
 
 }

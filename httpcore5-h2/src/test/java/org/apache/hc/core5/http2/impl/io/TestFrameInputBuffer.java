@@ -26,11 +26,10 @@
  */
 package org.apache.hc.core5.http2.impl.io;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.ByteArrayInputStream;
 
 import org.apache.hc.core5.http2.frame.RawFrame;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestFrameInputBuffer {
@@ -48,7 +47,7 @@ class TestFrameInputBuffer {
         final FrameInputBuffer inBuf = new FrameInputBuffer(16384);
         final RawFrame rawFrame = inBuf.read(new ByteArrayInputStream(frame));
 
-        assertEquals(0x0A123456, rawFrame.getStreamId());
+        Assertions.assertThat(rawFrame.getStreamId()).isEqualTo(0x0A123456);
     }
 
 }

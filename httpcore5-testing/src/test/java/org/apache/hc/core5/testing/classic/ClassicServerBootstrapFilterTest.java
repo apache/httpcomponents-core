@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.classic;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -53,6 +52,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -117,9 +117,9 @@ abstract class ClassicServerBootstrapFilterTest {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/filters");
         request.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
-            Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
             final Header testFilterHeader = response.getHeader("X-Test-Filter");
-            Assertions.assertNotNull(testFilterHeader);
+            Assertions.assertThat(testFilterHeader).isNotNull();
         }
     }
 

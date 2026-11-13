@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,6 +45,7 @@ import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestForwardedRequest {
@@ -86,7 +85,7 @@ class TestForwardedRequest {
                 "for=" + localAddress.getAddress().getHostAddress() + ":" + localAddress.getPort() + ";" +
                 "host=\"" + host + "\";port=" + port + ";proto=" + version.getProtocol();
 
-        assertEquals(expectedValue, request.getFirstHeader(FORWARDED_HEADER_NAME).getValue());
+        Assertions.assertThat(request.getFirstHeader(FORWARDED_HEADER_NAME).getValue()).isEqualTo(expectedValue);
     }
 
 
@@ -121,7 +120,7 @@ class TestForwardedRequest {
                 ";for=" + localAddress.getHostName() + ":" + localAddress.getPort() +
                 ";host=\"" + host + "\";port=" + port + ";proto=" + version.getProtocol();
 
-        assertEquals(expectedValue, request.getFirstHeader(FORWARDED_HEADER_NAME).getValue());
+        Assertions.assertThat(request.getFirstHeader(FORWARDED_HEADER_NAME).getValue()).isEqualTo(expectedValue);
     }
 
     @Test
@@ -145,7 +144,7 @@ class TestForwardedRequest {
         // Check the value of the Forwarded header
         final String expectedValue = "host=\"" + host + "\";port=" + port + ";proto=" + version.getProtocol();
 
-        assertEquals(expectedValue, request.getFirstHeader(FORWARDED_HEADER_NAME).getValue());
+        Assertions.assertThat(request.getFirstHeader(FORWARDED_HEADER_NAME).getValue()).isEqualTo(expectedValue);
     }
 
     @Test
@@ -172,24 +171,30 @@ class TestForwardedRequest {
         // Check the value of the Forwarded header
         final String expectedValue = forwaredHeaderValue + ", " + "host=\"" + host + "\";port=" + port + ";proto=" + version.getProtocol();
 
-        assertEquals(expectedValue, request.getFirstHeader(FORWARDED_HEADER_NAME).getValue());
+        Assertions.assertThat(request.getFirstHeader(FORWARDED_HEADER_NAME).getValue()).isEqualTo(expectedValue);
     }
 
     @Test
     void testProcessWithNullHttpRequest() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
-        assertThrows(NullPointerException.class, () -> httpRequestModifier.process(null, null, context));
+        Assertions.assertThatThrownBy(() ->
+                        httpRequestModifier.process(null, null, context))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testProcessWithNullHttpContext() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
-        assertThrows(NullPointerException.class, () -> httpRequestModifier.process(request, null, null));
+        Assertions.assertThatThrownBy(() ->
+                        httpRequestModifier.process(request, null, null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void testProcessWithNullAuthority() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
-        assertThrows(ProtocolException.class, () -> httpRequestModifier.process(request, null, context));
+        Assertions.assertThatThrownBy(() ->
+                        httpRequestModifier.process(request, null, context))
+                .isInstanceOf(ProtocolException.class);
     }
 }

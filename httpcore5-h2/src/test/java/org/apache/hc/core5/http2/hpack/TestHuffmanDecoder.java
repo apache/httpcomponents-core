@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHuffmanDecoder {
@@ -68,7 +68,8 @@ class TestHuffmanDecoder {
         final ByteArrayBuffer output = new ByteArrayBuffer(2);
         output.append('x');
         Huffman.DECODER.decode(output, ByteBuffer.wrap(hex("a8eb10649cbf")));
-        Assertions.assertArrayEquals("xno-cache".getBytes(StandardCharsets.US_ASCII), output.toByteArray());
+        Assertions.assertThat(output.toByteArray())
+                .containsExactly("xno-cache".getBytes(StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -76,15 +77,16 @@ class TestHuffmanDecoder {
         final byte[] input = createRepeated("aaaaaaaaaaaaaaaa", 512);
         final ByteArrayBuffer output = new ByteArrayBuffer(1);
         Huffman.DECODER.decode(output, ByteBuffer.wrap(encode(input)));
-        Assertions.assertArrayEquals(input, output.toByteArray());
+        Assertions.assertThat(output.toByteArray()).containsExactly(input);
     }
 
     private static void assertDecoded(final String encoded, final String expected) throws Exception {
-        Assertions.assertArrayEquals(expected.getBytes(StandardCharsets.US_ASCII), decode(hex(encoded)));
+        Assertions.assertThat(decode(hex(encoded)))
+                .containsExactly(expected.getBytes(StandardCharsets.US_ASCII));
     }
 
     private static void assertRoundTrip(final byte[] input) throws Exception {
-        Assertions.assertArrayEquals(input, decode(encode(input)));
+        Assertions.assertThat(decode(encode(input))).containsExactly(input);
     }
 
     private static byte[] encode(final byte[] input) {

@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 
-import org.junit.jupiter.api.Assertions;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
@@ -65,6 +64,7 @@ import org.apache.hc.core5.testing.extension.SecurityProviderResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -142,10 +142,10 @@ abstract class AlpnTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, response1.getVersion());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(response1.getVersion()).isEqualTo(HttpVersion.HTTP_1_1);
     }
 
     @Test
@@ -167,10 +167,10 @@ abstract class AlpnTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, response1.getVersion());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(response1.getVersion()).isEqualTo(HttpVersion.HTTP_1_1);
     }
 
     @Test
@@ -190,10 +190,10 @@ abstract class AlpnTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(response1.getVersion()).isEqualTo(HttpVersion.HTTP_2);
     }
 
     @Test
@@ -215,10 +215,10 @@ abstract class AlpnTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(response1.getVersion()).isEqualTo(HttpVersion.HTTP_2);
     }
 
     @Test
@@ -238,10 +238,10 @@ abstract class AlpnTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
+        Assertions.assertThat(message1).isNotNull();
         final HttpResponse response1 = message1.head();
-        Assertions.assertEquals(HttpStatus.SC_OK, response1.getCode());
-        Assertions.assertEquals(HttpVersion.HTTP_2, response1.getVersion());
+        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+        Assertions.assertThat(response1.getVersion()).isEqualTo(HttpVersion.HTTP_2);
     }
 
 }

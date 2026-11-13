@@ -32,7 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestContentLengthOutputStream {
@@ -54,7 +54,7 @@ class TestContentLengthOutputStream {
             out.flush();
         }
         final byte[] data = outputStream.toByteArray();
-        Assertions.assertEquals(15, data.length);
+        Assertions.assertThat(data.length).isEqualTo(15);
     }
 
     @Test
@@ -65,8 +65,12 @@ class TestContentLengthOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
-        Assertions.assertThrows(StreamClosedException.class, () -> out.write(tmp));
-        Assertions.assertThrows(StreamClosedException.class, () -> out.write(1));
+        Assertions.assertThatThrownBy(() ->
+                        out.write(tmp))
+                .isInstanceOf(StreamClosedException.class);
+        Assertions.assertThatThrownBy(() ->
+                        out.write(1))
+                .isInstanceOf(StreamClosedException.class);
     }
 
 }

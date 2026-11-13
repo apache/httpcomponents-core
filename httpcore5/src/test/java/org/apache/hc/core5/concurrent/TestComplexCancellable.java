@@ -26,12 +26,10 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
 import java.util.concurrent.CountDownLatch;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class TestComplexCancellable {
 
@@ -42,15 +40,15 @@ class TestComplexCancellable {
         final BasicFuture<Object> dependency1 = new BasicFuture<>(null);
         cancellable.setDependency(dependency1);
 
-        assertFalse(cancellable.isCancelled());
+        Assertions.assertThat(cancellable.isCancelled()).isFalse();
 
         cancellable.cancel();
-        assertTrue(cancellable.isCancelled());
-        assertTrue(dependency1.isCancelled());
+        Assertions.assertThat(cancellable.isCancelled()).isTrue();
+        Assertions.assertThat(dependency1.isCancelled()).isTrue();
 
         final BasicFuture<Object> dependency2 = new BasicFuture<>(null);
         cancellable.setDependency(dependency2);
-        assertTrue(dependency2.isCancelled());
+        Assertions.assertThat(dependency2.isCancelled()).isTrue();
     }
 
     @Test
@@ -71,7 +69,7 @@ class TestComplexCancellable {
         }
         latch.await();
 
-        assertFalse(dependency1.isCancelled());
-        assertFalse(dependency2.isCancelled());
+        Assertions.assertThat(dependency1.isCancelled()).isFalse();
+        Assertions.assertThat(dependency2.isCancelled()).isFalse();
     }
 }

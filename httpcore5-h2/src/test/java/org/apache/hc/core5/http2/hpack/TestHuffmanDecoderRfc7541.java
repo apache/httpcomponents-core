@@ -31,15 +31,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestHuffmanDecoderRfc7541 {
 
     @Test
     void testRejectsPaddingLongerThanSevenBits() {
-        Assertions.assertThrows(HPackException.class, () -> decode((byte) 0xff));
-        Assertions.assertThrows(HPackException.class, () -> decode((byte) 0xff, (byte) 0xff));
+        Assertions.assertThatThrownBy(() ->
+                        decode((byte) 0xff))
+                .isInstanceOf(HPackException.class);
+        Assertions.assertThatThrownBy(() ->
+                        decode((byte) 0xff, (byte) 0xff))
+                .isInstanceOf(HPackException.class);
     }
 
     @Test
@@ -51,7 +55,8 @@ class TestHuffmanDecoderRfc7541 {
         final ByteArrayBuffer decoded = new ByteArrayBuffer(32);
         Huffman.DECODER.decode(decoded, ByteBuffer.wrap(encoded.array(), 0, encoded.length()));
 
-        Assertions.assertArrayEquals(input, Arrays.copyOf(decoded.array(), decoded.length()));
+        Assertions.assertThat(Arrays.copyOf(decoded.array(), decoded.length()))
+                .containsExactly(input);
     }
 
     private static void decode(final byte... encoded) throws HPackException {

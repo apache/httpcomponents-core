@@ -38,7 +38,8 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestDefaultH2RequestConverter {
@@ -55,15 +56,15 @@ class TestDefaultH2RequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("GET", request.getMethod());
-        Assertions.assertEquals("http", request.getScheme());
-        Assertions.assertEquals(new URIAuthority("www.example.com"), request.getAuthority());
-        Assertions.assertEquals("/", request.getPath());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(request.getScheme()).isEqualTo("http");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("www.example.com"));
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
         final Header[] allHeaders = request.getHeaders();
-        Assertions.assertEquals(1, allHeaders.length);
-        Assertions.assertEquals("custom123", allHeaders[0].getName());
-        Assertions.assertEquals("value", allHeaders[0].getValue());
+        Assertions.assertThat(allHeaders.length).isEqualTo(1);
+        Assertions.assertThat(allHeaders[0].getName()).isEqualTo("custom123");
+        Assertions.assertThat(allHeaders[0].getValue()).isEqualTo("value");
     }
 
     @Test
@@ -76,8 +77,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header name ':Path' is invalid (header name contains uppercase characters)");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header name ':Path' is invalid (header name contains uppercase characters)").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -90,8 +92,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Invalid sequence of headers (pseudo-headers must precede message headers)");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Invalid sequence of headers (pseudo-headers must precede message headers)").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -103,8 +106,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Mandatory request header ':method' not found");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Mandatory request header ':method' not found").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -116,8 +120,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Mandatory request header ':scheme' not found");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Mandatory request header ':scheme' not found").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -129,8 +134,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Mandatory request header ':path' not found");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Mandatory request header ':path' not found").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -143,8 +149,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader(":custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Unsupported request header ':custom'");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Unsupported request header ':custom'").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -158,8 +165,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Multiple ':method' request headers are illegal");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Multiple ':method' request headers are illegal").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -173,8 +181,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Multiple ':scheme' request headers are illegal");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Multiple ':scheme' request headers are illegal").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -188,8 +197,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Multiple ':path' request headers are illegal");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Multiple ':path' request headers are illegal").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -211,8 +221,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':authority' is mandatory for CONNECT request");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':authority' is mandatory for CONNECT request").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -224,8 +235,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':scheme' must not be set for CONNECT request");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':scheme' must not be set for CONNECT request").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -237,8 +249,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':path' must not be set for CONNECT request");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':path' must not be set for CONNECT request").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -253,10 +266,10 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
 
-        Assertions.assertEquals("CONNECT", request.getMethod());
-        Assertions.assertEquals("https", request.getScheme());
-        Assertions.assertEquals("/chat", request.getPath());
-        Assertions.assertEquals("websocket", request.getFirstHeader(":protocol").getValue());
+        Assertions.assertThat(request.getMethod()).isEqualTo("CONNECT");
+        Assertions.assertThat(request.getScheme()).isEqualTo("https");
+        Assertions.assertThat(request.getPath()).isEqualTo("/chat");
+        Assertions.assertThat(request.getFirstHeader(":protocol").getValue()).isEqualTo("websocket");
     }
 
     @Test
@@ -268,8 +281,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/chat"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':scheme' is mandatory for extended CONNECT");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':scheme' is mandatory for extended CONNECT").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -281,8 +295,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader(":authority", "www.example.com"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':path' is mandatory for extended CONNECT");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':path' is mandatory for extended CONNECT").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -295,8 +310,9 @@ class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header ':protocol' must not be set for GET request");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .withFailMessage("Header ':protocol' must not be set for GET request").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -308,23 +324,23 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final List<Header> headers = converter.convert(request);
 
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(5, headers.size());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.size()).isEqualTo(5);
         final Header header1 = headers.get(0);
-        Assertions.assertEquals(":method", header1.getName());
-        Assertions.assertEquals("GET", header1.getValue());
+        Assertions.assertThat(header1.getName()).isEqualTo(":method");
+        Assertions.assertThat(header1.getValue()).isEqualTo("GET");
         final Header header2 = headers.get(1);
-        Assertions.assertEquals(":scheme", header2.getName());
-        Assertions.assertEquals("http", header2.getValue());
+        Assertions.assertThat(header2.getName()).isEqualTo(":scheme");
+        Assertions.assertThat(header2.getValue()).isEqualTo("http");
         final Header header3 = headers.get(2);
-        Assertions.assertEquals(":authority", header3.getName());
-        Assertions.assertEquals("host", header3.getValue());
+        Assertions.assertThat(header3.getName()).isEqualTo(":authority");
+        Assertions.assertThat(header3.getValue()).isEqualTo("host");
         final Header header4 = headers.get(3);
-        Assertions.assertEquals(":path", header4.getName());
-        Assertions.assertEquals("/", header4.getValue());
+        Assertions.assertThat(header4.getName()).isEqualTo(":path");
+        Assertions.assertThat(header4.getValue()).isEqualTo("/");
         final Header header5 = headers.get(4);
-        Assertions.assertEquals("custom123", header5.getName());
-        Assertions.assertEquals("Value", header5.getValue());
+        Assertions.assertThat(header5.getName()).isEqualTo("custom123");
+        Assertions.assertThat(header5.getValue()).isEqualTo("Value");
     }
 
     @Test
@@ -334,7 +350,9 @@ class TestDefaultH2RequestConverter {
         request.setScheme(null);
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request), "Request scheme is not set");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("Request scheme is not set").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -344,7 +362,9 @@ class TestDefaultH2RequestConverter {
         request.setPath(null);
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request), "Request path is not set");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("Request path is not set").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -356,17 +376,17 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final List<Header> headers = converter.convert(request);
 
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(3, headers.size());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.size()).isEqualTo(3);
         final Header header1 = headers.get(0);
-        Assertions.assertEquals(":method", header1.getName());
-        Assertions.assertEquals("CONNECT", header1.getValue());
+        Assertions.assertThat(header1.getName()).isEqualTo(":method");
+        Assertions.assertThat(header1.getValue()).isEqualTo("CONNECT");
         final Header header2 = headers.get(1);
-        Assertions.assertEquals(":authority", header2.getName());
-        Assertions.assertEquals("host:80", header2.getValue());
+        Assertions.assertThat(header2.getName()).isEqualTo(":authority");
+        Assertions.assertThat(header2.getValue()).isEqualTo("host:80");
         final Header header3 = headers.get(2);
-        Assertions.assertEquals("custom123", header3.getName());
-        Assertions.assertEquals("Value", header3.getValue());
+        Assertions.assertThat(header3.getName()).isEqualTo("custom123");
+        Assertions.assertThat(header3.getValue()).isEqualTo("Value");
     }
 
     @Test
@@ -375,8 +395,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader("Custom123", "Value");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "CONNECT request authority is not set");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("CONNECT request authority is not set").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -386,8 +407,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader("Custom123", "Value");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "CONNECT request path must be null");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("CONNECT request path must be null").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -400,7 +422,7 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final List<Header> headers = converter.convert(request);
 
-        Assertions.assertTrue(headers.stream().anyMatch(h -> ":protocol".equals(h.getName())));
+        Assertions.assertThat(headers.stream().anyMatch(h -> ":protocol".equals(h.getName()))).isTrue();
     }
 
     @Test
@@ -411,8 +433,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader(":protocol", "websocket");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "CONNECT request scheme is not set");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("CONNECT request scheme is not set").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -423,8 +446,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader(":protocol", "websocket");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "CONNECT request path is not set");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("CONNECT request path is not set").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -433,8 +457,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader(":protocol", "websocket");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header name ':protocol' is invalid");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("Header name ':protocol' is invalid").isInstanceOf(HttpException.class);
     }
 
     @Test
@@ -449,15 +474,15 @@ class TestDefaultH2RequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("GET", request.getMethod());
-        Assertions.assertEquals("http", request.getScheme());
-        Assertions.assertEquals(new URIAuthority("www.example.com"), request.getAuthority());
-        Assertions.assertEquals("/", request.getPath());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getMethod()).isEqualTo("GET");
+        Assertions.assertThat(request.getScheme()).isEqualTo("http");
+        Assertions.assertThat(request.getAuthority()).isEqualTo(new URIAuthority("www.example.com"));
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
         final Header[] allHeaders = request.getHeaders();
-        Assertions.assertEquals(1, allHeaders.length);
-        Assertions.assertEquals("te", allHeaders[0].getName());
-        Assertions.assertEquals("trailers", allHeaders[0].getValue());
+        Assertions.assertThat(allHeaders.length).isEqualTo(1);
+        Assertions.assertThat(allHeaders[0].getName()).isEqualTo("te");
+        Assertions.assertThat(allHeaders[0].getValue()).isEqualTo("trailers");
     }
 
     @Test
@@ -466,8 +491,9 @@ class TestDefaultH2RequestConverter {
         request.addHeader(":custom", "stuff");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
-                "Header name ':custom' is invalid");
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(request))
+                .withFailMessage("Header name ':custom' is invalid").isInstanceOf(HttpException.class);
     }
 
 
@@ -484,8 +510,8 @@ class TestDefaultH2RequestConverter {
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
 
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/", request.getPath());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
 
     }
 
@@ -500,7 +526,9 @@ class TestDefaultH2RequestConverter {
         );
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -514,7 +542,9 @@ class TestDefaultH2RequestConverter {
         );
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -529,8 +559,8 @@ class TestDefaultH2RequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("*", request.getPath());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("*");
     }
 
     @Test
@@ -545,8 +575,8 @@ class TestDefaultH2RequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
         final HttpRequest request = converter.convert(headers);
-        Assertions.assertNotNull(request);
-        Assertions.assertEquals("/", request.getPath());
+        Assertions.assertThat(request).isNotNull();
+        Assertions.assertThat(request.getPath()).isEqualTo("/");
     }
 
     @Test
@@ -560,7 +590,9 @@ class TestDefaultH2RequestConverter {
         );
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+        Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -574,13 +606,11 @@ class TestDefaultH2RequestConverter {
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
 
-        final ProtocolException ex = Assertions.assertThrows(
-                ProtocolException.class,
-                () -> converter.convert(headers));
+        final ProtocolException ex = Assertions.assertThatThrownBy(() ->
+                        converter.convert(headers))
+                .isInstanceOf(ProtocolException.class).asInstanceOf(InstanceOfAssertFactories.type(ProtocolException.class)).actual();
 
-        Assertions.assertTrue(
-                ex.getMessage().contains("Multiple ':authority' request headers are illegal"),
-                ex::getMessage);
+        Assertions.assertThat(ex.getMessage().contains("Multiple ':authority' request headers are illegal")).withFailMessage(ex::getMessage).isTrue();
     }
 
 

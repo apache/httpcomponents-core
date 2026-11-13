@@ -31,7 +31,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestH2RequestTargetHost {
@@ -45,7 +45,7 @@ class TestH2RequestTargetHost {
 
         H2RequestTargetHost.INSTANCE.process(request, null, context);
 
-        Assertions.assertTrue(request.containsHeader(HttpHeaders.HOST));
+        Assertions.assertThat(request.containsHeader(HttpHeaders.HOST)).isTrue();
     }
 
     @Test
@@ -57,7 +57,7 @@ class TestH2RequestTargetHost {
 
         H2RequestTargetHost.INSTANCE.process(request, null, context);
 
-        Assertions.assertFalse(request.containsHeader(HttpHeaders.HOST));
+        Assertions.assertThat(request.containsHeader(HttpHeaders.HOST)).isFalse();
     }
 
 }

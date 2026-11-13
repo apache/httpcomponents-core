@@ -28,7 +28,8 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 class TestIOReactorWorker {
@@ -70,7 +71,7 @@ class TestIOReactorWorker {
 
         worker.run();
 
-        Assertions.assertSame(ex, worker.getThrowable());
+        Assertions.assertThat(worker.getThrowable()).isSameAs(ex);
     }
 
     @Test
@@ -78,9 +79,9 @@ class TestIOReactorWorker {
         final Error err = new AssertionError("fatal");
         final IOReactorWorker worker = new IOReactorWorker(new TestReactor(null, err));
 
-        final Error thrown = Assertions.assertThrows(Error.class, worker::run);
-        Assertions.assertSame(err, thrown);
-        Assertions.assertSame(err, worker.getThrowable());
+        final Error thrown = Assertions.assertThatThrownBy(worker::run).isInstanceOf(Error.class).asInstanceOf(InstanceOfAssertFactories.type(Error.class)).actual();
+        Assertions.assertThat(thrown).isSameAs(err);
+        Assertions.assertThat(worker.getThrowable()).isSameAs(err);
     }
 
 }

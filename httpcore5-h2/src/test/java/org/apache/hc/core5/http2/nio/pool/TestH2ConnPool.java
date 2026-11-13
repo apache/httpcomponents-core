@@ -45,7 +45,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -86,7 +86,7 @@ class TestH2ConnPool {
             final AtomicReference<Boolean> result = new AtomicReference<>();
             pool.validateSession(host, session, result::set);
 
-            Assertions.assertEquals(Boolean.FALSE, result.get());
+            Assertions.assertThat(result.get()).isEqualTo(Boolean.FALSE);
         }
     }
 
@@ -153,7 +153,7 @@ class TestH2ConnPool {
 
             });
 
-            Assertions.assertSame(session, result.get());
+            Assertions.assertThat(result.get()).isSameAs(session);
         }
     }
 
@@ -215,7 +215,7 @@ class TestH2ConnPool {
 
             });
 
-            Assertions.assertSame(session, result.get());
+            Assertions.assertThat(result.get()).isSameAs(session);
             Mockito.verify(tlsStrategy).upgrade(
                     Mockito.eq(tlsLayer),
                     Mockito.eq(host),

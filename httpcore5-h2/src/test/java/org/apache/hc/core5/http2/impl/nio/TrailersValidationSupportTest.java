@@ -31,7 +31,7 @@ import java.util.Collections;
 
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestTrailersValidationSupport {
@@ -45,8 +45,8 @@ class TestTrailersValidationSupport {
 
     @Test
     void testVerifyInboundRejectsPseudoHeaders() {
-        Assertions.assertThrows(ProtocolException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 TrailersValidationSupport.verify(Collections.singletonList(
-                        new BasicHeader(":status", "200"))));
+                        new BasicHeader(":status", "200")))).isInstanceOf(ProtocolException.class);
     }
 }

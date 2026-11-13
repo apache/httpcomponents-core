@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TestOutboundDynamicTable {
@@ -36,16 +36,16 @@ class TestOutboundDynamicTable {
     void testBasics() {
 
         final OutboundDynamicTable table = new OutboundDynamicTable();
-        Assertions.assertEquals(Integer.MAX_VALUE, table.getMaxSize());
-        Assertions.assertEquals(0, table.getCurrentSize());
+        Assertions.assertThat(table.getMaxSize()).isEqualTo(Integer.MAX_VALUE);
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(0);
 
         final HPackHeader header1 = new HPackHeader("h", "1");
         table.add(header1);
-        Assertions.assertEquals(1, table.dynamicLength());
-        Assertions.assertEquals(61, table.staticLength());
-        Assertions.assertEquals(62, table.length());
-        Assertions.assertSame(header1, table.getHeader(62));
-        Assertions.assertEquals(34, table.getCurrentSize());
+        Assertions.assertThat(table.dynamicLength()).isEqualTo(1);
+        Assertions.assertThat(table.staticLength()).isEqualTo(61);
+        Assertions.assertThat(table.length()).isEqualTo(62);
+        Assertions.assertThat(table.getHeader(62)).isSameAs(header1);
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(34);
     }
 
     @Test
@@ -56,14 +56,14 @@ class TestOutboundDynamicTable {
         table.add(new HPackHeader("h", "1"));
         table.add(new HPackHeader("h", "2"));
 
-        Assertions.assertEquals(68, table.getCurrentSize());
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(68);
 
         table.setMaxSize(256);
-        Assertions.assertEquals(68, table.getCurrentSize());
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(68);
         table.setMaxSize(67);
-        Assertions.assertEquals(34, table.getCurrentSize());
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(34);
         table.setMaxSize(10);
-        Assertions.assertEquals(0, table.getCurrentSize());
+        Assertions.assertThat(table.getCurrentSize()).isEqualTo(0);
     }
 
 }

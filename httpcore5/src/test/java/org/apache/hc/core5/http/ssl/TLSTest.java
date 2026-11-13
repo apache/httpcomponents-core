@@ -27,13 +27,10 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class TLSTest {
@@ -41,37 +38,37 @@ class TLSTest {
 
     @Test
     void isSame() throws ParseException {
-        assertTrue(TLS.V_1_0.isSame(TLS.parse("TLSv1")));
+        Assertions.assertThat(TLS.V_1_0.isSame(TLS.parse("TLSv1"))).isTrue();
     }
 
     @Test
     void isComparable() throws ParseException {
-        assertTrue(TLS.V_1_0.isComparable(TLS.parse("TLSv1")));
+        Assertions.assertThat(TLS.V_1_0.isComparable(TLS.parse("TLSv1"))).isTrue();
     }
 
     @Test
     void greaterEquals() throws ParseException {
-        assertTrue(TLS.V_1_3.greaterEquals(TLS.parse("TLSv1")));
+        Assertions.assertThat(TLS.V_1_3.greaterEquals(TLS.parse("TLSv1"))).isTrue();
     }
 
     @Test
     void lessEquals() throws ParseException {
-        assertTrue(TLS.V_1_0.lessEquals(TLS.parse("TLSv1.3")));
+        Assertions.assertThat(TLS.V_1_0.lessEquals(TLS.parse("TLSv1.3"))).isTrue();
     }
 
     @Test
     void parse() throws ParseException {
-        assertTrue(TLS.V_1_0.lessEquals(TLS.parse("TLSv1.3")));
+        Assertions.assertThat(TLS.V_1_0.lessEquals(TLS.parse("TLSv1.3"))).isTrue();
     }
 
     @Test
     void parseNull() throws ParseException {
-        assertNull(TLS.parse(null));
+        Assertions.assertThat(TLS.parse(null)).isNull();
     }
 
     @Test
     void excludeWeakNull() {
-        assertNull(TLS.excludeWeak((String[]) null));
+        Assertions.assertThat(TLS.excludeWeak((String[]) null)).isNull();
     }
 
     @Test
@@ -85,34 +82,46 @@ class TLSTest {
         };
         final String[] strongProtocols = TLS.excludeWeak(mixProtocol);
         for (final String protocol : strongProtocols) {
-            Assertions.assertTrue(TLS.isSecure(protocol));
+            Assertions.assertThat(TLS.isSecure(protocol)).isTrue();
         }
     }
 
     @Test
     void testParseBasic() throws Exception {
-        Assertions.assertEquals(TLS.V_1_0.getVersion(), TLS.parse("TLSv1"));
-        Assertions.assertEquals(TLS.V_1_1.getVersion(), TLS.parse("TLSv1.1"));
-        Assertions.assertEquals(TLS.V_1_2.getVersion(), TLS.parse("TLSv1.2"));
-        Assertions.assertEquals(TLS.V_1_3.getVersion(), TLS.parse("TLSv1.3  "));
-        Assertions.assertEquals(new ProtocolVersion("TLS", 22, 356), TLS.parse("TLSv22.356"));
+        Assertions.assertThat(TLS.parse("TLSv1")).isEqualTo(TLS.V_1_0.getVersion());
+        Assertions.assertThat(TLS.parse("TLSv1.1")).isEqualTo(TLS.V_1_1.getVersion());
+        Assertions.assertThat(TLS.parse("TLSv1.2")).isEqualTo(TLS.V_1_2.getVersion());
+        Assertions.assertThat(TLS.parse("TLSv1.3  ")).isEqualTo(TLS.V_1_3.getVersion());
+        Assertions.assertThat(TLS.parse("TLSv22.356")).isEqualTo(new ProtocolVersion("TLS", 22, 356));
     }
 
     @Test
     void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        Assertions.assertEquals(TLS.V_1_2.getVersion(), TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')));
-        Assertions.assertEquals(8, cursor.getPos());
+        Assertions.assertThat(TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(','))).isEqualTo(TLS.V_1_2.getVersion());
+        Assertions.assertThat(cursor.getPos()).isEqualTo(8);
     }
 
     @Test
     void testParseFailure() {
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("Tlsv1"));
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSV1"));
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv"));
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1A"));
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1.A"));
-        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1.1 huh?"));
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("Tlsv1"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("TLSV1"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("TLSv"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("TLSv1A"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("TLSv1.A"))
+                .isInstanceOf(ParseException.class);
+        Assertions.assertThatThrownBy(() ->
+                        TLS.parse("TLSv1.1 huh?"))
+                .isInstanceOf(ParseException.class);
     }
 
 }

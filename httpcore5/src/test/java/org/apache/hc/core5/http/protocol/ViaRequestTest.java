@@ -26,9 +26,6 @@
  */
 package org.apache.hc.core5.http.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
@@ -36,7 +33,7 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
@@ -52,9 +49,9 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
-        assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals("HTTP 1.1 somehost:8888", request.getHeader(HttpHeaders.VIA).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getName()).isEqualTo(HttpHeaders.VIA);
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getValue()).isEqualTo("HTTP 1.1 somehost:8888");
 
     }
 
@@ -68,9 +65,9 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
-        assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals("HTTP 1.1 somehost", request.getHeader(HttpHeaders.VIA).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getName()).isEqualTo(HttpHeaders.VIA);
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getValue()).isEqualTo("HTTP 1.1 somehost");
     }
 
 
@@ -82,8 +79,8 @@ class ViaRequestTest {
         request.setAuthority(new URIAuthority("somehost", 8888));
 
         final HttpRequestInterceptor interceptor = ViaRequest.INSTANCE;
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+            Assertions.assertThatThrownBy(() ->
+                    interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -93,8 +90,8 @@ class ViaRequestTest {
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
 
         final HttpRequestInterceptor interceptor = ViaRequest.INSTANCE;
-        Assertions.assertThrows(ProtocolException.class, () ->
-                interceptor.process(request, request.getEntity(), context));
+        Assertions.assertThatThrownBy(() ->
+                interceptor.process(request, request.getEntity(), context)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -109,9 +106,9 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
-        assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals(viaValue, request.getHeader(HttpHeaders.VIA).getValue());
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getName()).isEqualTo(HttpHeaders.VIA);
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA)).isNotNull();
+        Assertions.assertThat(request.getHeader(HttpHeaders.VIA).getValue()).isEqualTo(viaValue);
 
     }
 }

@@ -84,7 +84,8 @@ import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -217,11 +218,11 @@ class TLSIntegrationTest {
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
         final TlsDetails tlsDetails = tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(tlsDetails);
+        Assertions.assertThat(tlsDetails).isNotNull();
         final SSLSession tlsSession = tlsDetails.getSSLSession();
         final ProtocolVersion tlsVersion = TLS.parse(tlsSession.getProtocol());
-        Assertions.assertTrue(tlsVersion.greaterEquals(tlsProtocol.version));
-        Assertions.assertEquals("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation", tlsSession.getPeerPrincipal().getName());
+        Assertions.assertThat(tlsVersion.greaterEquals(tlsProtocol.version)).isTrue();
+        Assertions.assertThat(tlsSession.getPeerPrincipal().getName()).isEqualTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation");
     }
 
     @Test
@@ -236,10 +237,10 @@ class TLSIntegrationTest {
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(SSLHandshakeException.class, cause);
+        Assertions.assertThat(cause).isInstanceOf(SSLHandshakeException.class);
     }
 
     @Test
@@ -266,10 +267,10 @@ class TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
 
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(IOException.class, cause);
+        Assertions.assertThat(cause).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -287,8 +288,8 @@ class TLSIntegrationTest {
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
-        Assertions.assertThrows(ExecutionException.class, () ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertThatThrownBy(() ->
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class);
     }
 
     @ParameterizedTest(name = "cipher {0}")
@@ -323,8 +324,8 @@ class TLSIntegrationTest {
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
-        Assertions.assertThrows(ExecutionException.class, () ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertThatThrownBy(() ->
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class);
     }
 
     @Test
@@ -351,10 +352,10 @@ class TLSIntegrationTest {
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(IOException.class, cause);
+        Assertions.assertThat(cause).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -376,8 +377,8 @@ class TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(message1);
-        Assertions.assertEquals(200, message1.head().getCode());
+        Assertions.assertThat(message1).isNotNull();
+        Assertions.assertThat(message1.head().getCode()).isEqualTo(200);
 
         final HttpHost target2 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLoopbackAddress(), "some-other-host", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture2 = client.execute(
@@ -385,10 +386,10 @@ class TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target2, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final ExecutionException exception = Assertions.assertThatThrownBy(() ->
+                resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(SSLHandshakeException.class, cause);
+        Assertions.assertThat(cause).isInstanceOf(SSLHandshakeException.class);
     }
 
     static class SupportedTLSProtocolProvider implements ArgumentsProvider {

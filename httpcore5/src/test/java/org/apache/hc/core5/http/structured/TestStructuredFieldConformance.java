@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.ParseException;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -93,7 +93,7 @@ class TestStructuredFieldConformance {
         for (final String file : SERIALIZATION_FILES) {
             count += runFile(file, false, failures);
         }
-        Assertions.assertEquals(2135, count, "Unexpected number of HTTPWG test cases");
+        Assertions.assertThat(count).withFailMessage("Unexpected number of HTTPWG test cases").isEqualTo(2135);
         if (!failures.isEmpty()) {
             Assertions.fail(failures.size() + " HTTPWG conformance failure(s):\n" + String.join("\n", failures));
         }

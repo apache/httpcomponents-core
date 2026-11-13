@@ -30,13 +30,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
+import io.reactivex.rxjava3.core.Flowable;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
-
-import io.reactivex.rxjava3.core.Flowable;
 
 class TestReactiveEntityProducer {
 
@@ -56,20 +56,20 @@ class TestReactiveEntityProducer {
 
         entityProducer.produce(streamChannel);
 
-        Assertions.assertTrue(byteChannel.isOpen(), "Should be open");
-        Assertions.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.isOpen()).withFailMessage("Should be open").isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("123456");
 
         entityProducer.produce(streamChannel);
 
-        Assertions.assertFalse(byteChannel.isOpen(), "Should be closed");
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
-        Assertions.assertFalse(entityProducer.isChunked());
-        Assertions.assertEquals(GZIP_CONTENT_ENCODING, entityProducer.getContentEncoding());
-        Assertions.assertEquals(Collections.emptySet(), entityProducer.getTrailerNames());
-        Assertions.assertEquals(CONTENT_LENGTH, entityProducer.getContentLength());
-        Assertions.assertEquals(CONTENT_TYPE.toString(), entityProducer.getContentType());
-        Assertions.assertFalse(entityProducer.isRepeatable());
-        Assertions.assertEquals(1, entityProducer.available());
+        Assertions.assertThat(byteChannel.isOpen()).withFailMessage("Should be closed").isFalse();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
+        Assertions.assertThat(entityProducer.isChunked()).isFalse();
+        Assertions.assertThat(entityProducer.getContentEncoding()).isEqualTo(GZIP_CONTENT_ENCODING);
+        Assertions.assertThat(entityProducer.getTrailerNames()).isEqualTo(Collections.emptySet());
+        Assertions.assertThat(entityProducer.getContentLength()).isEqualTo(CONTENT_LENGTH);
+        Assertions.assertThat(entityProducer.getContentType()).isEqualTo(CONTENT_TYPE.toString());
+        Assertions.assertThat(entityProducer.isRepeatable()).isFalse();
+        Assertions.assertThat(entityProducer.available()).isEqualTo(1);
 
         entityProducer.releaseResources();
     }
@@ -93,24 +93,24 @@ class TestReactiveEntityProducer {
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         entityProducer.produce(streamChannel);
-        Assertions.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("12345");
 
-        final HttpStreamResetException exception = Assertions.assertThrows(HttpStreamResetException.class, () ->
-                entityProducer.produce(streamChannel));
-        Assertions.assertInstanceOf(RuntimeException.class, exception.getCause(), "Expected published exception to be rethrown");
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        final HttpStreamResetException exception = Assertions.assertThatThrownBy(() ->
+                entityProducer.produce(streamChannel)).isInstanceOf(HttpStreamResetException.class).asInstanceOf(InstanceOfAssertFactories.type(HttpStreamResetException.class)).actual();
+        Assertions.assertThat(exception.getCause()).withFailMessage("Expected published exception to be rethrown").isInstanceOf(RuntimeException.class);
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
         entityProducer.failed(exception);
-        Assertions.assertEquals(1, entityProducer.available());
+        Assertions.assertThat(entityProducer.available()).isEqualTo(1);
 
-        Assertions.assertTrue(byteChannel.isOpen());
-        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
-        Assertions.assertFalse(entityProducer.isChunked());
-        Assertions.assertEquals(GZIP_CONTENT_ENCODING, entityProducer.getContentEncoding());
-        Assertions.assertEquals(Collections.emptySet(), entityProducer.getTrailerNames());
-        Assertions.assertEquals(CONTENT_LENGTH, entityProducer.getContentLength());
-        Assertions.assertEquals(CONTENT_TYPE.toString(), entityProducer.getContentType());
-        Assertions.assertFalse(entityProducer.isRepeatable());
-        Assertions.assertEquals(1, entityProducer.available());
+        Assertions.assertThat(byteChannel.isOpen()).isTrue();
+        Assertions.assertThat(byteChannel.dump(StandardCharsets.US_ASCII)).isEqualTo("");
+        Assertions.assertThat(entityProducer.isChunked()).isFalse();
+        Assertions.assertThat(entityProducer.getContentEncoding()).isEqualTo(GZIP_CONTENT_ENCODING);
+        Assertions.assertThat(entityProducer.getTrailerNames()).isEqualTo(Collections.emptySet());
+        Assertions.assertThat(entityProducer.getContentLength()).isEqualTo(CONTENT_LENGTH);
+        Assertions.assertThat(entityProducer.getContentType()).isEqualTo(CONTENT_TYPE.toString());
+        Assertions.assertThat(entityProducer.isRepeatable()).isFalse();
+        Assertions.assertThat(entityProducer.available()).isEqualTo(1);
 
         entityProducer.releaseResources();
     }

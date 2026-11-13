@@ -41,7 +41,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.io.IOFunction;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -72,8 +73,8 @@ class TestSocketChannelFactory {
                         null,
                         null);
                 final IOSession ioSession = future.get(5, TimeUnit.SECONDS);
-                Assertions.assertNotNull(ioSession);
-                Assertions.assertEquals(remoteAddress, requestedAddress.get());
+                Assertions.assertThat(ioSession).isNotNull();
+                Assertions.assertThat(requestedAddress.get()).isEqualTo(remoteAddress);
             } finally {
                 reactor.close();
             }
@@ -115,9 +116,10 @@ class TestSocketChannelFactory {
                     Timeout.ofSeconds(1),
                     null,
                     null);
-            final ExecutionException ex = Assertions.assertThrows(
-                    ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
-            Assertions.assertSame(expected, ex.getCause());
+            final ExecutionException ex = Assertions.assertThatThrownBy(() ->
+                            future.get(5, TimeUnit.SECONDS))
+                    .isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+            Assertions.assertThat(ex.getCause()).isSameAs(expected);
         } finally {
             reactor.close();
         }

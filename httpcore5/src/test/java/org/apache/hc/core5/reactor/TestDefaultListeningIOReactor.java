@@ -31,7 +31,7 @@ import java.net.InetSocketAddress;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -62,7 +62,7 @@ class TestDefaultListeningIOReactor {
         final DefaultListeningIOReactor reactor = newReactor(selector);
         try {
             final SingleCoreIOReactor worker = reactor.selectWorker();
-            Assertions.assertNotNull(worker);
+            Assertions.assertThat(worker).isNotNull();
         } finally {
             reactor.close(org.apache.hc.core5.io.CloseMode.IMMEDIATE);
         }
@@ -87,7 +87,7 @@ class TestDefaultListeningIOReactor {
 
             reactor.connect(endpoint, new InetSocketAddress("localhost", 80), null, Timeout.ofSeconds(1), null, null);
 
-            Assertions.assertEquals(1, reactor.selectWorker().pendingChannelCount());
+            Assertions.assertThat(reactor.selectWorker().pendingChannelCount()).isEqualTo(1);
         } finally {
             reactor.close(org.apache.hc.core5.io.CloseMode.IMMEDIATE);
         }
@@ -97,7 +97,7 @@ class TestDefaultListeningIOReactor {
     void statusDelegatesToInnerReactor() {
         final DefaultListeningIOReactor reactor = newReactor(dispatchers -> 0);
         try {
-            Assertions.assertEquals(IOReactorStatus.INACTIVE, reactor.getStatus());
+            Assertions.assertThat(reactor.getStatus()).isEqualTo(IOReactorStatus.INACTIVE);
         } finally {
             reactor.close(org.apache.hc.core5.io.CloseMode.IMMEDIATE);
         }

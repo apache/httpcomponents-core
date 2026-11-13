@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -55,14 +55,14 @@ class TestMessageParser {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(3, headers.length);
-        Assertions.assertEquals("header1", headers[0].getName());
-        Assertions.assertEquals("stuff", headers[0].getValue());
-        Assertions.assertEquals("header2", headers[1].getName());
-        Assertions.assertEquals("stuff", headers[1].getValue());
-        Assertions.assertEquals("header3", headers[2].getName());
-        Assertions.assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.length).isEqualTo(3);
+        Assertions.assertThat(headers[0].getName()).isEqualTo("header1");
+        Assertions.assertThat(headers[0].getValue()).isEqualTo("stuff");
+        Assertions.assertThat(headers[1].getName()).isEqualTo("header2");
+        Assertions.assertThat(headers[1].getValue()).isEqualTo("stuff");
+        Assertions.assertThat(headers[2].getName()).isEqualTo("header3");
+        Assertions.assertThat(headers[2].getValue()).isEqualTo("stuff and more stuff and even more stuff");
     }
 
     @Test
@@ -72,9 +72,9 @@ class TestMessageParser {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(1, headers.length);
-        Assertions.assertEquals("header1: stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.length).isEqualTo(1);
+        Assertions.assertThat(headers[0].toString()).isEqualTo("header1: stuff; param1 = value1; param2 = \"value 2\" ");
     }
 
     @Test
@@ -84,15 +84,15 @@ class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s1.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThrows(ProtocolException.class, () ->
-                AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null));
+        Assertions.assertThatThrownBy(() ->
+                AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null)).isInstanceOf(ProtocolException.class);
         final String s2 = "  :  stuff\r\n" +
             "header1: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s2.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThrows(ProtocolException.class, () ->
-                AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null));
+        Assertions.assertThatThrownBy(() ->
+                AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null)).isInstanceOf(ProtocolException.class);
     }
 
     @Test
@@ -103,12 +103,12 @@ class TestMessageParser {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(2, headers.length);
-        Assertions.assertEquals("header1", headers[0].getName());
-        Assertions.assertEquals("stuff", headers[0].getValue());
-        Assertions.assertEquals("header2", headers[1].getName());
-        Assertions.assertEquals("stuff", headers[1].getValue());
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.length).isEqualTo(2);
+        Assertions.assertThat(headers[0].getName()).isEqualTo("header1");
+        Assertions.assertThat(headers[0].getValue()).isEqualTo("stuff");
+        Assertions.assertThat(headers[1].getName()).isEqualTo("header2");
+        Assertions.assertThat(headers[1].getValue()).isEqualTo("stuff");
     }
 
     @Test
@@ -117,8 +117,8 @@ class TestMessageParser {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertNotNull(headers);
-        Assertions.assertEquals(0, headers.length);
+        Assertions.assertThat(headers).isNotNull();
+        Assertions.assertThat(headers.length).isEqualTo(0);
     }
 
     @Test
@@ -130,8 +130,8 @@ class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThrows(IOException.class, () ->
-                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null));
+        Assertions.assertThatThrownBy(() ->
+                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null)).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -143,8 +143,8 @@ class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThrows(IOException.class, () ->
-                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null));
+        Assertions.assertThatThrownBy(() ->
+                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null)).isInstanceOf(IOException.class);
     }
 
 }

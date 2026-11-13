@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,12 +91,12 @@ class TestHttpService {
 
     @Test
     void testInvalidInitialization() {
-        Assertions.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThatThrownBy(() ->
                 new HttpService(
                         null,
                         handlerResolver,
                         connReuseStrategy,
-                        responseFactory));
+                        responseFactory)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -109,10 +109,10 @@ class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_NOT_IMPLEMENTED);
 
-        Assertions.assertSame(request, context.getRequest());
-        Assertions.assertSame(response, context.getResponse());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
+        Assertions.assertThat(context.getResponse()).isSameAs(response);
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
@@ -139,11 +139,11 @@ class TestHttpService {
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
         Mockito.verify(conn).sendResponseHeader(responseCaptor.capture());
         final ClassicHttpResponse response = responseCaptor.getValue();
-        Assertions.assertNotNull(response);
+        Assertions.assertThat(response).isNotNull();
 
-        Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_NOT_IMPLEMENTED);
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(inStream).close();
@@ -172,15 +172,15 @@ class TestHttpService {
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
         Mockito.verify(conn, Mockito.times(2)).sendResponseHeader(responseCaptor.capture());
         final List<ClassicHttpResponse> responses = responseCaptor.getAllValues();
-        Assertions.assertNotNull(responses);
-        Assertions.assertEquals(2, responses.size());
+        Assertions.assertThat(responses).isNotNull();
+        Assertions.assertThat(responses.size()).isEqualTo(2);
         final ClassicHttpResponse ack = responses.get(0);
         final ClassicHttpResponse response = responses.get(1);
 
-        Assertions.assertEquals(HttpStatus.SC_CONTINUE, ack.getCode());
-        Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
+        Assertions.assertThat(ack.getCode()).isEqualTo(HttpStatus.SC_CONTINUE);
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_NOT_IMPLEMENTED);
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(inStream).close();
@@ -207,11 +207,11 @@ class TestHttpService {
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
         Mockito.verify(conn).sendResponseHeader(responseCaptor.capture());
         final ClassicHttpResponse error = responseCaptor.getValue();
-        Assertions.assertNotNull(error);
+        Assertions.assertThat(error).isNotNull();
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
-        Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, error.getCode());
+        Assertions.assertThat(error.getCode()).isEqualTo(HttpStatus.SC_NOT_IMPLEMENTED);
 
         Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
@@ -234,11 +234,11 @@ class TestHttpService {
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
         Mockito.verify(conn).sendResponseHeader(responseCaptor.capture());
         final ClassicHttpResponse error = responseCaptor.getValue();
-        Assertions.assertNotNull(error);
+        Assertions.assertThat(error).isNotNull();
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
-        Assertions.assertEquals(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED, error.getCode());
+        Assertions.assertThat(error.getCode()).isEqualTo(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
 
         Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
@@ -261,11 +261,11 @@ class TestHttpService {
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
         Mockito.verify(conn).sendResponseHeader(responseCaptor.capture());
         final ClassicHttpResponse error = responseCaptor.getValue();
-        Assertions.assertNotNull(error);
+        Assertions.assertThat(error).isNotNull();
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
-        Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, error.getCode());
+        Assertions.assertThat(error.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
 
         Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
@@ -284,10 +284,10 @@ class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 
-        Assertions.assertSame(request, context.getRequest());
-        Assertions.assertSame(response, context.getResponse());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
+        Assertions.assertThat(context.getResponse()).isSameAs(response);
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
@@ -310,7 +310,7 @@ class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
@@ -333,7 +333,7 @@ class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assertions.assertSame(request, context.getRequest());
+        Assertions.assertThat(context.getRequest()).isSameAs(request);
 
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(requestHandler).handle(request, response, context);
