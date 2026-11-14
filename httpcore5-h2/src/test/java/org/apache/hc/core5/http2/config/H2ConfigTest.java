@@ -72,6 +72,7 @@ class H2ConfigTest {
                 .setMaxFrameSize(16384)
                 .setPushEnabled(true)
                 .setCompressionEnabled(true)
+                .setMaxContinuations(5)
                 .build();
 
         final H2Config.Builder builder = H2Config.copy(h2Config);
@@ -82,7 +83,8 @@ class H2ConfigTest {
                 () -> assertEquals(h2Config.getInitialWindowSize(), h2Config2.getInitialWindowSize()),
                 () -> assertEquals(h2Config.getMaxConcurrentStreams(), h2Config2.getMaxConcurrentStreams()),
                 () -> assertEquals(h2Config.getMaxFrameSize(), h2Config2.getMaxFrameSize()),
-                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize())
+                () -> assertEquals(h2Config.getMaxHeaderListSize(), h2Config2.getMaxHeaderListSize()),
+                () -> assertEquals(h2Config.getMaxContinuations(), h2Config2.getMaxContinuations())
         );
 
     }

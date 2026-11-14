@@ -142,7 +142,8 @@ public class H2Config {
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
                 .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setCompressionEnabled(config.isCompressionEnabled());
+                .setCompressionEnabled(config.isCompressionEnabled())
+                .setMaxContinuations(config.getMaxContinuations());
     }
 
     public static class Builder {
