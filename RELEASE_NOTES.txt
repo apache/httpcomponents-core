@@ -1,11 +1,9 @@
-Release 5.5-beta4
+Release 5.5
 -----------------
 
-This BETA release features multiple HTTP/2 protocol conformance improvements
-and perfroance optimizations, introduces support for Digest Fields (RFC 9530),
-and improves async IOsession pool functionality.
-
-It is expected to be the last BETA release before 5.5 GA.
+This is the first GA release in the 5.4 release series. This release improves HTTP/2 protocol
+conformance and prevention of commom HTTP/2 denial-of-service attacks, improves connection
+and session pool implementations, adds support for Structured Field Values and QUERY method.
 
 This release includes all fixes from the stable 5.4 branch.
 
@@ -33,6 +31,8 @@ Notable changes and features included in the 5.5 series:
 
 * Improved async IOSession pool implementation.
 
+* HTTP/2 control frame excessive use and rapid stream reset protection.
+
 
 Compatibility notes:
 
@@ -40,6 +40,57 @@ Compatibility notes:
 
 * Building HttpCore with Maven now requires Java 17 or newer. Published
   artifacts remain compatible with Java 8.
+
+Change Log
+-------------------
+
+
+* Add httpcore5-bom module (#747).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTP/2 rapid reset protection.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Fixed premature termination of incomplete chunked messages by the classic transport.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTP/2 control frame overhead protection.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCLIENT-2437: LaxConnPool fails all expired requests when iterating available
+  connections.
+  Contributed by shinseongsu <tlstjdtn321@naver.com>
+
+* StrictConnPool fires callbacks of lease requests failed when iterating available and
+  leased connections.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* RFC 9112: Signed chunk sizes and Content-Length values get rejected as invalid.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* URIBuilder: Corrected optimization of path ending with '..' or '.' segment.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* PathSegmentCodec: Added #splitPath, #formatSegments and #optimizePathSegments methods.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Return an empty event mask from a closed non-blocking IOSession.
+  Contributed by Thomas Cornish <tccornis@amazon.com>
+
+* Filter control characters in encoded HTTP/1 output lines.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
+Release 5.5-beta4
+-----------------
+
+This BETA release features multiple HTTP/2 protocol conformance improvements
+and perfroance optimizations, introduces support for Digest Fields (RFC 9530),
+and improves async IOsession pool functionality.
+
+It is expected to be the last BETA release before 5.5 GA.
+
+This release includes all fixes from the stable 5.4 branch.
 
 
 Change Log
