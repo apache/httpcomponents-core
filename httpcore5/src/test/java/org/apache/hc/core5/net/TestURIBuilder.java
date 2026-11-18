@@ -272,6 +272,16 @@ class TestURIBuilder {
     }
 
     @Test
+    void testCustomQueryIsNotEmpty() throws Exception {
+        final URIBuilder uribuilder = new URIBuilder("http://localhost/").setCustomQuery("this&that");
+        Assertions.assertThat(uribuilder.isQueryEmpty()).isFalse();
+        Assertions.assertThat(uribuilder.build()).isEqualTo(new URI("http://localhost/?this&that"));
+
+        uribuilder.setCustomQuery(null);
+        Assertions.assertThat(uribuilder.isQueryEmpty()).isTrue();
+    }
+
+    @Test
     void testRemoveParameter() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
         final URIBuilder uribuilder = new URIBuilder(uri);

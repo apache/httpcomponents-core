@@ -1059,7 +1059,7 @@ public class URIBuilder {
      * @return whether the query is empty.
      */
     public boolean isQueryEmpty() {
-        return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
+        return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null && this.query == null;
     }
 
     /**
