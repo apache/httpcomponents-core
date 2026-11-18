@@ -73,7 +73,7 @@
     <maven.compiler.source>${javaVersion}</maven.compiler.source>
     <maven.compiler.target>${javaVersion}</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-    <api.comparison.version>5.4</api.comparison.version>
+    <api.comparison.version>5.5</api.comparison.version>
 
     <!-- Disable animal sniffer. It has been superseded by compiler release version
       To be completely removed -->
