@@ -183,7 +183,8 @@ public class Deadline {
         if (value == MAX_VALUE.value) {
             return "No deadline (infinite)";
         }
-        return String.format("Deadline: %s, %s overdue", formatTarget(), TimeValue.of(remaining(), overdueTimeUnit));
+        return String.format("Deadline: %s, %s overdue", formatTarget(),
+                TimeValue.of(overdueTimeUnit.convert(remaining(), TimeUnit.MILLISECONDS), overdueTimeUnit));
     }
 
     /**
