@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,17 @@ class TestDeadline {
         final Deadline deadline = Deadline.fromUnixMilliseconds(1000);
         final Deadline deadline2 = Deadline.parse(deadline.toString());
         Assertions.assertThat(deadline2.getValue()).isEqualTo(1000);
+    }
+
+    @Test
+    void testFormatConvertsToTheGivenTimeUnit() {
+        final Deadline deadline = Deadline.fromUnixMilliseconds(1000).freeze();
+        final long remainingMillis = deadline.remaining();
+        Assertions.assertThat(deadline.format(TimeUnit.MILLISECONDS))
+                .isEqualTo("Deadline: " + deadline.formatTarget() + ", " + remainingMillis + " MILLISECONDS overdue");
+        Assertions.assertThat(deadline.format(TimeUnit.SECONDS))
+                .isEqualTo("Deadline: " + deadline.formatTarget() + ", "
+                        + TimeUnit.MILLISECONDS.toSeconds(remainingMillis) + " SECONDS overdue");
     }
 
     @Test
