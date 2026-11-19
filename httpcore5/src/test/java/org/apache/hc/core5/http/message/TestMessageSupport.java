@@ -574,6 +574,15 @@ class TestMessageSupport {
     }
 
     @Test
+    void testMessageWithNonAsciiDigitContentLength() {
+        // U+0661 U+0660 ARABIC-INDIC DIGITS ONE ZERO are accepted by Long#parseLong as 10
+        final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader("Content-Length", "١٠");
+        Assertions.assertThatThrownBy(() -> MessageSupport.getContentLength(message))
+                .isInstanceOf(ProtocolException.class);
+    }
+
+    @Test
     void testMessageWithEmptyContentLength() {
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader("Content-Length", "");

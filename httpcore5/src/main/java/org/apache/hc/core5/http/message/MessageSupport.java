@@ -58,6 +58,7 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
@@ -750,7 +751,7 @@ public class MessageSupport {
         final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         if (contentLengthHeader != null) {
             final String s = contentLengthHeader.getValue();
-            if (isSignedOrEmpty(s)) {
+            if (isSignedOrEmpty(s) || !TextUtils.isAllASCII(s)) {
                 throw new ProtocolException("Invalid content length: " + s);
             }
             try {

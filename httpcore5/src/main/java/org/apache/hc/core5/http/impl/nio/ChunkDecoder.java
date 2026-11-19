@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Implements chunked transfer decoding. The content is received in small chunks.
@@ -129,7 +130,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 separator = this.lineBuf.length();
             }
             final String s = this.lineBuf.substringTrimmed(0, separator);
-            if (MessageSupport.isSignedOrEmpty(s)) {
+            if (MessageSupport.isSignedOrEmpty(s) || !TextUtils.isAllASCII(s)) {
                 throw new MalformedChunkCodingException("Bad chunk header: " + s);
             }
             try {

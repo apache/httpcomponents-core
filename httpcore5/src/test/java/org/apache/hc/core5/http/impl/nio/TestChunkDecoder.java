@@ -217,6 +217,18 @@ class TestChunkDecoder {
     }
 
     @Test
+    void testChunkSizeNonAsciiDigitRejected() {
+        // U+0665 ARABIC-INDIC DIGIT FIVE is accepted by Long#parseLong as digit 5
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {"٥\r\nhello\r\n0\r\n\r\n"}, StandardCharsets.UTF_8);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.UTF_8);
+        final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, new BasicHttpTransportMetrics());
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
+        Assertions.assertThatThrownBy(() -> decoder.read(dst))
+                .isInstanceOf(MalformedChunkCodingException.class);
+    }
+
+    @Test
     void testChunkSizeSurroundingWhitespaceAccepted() throws Exception {
         decode(" 5 \r\nhello\r\n0\r\n\r\n");
     }

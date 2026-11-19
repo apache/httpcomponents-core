@@ -262,6 +262,17 @@ class TestChunkCoding {
     }
 
     @Test
+    void testCorruptChunkedInputStreamNonAsciiDigitSize() throws IOException {
+        // U+FF21 FULLWIDTH LATIN CAPITAL LETTER A is accepted by Long#parseLong as hex digit 10
+        final String s = "Ａ\r\n0123456789\r\n0\r\n\r\n";
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
+        try (ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            Assertions.assertThatThrownBy(in::read).isInstanceOf(MalformedChunkCodingException.class);
+        }
+    }
+
+    @Test
     void testChunkedInputStreamSurroundingWhitespaceSize() throws IOException {
         final String s = " 5 \r\n01234\r\n0\r\n\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
