@@ -81,8 +81,15 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
 
         if (request != null) {
+            final boolean contentLenPresent = request.containsHeader(HttpHeaders.CONTENT_LENGTH);
+            final boolean transferEncodingPresent = request.containsHeader(HttpHeaders.TRANSFER_ENCODING);
             // Consider framing of a request message with both Content-Length and Content-Length headers faulty
-            if (request.containsHeader(HttpHeaders.CONTENT_LENGTH) && request.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
+            if (contentLenPresent && transferEncodingPresent) {
+                return false;
+            }
+            // Consider framing of a HTTP/1.0 request message with Transfer-Encoding header faulty
+            final ProtocolVersion requestVersion = request.getVersion();
+            if (transferEncodingPresent && requestVersion != null && requestVersion.lessEquals(HttpVersion.HTTP_1_0)) {
                 return false;
             }
             final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.CONNECTION);

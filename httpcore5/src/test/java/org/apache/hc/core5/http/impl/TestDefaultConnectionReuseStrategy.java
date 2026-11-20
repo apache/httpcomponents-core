@@ -318,5 +318,16 @@ class TestDefaultConnectionReuseStrategy {
         Assertions.assertThat(reuseStrategy.keepAlive(null, response, context)).isFalse();
     }
 
+    @Test
+    void testRequestHTTP10TransferEncodingPresent() {
+        final HttpRequest request = new BasicHttpRequest(Method.POST, "/");
+        request.setVersion(HttpVersion.HTTP_1_0);
+        request.addHeader("Transfer-Encoding", "chunked");
+        request.addHeader("Connection", "keep-alive");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.addHeader("Content-Length", "2");
+        Assertions.assertThat(reuseStrategy.keepAlive(request, response, context)).isFalse();
+    }
+
 }
 
