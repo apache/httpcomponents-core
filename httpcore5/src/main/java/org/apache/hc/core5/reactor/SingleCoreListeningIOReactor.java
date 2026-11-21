@@ -35,14 +35,17 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
@@ -52,12 +55,17 @@ import org.apache.hc.core5.io.Closer;
 
 class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionAcceptor {
 
+    private static final long ACCEPT_BACK_OFF_NANOS = TimeUnit.MILLISECONDS.toNanos(100);
+    private static final int MAX_ACCEPTS_PER_EVENT = 100;
+
     private final IOReactorConfig reactorConfig;
     private final Callback<ChannelEntry> callback;
     private final Queue<ListenerEndpointRequest> requestQueue;
     private final ConcurrentMap<ListenerEndpointImpl, Boolean> endpoints;
     private final AtomicBoolean paused;
     private final long selectTimeoutMillis;
+    // Keys with OP_ACCEPT cleared after a failed accept() and the time to restore it; reactor thread only.
+    private final Map<SelectionKey, Long> suspendedKeys;
 
     SingleCoreListeningIOReactor(
             final Callback<Exception> exceptionCallback,
@@ -70,6 +78,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         this.endpoints = new ConcurrentHashMap<>();
         this.paused = new AtomicBoolean();
         this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMilliseconds();
+        this.suspendedKeys = new HashMap<>();
     }
 
     @Override
@@ -87,7 +96,9 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                 break;
             }
 
-            final int readyCount = this.selector.select(this.selectTimeoutMillis);
+            resumeAccepting();
+
+            final int readyCount = this.selector.select(selectTimeout());
 
             if (getStatus() != IOReactorStatus.ACTIVE) {
                 break;
@@ -119,8 +130,18 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
             if (key.isAcceptable()) {
 
                 final ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
-                for (;;) {
-                    final SocketChannel socketChannel = serverChannel.accept();
+                for (int i = 0; i < MAX_ACCEPTS_PER_EVENT; i++) {
+                    final SocketChannel socketChannel;
+                    try {
+                        socketChannel = accept(serverChannel);
+                    } catch (final IOException ex) {
+                        if (serverChannel.isOpen()) {
+                            // Typically descriptor exhaustion; the listener must outlive it.
+                            logException(ex);
+                            suspendAccepting(key);
+                        }
+                        break;
+                    }
                     if (socketChannel == null) {
                         break;
                     }
@@ -134,6 +155,57 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
             this.endpoints.remove(endpoint);
             key.attach(null);
         }
+    }
+
+    // Package private so that tests can inject accept() failures.
+    SocketChannel accept(final ServerSocketChannel serverChannel) throws IOException {
+        return serverChannel.accept();
+    }
+
+    private void suspendAccepting(final SelectionKey key) {
+        // The selector would keep reporting OP_ACCEPT for as long as accept() fails.
+        try {
+            key.interestOps(key.interestOps() & ~SelectionKey.OP_ACCEPT);
+            this.suspendedKeys.put(key, System.nanoTime() + ACCEPT_BACK_OFF_NANOS);
+        } catch (final CancelledKeyException ignore) {
+            // endpoint closed meanwhile
+        }
+    }
+
+    private void resumeAccepting() {
+        if (this.suspendedKeys.isEmpty()) {
+            return;
+        }
+        final long now = System.nanoTime();
+        final Iterator<Map.Entry<SelectionKey, Long>> it = this.suspendedKeys.entrySet().iterator();
+        while (it.hasNext()) {
+            final Map.Entry<SelectionKey, Long> entry = it.next();
+            final SelectionKey key = entry.getKey();
+            if (!key.isValid()) {
+                it.remove();
+            } else if (entry.getValue() - now <= 0) {
+                it.remove();
+                try {
+                    key.interestOps(key.interestOps() | SelectionKey.OP_ACCEPT);
+                } catch (final CancelledKeyException ignore) {
+                    // endpoint closed meanwhile
+                }
+            }
+        }
+    }
+
+    private long selectTimeout() {
+        if (this.suspendedKeys.isEmpty()) {
+            return this.selectTimeoutMillis;
+        }
+        final long now = System.nanoTime();
+        long remaining = Long.MAX_VALUE;
+        for (final long deadline : this.suspendedKeys.values()) {
+            remaining = Math.min(remaining, deadline - now);
+        }
+        // Rounded up, as zero would block the selector indefinitely.
+        final long remainingMillis = Math.max(1, (remaining + 999999) / 1000000);
+        return this.selectTimeoutMillis > 0 ? Math.min(this.selectTimeoutMillis, remainingMillis) : remainingMillis;
     }
 
     @Override
