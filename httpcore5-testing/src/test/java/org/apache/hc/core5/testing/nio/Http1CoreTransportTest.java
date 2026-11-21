@@ -29,8 +29,9 @@ package org.apache.hc.core5.testing.nio;
 
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.function.Supplier;
@@ -41,9 +42,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -53,14 +52,12 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.HttpAsyncServerResource;
@@ -94,7 +91,9 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
                                 .setTcpKeepInterval(3)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
-                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/random/*", AsyncRandomHandler::new)
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/echo", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
                 .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keepalive", (request, entityDetails, context, responseTrigger, chain) ->
@@ -145,46 +144,78 @@ abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
     }
 
     @Test
-    void testSequentialRequestsNonPersistentConnection() throws Exception {
-        final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        final HttpAsyncRequester requester = clientResource.start();
+    void testPostNonPersistentConnection() throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/stuff",
-                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message1).isNotNull();
-        final HttpResponse response1 = message1.head();
-        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body1 = message1.body();
-        Assertions.assertThat(body1).isEqualTo("some stuff");
+        final int reqCount = 20;
 
-        final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/other-stuff",
-                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message2).isNotNull();
-        final HttpResponse response2 = message2.head();
-        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body2 = message2.body();
-        Assertions.assertThat(body2).isEqualTo("some other stuff");
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .post(target, "/no-keep-alive/stuff")
+                            .asString("some stuff", ContentType.TEXT_PLAIN)
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            queue.add(resultFuture);
+        }
 
-        final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/more-stuff",
-                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message3).isNotNull();
-        final HttpResponse response3 = message3.head();
-        Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body3 = message3.body();
-        Assertions.assertThat(body3).isEqualTo("some more stuff");
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .isEqualTo("some stuff");
+        }
+    }
+
+    @Test
+    void testHeadNonPersistenConnection() throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final int reqCount = 20;
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .produce(AsyncRequestBuilder.head()
+                                    .setHttpHost(target)
+                                    .setPath("/no-keep-alive/stuff?p=" + i)
+                                    .build())
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            queue.add(resultFuture);
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNull();
+        }
     }
 
 }

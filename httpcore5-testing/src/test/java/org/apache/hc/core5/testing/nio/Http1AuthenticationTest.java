@@ -90,7 +90,7 @@ abstract class Http1AuthenticationTest {
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
-                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
                 .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(respondImmediately) {

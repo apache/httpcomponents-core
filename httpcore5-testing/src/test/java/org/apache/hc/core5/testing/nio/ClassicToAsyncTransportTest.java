@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -41,6 +42,7 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -81,6 +83,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.Result;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.classic.RandomEntity;
 import org.apache.hc.core5.testing.extension.classic.ExecutorResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
@@ -114,7 +117,9 @@ abstract class ClassicToAsyncTransportTest {
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
-                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/random/*", AsyncRandomHandler::new)
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/echo", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
         );
@@ -147,21 +152,24 @@ abstract class ClassicToAsyncTransportTest {
                 LoggingExceptionCallback.INSTANCE));
     }
 
-    @Test
-    void test_request_execution() throws Exception {
+    HttpHost connectToListener() throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        registerHandler("/echo", () -> new EchoHandler(1024));
 
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+
+        return new HttpHost(scheme.id, "localhost", address.getPort());
+    }
+
+    @Test
+    void test_request_execution() throws Exception {
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientResource.start();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final int reqCount = 20;
 
-        final int n = 10;
-
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < reqCount; i++) {
             final ClassicHttpRequest request1 = ClassicRequestBuilder.post()
                     .setHttpHost(target)
                     .setPath("/echo")
@@ -228,20 +236,15 @@ abstract class ClassicToAsyncTransportTest {
             response.setEntity(responseEntity);
         });
 
-        final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientResource.start();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final int reqCount = 20;
 
-        final int n = 10;
-
-        final CountDownLatch countDownLatch = new CountDownLatch(n);
+        final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
         final Queue<Result<String>> resultQueue = new ConcurrentLinkedQueue<>();
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < reqCount; i++) {
             final BasicHttpRequest request1 = BasicRequestBuilder.create(method)
                     .setHttpHost(target)
                     .setPath("/hello")
@@ -324,20 +327,15 @@ abstract class ClassicToAsyncTransportTest {
             response.setEntity(responseEntity);
         });
 
-        final HttpAsyncServer server = serverResource.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientResource.start();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final int reqCount = 20;
 
-        final int n = 10;
-
-        final CountDownLatch countDownLatch = new CountDownLatch(n);
+        final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
         final Queue<Result<String>> resultQueue = new ConcurrentLinkedQueue<>();
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < reqCount; i++) {
             final BasicHttpRequest request1 = BasicRequestBuilder.post()
                     .setHttpHost(target)
                     .setPath("/echo")
@@ -383,6 +381,196 @@ abstract class ClassicToAsyncTransportTest {
                 while (t1.hasMoreTokens()) {
                     Assertions.assertThat(t1.nextToken()).isEqualTo("0123456789abcdef");
                 }
+            } else {
+                Assertions.fail(result.exception);
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void test_client_sequential_get_requests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final int reqCount = 20;
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath("/random/" + contentSize)
+                    .build();
+
+            final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, 16, TIMEOUT);
+            final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
+
+            requester.execute(requestProducer, responseConsumer, TIMEOUT, null);
+
+            requestProducer.blockWaiting().execute();
+
+            try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+                Assertions.assertThat(response)
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                final String content = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(content)
+                        .isNotNull()
+                        .hasSize(contentSize);
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void test_client_concurrent_get_requests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final int reqCount = 20;
+
+        final ExecutorService executorService = executorResource.getExecutorService();
+        final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
+        final Queue<Future<Result<byte[]>>> resultQueue = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < reqCount; i++) {
+            resultQueue.add(executorService.submit(() -> {
+                final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                        .setHttpHost(target)
+                        .setPath("/random/" + contentSize)
+                        .build();
+                final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, 16, TIMEOUT);
+                final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
+                try {
+                    requester.execute(requestProducer, responseConsumer, TIMEOUT, null);
+
+                    requestProducer.blockWaiting().execute();
+
+                    try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+                        final byte[] bytes = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
+                        countDownLatch.countDown();
+                        return new Result<>(request, response, bytes);
+                    }
+                } catch (final RuntimeException | IOException ex) {
+                    countDownLatch.countDown();
+                    return new Result<>(request, ex);
+                }
+            }));
+        }
+        while (!resultQueue.isEmpty()) {
+            final Future<Result<byte[]>> future = resultQueue.remove();
+            final Result<byte[]> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(result.response)
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(result.content)
+                    .isNotNull()
+                    .hasSize(contentSize);
+        }
+    }
+
+    @Test
+    void test_client_sequential_head_requests() throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final int reqCount = 20;
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.head()
+                    .setHttpHost(target)
+                    .setPath("/random/2048")
+                    .build();
+
+            final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, 16, TIMEOUT);
+            final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
+
+            requester.execute(requestProducer, responseConsumer, TIMEOUT, null);
+
+            requestProducer.blockWaiting().execute();
+
+            try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+                Assertions.assertThat(response)
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                Assertions.assertThat(response.getEntity())
+                        .isNull();
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void test_client_sequential_post_requests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final int reqCount = 20;
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.post()
+                    .setHttpHost(target)
+                    .setPath("/echo")
+                    .setEntity(new RandomEntity(contentSize))
+                    .build();
+
+            final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, 16, TIMEOUT);
+            final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
+
+            requester.execute(requestProducer, responseConsumer, TIMEOUT, null);
+
+            requestProducer.blockWaiting().execute();
+
+            try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+                Assertions.assertThat(response)
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                final String content = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(content)
+                        .isNotNull()
+                        .hasSize(contentSize);
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void test_client_concurrent_post_requests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientResource.start();
+
+        final int reqCount = 20;
+
+        final ExecutorService executorService = executorResource.getExecutorService();
+        final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
+        final Queue<Future<Result<byte[]>>> resultQueue = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < reqCount; i++) {
+            resultQueue.add(executorService.submit(() -> {
+                final ClassicHttpRequest request = ClassicRequestBuilder.post()
+                        .setHttpHost(target)
+                        .setPath("/echo")
+                        .setEntity(new RandomEntity(contentSize))
+                        .build();
+                final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, 16, TIMEOUT);
+                final ClassicToAsyncResponseConsumer responseConsumer = new ClassicToAsyncResponseConsumer(16, TIMEOUT);
+                try {
+                    requester.execute(requestProducer, responseConsumer, TIMEOUT, null);
+
+                    requestProducer.blockWaiting().execute();
+
+                    try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
+                        final byte[] bytes = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
+                        countDownLatch.countDown();
+                        return new Result<>(request, response, bytes);
+                    }
+                } catch (final RuntimeException | IOException ex) {
+                    countDownLatch.countDown();
+                    return new Result<>(request, ex);
+                }
+            }));
+        }
+        while (!resultQueue.isEmpty()) {
+            final Future<Result<byte[]>> future = resultQueue.remove();
+            final Result<byte[]> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            if (result.isOK()) {
+                Assertions.assertThat(result.response)
+                        .isNotNull()
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                Assertions.assertThat(result.content)
+                        .isNotNull()
+                        .hasSize(contentSize);
             } else {
                 Assertions.fail(result.exception);
             }

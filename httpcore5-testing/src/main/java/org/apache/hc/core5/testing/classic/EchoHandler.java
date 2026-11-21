@@ -50,9 +50,8 @@ public class EchoHandler implements HttpRequestHandler {
 
         response.setCode(HttpStatus.SC_OK);
         final HttpEntity entity = request.getEntity();
-        final byte[] data;
         if (entity != null) {
-            data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
+            final byte[] data = EntityUtils.toByteArray(entity, Integer.MAX_VALUE);
             response.setEntity(new ByteArrayEntity(data, ContentType.parse(entity.getContentType())));
         }
     }

@@ -29,24 +29,23 @@ package org.apache.hc.core5.testing.nio;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Random;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.support.classic.ClassicToAsyncResponseConsumer;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.classic.RandomEntity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -61,7 +60,7 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
     @ParameterizedTest(name = "{displayName}; content length: {0}")
     void test_request_handling_no_keep_alive(final int contentSize) throws Exception {
         final HttpAsyncServer server = serverResource.start();
-        registerHandler("/echo", () -> new EchoHandler(1024));
+        registerHandler("/echo", () -> new AsyncEchoStreamingHandler(1024));
 
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -70,17 +69,14 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
 
-        final int n = 10;
+        final int reqCount = 10;
 
-        for (int i = 0; i < n; i++) {
-            final byte[] temp = new byte[contentSize];
-            new Random(System.currentTimeMillis()).nextBytes(temp);
-
+        for (int i = 0; i < reqCount; i++) {
             final ClassicHttpRequest request = ClassicRequestBuilder.post()
                     .setHttpHost(target)
                     .setPath("/echo/")
                     .addHeader(HttpHeaders.CONNECTION, "Close")
-                    .setEntity(new ByteArrayEntity(temp, ContentType.DEFAULT_BINARY))
+                    .setEntity(new RandomEntity(contentSize))
                     .build();
 
             final ClassicToAsyncRequestProducer requestProducer = new ClassicToAsyncRequestProducer(request, TIMEOUT);
@@ -91,10 +87,12 @@ abstract class ClassicToAsyncHttp1TransportTest extends ClassicToAsyncTransportT
             requestProducer.blockWaiting().execute();
 
             try (ClassicHttpResponse response = responseConsumer.blockWaiting()) {
-                Assertions.assertThat(response.getCode()).isEqualTo(200);
-                final byte[] bytes = EntityUtils.toByteArray(response.getEntity(), Integer.MAX_VALUE);
-                Assertions.assertThat(bytes).isNotNull();
-                Assertions.assertThat(bytes).containsExactly(temp);
+                Assertions.assertThat(response)
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                final String content = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(content)
+                        .isNotNull()
+                        .hasSize(contentSize);
             }
         }
     }

@@ -33,31 +33,25 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncClientPipeline;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.Timeout;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 abstract class HttpCoreTransportTest {
 
@@ -73,232 +67,298 @@ abstract class HttpCoreTransportTest {
 
     abstract HttpAsyncRequester clientStart() throws IOException;
 
-    @Test
-    void testSequentialRequests() throws Exception {
+    HttpHost connectToListener() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        final HttpAsyncRequester requester = clientStart();
-
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/stuff",
-                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message1).isNotNull();
-        final HttpResponse response1 = message1.head();
-        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body1 = message1.body();
-        Assertions.assertThat(body1).isEqualTo("some stuff");
-
-        final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/other-stuff",
-                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message2).isNotNull();
-        final HttpResponse response2 = message2.head();
-        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body2 = message2.body();
-        Assertions.assertThat(body2).isEqualTo("some other stuff");
-
-        final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/more-stuff",
-                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message3).isNotNull();
-        final HttpResponse response3 = message3.head();
-        Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body3 = message3.body();
-        Assertions.assertThat(body3).isEqualTo("some more stuff");
+        return new HttpHost(scheme.id, "localhost", address.getPort());
     }
 
-    @Test
-    void testLargeRequest() throws Exception {
-        final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testSequentialGetRequests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientStart();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final String content = IntStream.range(0, 1000).mapToObj(i -> "a lot of stuff").collect(Collectors.joining(" "));
-        final Future<Message<HttpResponse, String>> resultFuture = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/a-lot-of-stuff", AsyncEntityProducers.create(content, ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message).isNotNull();
-        final HttpResponse response = message.head();
-        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body = message.body();
-        Assertions.assertThat(body).isEqualTo(content);
-    }
+        final int reqCount = 20;
 
-    @Test
-    void testSequentialRequestsNonPersistentConnection() throws Exception {
-        final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        final HttpAsyncRequester requester = clientStart();
-
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/stuff",
-                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message1).isNotNull();
-        final HttpResponse response1 = message1.head();
-        Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body1 = message1.body();
-        Assertions.assertThat(body1).isEqualTo("some stuff");
-
-        final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/other-stuff",
-                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message2).isNotNull();
-        final HttpResponse response2 = message2.head();
-        Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body2 = message2.body();
-        Assertions.assertThat(body2).isEqualTo("some other stuff");
-
-        final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/more-stuff",
-                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertThat(message3).isNotNull();
-        final HttpResponse response3 = message3.head();
-        Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-        final String body3 = message3.body();
-        Assertions.assertThat(body3).isEqualTo("some more stuff");
-    }
-
-    @Test
-    void testSequentialRequestsSameEndpoint() throws Exception {
-        final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        final HttpAsyncRequester requester = clientStart();
-
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
-        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        try {
-
-            final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/stuff",
-                            new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertThat(message1).isNotNull();
-            final HttpResponse response1 = message1.head();
-            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body1 = message1.body();
-            Assertions.assertThat(body1).isEqualTo("some stuff");
-
-            final Future<Message<HttpResponse, String>> resultFuture2 = endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/other-stuff",
-                            new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertThat(message2).isNotNull();
-            final HttpResponse response2 = message2.head();
-            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body2 = message2.body();
-            Assertions.assertThat(body2).isEqualTo("some other stuff");
-
-            final Future<Message<HttpResponse, String>> resultFuture3 = endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/more-stuff",
-                            new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertThat(message3).isNotNull();
-            final HttpResponse response3 = message3.head();
-            Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body3 = message3.body();
-            Assertions.assertThat(body3).isEqualTo("some more stuff");
-
-        } finally {
-            endpoint.releaseAndReuse();
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .get(target, "/random/" + contentSize)
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            final Message<HttpResponse, String> response = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .hasSize(contentSize);
         }
     }
 
     @Test
-    void testPipelinedRequests() throws Exception {
-        final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+    void testSequentialHeadRequests() throws Exception {
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientStart();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
-        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
-        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        try {
+        final int reqCount = 20;
 
-            final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
-
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/stuff",
-                            new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/other-stuff",
-                            new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer(Method.POST, target, "/more-stuff",
-                            new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
-
-            while (!queue.isEmpty()) {
-                final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
-                final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assertions.assertThat(message).isNotNull();
-                final HttpResponse response = message.head();
-                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
-                final String body = message.body();
-                Assertions.assertThat(body.contains("stuff")).isTrue();
-            }
-
-        } finally {
-            endpoint.releaseAndReuse();
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .produce(AsyncRequestBuilder.head()
+                                    .setHttpHost(target)
+                                    .setPath("/random/2048")
+                                    .build())
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            final Message<HttpResponse, String> response = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNull();
         }
     }
 
-    @Test
-    void testNonPersistentHeads() throws Exception {
-        final HttpAsyncServer server = serverStart();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), scheme);
-        final ListenerEndpoint listener = future.get();
-        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testConcurrentGetRequests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
         final HttpAsyncRequester requester = clientStart();
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final int reqCount = 20;
+
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
-
-        for (int i = 0; i < 20; i++) {
-            final HttpRequest head = new BasicHttpRequest(Method.HEAD, target, "/no-keep-alive/stuff?p=" + i);
-            queue.add(requester.execute(
-                    new BasicRequestProducer(head, null),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .get(target, "/random/" + contentSize)
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            queue.add(resultFuture);
         }
 
         while (!queue.isEmpty()) {
-            final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
-            final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assertions.assertThat(message).isNotNull();
-            final HttpResponse response = message.head();
-            Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
-            Assertions.assertThat(message.body()).isNull();
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .hasSize(contentSize);
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testSequentialPostRequests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .post(target, "/echo")
+                            .produceContent(new RandomBinAsyncEntityProducer(contentSize))
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            final Message<HttpResponse, String> response = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .hasSize(contentSize);
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testConcurrentPostRequests(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final int reqCount = 20;
+
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .post(target, "/echo")
+                            .produceContent(new RandomBinAsyncEntityProducer(contentSize))
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            queue.add(resultFuture);
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(200);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .hasSize(contentSize);
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testGetPipelining(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
+        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        try {
+            final int reqCount = 20;
+
+            final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+            for (int i = 0; i < reqCount; i++) {
+                final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+                requester.execute(
+                        AsyncClientPipeline.assemble()
+                                .request()
+                                .get(target, "/random/" + contentSize)
+                                .response()
+                                .asString()
+                                .result(resultFuture)
+                                .create(),
+                        TIMEOUT,
+                        HttpCoreContext.create());
+                queue.add(resultFuture);
+            }
+
+            while (!queue.isEmpty()) {
+                final Future<Message<HttpResponse, String>> future = queue.remove();
+                final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                Assertions.assertThat(response).isNotNull();
+                Assertions.assertThat(response.head())
+                        .isNotNull()
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                Assertions.assertThat(response.body())
+                        .isNotNull()
+                        .hasSize(contentSize);
+            }
+        } finally {
+            endpoint.releaseAndReuse();
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testPostPipelining(final int contentSize) throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
+        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        try {
+            final int reqCount = 20;
+
+            final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+            for (int i = 0; i < reqCount; i++) {
+                final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+                requester.execute(
+                        AsyncClientPipeline.assemble()
+                                .request()
+                                .post(target, "/echo")
+                                .produceContent(new RandomBinAsyncEntityProducer(contentSize))
+                                .response()
+                                .asString()
+                                .result(resultFuture)
+                                .create(),
+                        TIMEOUT,
+                        HttpCoreContext.create());
+                queue.add(resultFuture);
+            }
+
+            while (!queue.isEmpty()) {
+                final Future<Message<HttpResponse, String>> future = queue.remove();
+                final Message<HttpResponse, String> response = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                Assertions.assertThat(response).isNotNull();
+                Assertions.assertThat(response.head())
+                        .isNotNull()
+                        .extracting(HttpResponse::getCode).isEqualTo(200);
+                Assertions.assertThat(response.body())
+                        .isNotNull()
+                        .hasSize(contentSize);
+            }
+        } finally {
+            endpoint.releaseAndReuse();
+        }
+    }
+
+    @Test
+    void testSequentialInvalidGetRequests() throws Exception {
+        final HttpHost target = connectToListener();
+        final HttpAsyncRequester requester = clientStart();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final CompletableFuture<Message<HttpResponse, String>> resultFuture = new CompletableFuture<>();
+            requester.execute(
+                    AsyncClientPipeline.assemble()
+                            .request()
+                            .get(target, "/random/boom")
+                            .response()
+                            .asString()
+                            .result(resultFuture)
+                            .create(),
+                    TIMEOUT,
+                    HttpCoreContext.create());
+            final Message<HttpResponse, String> response = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assertions.assertThat(response).isNotNull();
+            Assertions.assertThat(response.head())
+                    .isNotNull()
+                    .extracting(HttpResponse::getCode).isEqualTo(400);
+            Assertions.assertThat(response.body())
+                    .isNotNull()
+                    .isEqualTo("Invalid request path: /random/boom");
         }
     }
 

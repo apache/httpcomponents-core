@@ -62,20 +62,22 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
         super(scheme);
         this.serverResource = new H2AsyncServerResource();
         this.serverResource.configure(bootstrap -> bootstrap
-                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setVersionPolicy(scheme == URIScheme.HTTPS ? HttpVersionPolicy.NEGOTIATE : HttpVersionPolicy.FORCE_HTTP_2)
                 .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(tlsProtocol)))
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
-                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/random/*", AsyncRandomHandler::new)
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/echo", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
         );
         this.clientResource = new H2AsyncRequesterResource();
         this.clientResource.configure(bootstrap -> bootstrap
-                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setVersionPolicy(scheme == URIScheme.HTTPS ? HttpVersionPolicy.NEGOTIATE : HttpVersionPolicy.FORCE_HTTP_2)
                 .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext(tlsProtocol)))
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)

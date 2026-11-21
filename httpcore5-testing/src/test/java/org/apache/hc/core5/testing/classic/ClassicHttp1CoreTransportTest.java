@@ -29,10 +29,14 @@ package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -41,10 +45,16 @@ import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
 import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTest {
@@ -66,6 +76,8 @@ abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTes
                         .build())
                 .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/random/*", new RandomHandler())
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "/echo", new EchoHandler())
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
                 .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", (request, responseTrigger, context, chain) ->
@@ -103,6 +115,29 @@ abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTes
     @Override
     HttpRequester clientStart() throws IOException {
         return clientResource.start();
+    }
+
+    @Test
+    void testSequentialRequestsNonPersistentConnection() throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme().id, "localhost", server.getLocalPort());
+        final HttpCoreContext context = HttpCoreContext.create();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.post()
+                    .setPath("/no-keep-alive/stuff")
+                    .setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN))
+                    .build();
+            try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+                final String body1 = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(body1).isEqualTo("some stuff");
+            }
+        }
     }
 
 }

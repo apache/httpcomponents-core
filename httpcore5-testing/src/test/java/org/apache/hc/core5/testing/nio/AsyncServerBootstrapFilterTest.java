@@ -85,7 +85,7 @@ abstract class AsyncServerBootstrapFilterTest {
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
-                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
                 .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->

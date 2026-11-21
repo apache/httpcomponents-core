@@ -348,7 +348,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(2048));
+        server.register("*", () -> new AsyncEchoStreamingHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -388,7 +388,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(8));
+        server.register("*", () -> new AsyncEchoStreamingHandler(8));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -420,7 +420,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(8));
+        server.register("*", () -> new AsyncEchoStreamingHandler(8));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -457,7 +457,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(8));
+        server.register("*", () -> new AsyncEchoStreamingHandler(8));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -488,7 +488,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(8));
+        server.register("*", () -> new AsyncEchoStreamingHandler(8));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -518,7 +518,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(8));
+        server.register("*", () -> new AsyncEchoStreamingHandler(8));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);
@@ -734,7 +734,7 @@ abstract class HttpIntegrationTest {
         final HttpTestServer server = server();
         final HttpTestClient client = client();
 
-        server.register("*", () -> new EchoHandler(2048));
+        server.register("*", () -> new AsyncEchoStreamingHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         final HttpHost target = target(serverEndpoint);

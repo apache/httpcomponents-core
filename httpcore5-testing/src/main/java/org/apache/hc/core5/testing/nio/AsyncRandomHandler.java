@@ -1,0 +1,168 @@
+/*
+ * ====================================================================
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.hc.core5.testing.nio;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.MethodNotSupportedException;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.net.WWWFormCodec;
+import org.apache.hc.core5.util.Asserts;
+
+/**
+ * A handler that generates random data.
+ */
+public class AsyncRandomHandler implements AsyncServerExchangeHandler {
+
+    private final AtomicReference<AsyncEntityProducer> entityProducerRef;
+
+    public AsyncRandomHandler() {
+        this.entityProducerRef = new AtomicReference<>();
+    }
+
+    @Override
+    public void releaseResources() {
+        final AsyncEntityProducer producer = entityProducerRef.getAndSet(null);
+        if (producer != null) {
+            producer.releaseResources();
+        }
+    }
+
+    @Override
+    public void handleRequest(
+            final HttpRequest request,
+            final EntityDetails entityDetails,
+            final ResponseChannel responseChannel,
+            final HttpContext context) throws HttpException, IOException {
+        final String method = request.getMethod();
+        if (!"GET".equalsIgnoreCase(method) &&
+                !"HEAD".equalsIgnoreCase(method) &&
+                !"POST".equalsIgnoreCase(method) &&
+                !"PUT".equalsIgnoreCase(method)) {
+            throw new MethodNotSupportedException(method + " not supported by " + getClass().getName());
+        }
+        final URI uri;
+        try {
+            uri = request.getUri();
+        } catch (final URISyntaxException ex) {
+            throw new ProtocolException(ex.getMessage(), ex);
+        }
+        final String query = uri.getQuery();
+        int delayMs = 0;
+        boolean drip = false;
+        if (query != null) {
+            final List<NameValuePair> params = WWWFormCodec.parse(query, UTF_8);
+            for (final NameValuePair param : params) {
+                final String name = param.getName();
+                final String value = param.getValue();
+                if ("delay".equals(name)) {
+                    delayMs = Integer.parseInt(value);
+                } else if ("drip".equals(name)) {
+                    drip = "1".equals(value);
+                }
+            }
+        }
+
+        final String path = uri.getPath();
+        final int slash = path.lastIndexOf('/');
+        if (slash != -1) {
+            final String payload = path.substring(slash + 1);
+            final long n;
+            if (!payload.isEmpty()) {
+                try {
+                    n = Long.parseLong(payload);
+                } catch (final NumberFormatException ex) {
+                    throw new ProtocolException("Invalid request path: " + path);
+                }
+            } else {
+                // random length, but make sure at least something is sent
+                n = 1 + (int)(Math.random() * 79.0);
+            }
+            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
+            final AsyncEntityProducer entityProducer = new RandomBinAsyncEntityProducer(n, delayMs, drip);
+            entityProducerRef.set(entityProducer);
+            responseChannel.sendResponse(response, entityProducer, context);
+        } else {
+            throw new ProtocolException("Invalid request path: " + path);
+        }
+    }
+
+    @Override
+    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        capacityChannel.update(Integer.MAX_VALUE);
+    }
+
+    @Override
+    public void consume(final ByteBuffer src) throws IOException {
+    }
+
+    @Override
+    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+    }
+
+    @Override
+    public int available() {
+        final AsyncEntityProducer producer = entityProducerRef.get();
+        Asserts.notNull(producer, "Entity producer");
+        return producer.available();
+    }
+
+    @Override
+    public void produce(final DataStreamChannel channel) throws IOException {
+        final AsyncEntityProducer producer = entityProducerRef.get();
+        Asserts.notNull(producer, "Entity producer");
+        producer.produce(channel);
+    }
+
+    @Override
+    public void failed(final Exception cause) {
+        releaseResources();
+    }
+
+}

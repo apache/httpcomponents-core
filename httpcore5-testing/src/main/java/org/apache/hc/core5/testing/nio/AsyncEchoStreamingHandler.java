@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
-public class EchoHandler implements AsyncServerExchangeHandler {
+public class AsyncEchoStreamingHandler implements AsyncServerExchangeHandler {
 
     private final static int MIN_CHUNK = 4096;
 
@@ -55,7 +55,7 @@ public class EchoHandler implements AsyncServerExchangeHandler {
     private volatile DataStreamChannel outputDataChannel;
     private volatile boolean endStream;
 
-    public EchoHandler(final int bufferSize) {
+    public AsyncEchoStreamingHandler(final int bufferSize) {
         this.initBufferSize = bufferSize;
         this.capacityIncrement = new AtomicInteger();
         this.buffer = ByteBuffer.allocate(bufferSize);

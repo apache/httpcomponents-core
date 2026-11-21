@@ -29,148 +29,194 @@ package org.apache.hc.core5.testing.classic;
 
 
 import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.testing.Result;
+import org.apache.hc.core5.testing.extension.classic.ExecutorResource;
 import org.apache.hc.core5.util.Timeout;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 abstract class ClassicHttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
+    @RegisterExtension
+    final ExecutorResource executorResource;
+
     private final URIScheme scheme;
 
     public ClassicHttpCoreTransportTest(final URIScheme scheme) {
         this.scheme = scheme;
+        this.executorResource = new ExecutorResource(5);
+    }
+
+    URIScheme scheme() {
+        return scheme;
     }
 
     abstract HttpServer serverStart() throws IOException;
 
     abstract HttpRequester clientStart() throws IOException;
 
-    @Test
-    void testSequentialRequests() throws Exception {
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testSequentialGetRequests(final int contentSize) throws Exception {
         final HttpServer server = serverStart();
         final HttpRequester requester = clientStart();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
-        request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body1).isEqualTo("some stuff");
-        }
-        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/other-stuff");
-        request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body2).isEqualTo("some other stuff");
-        }
-        final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/more-stuff");
-        request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body3).isEqualTo("some more stuff");
-        }
-    }
 
-    @Test
-    void testSequentialRequestsNonPersistentConnection() throws Exception {
-        final HttpServer server = serverStart();
-        final HttpRequester requester = clientStart();
+        final int reqCount = 20;
 
-        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
-        final HttpCoreContext context = HttpCoreContext.create();
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/stuff");
-        request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body1 = EntityUtils.toString(response1.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body1).isEqualTo("some stuff");
-        }
-        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/other-stuff");
-        request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assertions.assertThat(response2.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body2 = EntityUtils.toString(response2.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body2).isEqualTo("some other stuff");
-        }
-        final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/more-stuff");
-        request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assertions.assertThat(response3.getCode()).isEqualTo(HttpStatus.SC_OK);
-            final String body3 = EntityUtils.toString(response3.getEntity(), Integer.MAX_VALUE);
-            Assertions.assertThat(body3).isEqualTo("some more stuff");
-        }
-    }
-
-    @Test
-    void testMultiThreadedRequests() throws Exception {
-        final HttpServer server = serverStart();
-        final HttpRequester requester = clientStart();
-
-        final int c = 10;
-        final CountDownLatch latch = new CountDownLatch(c);
-        final AtomicLong n = new AtomicLong(c + 100);
-        final AtomicReference<AssertionError> exRef = new AtomicReference<>();
-        final ExecutorService executorService = Executors.newFixedThreadPool(c);
-        try {
-            final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
-            for (int i = 0; i < c; i++) {
-                executorService.execute(() -> {
-                    try {
-                        while (n.decrementAndGet() > 0) {
-                            try {
-                                final HttpCoreContext context = HttpCoreContext.create();
-                                final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
-                                request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-                                requester.execute(target, request1, TIMEOUT, context, response -> {
-                                    Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
-                                    Assertions.assertThat(EntityUtils.toString(response.getEntity(), 1024)).isEqualTo("some stuff");
-                                    return null;
-                                });
-                            } catch (final Exception ex) {
-                                Assertions.fail(ex);
-                            }
-                        }
-                    } catch (final AssertionError ex) {
-                        exRef.compareAndSet(null, ex);
-                    } finally {
-                        latch.countDown();
-                    }
-                });
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                    .setPath("/random/" + contentSize)
+                    .build();
+            try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+                final String body = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(body).isNotNull();
+                Assertions.assertThat(body.length()).isEqualTo(contentSize);
             }
-            Assertions.assertThat(latch.await(5, TimeUnit.MINUTES)).isTrue();
-        } finally {
-            executorService.shutdownNow();
         }
+    }
 
-        final AssertionError assertionError = exRef.get();
-        if (assertionError != null) {
-            throw assertionError;
+    @Test
+    void testSequentialHeadRequests() throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
+        final HttpCoreContext context = HttpCoreContext.create();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.head()
+                    .setPath("/random/2048")
+                    .build();
+            try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+                Assertions.assertThat(response.getEntity()).isNull();
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testSequentialPostRequests(final int contentSize) throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
+        final HttpCoreContext context = HttpCoreContext.create();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.post()
+                    .setPath("/echo")
+                    .setEntity(new RandomEntity(contentSize))
+                    .build();
+            try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+                final String body = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(body).isNotNull();
+                Assertions.assertThat(body.length()).isEqualTo(contentSize);
+            }
+        }
+    }
+
+    @ValueSource(ints = {0, 2048, 10240})
+    @ParameterizedTest(name = "{displayName}; content length: {0}")
+    void testConcurrentPostRequests(final int contentSize) throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
+
+        final int connCount = 5;
+        final int reqCount = connCount * 20;
+
+        final ExecutorService executorService = executorResource.getExecutorService();
+        final CountDownLatch countDownLatch = new CountDownLatch(connCount);
+        final AtomicLong n = new AtomicLong(reqCount);
+        final Queue<Result<String>> resultQueue = new ConcurrentLinkedQueue<>();
+        for (int i = 0; i < connCount; i++) {
+            executorService.execute(() -> {
+                try {
+                    while (n.decrementAndGet() > 0) {
+                        final HttpCoreContext context = HttpCoreContext.create();
+                        final ClassicHttpRequest request = ClassicRequestBuilder.post()
+                                .setPath("/echo")
+                                .setEntity(new RandomEntity(contentSize))
+                                .build();
+                        try {
+                            requester.execute(target, request, TIMEOUT, context, response -> {
+                                resultQueue.add(new Result<>(
+                                        request,
+                                        response,
+                                        EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE)));
+                                return null;
+                            });
+                        } catch (final Exception ex) {
+                            resultQueue.add(new Result<>(request, ex));
+                        }
+                    }
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        Assertions.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isTrue();
+        for (final Result<String> result : resultQueue) {
+            if (result.isOK()) {
+                Assertions.assertThat(result.response).isNotNull();
+                Assertions.assertThat(result.response.getCode()).isEqualTo(HttpStatus.SC_OK);
+            } else {
+                Assertions.fail(result.exception);
+            }
+        }
+    }
+
+    @Test
+    void testSequentialInvalidGetRequests() throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
+        final HttpCoreContext context = HttpCoreContext.create();
+
+        final int reqCount = 20;
+
+        for (int i = 0; i < reqCount; i++) {
+            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                    .setPath("/random/boom")
+                    .build();
+            try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
+                Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.SC_BAD_REQUEST);
+                final String body = EntityUtils.toString(response.getEntity(), Integer.MAX_VALUE);
+                Assertions.assertThat(body).isNotNull().isEqualTo("Invalid request path: /random/boom");
+            }
         }
     }
 
