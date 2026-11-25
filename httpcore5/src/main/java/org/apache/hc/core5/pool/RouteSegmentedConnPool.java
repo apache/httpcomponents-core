@@ -685,9 +685,6 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     }
 
     private PoolEntry<R, C> pollAvailable(final Segment seg, final Object neededState) {
-        if (neededState == null) {
-            return seg.available.pollFirst();
-        }
         for (final PoolEntry<R, C> p : seg.available) {
             if (compatible(neededState, p.getState())) {
                 if (seg.available.remove(p)) {
@@ -699,7 +696,7 @@ public final class RouteSegmentedConnPool<R, C extends ModalCloseable> implement
     }
 
     private boolean compatible(final Object needed, final Object have) {
-        return needed == null || Objects.equals(needed, have);
+        return Objects.equals(needed, have);
     }
 
     private boolean handOffToCompatibleWaiter(final PoolEntry<R, C> entry, final Segment seg) {
