@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -112,9 +113,9 @@ public class RouteSegmentedConnPoolTest {
     }
 
     @Test
-    void stateCompatibilityNullMatchesAnything() throws Exception {
+    void stateCompatibilityNullOnlyMatchesNull() throws Exception {
         final RouteSegmentedConnPool<String, FakeConnection> pool =
-                newPool(1, 1, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close);
+                newPool(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close);
 
         final PoolEntry<String, FakeConnection> e = pool.lease("r", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
         e.assignConnection(new FakeConnection());
@@ -122,10 +123,11 @@ public class RouteSegmentedConnPoolTest {
         e.updateExpiry(TimeValue.ofSeconds(30));
         pool.release(e, true);
 
-        // waiter with null state must match
+        // a lease with null state must not be handed an entry bound to state "X"
         final PoolEntry<String, FakeConnection> got =
                 pool.lease("r", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
-        assertSame(e, got);
+        assertNotSame(e, got);
+        assertFalse(got.hasConnection());
         pool.release(got, false);
         pool.close(CloseMode.IMMEDIATE);
     }
@@ -517,6 +519,55 @@ public class RouteSegmentedConnPoolTest {
         pool.release(b, false);
         assertEquals(0, pool.getTotalStats().getPending());
         pool.close(CloseMode.IMMEDIATE);
+    }
+
+    @Test
+    void statelessLeaseMustNotReuseAnotherUsersStatefulEntry() throws Exception {
+        final RouteSegmentedConnPool<String, FakeConnection> pool =
+                newPool(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close);
+
+        final PoolEntry<String, FakeConnection> aliceEntry =
+                pool.lease("route", "alice", Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        final FakeConnection aliceConnection = new FakeConnection();
+        aliceEntry.assignConnection(aliceConnection);
+        aliceEntry.updateState("alice");
+        pool.release(aliceEntry, true);
+
+        final PoolEntry<String, FakeConnection> anonEntry =
+                pool.lease("route", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+
+        assertFalse(anonEntry.hasConnection(),
+                "A lease with no state must not be handed alice's authenticated connection");
+
+        pool.release(anonEntry, false);
+        pool.close(CloseMode.IMMEDIATE);
+    }
+
+    @Test
+    void strictAndLaxPoolsDoNotReuseAnotherUsersStatefulEntry() throws Exception {
+        final StrictConnPool<String, FakeConnection> strict =
+                new StrictConnPool<>(2, 2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close, null);
+        final PoolEntry<String, FakeConnection> strictAlice =
+                strict.lease("route", "alice", Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        strictAlice.assignConnection(new FakeConnection());
+        strictAlice.updateState("alice");
+        strict.release(strictAlice, true);
+        final PoolEntry<String, FakeConnection> strictAnon =
+                strict.lease("route", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        assertFalse(strictAnon.hasConnection(), "StrictConnPool must not reuse alice's entry for a stateless lease");
+        strict.close(CloseMode.IMMEDIATE);
+
+        final LaxConnPool<String, FakeConnection> lax =
+                new LaxConnPool<>(2, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, FakeConnection::close, null);
+        final PoolEntry<String, FakeConnection> laxAlice =
+                lax.lease("route", "alice", Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        laxAlice.assignConnection(new FakeConnection());
+        laxAlice.updateState("alice");
+        lax.release(laxAlice, true);
+        final PoolEntry<String, FakeConnection> laxAnon =
+                lax.lease("route", null, Timeout.ofSeconds(1), null).get(1, TimeUnit.SECONDS);
+        assertFalse(laxAnon.hasConnection(), "LaxConnPool must not reuse alice's entry for a stateless lease");
+        lax.close(CloseMode.IMMEDIATE);
     }
 
 }
