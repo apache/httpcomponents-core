@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -174,7 +175,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             // Check for folded headers first
             // Detect LWS-char see HTTP/1.0 or HTTP/1.1 Section 2.2
             // discussion on folded headers
-            if ((current.charAt(0) == ' ' || current.charAt(0) == '\t') && previous != null) {
+            if (current.charAt(0) == ' ' || current.charAt(0) == '\t') {
+                if (previous == null) {
+                    throw new ProtocolException("Header line starts with whitespace");
+                }
                 // we have continuation folded header
                 // so append value
                 int i = 0;

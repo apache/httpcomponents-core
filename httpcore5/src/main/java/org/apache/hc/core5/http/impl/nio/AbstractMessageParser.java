@@ -34,6 +34,7 @@ import java.util.List;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
@@ -125,10 +126,13 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         return createMessage(this.lineBuf);
     }
 
-    private void parseHeader() throws IOException {
+    private void parseHeader() throws HttpException, IOException {
         final CharArrayBuffer current = this.lineBuf;
         final int count = this.headerBufs.size();
-        if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
+        if (this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') {
+            if (count == 0) {
+                throw new ProtocolException("Header line starts with whitespace");
+            }
             // Handle folded header line
             final CharArrayBuffer previous = this.headerBufs.get(count - 1);
             int i = 0;

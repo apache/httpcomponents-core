@@ -32,8 +32,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.MockMessage;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
+import org.apache.hc.core5.http.message.BasicLineParser;
+import org.apache.hc.core5.http.message.LineParser;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,9 +48,23 @@ import org.junit.jupiter.api.Test;
  */
 class TestMessageParser {
 
+    static class MockParser extends AbstractMessageParser<MockMessage> {
+
+        public MockParser(final Http1Config http1Config, final LineParser lineParser) {
+            super(http1Config, lineParser);
+        }
+
+        @Override
+        protected MockMessage createMessage(final CharArrayBuffer buffer) throws HttpException {
+            return new MockMessage();
+        }
+
+    }
     @Test
     void testBasicHeaderParsing() throws Exception {
-        final String s =
+        final MockParser parser = new MockParser(Http1Config.DEFAULT, BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
             "header1: stuff\r\n" +
             "header2:  stuff \r\n" +
             "header3: stuff\r\n" +
@@ -54,97 +74,136 @@ class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertThat(headers).isNotNull();
-        Assertions.assertThat(headers.length).isEqualTo(3);
-        Assertions.assertThat(headers[0].getName()).isEqualTo("header1");
-        Assertions.assertThat(headers[0].getValue()).isEqualTo("stuff");
-        Assertions.assertThat(headers[1].getName()).isEqualTo("header2");
-        Assertions.assertThat(headers[1].getValue()).isEqualTo("stuff");
-        Assertions.assertThat(headers[2].getName()).isEqualTo("header3");
-        Assertions.assertThat(headers[2].getValue()).isEqualTo("stuff and more stuff and even more stuff");
+
+        final MockMessage message = parser.parse(inBuffer, inputStream);
+        Assertions.assertThat(message).isNotNull();
+        final Header[] headers = message.getHeaders();
+
+        Assertions.assertThat(headers).isNotNull().hasSize(3);
+        Assertions.assertThat(headers[0])
+                .extracting(h -> Assertions.tuple(h.getName(), h.getValue()))
+                .isEqualTo(Assertions.tuple("header1", "stuff"));
+        Assertions.assertThat(headers[1])
+                .extracting(h -> Assertions.tuple(h.getName(), h.getValue()))
+                .isEqualTo(Assertions.tuple("header2", "stuff"));
+        Assertions.assertThat(headers[2])
+                .extracting(h -> Assertions.tuple(h.getName(), h.getValue()))
+                .isEqualTo(Assertions.tuple("header3", "stuff and more stuff and even more stuff"));
     }
 
     @Test
-    void testParsingHeader() throws Exception {
-        final String s = "header1: stuff; param1 = value1; param2 = \"value 2\" \r\n" +
+    void testParsingHeaderWithParams() throws Exception {
+        final MockParser parser = new MockParser(Http1Config.DEFAULT, BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
+                "header1: stuff; param1 = value1; param2 = \"value 2\" \r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertThat(headers).isNotNull();
-        Assertions.assertThat(headers.length).isEqualTo(1);
-        Assertions.assertThat(headers[0].toString()).isEqualTo("header1: stuff; param1 = value1; param2 = \"value 2\" ");
+
+        final MockMessage message = parser.parse(inBuffer, inputStream);
+        Assertions.assertThat(message).isNotNull();
+
+        final Header[] headers = message.getHeaders();
+        Assertions.assertThat(headers)
+                .isNotNull()
+                .hasSize(1);
+        Assertions.assertThat(headers[0])
+                .extracting(h -> Assertions.tuple(h.getName(), h.getValue()))
+                .isEqualTo(Assertions.tuple("header1", "stuff; param1 = value1; param2 = \"value 2\""));
     }
 
     @Test
     void testParsingInvalidHeaders() {
-        final String s1 = "    stuff\r\n" +
-            "header1: stuff\r\n" +
-            "\r\n";
+        final MockParser parser = new MockParser(Http1Config.DEFAULT, BasicLineParser.INSTANCE);
+
+        final String s1 = "first-message-line\r\n" +
+                "    stuff\r\n" +
+                "header1: stuff\r\n" +
+                "\r\n";
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s1.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThatThrownBy(() ->
-                AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null)).isInstanceOf(ProtocolException.class);
-        final String s2 = "  :  stuff\r\n" +
-            "header1: stuff\r\n" +
-            "\r\n";
+        Assertions.assertThatThrownBy(() -> parser.parse(inBuffer1, inputStream1))
+                .isInstanceOf(ProtocolException.class);
+
+        final String s2 = "first-message-line\r\n" +
+                "  :  stuff\r\n" +
+                "header1: stuff\r\n" +
+                "\r\n";
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s2.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThatThrownBy(() ->
-                AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null)).isInstanceOf(ProtocolException.class);
+        Assertions.assertThatThrownBy(() -> parser.parse(inBuffer2, inputStream2))
+                .isInstanceOf(ProtocolException.class);
     }
 
     @Test
     void testParsingMalformedFirstHeader() throws Exception {
-        final String s =
-            "    header1: stuff\r\n" +
-            "header2: stuff \r\n";
+        final MockParser parser = new MockParser(Http1Config.DEFAULT, BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
+                "    header1: stuff\r\n" +
+                "header2: stuff \r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
-        Assertions.assertThat(headers).isNotNull();
-        Assertions.assertThat(headers.length).isEqualTo(2);
-        Assertions.assertThat(headers[0].getName()).isEqualTo("header1");
-        Assertions.assertThat(headers[0].getValue()).isEqualTo("stuff");
-        Assertions.assertThat(headers[1].getName()).isEqualTo("header2");
-        Assertions.assertThat(headers[1].getValue()).isEqualTo("stuff");
+        Assertions.assertThatThrownBy(() -> parser.parse(inBuffer, inputStream))
+                .isInstanceOf(ProtocolException.class)
+                .hasMessage("Header line starts with whitespace");
     }
 
     @Test
     void testEmptyDataStream() throws Exception {
-        final String s = "";
+        final MockParser parser = new MockParser(Http1Config.DEFAULT, BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
+                "";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
+
+        final MockMessage message = parser.parse(inBuffer, inputStream);
+        Assertions.assertThat(message).isNotNull();
+        final Header[] headers = message.getHeaders();
+
         Assertions.assertThat(headers).isNotNull();
         Assertions.assertThat(headers.length).isEqualTo(0);
     }
 
     @Test
     void testMaxHeaderCount() {
-        final String s =
+        final MockParser parser = new MockParser(
+                Http1Config.custom()
+                        .setMaxHeaderCount(2)
+                        .build(),
+                BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
             "header1: stuff\r\n" +
             "header2: stuff \r\n" +
             "header3: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThatThrownBy(() ->
-                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null)).isInstanceOf(IOException.class);
+        Assertions.assertThatThrownBy(() -> parser.parse(inBuffer, inputStream))
+                .isInstanceOf(IOException.class);
     }
 
     @Test
     void testMaxHeaderCountForFoldedHeader() {
-        final String s =
+        final MockParser parser = new MockParser(
+                Http1Config.custom()
+                        .setMaxHeaderCount(2)
+                        .setMaxLineLength(15)
+                        .build(),
+                BasicLineParser.INSTANCE);
+
+        final String s = "first-message-line\r\n" +
             "header1: stuff\r\n" +
             " stuff \r\n" +
             " stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        Assertions.assertThatThrownBy(() ->
-                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null)).isInstanceOf(IOException.class);
+        Assertions.assertThatThrownBy(() -> parser.parse(inBuffer, inputStream))
+                .isInstanceOf(IOException.class);
     }
 
 }
