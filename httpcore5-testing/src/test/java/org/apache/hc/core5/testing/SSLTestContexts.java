@@ -67,19 +67,27 @@ public final class SSLTestContexts {
         return createServerSSLContext(null, null);
     }
 
-    public static SSLContext createClientSSLContext(final Provider provider, final String protocol) {
+    public static SSLContext createClientSSLContext(final Provider provider, final String protocol, final boolean loadKeyMaterial) {
         final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         try {
-            return SSLContextBuilder.create()
+            final SSLContextBuilder builder = SSLContextBuilder.create()
+                    .setProvider(provider)
                     .setKeyStoreType("pkcs12")
                     .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                    .setProtocol(protocol)
-                    .build();
+                    .setProtocol(protocol);
+            if (loadKeyMaterial) {
+                    builder.loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray());
+            }
+            return builder.build();
         } catch (final NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException |
-                       IOException ex) {
+                       UnrecoverableKeyException | IOException ex) {
             throw new IllegalStateException(ex);
         }
+    }
+
+    public static SSLContext createClientSSLContext(final Provider provider, final String protocol) {
+        return createClientSSLContext(provider, protocol, false);
     }
 
     public static SSLContext createClientSSLContext(final String protocol) {
@@ -87,7 +95,19 @@ public final class SSLTestContexts {
     }
 
     public static SSLContext createClientSSLContext() {
-        return createClientSSLContext(null, null);
+        return createClientSSLContext(null);
+    }
+
+    public static SSLContext createClientSSLContextWithKeyMaterial(final Provider provider, final String protocol) {
+        return createClientSSLContext(provider, protocol, true);
+    }
+
+    public static SSLContext createClientSSLContextWithKeyMaterial(final String protocol) {
+        return createClientSSLContextWithKeyMaterial(null, protocol);
+    }
+
+    public static SSLContext createClientSSLContextWithKeyMaterial() {
+        return createClientSSLContextWithKeyMaterial(null);
     }
 
 }

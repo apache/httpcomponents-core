@@ -31,7 +31,6 @@ package org.apache.hc.core5.testing.nio;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 
 import javax.net.ssl.SSLContext;
 
@@ -51,7 +50,6 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -60,6 +58,7 @@ import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.TlsStrategyFactory;
 import org.apache.hc.core5.testing.extension.SecurityProviderResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
 import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
@@ -77,8 +76,8 @@ abstract class AlpnTest {
     @RegisterExtension
     @Order(1)
     private final SecurityProviderResource securityProviderResource;
-    private final Function<SSLContext, TlsStrategy> serverTlsStrategyFactory;
-    private final Function<SSLContext, TlsStrategy> clientTlsStrategyFactory;
+    private final TlsStrategyFactory serverTlsStrategyFactory;
+    private final TlsStrategyFactory clientTlsStrategyFactory;
     @RegisterExtension
     @Order(2)
     private final H2AsyncServerResource serverResource;
@@ -87,8 +86,8 @@ abstract class AlpnTest {
     private final H2AsyncRequesterResource clientResource;
 
     public AlpnTest(final String securityProviderName,
-                    final Function<SSLContext, TlsStrategy> serverTlsStrategyFactory,
-                    final Function<SSLContext, TlsStrategy> clientTlsStrategyFactory) {
+                    final TlsStrategyFactory serverTlsStrategyFactory,
+                    final TlsStrategyFactory clientTlsStrategyFactory) {
         this.securityProviderResource = new SecurityProviderResource(securityProviderName);
         this.serverTlsStrategyFactory = serverTlsStrategyFactory;
         this.clientTlsStrategyFactory = clientTlsStrategyFactory;
@@ -116,12 +115,16 @@ abstract class AlpnTest {
         final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
         serverResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(serverTlsStrategyFactory != null ? serverTlsStrategyFactory.apply(serverSSLContext) : new H2ServerTlsStrategy(serverSSLContext))
+                .setTlsStrategy(serverTlsStrategyFactory != null ?
+                        serverTlsStrategyFactory.create(serverSSLContext, null, null) :
+                        new H2ServerTlsStrategy(serverSSLContext))
         );
         final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
         clientResource.configure(bootstrap -> bootstrap
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                .setTlsStrategy(clientTlsStrategyFactory != null ? clientTlsStrategyFactory.apply(clientSSLContext) : new H2ClientTlsStrategy(clientSSLContext))
+                .setTlsStrategy(clientTlsStrategyFactory != null ?
+                        clientTlsStrategyFactory.create(clientSSLContext, null, null) :
+                        new H2ClientTlsStrategy(clientSSLContext))
         );
     }
 

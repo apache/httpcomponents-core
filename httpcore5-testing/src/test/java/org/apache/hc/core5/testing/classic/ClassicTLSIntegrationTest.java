@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
@@ -44,8 +45,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -54,82 +53,73 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.ssl.TLS;
-import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.SupportedTLSProtocolProvider;
+import org.apache.hc.core5.testing.extension.SecurityProviderResource;
+import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
+import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
-class ClassicTLSIntegrationTest {
+abstract class ClassicTLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
-    private HttpServer server;
-
     @RegisterExtension
-    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (server != null) {
-                try {
-                    server.close(CloseMode.IMMEDIATE);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    private HttpRequester requester;
-
+    @Order(1)
+    private final SecurityProviderResource securityProviderResource;
+    @Order(2)
     @RegisterExtension
-    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
+    private final HttpServerResource serverResource;
+    @Order(3)
+    @RegisterExtension
+    private final HttpRequesterResource clientResource;
 
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    @Test
-    void testTLSSuccess() throws Exception {
-        server = ServerBootstrap.bootstrap()
-                .setLocalAddress(InetAddress.getLoopbackAddress())
+    public ClassicTLSIntegrationTest(final String securityProviderName) {
+        this.securityProviderResource = new SecurityProviderResource(securityProviderName);
+        this.serverResource = new HttpServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                 .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
-                        .build())
-                .create();
-        server.start();
-
-        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>();
-
-        requester = RequesterBootstrap.bootstrap()
+                        .build()));
+        this.clientResource = new HttpRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
                 .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSslSessionVerifier((endpoint, sslSession) -> sslSessionRef.set(sslSession))
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
+                        .build()));
+    }
+
+    @ParameterizedTest(name = "TLS protocol {0}")
+    @ArgumentsSource(SupportedTLSProtocolProvider.class)
+    void testTLSSuccess(final TLS tlsProtocol) throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+                .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{tlsProtocol.getId()}))
+        );
+
+        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>();
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+                .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{tlsProtocol.getId()}))
+                .setSslSessionVerifier((endpoint, sslSession) -> sslSessionRef.set(sslSession))
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create() ;
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
@@ -143,32 +133,23 @@ class ClassicTLSIntegrationTest {
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        Assertions.assertThat(tlsVersion.greaterEquals(TLS.V_1_2.getVersion())).isTrue();
+        Assertions.assertThat(tlsVersion.greaterEquals(tlsProtocol.version)).isTrue();
         Assertions.assertThat(sslSession.getPeerPrincipal().getName()).isEqualTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation");
     }
 
     @Test
     void testTLSTrustFailure() throws Exception {
-        server = ServerBootstrap.bootstrap()
-                .setLocalAddress(InetAddress.getLoopbackAddress())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .register("*", new EchoHandler())
-                .create();
-        server.start();
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+        );
 
-        requester = RequesterBootstrap.bootstrap()
+        clientResource.configure(bootstrap -> bootstrap
                 .setSslContext(SSLContexts.createDefault())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create() ;
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
@@ -183,28 +164,19 @@ class ClassicTLSIntegrationTest {
 
     @Test
     void testTLSClientAuthFailure() throws Exception {
-        server = ServerBootstrap.bootstrap()
-                .setLocalAddress(InetAddress.getLoopbackAddress())
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setSslContext(SSLTestContexts.createServerSSLContext())
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
                 .setSslSetupHandler(sslParameters -> sslParameters.setNeedClientAuth(true))
-                .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .register("*", new EchoHandler())
-                .create();
-        server.start();
+        );
 
-        requester = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create() ;
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
@@ -218,106 +190,116 @@ class ClassicTLSIntegrationTest {
     }
 
     @Test
-    void testSSLDisabledByDefault() throws Exception {
-        server = ServerBootstrap.bootstrap()
-                .setLocalAddress(InetAddress.getLoopbackAddress())
-                .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
-                .setRequestRouter((r, c) -> null)
-                .create();
-        server.start();
+    void testTLSClientAuthSuccess() throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+                .setSslSetupHandler(sslParameters -> sslParameters.setNeedClientAuth(true))
+        );
 
-        requester = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContextWithKeyMaterial(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create() ;
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assertions.assertThatThrownBy(() -> {
-            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-                EntityUtils.consume(response1.getEntity());
-            }
-        }).isInstanceOf(IOException.class);
-    }
-
-    @Test
-    void testWeakCiphersDisabledByDefault() throws Exception {
-
-        requester = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
-
-        final String[] weakCiphersSuites = {
-                "SSL_RSA_WITH_RC4_128_SHA",
-                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-                "TLS_DH_anon_WITH_AES_128_CBC_SHA",
-                "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-                "SSL_RSA_WITH_NULL_SHA",
-                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-                "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
-                "TLS_DH_anon_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDH_anon_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_NULL_SHA256",
-                "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
-                "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5",
-                "TLS_KRB5_EXPORT_WITH_RC4_40_SHA",
-                "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
-        };
-
-        for (final String cipherSuite : weakCiphersSuites) {
-            server = ServerBootstrap.bootstrap()
-                    .setLocalAddress(InetAddress.getLoopbackAddress())
-                    .setSslContext(SSLTestContexts.createServerSSLContext())
-                    .setRequestRouter((r, c) -> null)
-                    .setSslSetupHandler(sslParameters -> sslParameters.setCipherSuites(new String[]{cipherSuite}))
-                    .create();
-            Assertions.assertThatThrownBy(() -> {
-                try {
-                    server.start();
-
-                    final HttpCoreContext context = HttpCoreContext.create();
-                    final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-                    final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
-                    request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-                    try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-                        EntityUtils.consume(response1.getEntity());
-                    }
-                } finally {
-                    server.close(CloseMode.IMMEDIATE);
-                }
-            }).isInstanceOf(Exception.class);
+        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+            Assertions.assertThat(response1.getCode()).isEqualTo(HttpStatus.SC_OK);
+            EntityUtils.consume(response1.getEntity());
         }
     }
 
     @Test
-    void testHostNameVerification() throws Exception {
-        server = ServerBootstrap.bootstrap()
-                .setLocalAddress(InetAddress.getLoopbackAddress())
-                .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setRequestRouter((r, c) -> null)
-                .create();
-        server.start();
+    void testSSLDisabledByDefault() throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+                .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
+        );
 
-        requester = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(TIMEOUT)
-                        .build())
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .create();
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
+
+        final HttpCoreContext context = HttpCoreContext.create() ;
+        final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+        request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+        Assertions.assertThatThrownBy(() -> {
+            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                EntityUtils.consume(response1.getEntity());
+            }
+        }).isInstanceOf(IOException.class);
+    }
+
+    @ParameterizedTest(name = "cipher {0}")
+    @ValueSource(strings = {
+            "SSL_RSA_WITH_RC4_128_SHA",
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_DH_anon_WITH_AES_128_CBC_SHA",
+            "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+            "SSL_RSA_WITH_NULL_SHA",
+            "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_DH_anon_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDH_anon_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_NULL_SHA256",
+            "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+            "SSL_DH_anon_EXPORT_WITH_RC4_40_MD5",
+            "TLS_KRB5_EXPORT_WITH_RC4_40_SHA",
+            "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
+    })
+    void testWeakCipherDisabledByDefault(final String cipher) throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+                .setSslSetupHandler(sslParameters -> sslParameters.setCipherSuites(new String[]{cipher}))
+        );
+
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+        request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+        Assertions.assertThatThrownBy(() -> {
+            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                EntityUtils.consume(response1.getEntity());
+            }
+        }).isInstanceOf(IOException.class);
+    }
+
+    @Test
+    void testHostNameVerification() throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setSslContext(serverSSLContext)
+        );
+
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setSslContext(clientSSLContext)
+        );
+
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost target1 = new HttpHost("https", InetAddress.getLoopbackAddress(), "localhost", server.getLocalPort());

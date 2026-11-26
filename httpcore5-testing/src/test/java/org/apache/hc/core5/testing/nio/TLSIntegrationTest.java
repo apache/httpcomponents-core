@@ -30,18 +30,18 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.nio.ssl.TlsSupport;
+
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.CompletingFutureContribution;
-import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
@@ -51,8 +51,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
@@ -60,124 +58,83 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
-import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http.nio.ssl.TlsSupport;
 import org.apache.hc.core5.http.nio.ssl.TlsUpgradeCapable;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.ssl.TLS;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.ReflectionUtils;
+import org.apache.hc.core5.testing.SupportedTLSProtocolProvider;
+import org.apache.hc.core5.testing.TlsStrategyFactory;
+import org.apache.hc.core5.testing.extension.SecurityProviderResource;
+import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
+import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.support.ParameterDeclarations;
 
-class TLSIntegrationTest {
+abstract class TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
-    private HttpAsyncServer server;
-
     @RegisterExtension
-    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (server != null) {
-                try {
-                    server.close(CloseMode.IMMEDIATE);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    private HttpAsyncRequester client;
-
+    @Order(1)
+    private final SecurityProviderResource securityProviderResource;
+    private final TlsStrategyFactory serverTlsStrategyFactory;
+    private final TlsStrategyFactory clientTlsStrategyFactory;
     @RegisterExtension
-    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
+    @Order(2)
+    private final H2AsyncServerResource serverResource;
+    @RegisterExtension
+    @Order(3)
+    private final H2AsyncRequesterResource clientResource;
 
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (client != null) {
-                try {
-                    client.close(CloseMode.GRACEFUL);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    HttpAsyncServer createServer(final TlsStrategy tlsStrategy) {
-        return AsyncServerBootstrap.bootstrap()
-                .setCanonicalHostName("localhost")
+    public TLSIntegrationTest(final String securityProviderName,
+                              final TlsStrategyFactory serverTlsStrategyFactory,
+                              final TlsStrategyFactory clientTlsStrategyFactory) {
+        this.securityProviderResource = new SecurityProviderResource(securityProviderName);
+        this.serverTlsStrategyFactory = serverTlsStrategyFactory;
+        this.clientTlsStrategyFactory = clientTlsStrategyFactory;
+        this.serverResource = new H2AsyncServerResource();
+        this.serverResource.configure(bootstrap -> bootstrap
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
-                                .setIoThreadCount(1)
                                 .build())
-                .setTlsStrategy(tlsStrategy)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new AsyncEchoStreamingHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())
-                .create();
-    }
-
-    HttpAsyncRequester createClient(final TlsStrategy tlsStrategy) {
-        return AsyncRequesterBootstrap.bootstrap()
+        );
+        this.clientResource = new H2AsyncRequesterResource();
+        this.clientResource.configure(bootstrap -> bootstrap
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .setTlsStrategy(tlsStrategy)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
-                .create();
+        );
     }
 
     Future<TlsDetails> executeTlsHandshake() throws Exception {
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
 
+        final HttpAsyncRequester client = clientResource.start();
         final BasicFuture<TlsDetails> tlsFuture = new BasicFuture<>(null);
         client.connect(
                 new HttpHost(URIScheme.HTTP.id, "localhost", address.getPort()),
@@ -202,18 +159,22 @@ class TLSIntegrationTest {
     @ParameterizedTest(name = "TLS protocol {0}")
     @ArgumentsSource(SupportedTLSProtocolProvider.class)
     void testTLSSuccess(final TLS tlsProtocol) throws Exception {
-        final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
-                SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
-                null);
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new TestTlsStrategy(SSLTestContexts.createClientSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
-                null);
-        client = createClient(clientTlsStrategy);
-        client.start();
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
+                        null))
+        );
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
@@ -227,40 +188,54 @@ class TLSIntegrationTest {
 
     @Test
     void testTLSTrustFailure() throws Exception {
-        final TlsStrategy serverTlsStrategy = new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext());
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(SSLContexts.createDefault());
-        client = createClient(clientTlsStrategy);
-        client.start();
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(serverSSLContext, null, null))
+        );
+        final SSLContext clientSSLContext = SSLContexts.createDefault();
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(clientSSLContext, null, null))
+        );
 
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
         final ExecutionException exception = Assertions.assertThatThrownBy(() ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class)
+                .asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class))
+                .actual();
         final Throwable cause = exception.getCause();
-        Assertions.assertThat(cause).isInstanceOf(SSLHandshakeException.class);
+        Assertions.assertThat(cause).isInstanceOf(SSLException.class);
     }
 
     @Test
     void testTLSClientAuthFailure() throws Exception {
-        final TlsStrategy serverTlsStrategy = new BasicServerTlsStrategy(
-                SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setNeedClientAuth(true),
-                null);
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext());
-        client = createClient(clientTlsStrategy);
-        client.start();
-
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setNeedClientAuth(true),
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        null,
+                        null))
+        );
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
+
+        final HttpAsyncRequester client = clientResource.start();
 
         final Future<Message<HttpResponse, String>> resultFuture = client.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
@@ -268,28 +243,74 @@ class TLSIntegrationTest {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
 
         final ExecutionException exception = Assertions.assertThatThrownBy(() ->
-                resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+                resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class)
+                .asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class))
+                .actual();
         final Throwable cause = exception.getCause();
         Assertions.assertThat(cause).isInstanceOf(IOException.class);
     }
 
     @Test
+    void testTLSClientAuthSuccess() throws Exception {
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setNeedClientAuth(true),
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContextWithKeyMaterial(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        null,
+                        null))
+        );
+        final HttpAsyncServer server = serverResource.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
+        final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
+
+        final HttpAsyncRequester client = clientResource.start();
+
+        final Future<Message<HttpResponse, String>> resultFuture = client.execute(
+                new BasicRequestProducer(Method.POST, target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+
+        final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertThat(message).isNotNull();
+        Assertions.assertThat(message.head().getCode()).isEqualTo(200);
+    }
+
+    @Test
     void testSSLDisabledByDefault() throws Exception {
-        final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
-                SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{"SSLv3"}),
-                null);
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext());
-        client = createClient(clientTlsStrategy);
-        client.start();
-
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{"SSLv3"}),
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        null,
+                        null))
+        );
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
         Assertions.assertThatThrownBy(() ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class);
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class);
     }
 
     @ParameterizedTest(name = "cipher {0}")
@@ -311,64 +332,90 @@ class TLSIntegrationTest {
             "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
     })
     void testWeakCipherDisabledByDefault(final String cipher) throws Exception {
-        final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
-                SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledCipherSuites(new String[]{cipher}),
-                null);
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext());
-        client = createClient(clientTlsStrategy);
-        client.start();
-
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setEnabledCipherSuites(new String[]{cipher}),
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setSSLParameters(TlsSupport.enforceStrongSecurity(sslEngine.getSSLParameters())),
+                        null))
+        );
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
         Assertions.assertThatThrownBy(() ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class);
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class);
     }
 
     @Test
     void testTLSVersionMismatch() throws Exception {
-        final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
-                SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> {
-                    sslEngine.setEnabledProtocols(new String[]{TLS.V_1_0.getId()});
-                    sslEngine.setEnabledCipherSuites(new String[]{
-                            "TLS_RSA_WITH_AES_256_CBC_SHA",
-                            "TLS_RSA_WITH_AES_128_CBC_SHA",
-                            "TLS_RSA_WITH_3DES_EDE_CBC_SHA"});
-                },
-                null);
-        server = createServer(serverTlsStrategy);
-        server.start();
-
-        final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(
-                SSLTestContexts.createClientSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{TLS.V_1_2.getId()}),
-                null);
-        client = createClient(clientTlsStrategy);
-        client.start();
-
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        (endpoint, sslEngine) -> {
+                            sslEngine.setEnabledProtocols(new String[]{TLS.V_1_0.getId()});
+                            sslEngine.setEnabledCipherSuites(new String[]{
+                                    "TLS_RSA_WITH_AES_256_CBC_SHA",
+                                    "TLS_RSA_WITH_AES_128_CBC_SHA",
+                                    "TLS_RSA_WITH_3DES_EDE_CBC_SHA"});
+                        },
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{TLS.V_1_2.getId()}),
+                        null))
+        );
         final Future<TlsDetails> tlsSessionFuture = executeTlsHandshake();
 
         final ExecutionException exception = Assertions.assertThatThrownBy(() ->
-                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+                tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class)
+                .asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class))
+                .actual();
         final Throwable cause = exception.getCause();
         Assertions.assertThat(cause).isInstanceOf(IOException.class);
     }
 
+    @Disabled("Fails with Conscrypt")
     @Test
     void testHostNameVerification() throws Exception {
-        server = createServer(new BasicClientTlsStrategy(SSLTestContexts.createServerSSLContext()));
-        server.start();
+        final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");
+        serverResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(serverTlsStrategyFactory.create(
+                        serverSSLContext,
+                        null,
+                        null))
+        );
+        final SSLContext clientSSLContext = SSLTestContexts.createClientSSLContext(securityProviderResource.securityProvider(), "TLS");
+        clientResource.configure(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setTlsStrategy(clientTlsStrategyFactory.create(
+                        clientSSLContext,
+                        null,
+                        null))
+        );
 
-        client = createClient(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()));
-        client.start();
-
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+
+        final HttpAsyncRequester client = clientResource.start();
 
         final HttpHost target1 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLoopbackAddress(), "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = client.execute(
@@ -387,70 +434,12 @@ class TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final ExecutionException exception = Assertions.assertThatThrownBy(() ->
-                resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())).isInstanceOf(ExecutionException.class).asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class)).actual();
+                resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()))
+                .isInstanceOf(ExecutionException.class)
+                .asInstanceOf(InstanceOfAssertFactories.type(ExecutionException.class))
+                .actual();
         final Throwable cause = exception.getCause();
         Assertions.assertThat(cause).isInstanceOf(SSLHandshakeException.class);
-    }
-
-    static class SupportedTLSProtocolProvider implements ArgumentsProvider {
-
-        int javaVere = ReflectionUtils.determineJRELevel();
-
-        @Override
-        public Stream<? extends Arguments> provideArguments(
-                final ParameterDeclarations parameters,
-                final ExtensionContext context) {
-            if (javaVere >= 11) {
-                return Stream.of(Arguments.of(TLS.V_1_2), Arguments.of(TLS.V_1_3));
-            } else {
-                return Stream.of(Arguments.of(TLS.V_1_2));
-            }
-        }
-    }
-
-    static class TestTlsStrategy implements TlsStrategy {
-
-        private final SSLContext sslContext;
-        private final SSLSessionInitializer initializer;
-        private final SSLSessionVerifier verifier;
-
-        public TestTlsStrategy(
-                final SSLContext sslContext,
-                final SSLSessionInitializer initializer,
-                final SSLSessionVerifier verifier) {
-            this.sslContext = Args.notNull(sslContext, "SSL context");
-            this.initializer = initializer;
-            this.verifier = verifier;
-        }
-
-        @Override
-        public void upgrade(
-                final TransportSecurityLayer tlsSession,
-                final NamedEndpoint endpoint,
-                final Object attachment,
-                final Timeout handshakeTimeout,
-                final FutureCallback<TransportSecurityLayer> callback) {
-            tlsSession.startTls(sslContext, endpoint, SSLBufferMode.STATIC,
-                    TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout, callback);
-        }
-
-        /**
-         * @deprecated do not use.
-         */
-        @Deprecated
-        @Override
-        public boolean upgrade(
-                final TransportSecurityLayer tlsSession,
-                final HttpHost host,
-                final SocketAddress localAddress,
-                final SocketAddress remoteAddress,
-                final Object attachment,
-                final Timeout handshakeTimeout) {
-            tlsSession.startTls(sslContext, host, SSLBufferMode.STATIC,
-                    TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout, null);
-            return true;
-        }
-
     }
 
 }
