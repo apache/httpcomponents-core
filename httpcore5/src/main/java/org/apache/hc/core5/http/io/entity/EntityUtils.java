@@ -27,14 +27,17 @@
 
 package org.apache.hc.core5.http.io.entity;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -134,19 +137,7 @@ public final class EntityUtils {
     @Deprecated
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) checkContentLength(entity));
-        try (final InputStream inStream = entity.getContent()) {
-            if (inStream == null) {
-                return null;
-            }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(contentLength);
-            final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
-            int l;
-            while ((l = inStream.read(tmp)) != -1) {
-                buffer.append(tmp, 0, l);
-            }
-            return buffer.toByteArray();
-        }
+        return toByteArray(entity, Integer.MAX_VALUE);
     }
 
     /**
@@ -163,20 +154,58 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity, final int maxResultLength) throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) checkContentLength(entity));
+        final int declaredLength = (int) checkContentLength(entity);
+        final int contentLength = toContentLength(declaredLength);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
             }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(Math.min(maxResultLength, contentLength));
-            final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
-            int l;
-            while ((l = inStream.read(tmp)) != -1 && buffer.length() < maxResultLength) {
-                buffer.append(tmp, 0, l);
+            if (declaredLength >= 0 && declaredLength <= maxResultLength) {
+                final byte[] content = new byte[declaredLength];
+                final int count = readFully(inStream, content);
+                if (count < declaredLength) {
+                    // the stream ended before the declared length
+                    return Arrays.copyOf(content, count);
+                }
+                final int next = inStream.read();
+                if (next == -1) {
+                    return content;
+                }
+                // the stream is longer than declared: buffer the rest the usual way
+                final ByteArrayBuffer buffer = new ByteArrayBuffer(declaredLength + DEFAULT_BYTE_BUFFER_SIZE);
+                buffer.append(content, 0, declaredLength);
+                buffer.append(next);
+                return readRemaining(inStream, buffer, maxResultLength);
             }
-            buffer.setLength(Math.min(buffer.length(), maxResultLength));
-            return buffer.toByteArray();
+            return readRemaining(inStream, new ByteArrayBuffer(Math.min(maxResultLength, contentLength)),
+                    maxResultLength);
         }
+    }
+
+    /**
+     * Reads from the stream until the array is full or the stream ends.
+     *
+     * @return the number of bytes read; less than {@code b.length} only if the stream ended first.
+     */
+    private static int readFully(final InputStream inStream, final byte[] b) throws IOException {
+        int count = 0;
+        for (int n; count < b.length; count += n) {
+            n = inStream.read(b, count, b.length - count);
+            if (n == -1) {
+                break;
+            }
+        }
+        return count;
+    }
+
+    private static byte[] readRemaining(final InputStream inStream, final ByteArrayBuffer buffer,
+            final int maxResultLength) throws IOException {
+        final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
+        for (int n = inStream.read(tmp); n != -1 && buffer.length() < maxResultLength; n = inStream.read(tmp)) {
+            buffer.append(tmp, 0, n);
+        }
+        buffer.setLength(Math.min(buffer.length(), maxResultLength));
+        return buffer.toByteArray();
     }
 
     private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final int contentLength,
@@ -219,7 +248,8 @@ public final class EntityUtils {
     private static String toString(final HttpEntity entity, final ContentType contentType, final int maxResultLength)
             throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) checkContentLength(entity));
+        final int declaredLength = (int) checkContentLength(entity);
+        final int contentLength = toContentLength(declaredLength);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -231,6 +261,20 @@ public final class EntityUtils {
                     final ContentType defaultContentType = CONTENT_TYPE_MAP.get(contentType.getMimeType());
                     charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
+            }
+            if (declaredLength >= 0 && declaredLength <= maxResultLength) {
+                final byte[] content = new byte[declaredLength];
+                final int count = readFully(inStream, content);
+                final int next = count < declaredLength ? -1 : inStream.read();
+                if (next == -1) {
+                    // a char never takes less than one byte, so the result is within maxResultLength
+                    return new String(content, 0, count, charset != null ? charset : DEFAULT_CHARSET);
+                }
+                // the stream is longer than declared: decode what has been read together with the rest
+                final byte[] head = Arrays.copyOf(content, declaredLength + 1);
+                head[declaredLength] = (byte) next;
+                final InputStream all = new SequenceInputStream(new ByteArrayInputStream(head), inStream);
+                return toCharArrayBuffer(all, contentLength, charset, maxResultLength).toString();
             }
             return toCharArrayBuffer(inStream, contentLength, charset, maxResultLength).toString();
         }
