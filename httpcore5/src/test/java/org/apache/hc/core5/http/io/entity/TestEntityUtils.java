@@ -305,4 +305,36 @@ class TestEntityUtils {
         }
     }
 
+    @Test
+    void testContentShorterThanDeclaredLength() throws Exception {
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
+        final BasicHttpEntity entity1 = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length + 10, null);
+        Assertions.assertThat(EntityUtils.toByteArray(entity1, 1024)).isEqualTo(bytes);
+        final BasicHttpEntity entity2 = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length + 10, null);
+        Assertions.assertThat(EntityUtils.toString(entity2, StandardCharsets.US_ASCII, 1024)).isEqualTo("Message content");
+    }
+
+    @Test
+    void testContentLongerThanDeclaredLength() throws Exception {
+        final String message = "Message content";
+        final byte[] bytes = message.getBytes(StandardCharsets.US_ASCII);
+        final BasicHttpEntity entity1 = new BasicHttpEntity(new ByteArrayInputStream(bytes), 7, null);
+        Assertions.assertThat(EntityUtils.toByteArray(entity1, 1024)).isEqualTo(bytes);
+        final BasicHttpEntity entity2 = new BasicHttpEntity(new ByteArrayInputStream(bytes), 7, null);
+        Assertions.assertThat(EntityUtils.toByteArray(entity2, 10)).isEqualTo(Arrays.copyOf(bytes, 10));
+        final BasicHttpEntity entity3 = new BasicHttpEntity(new ByteArrayInputStream(bytes), 7, null);
+        Assertions.assertThat(EntityUtils.toString(entity3, StandardCharsets.US_ASCII, 1024)).isEqualTo(message);
+        final BasicHttpEntity entity4 = new BasicHttpEntity(new ByteArrayInputStream(bytes), 7, null);
+        Assertions.assertThat(EntityUtils.toString(entity4, StandardCharsets.US_ASCII, 10)).isEqualTo(message.substring(0, 10));
+    }
+
+    @Test
+    void testMultiByteContentWithDeclaredLengthToString() throws Exception {
+        final String message = "\u0414\u0430 \u043f\u0440\u0438\u0432\u0435\u0442";
+        final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+        final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8));
+        Assertions.assertThat(EntityUtils.toString(entity, (Charset) null, message.length())).isEqualTo(message);
+    }
+
 }
