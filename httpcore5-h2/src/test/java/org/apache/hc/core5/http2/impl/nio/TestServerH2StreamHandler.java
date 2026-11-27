@@ -118,7 +118,7 @@ class TestServerH2StreamHandler {
         final List<Header> trailers = Collections.singletonList(new BasicHeader(":status", "200"));
         Assertions.assertThatThrownBy(() ->
                         handler.consumeHeader(trailers, true))
-                .isInstanceOf(H2StreamResetException.class);
+                .isInstanceOf(ProtocolException.class);
         Mockito.verify(exchangeHandler, Mockito.never()).streamEnd(ArgumentMatchers.anyList());
     }
 
@@ -183,6 +183,26 @@ class TestServerH2StreamHandler {
                 new BasicHeader("content-length", "12"));
         Assertions.assertThatThrownBy(() ->
                 handler.consumeHeader(requestHeaders, true)).isInstanceOf(ProtocolException.class);
+    }
+
+    @Test
+    void contentLengthInvalidTrailers() throws Exception {
+        Mockito.when(exchangeHandlerFactory.create(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(exchangeHandler);
+        final List<Header> requestHeaders = Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.test"),
+                new BasicHeader(":path", "/upload"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(requestHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+
+        final List<Header> trailers = Collections.singletonList(new BasicHeader("trailer", "of some sort"));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(trailers, true))
+                .isInstanceOf(ProtocolException.class);
+
     }
 
 }
