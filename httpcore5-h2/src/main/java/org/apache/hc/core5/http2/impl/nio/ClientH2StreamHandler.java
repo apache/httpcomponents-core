@@ -245,6 +245,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
                     throw new ProtocolException("Trailer headers must set END_STREAM");
                 }
                 TrailersValidationSupport.verify(headers);
+                validateContentLength();
                 responseState.set(MessageState.COMPLETE);
                 exchangeHandler.streamEnd(headers);
                 break;

@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
@@ -147,6 +148,26 @@ class TestClientPushH2StreamHandler {
                 handler.consumeHeader(responseHeaders, true)).isInstanceOf(ProtocolException.class);
     }
 
+    @Test
+    void contentLengthInvalidTrailers() throws Exception {
+        Mockito.when(pushHandlerFactory.create(Mockito.any(), Mockito.any())).thenReturn(pushConsumer);
+        handler.consumePromise(java.util.Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "https"),
+                new BasicHeader(":authority", "example.com"),
+                new BasicHeader(":path", "/")));
+
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+
+        final List<Header> trailers = Collections.singletonList(new BasicHeader("trailer", "of some sort"));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(trailers, true))
+                .isInstanceOf(ProtocolException.class);
+    }
 
     @Test
     void informationalPushResponseBeforeFinalResponseAccepted() throws Exception {

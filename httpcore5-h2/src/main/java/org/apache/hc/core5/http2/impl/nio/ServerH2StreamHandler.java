@@ -277,11 +277,8 @@ class ServerH2StreamHandler implements H2StreamHandler {
                 if (!endStream) {
                     throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Trailer headers must set END_STREAM");
                 }
-                try {
-                    TrailersValidationSupport.verify(headers);
-                } catch (final ProtocolException ex) {
-                    throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
-                }
+                TrailersValidationSupport.verify(headers);
+                validateContentLength();
                 requestState.set(MessageState.COMPLETE);
                 Asserts.notNull(exchangeHandler, "Exchange handler");
                 exchangeHandler.streamEnd(headers);

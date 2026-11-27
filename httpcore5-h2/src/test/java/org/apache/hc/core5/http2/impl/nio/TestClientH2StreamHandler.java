@@ -176,4 +176,18 @@ class TestClientH2StreamHandler {
                 handler.consumeHeader(responseHeaders, true)).isInstanceOf(ProtocolException.class);
     }
 
+    @Test
+    void contentLengthInvalidTrailers() throws Exception {
+        final List<Header> responseHeaders = Arrays.asList(
+                new BasicHeader(":status", "200"),
+                new BasicHeader("content-length", "12"));
+        handler.consumeHeader(responseHeaders, false);
+        handler.consumeData(ByteBuffer.wrap(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), false);
+
+        final List<Header> trailers = Collections.singletonList(new BasicHeader("trailer", "of some sort"));
+        Assertions.assertThatThrownBy(() ->
+                        handler.consumeHeader(trailers, true))
+                .isInstanceOf(ProtocolException.class);
+    }
+
 }
