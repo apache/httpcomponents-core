@@ -29,6 +29,8 @@ package org.apache.hc.core5.http2.ssl;
 
 import javax.net.ssl.SSLParameters;
 
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.http.ssl.TlsCiphers;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
@@ -43,11 +45,19 @@ import org.conscrypt.Conscrypt;
  */
 public final class ConscryptSupport {
 
+    /**
+     * @since 5.5
+     */
+    @Internal
     public static SSLSessionInitializer initialize(
             final Object attachment,
+            final boolean useEndpointIdentification,
             final SSLSessionInitializer initializer) {
         return (endpoint, sslEngine) -> {
             final SSLParameters sslParameters = sslEngine.getSSLParameters();
+            if (useEndpointIdentification) {
+                sslParameters.setEndpointIdentificationAlgorithm(URIScheme.HTTPS.id);
+            }
             sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
             sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
             H2TlsSupport.setEnableRetransmissions(sslParameters, false);
@@ -63,6 +73,12 @@ public final class ConscryptSupport {
                 initializer.initialize(endpoint, sslEngine);
             }
         };
+    }
+
+    public static SSLSessionInitializer initialize(
+            final Object attachment,
+            final SSLSessionInitializer initializer) {
+        return initialize(attachment, false, initializer);
     }
 
     public static SSLSessionVerifier verify(final SSLSessionVerifier verifier) {

@@ -77,7 +77,6 @@ import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -390,7 +389,6 @@ abstract class TLSIntegrationTest {
         Assertions.assertThat(cause).isInstanceOf(IOException.class);
     }
 
-    @Disabled("Fails with Conscrypt")
     @Test
     void testHostNameVerification() throws Exception {
         final SSLContext serverSSLContext = SSLTestContexts.createServerSSLContext(securityProviderResource.securityProvider(), "TLS");

@@ -116,7 +116,7 @@ public class ConscryptClientTlsStrategy implements TlsStrategy {
                 sslContext,
                 endpoint,
                 sslBufferMode,
-                ConscryptSupport.initialize(attachment, initializer),
+                ConscryptSupport.initialize(attachment, true, initializer),
                 ConscryptSupport.verify(verifier),
                 handshakeTimeout,
                 callback);
