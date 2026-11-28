@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.StreamControl;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.priority.PriorityValue;
@@ -58,6 +59,8 @@ class H2Stream implements StreamControl {
     private final AtomicReference<State> transitionRef;
     private final AtomicBoolean released;
     private final AtomicBoolean cancelled;
+    private final boolean remoteStream;
+    private final FrameLimitController frameLimitController;
 
     private volatile boolean reserved;
     private volatile boolean remoteClosed;
@@ -68,9 +71,16 @@ class H2Stream implements StreamControl {
     private volatile Timeout idleTimeout;
     private volatile PriorityValue priorityValue;
 
-    H2Stream(final H2StreamChannel channel, final H2StreamHandler handler, final Consumer<State> stateChangeCallback) {
+    H2Stream(
+            final H2StreamChannel channel,
+            final H2StreamHandler handler,
+            final boolean remoteStream,
+            final FrameLimitController frameLimitController,
+            final Consumer<State> stateChangeCallback) {
         this.channel = channel;
         this.handler = handler;
+        this.remoteStream = remoteStream;
+        this.frameLimitController = frameLimitController;
         this.stateChangeCallback = stateChangeCallback;
         this.reserved = true;
         this.transitionRef = new AtomicReference<>(State.RESERVED);
@@ -212,7 +222,10 @@ class H2Stream implements StreamControl {
             }
             handler.consumeData(src, remoteClosed);
         } catch (final CharacterCodingException ex) {
-            localReset(ex, H2Error.INTERNAL_ERROR);
+            // Undecodable request content: peer-supplied bytes drive this reset just as
+            // much as a frame-level protocol fault does, even though the code itself
+            // (INTERNAL_ERROR) is not in the general peer-fault list.
+            localReset(ex, H2Error.INTERNAL_ERROR.getCode(), true);
         } catch (final ProtocolException ex) {
             localReset(ex, H2Error.PROTOCOL_ERROR);
         }
@@ -248,6 +261,27 @@ class H2Stream implements StreamControl {
     }
 
     void localReset(final Exception cause, final int code) throws IOException {
+        localReset(cause, code, isChargeablePeerFault(code));
+    }
+
+    /**
+     * As {@link #localReset(Exception, int)}, but lets the caller override whether this reset
+     * is charged against the rapid-reset budget, for a cause whose code alone does not say so
+     * (for example a malformed request body: the decoder reports it as {@code INTERNAL_ERROR},
+     * but it is peer-supplied bytes driving the reset, same as a frame-level protocol fault).
+     */
+    void localReset(final Exception cause, final int code, final boolean chargeablePeerFault) throws IOException {
+        // A peer-initiated, not yet closed stream that the peer itself makes us locally reset
+        // over a fault it caused (for example a zero-increment WINDOW_UPDATE, DATA past the end
+        // of the message, or undecodable request content) is the same rapid-cancellation
+        // resource drain RST_STREAM rate-limiting defends against, just triggered without an
+        // actual inbound RST_STREAM frame. Charge it the same way, regardless of the stream's
+        // age: unlike an inbound RST_STREAM, none of these has a legitimate long-lived-stream
+        // case to exempt.
+        if (remoteStream && !reserved && !isClosed() && chargeablePeerFault
+                && !frameLimitController.acceptLocalReset(System.nanoTime())) {
+            throw new H2ConnectionException(H2Error.ENHANCE_YOUR_CALM, "Excessive rapid HTTP/2 stream resets");
+        }
         channel.localReset(code);
         if (released.compareAndSet(false, true)) {
             try {
@@ -261,6 +295,21 @@ class H2Stream implements StreamControl {
 
     void localReset(final Exception cause, final H2Error error) throws IOException {
         localReset(cause, error != null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
+    }
+
+    /**
+     * Error codes that, on a locally reset peer-initiated stream, are used for a fault
+     * attributable to the peer (a frame-level protocol violation, or content the peer sent that
+     * the application rejected) rather than a local or application decision (cancellation, the
+     * local SETTINGS_MAX_CONCURRENT_STREAMS limit). Keeping this narrow avoids charging
+     * legitimate activity, such as an application cancelling its own exchange, against the
+     * rapid-reset budget. A cause that is peer-attributable despite its code not being in this
+     * list (see {@link #localReset(Exception, int, boolean)}) is charged explicitly by its caller.
+     */
+    private static boolean isChargeablePeerFault(final int code) {
+        return code == H2Error.PROTOCOL_ERROR.getCode()
+                || code == H2Error.FLOW_CONTROL_ERROR.getCode()
+                || code == H2Error.STREAM_CLOSED.getCode();
     }
 
     void localReset(final H2StreamResetException ex) throws IOException {

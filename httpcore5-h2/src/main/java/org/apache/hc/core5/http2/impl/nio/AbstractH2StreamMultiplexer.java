@@ -208,7 +208,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.streams = new H2Streams(idGenerator);
+        this.frameLimitController = Args.notNull(frameLimitController, "Frame limit controller");
+        this.streams = new H2Streams(idGenerator, this.frameLimitController);
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
@@ -233,7 +234,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.lastActivityTime = System.currentTimeMillis();
         this.validateAfterInactivity = validateAfterInactivity;
         this.pingAckTimeout = Args.notNull(pingAckTimeout, "PING ACK timeout");
-        this.frameLimitController = Args.notNull(frameLimitController, "Frame limit controller");
     }
 
     @Override

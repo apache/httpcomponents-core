@@ -219,4 +219,28 @@ class TestFrameLimitController {
         final FrameLimitController controller = withRapidReset(1, 1, SECOND);
         Assertions.assertTrue(controller.acceptRapidReset(100, 99));
     }
+
+    // -------------------------------------------------------------------------
+    // A local reset the peer makes us perform (for example over a zero-increment
+    // WINDOW_UPDATE) shares the RST_STREAM budget, but without its age exemption.
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testAcceptLocalResetSharesRapidResetBudget() {
+        final FrameLimitController controller = withRapidReset(2, 1, SECOND);
+        Assertions.assertTrue(controller.acceptRapidReset(0, 0));
+        Assertions.assertTrue(controller.acceptLocalReset(0));
+        // Both calls drew from the same 2-token bucket.
+        Assertions.assertFalse(controller.acceptRapidReset(0, 0));
+        Assertions.assertFalse(controller.acceptLocalReset(0));
+    }
+
+    @Test
+    void testAcceptLocalResetHasNoAgeExemption() {
+        final FrameLimitController controller = withRapidReset(1, 1, SECOND);
+        // acceptRapidReset would exempt an old enough stream (see
+        // testLongLivedStreamResetIsNotCharged); acceptLocalReset always draws a token.
+        Assertions.assertTrue(controller.acceptLocalReset(10 * SECOND));
+        Assertions.assertFalse(controller.acceptLocalReset(10 * SECOND));
+    }
 }

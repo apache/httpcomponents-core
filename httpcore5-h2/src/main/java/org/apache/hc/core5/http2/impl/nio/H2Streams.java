@@ -45,6 +45,7 @@ import org.apache.hc.core5.util.Args;
 class H2Streams {
 
     private final StreamIdGenerator idGenerator;
+    private final FrameLimitController frameLimitController;
     private final Map<Integer, H2Stream> streamMap;
     private final Queue<H2Stream> streams;
     private final AtomicInteger lastLocalId;
@@ -52,8 +53,9 @@ class H2Streams {
     private final AtomicInteger localCount;
     private final AtomicInteger remoteCount;
 
-    public H2Streams(final StreamIdGenerator idGenerator) {
+    public H2Streams(final StreamIdGenerator idGenerator, final FrameLimitController frameLimitController) {
         this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
+        this.frameLimitController = Args.notNull(frameLimitController, "Frame limit controller");
         this.streamMap = new ConcurrentHashMap<>();
         this.streams = new ConcurrentLinkedQueue<>();
         this.lastLocalId = new AtomicInteger(0);
@@ -93,7 +95,7 @@ class H2Streams {
     private H2Stream createStream(final H2StreamChannel channel, final H2StreamHandler streamHandler) {
         final int streamId = channel.getId();
         final boolean remoteStream = isOtherSide(streamId);
-        final H2Stream stream = new H2Stream(channel, streamHandler, state -> {
+        final H2Stream stream = new H2Stream(channel, streamHandler, remoteStream, frameLimitController, state -> {
             final AtomicInteger count = remoteStream ? remoteCount : localCount;
             switch (state) {
                 case OPEN:

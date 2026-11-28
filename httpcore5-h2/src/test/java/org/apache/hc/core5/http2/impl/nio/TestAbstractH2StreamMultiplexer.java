@@ -2648,5 +2648,157 @@ class TestAbstractH2StreamMultiplexer {
         }
     }
 
+    // A peer can get the server to locally reset a stream it just opened without ever sending
+    // RST_STREAM, for example with a zero-increment WINDOW_UPDATE (RFC 9113, section 6.9: a
+    // flow-control window increment of 0 is a PROTOCOL_ERROR). Left uncharged, this bypasses
+    // the rapid-reset defense above entirely: every request still reaches the handler and the
+    // stream is freed immediately, so SETTINGS_MAX_CONCURRENT_STREAMS never applies either.
+    @Test
+    void testServerTriggeredResetViaZeroWindowUpdateRejectsExcessiveResets() throws Exception {
+        final H2Config config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN, httpProcessor,
+                CharCodingConfig.DEFAULT, config, h2StreamListener, () -> streamHandler,
+                null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final ByteArrayBuffer headerBlock = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBlock, Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "localhost")), config.isCompressionEnabled());
+
+        for (final int streamId : new int[] {1, 3}) {
+            final RawFrame headers = FRAME_FACTORY.createHeaders(streamId,
+                    ByteBuffer.wrap(headerBlock.array(), 0, headerBlock.length()), true, true);
+            mux.onInput(ByteBuffer.wrap(encodeFrame(headers)));
+            // FrameFactory#createWindowUpdate rejects a zero increment as illegal to send;
+            // build the raw frame directly, the way a non-conforming peer would.
+            final RawFrame zeroWindowUpdate = new RawFrame(
+                    FrameType.WINDOW_UPDATE.getValue(), 0, streamId, ByteBuffer.wrap(new byte[4]));
+            if (streamId == 1) {
+                Assertions.assertThatCode(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(zeroWindowUpdate))))
+                        .doesNotThrowAnyException();
+            } else {
+                Assertions.assertThatThrownBy(() ->
+                                mux.onInput(ByteBuffer.wrap(encodeFrame(zeroWindowUpdate))))
+                        .isInstanceOf(H2ConnectionException.class)
+                        .asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class))
+                        .extracting(ex -> H2Error.getByCode(ex.getCode()))
+                        .isEqualTo(H2Error.ENHANCE_YOUR_CALM);
+            }
+        }
+    }
+
+    // DATA arriving after the peer's own END_STREAM is another frame-level fault that locally
+    // resets the stream (STREAM_CLOSED) without any RST_STREAM ever being sent.
+    @Test
+    void testServerTriggeredResetViaDataPastEndStreamRejectsExcessiveResets() throws Exception {
+        final H2Config config = H2Config.custom().build();
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN, httpProcessor,
+                CharCodingConfig.DEFAULT, config, h2StreamListener, () -> streamHandler,
+                null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final ByteArrayBuffer headerBlock = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBlock, Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "localhost")), config.isCompressionEnabled());
+
+        for (final int streamId : new int[] {1, 3}) {
+            final RawFrame headers = FRAME_FACTORY.createHeaders(streamId,
+                    ByteBuffer.wrap(headerBlock.array(), 0, headerBlock.length()), true, true);
+            mux.onInput(ByteBuffer.wrap(encodeFrame(headers)));
+            final RawFrame dataPastEndStream = FRAME_FACTORY.createData(
+                    streamId, ByteBuffer.wrap(new byte[] {1}), false);
+            if (streamId == 1) {
+                Assertions.assertThatCode(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(dataPastEndStream))))
+                        .doesNotThrowAnyException();
+            } else {
+                Assertions.assertThatThrownBy(() ->
+                                mux.onInput(ByteBuffer.wrap(encodeFrame(dataPastEndStream))))
+                        .isInstanceOf(H2ConnectionException.class)
+                        .asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class))
+                        .extracting(ex -> H2Error.getByCode(ex.getCode()))
+                        .isEqualTo(H2Error.ENHANCE_YOUR_CALM);
+            }
+        }
+    }
+
+    // Undecodable request content resets the stream with INTERNAL_ERROR, a code that is not
+    // itself in the general peer-fault list, but the peer-supplied bytes still drive the reset,
+    // so it must still be charged (H2Stream#localReset(Exception, int, boolean)).
+    @Test
+    void testUndecodableRequestContentRejectsExcessiveResets() throws Exception {
+        final H2Config config = H2Config.custom().build();
+        Mockito.doThrow(new java.nio.charset.MalformedInputException(1))
+                .when(streamHandler).consumeData(ArgumentMatchers.any(), ArgumentMatchers.anyBoolean());
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN, httpProcessor,
+                CharCodingConfig.DEFAULT, config, h2StreamListener, () -> streamHandler,
+                null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        final HPackEncoder encoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final ByteArrayBuffer headerBlock = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBlock, Arrays.asList(
+                new BasicHeader(":method", "POST"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader(":authority", "localhost")), config.isCompressionEnabled());
+
+        for (final int streamId : new int[] {1, 3}) {
+            final RawFrame headers = FRAME_FACTORY.createHeaders(streamId,
+                    ByteBuffer.wrap(headerBlock.array(), 0, headerBlock.length()), true, false);
+            mux.onInput(ByteBuffer.wrap(encodeFrame(headers)));
+            final RawFrame malformedData = FRAME_FACTORY.createData(
+                    streamId, ByteBuffer.wrap(new byte[] {(byte) 0xFF}), true);
+            if (streamId == 1) {
+                Assertions.assertThatCode(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(malformedData))))
+                        .doesNotThrowAnyException();
+            } else {
+                Assertions.assertThatThrownBy(() ->
+                                mux.onInput(ByteBuffer.wrap(encodeFrame(malformedData))))
+                        .isInstanceOf(H2ConnectionException.class)
+                        .asInstanceOf(InstanceOfAssertFactories.type(H2ConnectionException.class))
+                        .extracting(ex -> H2Error.getByCode(ex.getCode()))
+                        .isEqualTo(H2Error.ENHANCE_YOUR_CALM);
+            }
+        }
+    }
+
+    // An application cancelling its own exchange (CANCEL) on a peer-initiated stream is not a
+    // peer-triggered frame fault and must not draw down the same budget that WINDOW_UPDATE/DATA
+    // abuse now shares with RST_STREAM.
+    @Test
+    void testApplicationCancelDoesNotExhaustRapidResetLimit() throws Exception {
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession, FRAME_FACTORY, StreamIdGenerator.EVEN, httpProcessor,
+                CharCodingConfig.DEFAULT, H2Config.custom().build(), h2StreamListener,
+                () -> streamHandler, null, Timeout.ofSeconds(5),
+                new FrameLimitController(
+                        FrameLimitController.CONTROL_FRAME_CAPACITY, FrameLimitController.CONTROL_FRAME_REFILL_PER_SECOND,
+                        1, 1, TimeUnit.DAYS.toNanos(1)));
+
+        for (final int streamId : new int[] {1, 3}) {
+            final H2Stream stream = mux.createStream(mux.createChannel(streamId), streamHandler);
+            Assertions.assertThatCode(stream::localResetCancelled).doesNotThrowAnyException();
+        }
+    }
 
 }

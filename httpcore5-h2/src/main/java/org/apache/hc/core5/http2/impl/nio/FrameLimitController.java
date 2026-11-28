@@ -33,13 +33,20 @@ import org.apache.hc.core5.util.Args;
 /**
  * Per-connection resource policy for unsolicited HTTP/2 control frames. Non-ACK PING and
  * SETTINGS frames share one token bucket, exactly as before this class existed; rapid
- * cancellation (RST_STREAM) of peer-initiated streams is charged against its own,
- * independent bucket.
+ * cancellation of peer-initiated streams, whether by an inbound RST_STREAM or by a local
+ * reset triggered by the peer (a protocol violation on an otherwise valid frame), is charged
+ * against its own, independent bucket.
  *
- * <p>ACK frames, DATA and WINDOW_UPDATE are not charged, as they can represent legitimate
- * high-throughput or highly concurrent exchanges. A stream reset is only charged against the
- * RST_STREAM bucket when it arrives shortly after the stream was activated; resets of
- * long-lived streams are not charged.</p>
+ * <p>ACK frames, DATA and WINDOW_UPDATE are not charged as frames; a local reset one of them
+ * provokes is. Legitimate DATA and WINDOW_UPDATE traffic can represent high-throughput or
+ * highly concurrent exchanges and must stay free. An inbound RST_STREAM is only charged
+ * against the reset bucket when it arrives shortly after the stream was activated; resets
+ * of long-lived streams are not charged this way, since a client can legitimately cancel a
+ * long-running exchange at any time. A local reset the peer makes us perform has no such
+ * legitimate long-lived case (for example, a stream we reset because the peer sent a
+ * zero-increment WINDOW_UPDATE on it), so it is always charged against the same bucket,
+ * regardless of the stream's age; this keeps a peer from using one of these primitives to
+ * get a larger budget than plain RST_STREAM would allow.</p>
  *
  * <p>Parameters are hardwired for now; they may become user configurable in the future, at
  * which point this is the single place that would need a public constructor or setters.</p>
@@ -83,6 +90,15 @@ final class FrameLimitController {
     boolean acceptRapidReset(final long activatedAtNanos, final long nowNanos) {
         final long age = nowNanos - activatedAtNanos;
         return age < 0 || age >= rstStreamMaxAgeNanos || rstStreamBucket.accept(nowNanos);
+    }
+
+    /**
+     * Charges the same bucket as {@link #acceptRapidReset(long, long)}, without its age
+     * exemption. Used for a local reset of a peer-initiated stream triggered by the peer,
+     * which has no legitimate long-lived-stream case to exempt.
+     */
+    boolean acceptLocalReset(final long nowNanos) {
+        return rstStreamBucket.accept(nowNanos);
     }
 
     /**
