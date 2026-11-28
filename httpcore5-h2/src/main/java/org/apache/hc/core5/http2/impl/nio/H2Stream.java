@@ -156,6 +156,10 @@ class H2Stream implements StreamControl {
         return !reserved && !isClosed();
     }
 
+    boolean isLocalReset() {
+        return channel.isLocalReset();
+    }
+
     boolean isRemoteClosed() {
         return remoteClosed;
     }
