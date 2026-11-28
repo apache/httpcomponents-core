@@ -2276,6 +2276,72 @@ class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
+    void testDataOnRefusedStreamDuringGracefulShutdownDoesNotKillConnection() throws Exception {
+        final H2Config h2Config = H2Config.custom().build();
+
+        final AbstractH2StreamMultiplexer mux = new H2StreamMultiplexerImpl(
+                protocolIOSession,
+                FRAME_FACTORY,
+                StreamIdGenerator.EVEN,
+                httpProcessor,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                h2StreamListener,
+                () -> streamHandler);
+
+        final HPackEncoder encoder = new HPackEncoder(
+                h2Config.getHeaderTableSize(),
+                CharCodingSupport.createEncoder(CharCodingConfig.DEFAULT));
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":path", "/slow"),
+                new BasicHeader(":authority", "example.test"));
+
+        // Stream 1: an ordinary request left open (no END_STREAM), exactly the exchange a
+        // graceful shutdown is meant to let finish.
+        final ByteArrayBuffer headerBuf1 = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBuf1, headers, h2Config.isCompressionEnabled());
+        final RawFrame stream1Headers = FRAME_FACTORY.createHeaders(
+                1, ByteBuffer.wrap(headerBuf1.array(), 0, headerBuf1.length()), true, false);
+        mux.onInput(ByteBuffer.wrap(encodeFrame(stream1Headers)));
+        Mockito.verify(streamHandler).consumeHeader(ArgumentMatchers.anyList(), ArgumentMatchers.eq(false));
+
+        // Simulate the connection already being in graceful shutdown: executeShutdown() has
+        // already queued a GOAWAY and moved connState past ACTIVE, with streams still open.
+        final Field connStateField = AbstractH2StreamMultiplexer.class.getDeclaredField("connState");
+        connStateField.setAccessible(true);
+        connStateField.set(mux, AbstractH2StreamMultiplexer.ConnectionHandshake.GRACEFUL_SHUTDOWN);
+
+        // Stream 3: an ordinary new request whose bytes were already in flight before the peer
+        // saw GOAWAY. HEADERS alone must be refused without harming the connection.
+        final ByteArrayBuffer headerBuf3 = new ByteArrayBuffer(128);
+        encoder.encodeHeaders(headerBuf3, headers, h2Config.isCompressionEnabled());
+        final RawFrame stream3Headers = FRAME_FACTORY.createHeaders(
+                3, ByteBuffer.wrap(headerBuf3.array(), 0, headerBuf3.length()), true, false);
+        Assertions.assertThatCode(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(stream3Headers))))
+                .doesNotThrowAnyException();
+
+        // The DATA that follows for that same, already-refused stream must not be treated as a
+        // connection-level protocol error: it is an ordinary frame in flight when the refusal
+        // was sent, not a fault on the peer's part. A non-empty payload exercises the stream
+        // and connection flow-control accounting, not just the (no-op) null-payload path.
+        final RawFrame stream3Data = FRAME_FACTORY.createData(
+                3, ByteBuffer.wrap("ignored".getBytes(StandardCharsets.US_ASCII)), true);
+        Assertions.assertThatCode(() -> mux.onInput(ByteBuffer.wrap(encodeFrame(stream3Data))))
+                .doesNotThrowAnyException();
+
+        // Proof that the connection, and stream 1 in particular, survived: stream 1 must still
+        // be live enough to process a new, unrelated DATA frame on it. Before the fix, stream
+        // 3's DATA killed the whole connection and this would either throw or never be reached.
+        final RawFrame stream1Data = FRAME_FACTORY.createData(
+                1, ByteBuffer.wrap("body".getBytes(StandardCharsets.US_ASCII)), true);
+        mux.onInput(ByteBuffer.wrap(encodeFrame(stream1Data)));
+        Mockito.verify(streamHandler).consumeData(ArgumentMatchers.any(), ArgumentMatchers.eq(true));
+        Mockito.verify(streamHandler, Mockito.never()).failed(ArgumentMatchers.any());
+    }
+
+    @Test
     void testHPackDecoderUsesConfiguredMaxHeaderListSizeImmediately() throws Exception {
         final int maxHeaderListSize = 128;
 
